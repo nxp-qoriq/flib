@@ -1,17 +1,3 @@
-/*
- * Copyright 2007 Freescale Semiconductor, Inc. All rights reserved
- * Freescale Semiconductor Confidential Proprietary
- * ----------------------------------------------------------------------------
- * FILE NAME      : $RCSfile: caam_3gpp_encap_optshift_kasumi_stim.cpp.rca $
- * DEPARTMENT     : Security Technology Center (STC), NCSG
- * DATE           : 2007/07/30
- * ----------------------------------------------------------------------------
- * KEYWORDS :
- * ----------------------------------------------------------------------------
- * PURPOSE : Multiple PDU with no shift. Yes encryption. Yes CRC.
- *           More preamble, better performance. CRC init, variable PDU, Header
- */
-
 #include <stdio.h>
 #include "rta.h"
 
