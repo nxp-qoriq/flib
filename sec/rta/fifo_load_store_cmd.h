@@ -28,7 +28,7 @@ static const uint32_t fifo_load_table[23][2] = {
 };
 
 static inline uint32_t fifo_load(struct program *program, uint32_t src,
-				 uint32_t type_src, uintptr_t loc,
+				 uint32_t type_src, uint64_t loc,
 				 uint32_t type_loc, uint32_t length,
 				 uint32_t flags)
 {
@@ -151,7 +151,7 @@ static inline uint32_t fifo_load(struct program *program, uint32_t src,
 	return program->current_pc;
 }
 
-static const uint32_t fifo_store_table[22][2] = {
+static const uint32_t fifo_store_table[20][2] = {
 	{ _PKA0,      FIFOST_TYPE_PKHA_A0 },
 	{ _PKA1,      FIFOST_TYPE_PKHA_A1 },
 	{ _PKA2,      FIFOST_TYPE_PKHA_A2 },
@@ -164,12 +164,10 @@ static const uint32_t fifo_store_table[22][2] = {
 	{ _PKB,       FIFOST_TYPE_PKHA_B },
 	{ _PKN,       FIFOST_TYPE_PKHA_N },
 	{ _PKE,       FIFOST_TYPE_PKHA_E_JKEK },
-	{ _IFIFO,     FIFOST_TYPE_INFIFO_KEK },
-	{ _OFIFO,     FIFOST_TYPE_OUTFIFO_KEK },
 	{ _RNG,       FIFOST_TYPE_RNGSTORE },
 	{ _RNGOFIFO,  FIFOST_TYPE_RNGFIFO },
 	{ _AFHA_SBOX, FIFOST_TYPE_AF_SBOX_JKEK },
-	{ _MDHA_SPLIT_KEY, FIFOST_TYPE_SPLIT_KEK },
+	{ _MDHA_SPLIT_KEY, FIFOST_CLASS_CLASS2KEY | FIFOST_TYPE_SPLIT_KEK },
 	{ _MSG,       FIFOST_TYPE_MESSAGE_DATA },
 	{ _KEY1,      FIFOST_CLASS_CLASS1KEY | FIFOST_TYPE_KEY_KEK },
 	{ _KEY2,      FIFOST_CLASS_CLASS2KEY | FIFOST_TYPE_KEY_KEK },

@@ -3,11 +3,12 @@
 
 static inline uint32_t key(struct program *program, uint32_t key_dst,
 		uint32_t key_type, uint32_t encrypt_flags,
-		uintptr_t dst, uint32_t dst_type, uint32_t length,
+		uint64_t dst, uint32_t dst_type, uint32_t length,
 		uint32_t flags)
 {
 	uint32_t opcode = 0, is_seq_cmd = 0;
 	uint8_t *tmp, i;
+	uintptr_t dst_ptr;
 
 	/* write cmd type */
 	if (flags & SEQ) {
@@ -90,9 +91,10 @@ static inline uint32_t key(struct program *program, uint32_t key_dst,
 	program->current_instraction++;
 
 	if (opcode & KEY_IMM) {
+		dst_ptr = (uintptr_t)dst;
 		tmp = (uint8_t *) &program->buffer[program->current_pc];
 		for (i = 0; i < length; i++)
-			*tmp++ = ((uint8_t *) dst)[i];
+			*tmp++ = ((uint8_t *) dst_ptr)[i];
 		program->current_pc += ((length + 3) / 4);
 	} else {
 		if (program->ps == 1) {

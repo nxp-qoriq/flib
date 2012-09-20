@@ -1,12 +1,12 @@
 #ifndef __RTA_OPERATION_CMD_H__
 #define __RTA_OPERATION_CMD_H__
 
-int32_t alg_aii_aes(uint16_t aii)
+static inline int32_t alg_aii_aes(uint16_t aii)
 {
 	uint16_t aai_code = aii & 0xEFFF;
 
 	switch (aai_code) {
-	case OP_ALG_AAI_CTR:
+	case OP_ALG_AAI_CTR_MOD128:
 	case OP_ALG_AAI_CBC:
 	case OP_ALG_AAI_ECB:
 	case OP_ALG_AAI_OFB:
@@ -26,7 +26,7 @@ int32_t alg_aii_aes(uint16_t aii)
 	return -1;
 }
 
-int32_t alg_aii_des(uint16_t aii)
+static inline int32_t alg_aii_des(uint16_t aii)
 {
 	uint16_t aai_code = aii & 0xEFFF;
 
@@ -40,7 +40,7 @@ int32_t alg_aii_des(uint16_t aii)
 	return -1;
 }
 
-int32_t alg_aii_md5(uint16_t aii)
+static inline int32_t alg_aii_md5(uint16_t aii)
 {
 	switch (aii) {
 	case OP_ALG_AAI_SMAC:
@@ -52,7 +52,7 @@ int32_t alg_aii_md5(uint16_t aii)
 	return -1;
 }
 
-int32_t alg_aii_sha(uint16_t aii)
+static inline int32_t alg_aii_sha(uint16_t aii)
 {
 	switch (aii) {
 	case OP_ALG_AAI_HASH:
@@ -63,7 +63,7 @@ int32_t alg_aii_sha(uint16_t aii)
 	return -1;
 };
 
-int32_t alg_aii_rng(uint16_t aii)
+static inline int32_t alg_aii_rng(uint16_t aii)
 {
 	uint16_t aai_code = aii & 0xEFFF;
 
@@ -71,29 +71,25 @@ int32_t alg_aii_rng(uint16_t aii)
 	case OP_ALG_AAI_RNG:
 	case OP_ALG_AAI_RNG_NOZERO:
 	case OP_ALG_AAI_RNG_ODD:
-	case OP_ALG_AAI_RNG_PS:
-	case OP_ALG_AAI_RNG_AI:
-	case OP_ALG_AAI_RNG_SK:
-	case OP_ALG_AAI_RNG_SH1:
 		return 0;
 	}
 	return -1;
 };
 
-int32_t alg_aii_crc(uint16_t aii)
+static inline int32_t alg_aii_crc(uint16_t aii)
 {
 	uint16_t aai_code = aii & 0xFF;
 
 	switch (aai_code) {
-	case OP_ALG_AAI_IEEE802:
-	case OP_ALG_AAI_IETF3385:
+	case OP_ALG_AAI_802:
+	case OP_ALG_AAI_3385:
 	case OP_ALG_AAI_CUST_POLY:
 		return 0;
 	}
 	return -1;
 };
 
-int32_t alg_aii_kasumi(uint16_t aii)
+static inline int32_t alg_aii_kasumi(uint16_t aii)
 {
 	switch (aii) {
 	case OP_ALG_AAI_GSM:
@@ -105,14 +101,14 @@ int32_t alg_aii_kasumi(uint16_t aii)
 	return -1;
 };
 
-int32_t alg_aii_snow_f9(uint16_t aii)
+static inline int32_t alg_aii_snow_f9(uint16_t aii)
 {
 	if (aii == OP_ALG_AAI_F9)
 		return 0;
 	return -1;
 };
 
-int32_t alg_aii_snow_f8(uint16_t aii)
+static inline int32_t alg_aii_snow_f8(uint16_t aii)
 {
 	if (aii == OP_ALG_AAI_F8)
 		return 0;
@@ -139,8 +135,8 @@ static const struct alg_aii_map alg_table[15] = {
 	{ OP_ALG_ALGSEL_RNG,      alg_aii_rng,    OP_TYPE_CLASS1_ALG },
 	{ OP_ALG_ALGSEL_CRC,      alg_aii_crc,    OP_TYPE_CLASS2_ALG },
 	{ OP_ALG_ALGSEL_KASUMI,   alg_aii_kasumi, OP_TYPE_CLASS1_ALG },
-	{ OP_ALG_ALGSEL_SNOW_F9,  alg_aii_kasumi, OP_TYPE_CLASS2_ALG },
-	{ OP_ALG_ALGSEL_SNOW_F8,  alg_aii_kasumi, OP_TYPE_CLASS1_ALG },
+	{ OP_ALG_ALGSEL_SNOW_F9,  alg_aii_snow_f9, OP_TYPE_CLASS2_ALG },
+	{ OP_ALG_ALGSEL_SNOW_F8,  alg_aii_snow_f8, OP_TYPE_CLASS1_ALG },
 	{ OP_ALG_ALGSEL_ARC4,     NULL,           OP_TYPE_CLASS1_ALG }
 };
 
@@ -190,8 +186,8 @@ static inline uint32_t operation(struct program *program, uint32_t cipher_algo,
 	}
 
 	switch (icv_checking) {
-	case ICV_CHECK_OFF:
-	case ICV_CHECK_ON:
+	case ICV_CHECK_DISABLE:
+	case ICV_CHECK_ENABLE:
 		opcode |= icv_checking;
 		break;
 	default:
@@ -200,8 +196,8 @@ static inline uint32_t operation(struct program *program, uint32_t cipher_algo,
 	}
 
 	switch (enc) {
-	case DIR_DECAP:
-	case DIR_ENCAP:
+	case OP_ALG_DECRYPT:
+	case OP_ALG_ENCRYPT:
 		opcode |= enc;
 		break;
 	default:
@@ -221,7 +217,7 @@ static inline uint32_t operation(struct program *program, uint32_t cipher_algo,
 /*
  * OPERATION PKHA routines
  */
-static int32_t pkha_clearmem(uint32_t pkha_op)
+static inline int32_t pkha_clearmem(uint32_t pkha_op)
 {
 	pkha_op &= ~OP_ALG_PKMODE_OUT_A;
 
@@ -246,27 +242,27 @@ static int32_t pkha_clearmem(uint32_t pkha_op)
 	return -1;
 }
 
-static int32_t pkha_mod_arithmetic(uint32_t pkha_op)
+static inline int32_t pkha_mod_arithmetic(uint32_t pkha_op)
 {
 	pkha_op &= ~OP_ALG_PKMODE_OUT_A;
 
 	switch (pkha_op) {
 	case (OP_ALG_PKMODE_MOD_ADD):
-	case (OP_ALG_PKMODE_MOD_SUB_1):
-	case (OP_ALG_PKMODE_MOD_SUB_2):
-	case (OP_ALG_PKMODE_MOD_MUL):
-	case (OP_ALG_PKMODE_MOD_MUL_IM):
-	case (OP_ALG_PKMODE_MOD_MUL_IM_OM):
-	case (OP_ALG_PKMODE_MOD_EXP):
-	case (OP_ALG_PKMODE_MOD_EXP_TEQ):
-	case (OP_ALG_PKMODE_MOD_EXP_IM):
-	case (OP_ALG_PKMODE_MOD_EXP_IM_TEQ):
-	case (OP_ALG_PKMODE_MOD_AMODN):
+	case (OP_ALG_PKMODE_MOD_SUB_AB):
+	case (OP_ALG_PKMODE_MOD_SUB_BA):
+	case (OP_ALG_PKMODE_MOD_MULT):
+	case (OP_ALG_PKMODE_MOD_MULT_IM):
+	case (OP_ALG_PKMODE_MOD_MULT_IM_OM):
+	case (OP_ALG_PKMODE_MOD_EXPO):
+	case (OP_ALG_PKMODE_MOD_EXPO_TEQ):
+	case (OP_ALG_PKMODE_MOD_EXPO_IM):
+	case (OP_ALG_PKMODE_MOD_EXPO_IM_TEQ):
+	case (OP_ALG_PKMODE_MOD_REDUCT):
 	case (OP_ALG_PKMODE_MOD_INV):
-	case (OP_ALG_PKMODE_MOD_R2):
-	case (OP_ALG_PKMODE_MOD_RR):
+	case (OP_ALG_PKMODE_MOD_MONT_CNST):
+	case (OP_ALG_PKMODE_MOD_CRT_CNST):
 	case (OP_ALG_PKMODE_MOD_GCD):
-	case (OP_ALG_PKMODE_PRIME_TEST):
+	case (OP_ALG_PKMODE_MOD_PRIMALITY):
 	case (OP_ALG_PKMODE_F2M_ADD):
 	case (OP_ALG_PKMODE_F2M_MUL):
 	case (OP_ALG_PKMODE_F2M_MUL_IM):
@@ -303,7 +299,7 @@ static int32_t pkha_mod_arithmetic(uint32_t pkha_op)
 
 }
 
-static int32_t pkha_copymem(uint32_t pkha_op)
+static inline int32_t pkha_copymem(uint32_t pkha_op)
 {
 	pkha_op &= ~OP_ALG_PKMODE_OUT_A;
 
@@ -393,7 +389,7 @@ static int32_t pkha_copymem(uint32_t pkha_op)
 
 static inline uint32_t pkha_operation(struct program *program, uint32_t op_pkha)
 {
-	uint32_t opcode = CMD_OPERATION | OP_TYPE_PKHA | OP_ALG_PK;
+	uint32_t opcode = CMD_OPERATION | OP_TYPE_PK | OP_ALG_PK;
 	uint32_t pkha_func;
 
 
@@ -408,16 +404,16 @@ static inline uint32_t pkha_operation(struct program *program, uint32_t op_pkha)
 		}
 		break;
 	case (OP_ALG_PKMODE_MOD_ADD):
-	case (OP_ALG_PKMODE_MOD_SUB_1):
-	case (OP_ALG_PKMODE_MOD_SUB_2):
-	case (OP_ALG_PKMODE_MOD_MUL):
-	case (OP_ALG_PKMODE_MOD_EXP):
-	case (OP_ALG_PKMODE_MOD_AMODN):
+	case (OP_ALG_PKMODE_MOD_SUB_AB):
+	case (OP_ALG_PKMODE_MOD_SUB_BA):
+	case (OP_ALG_PKMODE_MOD_MULT):
+	case (OP_ALG_PKMODE_MOD_EXPO):
+	case (OP_ALG_PKMODE_MOD_REDUCT):
 	case (OP_ALG_PKMODE_MOD_INV):
-	case (OP_ALG_PKMODE_MOD_R2):
-	case (OP_ALG_PKMODE_MOD_RR):
+	case (OP_ALG_PKMODE_MOD_MONT_CNST):
+	case (OP_ALG_PKMODE_MOD_CRT_CNST):
 	case (OP_ALG_PKMODE_MOD_GCD):
-	case (OP_ALG_PKMODE_PRIME_TEST):
+	case (OP_ALG_PKMODE_MOD_PRIMALITY):
 	case (OP_ALG_PKMODE_ECC_MOD_ADD):
 	case (OP_ALG_PKMODE_ECC_MOD_DBL):
 	case (OP_ALG_PKMODE_ECC_MOD_MUL):
@@ -436,8 +432,6 @@ static inline uint32_t pkha_operation(struct program *program, uint32_t op_pkha)
 		}
 		break;
 	default:
-		printf("pkha_func %04x\n", pkha_func);
-		printf("op_pkha %04x\n", op_pkha);
 		pr_debug("Invalid Operation Command\n");
 		goto err;
 	}

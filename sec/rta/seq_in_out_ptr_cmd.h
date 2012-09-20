@@ -1,7 +1,7 @@
 #ifndef __RTA_SEQ_IN_OUT_PTR_CMD_H__
 #define __RTA_SEQ_IN_OUT_PTR_CMD_H__
 
-static inline uint32_t seq_in_ptr(struct program *program, uint64_t src,
+static inline uint32_t seq_in_ptr(struct program *program, uintptr_t src,
 				  uint32_t length, uint32_t flags)
 {
 	uint32_t opcode = CMD_SEQ_IN_PTR;
@@ -61,7 +61,7 @@ static inline uint32_t seq_in_ptr(struct program *program, uint64_t src,
 	return program->current_pc;
 }
 
-static inline uint32_t seq_out_ptr(struct program *program, uint64_t dst,
+static inline uint32_t seq_out_ptr(struct program *program, uintptr_t dst,
 				   uint32_t length, uint32_t flags)
 {
 	uint32_t opcode = CMD_SEQ_OUT_PTR;

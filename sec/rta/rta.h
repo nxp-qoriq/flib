@@ -1,21 +1,21 @@
 #ifndef __SEC_RTA__
 #define __SEC_RTA__
 
-#include "sec_run_time_asm.h"
+#include "rta/sec_run_time_asm.h"
 
-#include "fifo_load_store_cmd.h"
-#include "header_cmd.h"
-#include "jump_cmd.h"
-#include "key_cmd.h"
-#include "load_cmd.h"
-#include "math_cmd.h"
-#include "move_cmd.h"
-#include "nfifo_cmd.h"
-#include "operation_cmd.h"
-#include "protocol_cmd.h"
-#include "seq_in_out_ptr_cmd.h"
-#include "signature_cmd.h"
-#include "store_cmd.h"
+#include "rta/fifo_load_store_cmd.h"
+#include "rta/header_cmd.h"
+#include "rta/jump_cmd.h"
+#include "rta/key_cmd.h"
+#include "rta/load_cmd.h"
+#include "rta/math_cmd.h"
+#include "rta/move_cmd.h"
+#include "rta/nfifo_cmd.h"
+#include "rta/operation_cmd.h"
+#include "rta/protocol_cmd.h"
+#include "rta/seq_in_out_ptr_cmd.h"
+#include "rta/signature_cmd.h"
+#include "rta/store_cmd.h"
 
 
 /*
@@ -32,12 +32,12 @@
 #define PROGRAM_FINALIZE() program_finalize(program)
 
 /* PROGRAM_SET_36BIT_ADDR must be called to set pointer size to 36 bits */
-#define PROGRAM_SET_36BIT_ADDR() program_set_36bit_addr(program);
+#define PROGRAM_SET_36BIT_ADDR() program_set_36bit_addr(program)
 
 /********* Data directives **********/
 #define WORD(val) word(program, val)
 #define DWORD(val) dword(program, val)
-#define ENDIAN_DATA(data) endian_data(program, (data), sizeof(data))
+#define ENDIAN_DATA(data, len) endian_data(program, (data), (len))
 
 /*
  * Configures Shared Descriptor HEADER command
@@ -47,7 +47,7 @@
  * @param[in] start_idx Index of the word in descriptor buffer where the
  *                     execution of the Shared Descriptor should start.
  * @param[in] flags    Operational flags: [RIF, DNR, CIF, HDR_SAVECTX, PD];
- * @retval             Updated descriptor size on succes.
+ * @retval             Updated descriptor size on success.
  */
 #define SHR_HDR(share, start_idx, flags) \
 	shr_header(program, share, start_idx, flags)
@@ -81,7 +81,7 @@
  *                     MATH0-MATH3;
  * @param[in] opt      Operational flags: [WAITCOMP, FLUSH1, FLUSH2, LAST1,
  *                     LAST2];
- * @retval             Updated descriptor size on succes.
+ * @retval             Updated descriptor size on success.
  */
 #define MOVE(src, src_offset, dst, dst_offset, length, opt) \
 	move(program, src, src_offset, dst, dst_offset, length, opt)

@@ -67,9 +67,6 @@ static const struct load_map load_dst[36] = {
 		    LENOF_4,   IMM_MUST },
 	{ _PKESZ,   LDST_CLASS_1_CCB | LDST_SRCDST_WORD_PKHA_E_SZ,
 		    LENOF_4,   IMM_MUST },
-	{ _NFIFOSZ, LDST_SRCDST_WORD_INFO_FIFO_SZL,
-		    LENOF_48,  IMM_MUST, },
-	{ _SZ,      LDST_SRCDST_WORD_SZL,   LENOF_48,  IMM_MUST },
 	{ _IDFNS,   LDST_SRCDST_WORD_IFNSR, LENOF_18,  IMM_MUST },
 	{ _ODFNS,   LDST_SRCDST_WORD_OFNSR, LENOF_18,  IMM_MUST },
 	{ _ALTSOURCE, LDST_SRCDST_BYTE_ALTSOURCE,
@@ -98,7 +95,7 @@ static const struct load_map load_dst[36] = {
 		    LENOF_64,  IMM_NO }
 };
 
-int8_t load_check_len_offset(enum e_lenoff len_off, uint32_t length,
+static inline int8_t load_check_len_offset(enum e_lenoff len_off, uint32_t length,
 		uint32_t offset)
 {
 	switch (len_off) {
@@ -162,9 +159,10 @@ static inline uint32_t load(struct program *program, uint64_t src,
 		uint32_t src_type, uint64_t dst, uint32_t dst_type,
 		uint32_t offset, uint32_t length, uint32_t flags)
 {
-	uint32_t opcode = 0, cpy_length;
-	uint8_t data_type = LDST_BYTE, i;
+	uint32_t opcode = 0, cpy_length, i;
+	uint8_t data_type = LDST_BYTE;
 	uint8_t *tmp;
+	uintptr_t src_ptr;
 	int8_t pos = -1;
 
 	if (flags & SEQ)
@@ -194,7 +192,7 @@ static inline uint32_t load(struct program *program, uint64_t src,
 		goto err;
 	}
 
-	if (src_type == IMM_DATA) {
+	if ((src_type == IMM_DATA) || (flags & IMMED)) {
 		if (load_dst[pos].imm_src == IMM_NO) {
 			pr_debug("LOAD: Invalid source type. "
 					"SEC Program Line: %d\n",
@@ -231,30 +229,51 @@ static inline uint32_t load(struct program *program, uint64_t src,
 		return program->current_pc;
 
 	/* Set size of data to be copied in descriptor */
-	if (src_type == IMM_DATA) {
-		if (data_type == LDST_WORD)
-			cpy_length = length * sizeof(uint32_t);
-		else
-			cpy_length = length;
+	if (data_type == LDST_WORD)
+		cpy_length = length * sizeof(uint32_t);
+	else
+		cpy_length = length;
 
+	/* For data copy, 3 possible ways to specify how to copy data:
+	 *  - src_type is IMM: copy data directly from src( max 8 bytes)
+	 *  - src_type is PTR, but data should be immed: copy the data imm
+	 *    from the location specified by user
+	 *  - src_type is PTR and is not SEQ cmd: copy the address */
+	if (src_type == IMM_DATA) {
+		if (cpy_length <= BYTES_4) {
+			program->buffer[program->current_pc++] = low_32b(src);
+		} else {
+			program->buffer[program->current_pc++] =
+					high_32b(src);
+			program->buffer[program->current_pc++] =
+					low_32b(src);
+			}
+	}
+
+	if ((src_type == PTR_DATA) && (flags & IMMED)) {
+		src_ptr = (uintptr_t)src;
 		tmp = (uint8_t *) &program->buffer[program->current_pc];
+
 		for (i = 0; i < cpy_length; i++)
-			*tmp++ = ((uint8_t *) &src)[i];
+			*tmp++ = ((uint8_t *)src_ptr)[i];
 		program->current_pc += ((cpy_length + 3) / 4);
 
-	} else {
-		if (!(flags & SEQ)) {
-			if (program->ps == 1) {
+		return program->current_pc;
+	}
+
+	if ((src_type == PTR_DATA) && (!(flags & SEQ))) {
+		if (program->ps == 1) {
 				program->buffer[program->current_pc++] =
-						high_32b(src);
+					high_32b(src);
 				program->buffer[program->current_pc++] =
-						low_32b(src);
-			} else {
-				program->buffer[program->current_pc++] =
-						low_32b(src);
+					low_32b(src);
 			}
+		else {
+			program->buffer[program->current_pc++] =
+				low_32b(src);
 		}
 	}
+
 	return program->current_pc;
  err:
 	program->first_error_pc = program->current_pc;

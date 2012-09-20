@@ -32,12 +32,6 @@ static inline uint32_t jump(struct program *program, int64_t address,
 	case (LOCAL_JUMP):
 		opcode |= JUMP_TYPE_LOCAL;
 		break;
-	case (GOSUB):
-		opcode |= JUMP_TYPE_GOSUB;
-		break;
-	case (RETURN):
-		opcode |= JUMP_TYPE_RETURN;
-		break;
 	case (HALT):
 		opcode |= JUMP_TYPE_HALT;
 		break;

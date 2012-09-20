@@ -1,18 +1,18 @@
 #ifndef __RTA_SEC_RUN_TIME_ASM_H__
 #define __RTA_SEC_RUN_TIME_ASM_H__
 
-#include "desc.h"
+#include "../desc.h"
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
 
 
-#define DEBUG
-
+#ifndef pr_debug
 #ifdef DEBUG
-#define pr_debug    printf
+#define pr_debug(...)    printf(...)
 #else
-#define pr_debug
+#define pr_debug(...)
+#endif
 #endif
 
 #ifndef high_32b
@@ -437,8 +437,8 @@ struct program {
 				   length. */
 };
 
-void program_cntxt_init(struct program *program, uint32_t *buffer, int offset,
-			uint sec_era)
+static inline void program_cntxt_init(struct program *program, uint32_t *buffer, int offset,
+                        uint sec_era)
 {
 	program->current_pc = 0;
 	program->current_instraction = 0;
@@ -451,7 +451,7 @@ void program_cntxt_init(struct program *program, uint32_t *buffer, int offset,
 	if ((!sec_era) || (sec_era > MAX_SEC_ERA)) {
 		program->sec_era = DEFAULT_SEC_ERA;
 		pr_debug("Unsupported SEC ERA. Defaulting to ERA %d\n",
-			 DEFAULT_SEC_ERA);
+				DEFAULT_SEC_ERA);
 	} else {
 		program->sec_era = sec_era;
 	}
@@ -459,7 +459,7 @@ void program_cntxt_init(struct program *program, uint32_t *buffer, int offset,
 	program->ps = 0;
 }
 
-uint32_t program_finalize(struct program *program)
+static inline uint32_t program_finalize(struct program *program)
 {
 	/* Descriptor is not allowed to go beyond 64 words size */
 	if (program->current_pc > 0x40)
@@ -479,26 +479,26 @@ uint32_t program_finalize(struct program *program)
 	return program->current_pc;
 }
 
-uint32_t program_set_36bit_addr(struct program *program)
+static inline uint32_t program_set_36bit_addr(struct program *program)
 {
 	program->ps = 1;
 	return program->current_pc;
 }
 
-uint32_t word(struct program *program, uint32_t val)
+static inline uint32_t word(struct program *program, uint32_t val)
 {
 	*(uint32_t *) &program->buffer[program->current_pc] = val;
 	return program->current_pc++;
 }
 
-uint32_t dword(struct program *program, uint64_t val)
+static inline uint32_t dword(struct program *program, uint64_t val)
 {
 	*(uint32_t *) &program->buffer[program->current_pc++] = high_32b(val);
 	*(uint32_t *) &program->buffer[program->current_pc++] = low_32b(val);
 	return program->current_pc;
 }
 
-inline uint32_t endian_data(struct program *program, uint8_t *data, int length)
+static inline uint32_t endian_data(struct program *program, uint8_t *data, int length)
 {
 	int i;
 
@@ -511,7 +511,7 @@ inline uint32_t endian_data(struct program *program, uint8_t *data, int length)
 	return pc;
 }
 
-uint32_t set_label(struct program *program)
+static inline uint32_t set_label(struct program *program)
 {
 	return program->current_pc + program->start_pc;
 }
@@ -531,7 +531,7 @@ uint32_t set_label(struct program *program)
 #define BSWAP    (0x0B << MATH_FUN_SHIFT)
 
 
-void patch_move(struct program *program, uint32_t line, uint32_t new_ref)
+static inline void patch_move(struct program *program, uint32_t line, uint32_t new_ref)
 {
 	uint32_t opcode = program->buffer[line];
 	opcode &= ~MOVE_OFFSET_MASK;
@@ -539,7 +539,7 @@ void patch_move(struct program *program, uint32_t line, uint32_t new_ref)
 	program->buffer[line] = opcode;
 }
 
-void patch_jmp(struct program *program, uint32_t line, uint32_t new_ref)
+static inline void patch_jmp(struct program *program, uint32_t line, uint32_t new_ref)
 {
 	uint32_t opcode = program->buffer[line];
 	opcode &= ~JUMP_OFFSET_MASK;
@@ -547,7 +547,7 @@ void patch_jmp(struct program *program, uint32_t line, uint32_t new_ref)
 	program->buffer[line] = opcode;
 }
 
-void patch_header(struct program *program, uint32_t line,
+static inline void patch_header(struct program *program, uint32_t line,
 			 uint32_t new_ref)
 {
 	uint32_t opcode = program->buffer[line];
@@ -557,7 +557,7 @@ void patch_header(struct program *program, uint32_t line,
 	program->buffer[line] = opcode;
 }
 
-void patch_load(struct program *program, uint32_t line, uint32_t new_ref)
+static inline void patch_load(struct program *program, uint32_t line, uint32_t new_ref)
 {
 	uint32_t opcode = program->buffer[line];
 	opcode &= ~LDST_OFFSET_MASK;
@@ -565,7 +565,7 @@ void patch_load(struct program *program, uint32_t line, uint32_t new_ref)
 	program->buffer[line] = opcode;
 }
 
-void patch_jump_non_local(struct program *src_program, uint32_t line,
+static inline void patch_jump_non_local(struct program *src_program, uint32_t line,
 		     struct program *dst_program, uint32_t new_ref)
 {
 	uint32_t opcode = src_program->buffer[line];
@@ -574,7 +574,7 @@ void patch_jump_non_local(struct program *src_program, uint32_t line,
 	src_program->buffer[line] = opcode;
 }
 
-void patch_move_non_local(struct program *src_program, uint32_t line,
+static inline void patch_move_non_local(struct program *src_program, uint32_t line,
 		     struct program *dst_program, uint32_t new_ref)
 {
 	uint32_t opcode = src_program->buffer[line];
@@ -583,7 +583,7 @@ void patch_move_non_local(struct program *src_program, uint32_t line,
 	src_program->buffer[line] = opcode;
 }
 
-void patch_header_non_local(struct program *src_program, uint32_t line,
+static inline void patch_header_non_local(struct program *src_program, uint32_t line,
 		       struct program *dst_program, uint32_t new_ref)
 {
 	uint32_t opcode = src_program->buffer[line];
@@ -593,7 +593,7 @@ void patch_header_non_local(struct program *src_program, uint32_t line,
 	src_program->buffer[line] = opcode;
 }
 
-int8_t map_opcode(uint32_t name, const uint32_t (*map_table)[2],
+static inline int8_t map_opcode(uint32_t name, const uint32_t (*map_table)[2],
 		uint8_t num_of_entries, uint32_t *val)
 {
 	uint8_t i;
@@ -605,7 +605,7 @@ int8_t map_opcode(uint32_t name, const uint32_t (*map_table)[2],
 	return -1;
 }
 
-void map_flags(uint32_t flags, const uint32_t (*flags_table)[2],
+static inline void map_flags(uint32_t flags, const uint32_t (*flags_table)[2],
 		uint8_t num_of_entries, uint32_t *opcode)
 {
 	uint8_t i;

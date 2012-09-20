@@ -28,8 +28,6 @@ static inline uint32_t shr_header(struct program *program, uint32_t share,
 	opcode |= HDR_ONE;
 	opcode |= (start_idx & HDR_START_IDX_MASK) << HDR_START_IDX_SHIFT;
 
-	if (flags & RIF)
-		opcode |= HDR_RIF;
 	if (flags & DNR)
 		opcode |= HDR_DNR;
 	if (flags & CIF)
@@ -54,7 +52,7 @@ static inline uint32_t shr_header(struct program *program, uint32_t share,
 }
 
 static inline uint32_t job_header(struct program *program, uint32_t share,
-			   uintptr_t shr_desc, uint32_t flags)
+			   uint64_t shr_desc, uint32_t flags)
 {
 	uint32_t opcode = CMD_DESC_HDR;
 
@@ -117,12 +115,13 @@ static inline uint32_t job_header(struct program *program, uint32_t share,
 						low_32b(shr_desc);
 			}
 		} else {
+			program->current_pc++;
 			*program->jobhdr |= (program->current_pc << 16);
 		}
 	}
 
 	/* Note: descriptor length is set in program_finalize routine */
-	return program->current_pc++;
+	return program->current_pc;
  err:
 	program->first_error_pc = program->current_pc;
 	program->current_instraction++;

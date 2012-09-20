@@ -25,7 +25,7 @@ static const uint32_t move_src_table[14][2] = {
 	{ _DESCBUF,  MOVE_SRC_DESCBUF }
 };
 
-static const uint32_t move_dst_table[15][2] = {
+static const uint32_t move_dst_table[14][2] = {
 	{ _CONTEXT1,  MOVE_DEST_CLASS1CTX },
 	{ _CONTEXT2,  MOVE_DEST_CLASS2CTX },
 	{ _OFIFO,     MOVE_DEST_OUTFIFO },
@@ -39,8 +39,7 @@ static const uint32_t move_dst_table[15][2] = {
 	{ _PKA,       MOVE_DEST_PK_A },
 	{ _KEY1,      MOVE_DEST_CLASS1KEY },
 	{ _KEY2,      MOVE_DEST_CLASS2KEY },
-	{ _DESCBUF,   MOVE_DEST_DESCBUF },
-	{ _ALTSOURCE, MOVE_DEST_ALTSOURCE }
+	{ _DESCBUF,   MOVE_DEST_DESCBUF }
 };
 
 static inline uint16_t set_move_offset(struct program *program, uint64_t src,
@@ -56,7 +55,7 @@ static inline uint32_t move(struct program *program, uint64_t src, int type_src,
 {
 	uint32_t opcode = 0, is_move_len_cmd = 0;
 	uint16_t offset = 0, opt = 0, ret = 0;
-	uint32_t val;
+	uint32_t val = 0;
 
 	/* write command type */
 	if (type_length == REG_TYPE) {
