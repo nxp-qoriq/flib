@@ -1,3 +1,6 @@
+#ifndef __RTA_SEC_RUN_TIME_ASM_H__
+#define __RTA_SEC_RUN_TIME_ASM_H__
+
 #include "desc.h"
 #include <stdint.h>
 #include <string.h>
@@ -611,3 +614,5 @@ void map_flags(uint32_t flags, const uint32_t (*flags_table)[2],
 			*opcode |= flags_table[i][1];
 	}
 }
+
+#endif /* __RTA_SEC_RUN_TIME_ASM_H__ */

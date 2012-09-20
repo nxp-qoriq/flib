@@ -1,3 +1,5 @@
+#ifndef __RTA_KEY_CMD_H__
+#define __RTA_KEY_CMD_H__
 
 static inline uint32_t key(struct program *program, uint32_t key_dst,
 		uint32_t key_type, uint32_t encrypt_flags,
@@ -108,3 +110,5 @@ static inline uint32_t key(struct program *program, uint32_t key_dst,
 	program->current_pc++;
 	return program->current_pc;
 }
+
+#endif /* __RTA_KEY_CMD_H__ */

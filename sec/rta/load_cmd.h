@@ -1,3 +1,5 @@
+#ifndef __RTA_LOAD_CMD_H__
+#define __RTA_LOAD_CMD_H__
 
 #define IMM_MUST 0
 #define IMM_CAN  1
@@ -259,3 +261,5 @@ static inline uint32_t load(struct program *program, uint64_t src,
 	program->current_instraction++;
 	return program->current_pc++;
 }
+
+#endif /* __RTA_LOAD_CMD_H__*/

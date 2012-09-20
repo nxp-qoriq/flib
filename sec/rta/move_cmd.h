@@ -1,3 +1,5 @@
+#ifndef __RTA_MOVE_CMD_H__
+#define __RTA_MOVE_CMD_H__
 
 #define MOVE_SET_AUX_SRC  1
 #define MOVE_SET_AUX_DST  2
@@ -275,3 +277,5 @@ static inline uint16_t set_move_offset(struct program *program, uint64_t src,
  err:
 	return -1;
 }
+
+#endif /* __RTA_MOVE_CMD_H__ */

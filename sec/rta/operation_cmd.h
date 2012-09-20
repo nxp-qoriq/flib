@@ -1,3 +1,5 @@
+#ifndef __RTA_OPERATION_CMD_H__
+#define __RTA_OPERATION_CMD_H__
 
 int32_t alg_aii_aes(uint16_t aii)
 {
@@ -452,3 +454,5 @@ static inline uint32_t pkha_operation(struct program *program, uint32_t op_pkha)
 	program->current_pc++;
 	return program->current_pc;
 }
+
+#endif /* __RTA_OPERATION_CMD_H__ */

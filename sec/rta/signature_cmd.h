@@ -1,3 +1,6 @@
+#ifndef __RTA_SIGNATURE_CMD_H__
+#define __RTA_SIGNATURE_CMD_H__
+
 static inline uint32_t signature(struct program *program, uint32_t sign_type)
 {
 	uint32_t opcode = CMD_SIGNATURE;
@@ -25,3 +28,5 @@ static inline uint32_t signature(struct program *program, uint32_t sign_type)
 	program->current_instraction++;
 	return program->current_pc;
 }
+
+#endif /* __RTA_SIGNATURE_CMD_H__ */

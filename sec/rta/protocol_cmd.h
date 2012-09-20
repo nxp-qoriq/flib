@@ -1,3 +1,5 @@
+#ifndef __RTA_PROTOCOL_CMD_H__
+#define __RTA_PROTOCOL_CMD_H__
 
 static int32_t ssl_proto(uint16_t protoinfo)
 {
@@ -307,3 +309,5 @@ static inline uint32_t proto_operation(struct program *program, uint32_t optype,
 	program->current_instraction++;
 	return program->current_pc++;
 }
+
+#endif /* __RTA_PROTOCOL_CMD_H__ */

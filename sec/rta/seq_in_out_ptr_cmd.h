@@ -1,3 +1,6 @@
+#ifndef __RTA_SEQ_IN_OUT_PTR_CMD_H__
+#define __RTA_SEQ_IN_OUT_PTR_CMD_H__
+
 static inline uint32_t seq_in_ptr(struct program *program, uint64_t src,
 				  uint32_t length, uint32_t flags)
 {
@@ -106,3 +109,5 @@ static inline uint32_t seq_out_ptr(struct program *program, uint64_t dst,
 	program->current_instraction++;
 	return program->current_pc;
 }
+
+#endif /* __RTA_SEQ_IN_OUT_PTR_CMD_H__ */

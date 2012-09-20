@@ -1,3 +1,5 @@
+#ifndef __RTA_FIFO_LOAD_STORE_CMD_H__
+#define __RTA_FIFO_LOAD_STORE_CMD_H__
 
 static const uint32_t fifo_load_table[23][2] = {
 	{ _PKA0,        FIFOLD_CLASS_CLASS1 | FIFOLD_TYPE_PK_A0 },
@@ -266,3 +268,5 @@ static inline uint32_t fifo_store(struct program *program, uint32_t src,
 	program->current_instraction++;
 	return program->current_pc;
 }
+
+#endif /* __RTA_FIFO_LOAD_STORE_CMD_H__ */

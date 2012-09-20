@@ -1,3 +1,5 @@
+#ifndef __RTA_HEADER_CMD_H__
+#define __RTA_HEADER_CMD_H__
 
 static inline uint32_t shr_header(struct program *program, uint32_t share,
 			   uint32_t start_idx, uint32_t flags)
@@ -126,3 +128,5 @@ static inline uint32_t job_header(struct program *program, uint32_t share,
 	program->current_instraction++;
 	return program->current_pc++;
 }
+
+#endif /* __RTA_HEADER_CMD_H__ */

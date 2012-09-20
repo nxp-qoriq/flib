@@ -1,3 +1,6 @@
+#ifndef __RTA_STORE_CMD_H__
+#define __RTA_STORE_CMD_H__
+
 static const uint32_t store_src_table[31][2] = {
 	{ _KEY1SZ,       LDST_CLASS_1_CCB | LDST_SRCDST_WORD_KEYSZ_REG },
 	{ _KEY2SZ,       LDST_CLASS_2_CCB | LDST_SRCDST_WORD_KEYSZ_REG },
@@ -125,3 +128,5 @@ static inline uint32_t store(struct program *program, uintptr_t src,
 	program->current_instraction++;
 	return program->current_pc;
 }
+
+#endif /* __RTA_STORE_CMD_H__ */

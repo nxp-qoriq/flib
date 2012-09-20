@@ -1,3 +1,5 @@
+#ifndef __RTA_JUMP_CMD_H__
+#define __RTA_JUMP_CMD_H__
 
 static const uint32_t jump_test_cond[18][2] = {
 	{ NIFP,     JUMP_JSL | JUMP_COND_NIFP },
@@ -102,3 +104,5 @@ static inline uint32_t jump(struct program *program, int64_t address,
 	program->current_instraction++;
 	return program->current_pc++;
 }
+
+#endif /* __RTA_JUMP_CMD_H__ */

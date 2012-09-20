@@ -1,3 +1,5 @@
+#ifndef __RTA_MATH_CMD_H__
+#define __RTA_MATH_CMD_H__
 
 static const uint32_t math_op1[12][2] = {
 	{ _MATH0,     MATH_SRC0_REG0 },
@@ -208,3 +210,5 @@ static inline uint32_t math(struct program *program, uint64_t operand1,
 	program->current_pc++;	/* skipping one word regardless immediates */
 	return program->current_pc;
 }
+
+#endif /* __RTA_MATH_CMD_H__ */

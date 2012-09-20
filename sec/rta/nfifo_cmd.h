@@ -1,3 +1,6 @@
+#ifndef __RTA_NFIFO_CMD_H__
+#define __RTA_NFIFO_CMD_H__
+
 static const uint32_t nfifo_src[5][2] = {
 	{ _IFIFO,       IFIFOENTRY_STYPE_DFIFO },
 	{ _OFIFO,       IFIFOENTRY_STYPE_OFIFO },
@@ -125,3 +128,5 @@ static inline uint32_t nfifo_load(struct program *program, uint32_t src,
 	program->current_pc++;
 	return program->current_pc;
 }
+
+#endif /* __RTA_NFIFO_CMD_H__ */
