@@ -293,6 +293,55 @@
 #define LDLEN_SET_OFIFO_OFFSET_SHIFT	0
 #define LDLEN_SET_OFIFO_OFFSET_MASK	(3 << LDLEN_SET_OFIFO_OFFSET_SHIFT)
 
+/* CCB Clear Written Register bits */
+#define CLRW_CLR_C1MODE              0x1
+#define CLRW_CLR_C1DATAS             0x4
+#define CLRW_CLR_C1ICV               0x8
+#define CLRW_CLR_C1CTX               0x20
+#define CLRW_CLR_C1KEY               0x40
+#define CLRW_CLR_PK_A                0x1000
+#define CLRW_CLR_PK_B                0x2000
+#define CLRW_CLR_PK_N                0x4000
+#define CLRW_CLR_PK_E                0x8000
+#define CLRW_CLR_C2MODE              0x10000
+#define CLRW_CLR_C2KEYS              0x20000
+#define CLRW_CLR_C2DATAS             0x40000
+#define CLRW_CLR_C2CTX               0x200000
+#define CLRW_CLR_C2KEY               0x400000
+#define CLRW_RESET_CLS2_DONE         0x04000000u /* era 4 */
+#define CLRW_RESET_CLS1_DONE         0x08000000u /* era 4 */
+#define CLRW_RESET_CLS2_CHA          0x10000000u /* era 4 */
+#define CLRW_RESET_CLS1_CHA          0x20000000u /* era 4 */
+#define CLRW_RESET_OFIFO             0x40000000u /* era 3 */
+#define CLRW_RESET_IFIFO_DFIFO       0x80000000u /* era 3 */
+
+/* CHA Control Register bits */
+#define CCTRL_RESET_CHA_ALL          0x1
+#define CCTRL_RESET_CHA_AESA         0x2
+#define CCTRL_RESET_CHA_DESA         0x4
+#define CCTRL_RESET_CHA_AFHA         0x8
+#define CCTRL_RESET_CHA_KFHA         0x10
+#define CCTRL_RESET_CHA_SF8A         0x20
+#define CCTRL_RESET_CHA_PKHA         0x40
+#define CCTRL_RESET_CHA_MDHA         0x80
+#define CCTRL_RESET_CHA_CRCA         0x100
+#define CCTRL_RESET_CHA_RNG          0x200
+#define CCTRL_RESET_CHA_SF9A         0x400
+#define CCTRL_RESET_CHA_ZUCE         0x800
+#define CCTRL_RESET_CHA_ZUCA         0x1000
+#define CCTRL_UNLOAD_PK_A0           0x10000
+#define CCTRL_UNLOAD_PK_A1           0x20000
+#define CCTRL_UNLOAD_PK_A2           0x40000
+#define CCTRL_UNLOAD_PK_A3           0x80000
+#define CCTRL_UNLOAD_PK_B0           0x100000
+#define CCTRL_UNLOAD_PK_B1           0x200000
+#define CCTRL_UNLOAD_PK_B2           0x400000
+#define CCTRL_UNLOAD_PK_B3           0x800000
+#define CCTRL_UNLOAD_PK_N            0x1000000
+#define CCTRL_UNLOAD_PK_A            0x4000000
+#define CCTRL_UNLOAD_PK_B            0x8000000
+#define CCTRL_UNLOAD_SBOX            0x10000000
+
 /*
  * FIFO_LOAD/FIFO_STORE/SEQ_FIFO_LOAD/SEQ_FIFO_STORE
  * Command Constructs
@@ -1175,6 +1224,59 @@
 /* MacSec protinfos */
 #define OP_PCL_MACSEC				 0x0001
 
+/* 3G DCRC protinfos */
+#define OP_PCL_3G_DCRC_CRC7                      0x0710
+#define OP_PCL_3G_DCRC_CRC11                     0x0B10
+
+/* 3G RLC protinfos */
+#define OP_PCL_3G_RLC_NULL                       0x0000
+#define OP_PCL_3G_RLC_KASUMI                     0x0001
+#define OP_PCL_3G_RLC_SNOW                       0x0002
+
+/* LTE protinfos */
+#define OP_PCL_LTE_NULL                          0x0000
+#define OP_PCL_LTE_SNOW                          0x0001
+#define OP_PCL_LTE_AES                           0x0002
+
+/* PKI unidirectional protocol protinfo bits */
+#define OP_PCL_PKPROT_DSA_MSG                    0x400
+#define OP_PCL_PKPROT_HASH_SHIFT                 7
+#define OP_PCL_PKPROT_HASH_MASK                  (7 << OP_PCL_PKPROT_HASH_SHIFT)
+#define OP_PCL_PKPROT_HASH_MD5                   (0 << OP_PCL_PKPROT_HASH_SHIFT)
+#define OP_PCL_PKPROT_HASH_SHA1                  (1 << OP_PCL_PKPROT_HASH_SHIFT)
+#define OP_PCL_PKPROT_HASH_SHA224                (2 << OP_PCL_PKPROT_HASH_SHIFT)
+#define OP_PCL_PKPROT_HASH_SHA256                (3 << OP_PCL_PKPROT_HASH_SHIFT)
+#define OP_PCL_PKPROT_HASH_SHA384                (4 << OP_PCL_PKPROT_HASH_SHIFT)
+#define OP_PCL_PKPROT_HASH_SHA512                (5 << OP_PCL_PKPROT_HASH_SHIFT)
+#define OP_PCL_PKPROT_EKT_Z                      0x0040
+#define OP_PCL_PKPROT_DECRYPT_Z                  0x0020
+#define OP_PCL_PKPROT_EKT_PRI                    0x0010
+#define OP_PCL_PKPROT_TEST                       0x0008
+#define OP_PCL_PKPROT_DECRYPT_PRI                0x0004
+#define OP_PCL_PKPROT_ECC                        0x0002
+#define OP_PCL_PKPROT_F2M                        0x0001
+
+/* Blob protinfos */
+#define OP_PCL_BLOB_TKEK_SHIFT              9
+#define OP_PCL_BLOB_TKEK                    (1 << OP_PCL_BLOB_TKEK_SHIFT)
+#define OP_PCL_BLOB_EKT_SHIFT               8
+#define OP_PCL_BLOB_EKT                     (1 << OP_PCL_BLOB_EKT_SHIFT)
+#define OP_PCL_BLOB_REG_SHIFT               4
+#define OP_PCL_BLOB_REG_MASK                (0xF << OP_PCL_BLOB_REG_SHIFT)
+#define OP_PCL_BLOB_REG_MEMORY              (0x0 << OP_PCL_BLOB_REG_SHIFT)
+#define OP_PCL_BLOB_REG_KEY1                (0x1 << OP_PCL_BLOB_REG_SHIFT)
+#define OP_PCL_BLOB_REG_KEY2                (0x3 << OP_PCL_BLOB_REG_SHIFT)
+#define OP_PCL_BLOB_REG_SPLIT               (0x7 << OP_PCL_BLOB_REG_SHIFT)
+#define OP_PCL_BLOB_REG_PKE                 (0x9 << OP_PCL_BLOB_REG_SHIFT)
+#define OP_PCL_BLOB_SEC_MEM_SHIFT           3
+#define OP_PCL_BLOB_SEC_MEM                 (1 << OP_PCL_BLOB_SEC_MEM_SHIFT)
+#define OP_PCL_BLOB_BLACK                   0x4
+#define OP_PCL_BLOB_FORMAT_SHIFT            0
+#define OP_PCL_BLOB_FORMAT_MASK             0x3
+#define OP_PCL_BLOB_FORMAT_NORMAL           0
+#define OP_PCL_BLOB_FORMAT_MASTER_VER       2
+#define OP_PCL_BLOB_FORMAT_TEST             3
+
 /* IKE / IKEv2 protinfos */
 #define OP_PCL_IKE_HMAC_MD5			 0x0100
 #define OP_PCL_IKE_HMAC_SHA1			 0x0200
@@ -1189,6 +1291,29 @@
 #define OP_PCL_PKPROT_DECRYPT			 0x0004
 #define OP_PCL_PKPROT_ECC			 0x0002
 #define OP_PCL_PKPROT_F2M			 0x0001
+
+/* RSA Protinfo */
+#define OP_PCL_RSAPROT_OP_MASK                   3
+#define OP_PCL_RSAPROT_OP_ENC_F_IN               0
+#define OP_PCL_RSAPROT_OP_ENC_F_OUT              1
+#define OP_PCL_RSAPROT_OP_DEC_ND                 0
+#define OP_PCL_RSAPROT_OP_DEC_PQD                1
+#define OP_PCL_RSAPROT_OP_DEC_PQDPDQC            2
+#define OP_PCL_RSAPROT_FFF_SHIFT                 4
+#define OP_PCL_RSAPROT_FFF_MASK                  (7 << OP_PCL_RSAPROT_FFF_SHIFT)
+#define OP_PCL_RSAPROT_FFF_RED                   (0 << OP_PCL_RSAPROT_FFF_SHIFT)
+#define OP_PCL_RSAPROT_FFF_ENC                   (1 << OP_PCL_RSAPROT_FFF_SHIFT)
+#define OP_PCL_RSAPROT_FFF_TK_ENC                (5 << OP_PCL_RSAPROT_FFF_SHIFT)
+#define OP_PCL_RSAPROT_FFF_EKT                   (3 << OP_PCL_RSAPROT_FFF_SHIFT)
+#define OP_PCL_RSAPROT_FFF_TK_EKT                (7 << OP_PCL_RSAPROT_FFF_SHIFT)
+#define OP_PCL_RSAPROT_PPP_SHIFT                 8
+#define OP_PCL_RSAPROT_PPP_MASK                  (7 << OP_PCL_RSAPROT_PPP_SHIFT)
+#define OP_PCL_RSAPROT_PPP_RED                   (0 << OP_PCL_RSAPROT_PPP_SHIFT)
+#define OP_PCL_RSAPROT_PPP_ENC                   (1 << OP_PCL_RSAPROT_PPP_SHIFT)
+#define OP_PCL_RSAPROT_PPP_TK_ENC                (5 << OP_PCL_RSAPROT_PPP_SHIFT)
+#define OP_PCL_RSAPROT_PPP_EKT                   (3 << OP_PCL_RSAPROT_PPP_SHIFT)
+#define OP_PCL_RSAPROT_PPP_TK_EKT                (7 << OP_PCL_RSAPROT_PPP_SHIFT)
+#define OP_PCL_RSAPROT_FMT_PKCSV15               0x1000
 
 /* For non-protocol/alg-only op commands */
 #define OP_ALG_TYPE_SHIFT	24
@@ -1271,6 +1396,7 @@
 #define OP_ALG_AAI_DIS		(0x10 << OP_ALG_AAI_SHIFT)
 #define OP_ALG_AAI_DOS		(0x20 << OP_ALG_AAI_SHIFT)
 #define OP_ALG_AAI_DOC		(0x40 << OP_ALG_AAI_SHIFT)
+#define OP_ALG_AAI_IVZ		(0x80 << OP_ALG_AAI_SHIFT)
 
 /* Kasumi/SNOW AAI set */
 #define OP_ALG_AAI_F8		(0xc0 << OP_ALG_AAI_SHIFT)
