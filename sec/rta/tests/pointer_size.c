@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "rta.h"
+#include "flib/rta.h"
 
 int pointer_size_1(uint32_t *buff)
 {
@@ -11,7 +11,7 @@ int pointer_size_1(uint32_t *buff)
 	JOB_HDR(SHR_NEVER, 200, WITH(SHR));
 	{
 		FIFOLOAD(PKN, PTR(0x4), 4, 0);
-		PKHA_OPERATION(OP_ALG_PKMODE_MOD_EXP);
+		PKHA_OPERATION(OP_ALG_PKMODE_MOD_EXPO);
 	}
 	size = PROGRAM_FINALIZE();
 	return size;
@@ -29,7 +29,7 @@ int pointer_size_2(uint32_t *buff)
 	JOB_HDR(SHR_NEVER, 200, WITH(SHR));
 	{
 		FIFOLOAD(PKN, PTR(0x4), 4, 0);
-		PKHA_OPERATION(OP_ALG_PKMODE_MOD_EXP);
+		PKHA_OPERATION(OP_ALG_PKMODE_MOD_EXPO);
 	}
 	size = PROGRAM_FINALIZE();
 	return size;

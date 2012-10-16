@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "rta.h"
+#include "flib/rta.h"
 
 uint64_t share_desc_addr = 0x089c2c80ULL;
 uint32_t c1_ctxt_slots = 4;
@@ -44,7 +44,7 @@ int build_shdesc_raid_xor_opt(struct program *prg, uint32_t *buff, int buffpos)
 	{
 		SEQLOAD(CONTEXT1, 0, c1_ctxt_slots * 16, 0);
 		SEQLOAD(CONTEXT2, 0, c2_ctxt_slots * 16, 0);
-		LOAD(IMM(0), DCTRL, LDOFF_DISABLE_AUTO_IFIFO, 0, 0);
+		LOAD(IMM(0), DCTRL, LDOFF_DISABLE_AUTO_NFIFO, 0, 0);
 		pmove1 =
 		    MOVE(CONTEXT1, 0, DESCBUF, new_source, IMM(16),
 			 WITH(WAITCOMP));

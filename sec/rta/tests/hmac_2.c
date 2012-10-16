@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "rta.h"
+#include "flib/rta.h"
 
 int hmac_2(uint32_t *buff)
 {
@@ -19,7 +19,7 @@ int hmac_2(uint32_t *buff)
 	{
 		KEY(KEY2, 0, PTR(key_data), keylen, 0);
 		ALG_OPERATION(OP_ALG_ALGSEL_SHA256, OP_ALG_AAI_HMAC,
-			      OP_ALG_AS_INITFINAL, ICV_CHECK_ON,
+			      OP_ALG_AS_INITFINAL, ICV_CHECK_ENABLE,
 			      OP_ALG_DECRYPT);
 		FIFOLOAD(MSG2, PTR(msg), msglen, WITH(LAST2 | EXT));
 		FIFOLOAD(ICV2, PTR(icv), 32, WITH(LAST2));

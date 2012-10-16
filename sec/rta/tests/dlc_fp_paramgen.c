@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "rta.h"
+#include "flib/rta.h"
 
 /*
   Example job to create DLC/DSA Domain Parameters for q=p
@@ -45,7 +45,7 @@ int generate_dlc_fp_params(struct program *prg, uint32_t *buff)
 		SET_LABEL(new_r);
 		LOAD(IMM(r_size), PKNSZ, 0, 4, 0);
 		LOAD(IMM((r_size - 1)), PKASZ, 0, 4, 0);
-		LOAD(IMM(0), DCTRL, LDOFF_DISABLE_AUTO_IFIFO, 0, 0);
+		LOAD(IMM(0), DCTRL, LDOFF_DISABLE_AUTO_NFIFO, 0, 0);
 		/* Get random MSB and LSB do abd */
 		NFIFOADD(PAD, MSG, 2, WITH(PAD_RANDOM | LAST1));
 		/* Now into math0 */
@@ -60,13 +60,13 @@ int generate_dlc_fp_params(struct program *prg, uint32_t *buff)
 		NFIFOADD(PAD, PKN, (r_size - 2), WITH(PAD_RANDOM | EXT));
 		/* Send LSB to pkn (with flush1, so loading finishes) */
 		NFIFOADD(IFIFO, PKN, 1, WITH(FLUSH1));
-		LOAD(IMM(0), DCTRL, LDOFF_ENABLE_AUTO_IFIFO, 0, 0);
+		LOAD(IMM(0), DCTRL, LDOFF_ENABLE_AUTO_NFIFO, 0, 0);
 		/* Random seed for the Miller-Rabin primality test */
 		NFIFOADD(PAD, PKA, (r_size - 1),
 			 WITH(FLUSH1 | PAD_RANDOM | EXT));
 		/* Iteration count */
 		FIFOLOAD(PKB, IMM(0x32000032), 4, 0);
-		PKHA_OPERATION(OP_ALG_PKMODE_PRIME_TEST);
+		PKHA_OPERATION(OP_ALG_PKMODE_MOD_PRIMALITY);
 
 		/* If r did not test prime, go try another */
 		ref_new_r = JUMP(IMM(new_r), LOCAL_JUMP, ALL_FALSE,
@@ -100,7 +100,7 @@ int dlc_fp_make_x(struct program *prg, uint32_t *buff)
 		 * (This is the same 'generate random' recipe as used for r,
 		 * but with a different size)
 		 */
-		LOAD(IMM(0), DCTRL, LDOFF_DISABLE_AUTO_IFIFO, 0, 0);
+		LOAD(IMM(0), DCTRL, LDOFF_DISABLE_AUTO_NFIFO, 0, 0);
 		NFIFOADD(PAD, MSG, 2, WITH(PAD_RANDOM | LAST1));
 		MOVE(IFIFOABD, 0, MATH0, 4, IMM(2), WITH(WAITCOMP));
 		MATHB(MATH0, OR, IMM(0x80010000), MATH0, 4, 0);
@@ -108,7 +108,7 @@ int dlc_fp_make_x(struct program *prg, uint32_t *buff)
 		NFIFOADD(IFIFO, PKN, 1, 0);
 		NFIFOADD(PAD, PKN, (q_size - 2), WITH(EXT | PAD_RANDOM));
 		NFIFOADD(IFIFO, PKN, 1, WITH(FLUSH1));
-		LOAD(IMM(0), DCTRL, LDOFF_ENABLE_AUTO_IFIFO, 0, 0);
+		LOAD(IMM(0), DCTRL, LDOFF_ENABLE_AUTO_NFIFO, 0, 0);
 
 		/* Let X finish loading into pkn before storing it */
 		JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, WITH(NIFP));
@@ -146,7 +146,7 @@ int dlc_fp_make_q(struct program *prg, uint32_t *buff)
 		/* Set pknsz to byte count of 2*r -always one more than r */
 		LOAD(IMM((r_size + 1)), PKNSZ, 0, 4, 0);
 		/* c = X % 2r  ( % X) */
-		PKHA_OPERATION(OP_ALG_PKMODE_MOD_AMODN);
+		PKHA_OPERATION(OP_ALG_PKMODE_MOD_REDUCT);
 
 		/*
 		 * q = X - c + 1   ( % X)
@@ -159,7 +159,7 @@ int dlc_fp_make_q(struct program *prg, uint32_t *buff)
 		/* c */
 		PKHA_OPERATION(OP_ALG_PKMODE_COPY_NSZ_N_B);
 		/* X - c   ( % X) */
-		PKHA_OPERATION(OP_ALG_PKMODE_MOD_SUB_2);
+		PKHA_OPERATION(OP_ALG_PKMODE_MOD_SUB_BA);
 		FIFOLOAD(PKA, IMM(0x01000001), 4, 0);
 		/* q = X - c + 1   ( % X) */
 		PKHA_OPERATION(OP_ALG_PKMODE_MOD_ADD);
@@ -169,7 +169,7 @@ int dlc_fp_make_q(struct program *prg, uint32_t *buff)
 		LOAD(IMM((q_size - 1)), PKASZ, 0, 4, 0);
 		NFIFOADD(PAD, PKA, q_size - 1, WITH(PAD_RANDOM | EXT | FLUSH1));
 		FIFOLOAD(PKB, IMM(0x14000014), 4, 0);
-		PKHA_OPERATION(OP_ALG_PKMODE_PRIME_TEST);
+		PKHA_OPERATION(OP_ALG_PKMODE_MOD_PRIMALITY);
 
 		ref_store_q =
 		    JUMP(IMM(store_q), LOCAL_JUMP, ALL_TRUE, WITH(PK_PRIME));
@@ -217,11 +217,11 @@ int dlc_fp_make_g(struct program *prg, uint32_t *buff)
 		/* Compute q-1  ( % q ) */
 		PKHA_OPERATION(OP_ALG_PKMODE_COPY_NSZ_N_A);
 		FIFOLOAD(PKB, IMM(0x01000001), 4, 0);
-		PKHA_OPERATION(OP_ALG_PKMODE_MOD_SUB_1);
+		PKHA_OPERATION(OP_ALG_PKMODE_MOD_SUB_AB);
 
 		/* k = q-1 / r  ( % q ) */
 		FIFOLOAD(PKA, PTR(dom_g_addr), q_size, 0);
-		PKHA_OPERATION(OP_ALG_PKMODE_MOD_MUL);
+		PKHA_OPERATION(OP_ALG_PKMODE_MOD_MULT);
 
 		PKHA_OPERATION(OP_ALG_PKMODE_COPY_NSZ_B_E);
 
@@ -245,14 +245,14 @@ int dlc_fp_make_g(struct program *prg, uint32_t *buff)
 		/* save h */
 		FIFOSTORE(PKB, 0, dom_g_addr, q_size, 0);
 		/* 6. Compute g = h^e % q */
-		PKHA_OPERATION(OP_ALG_PKMODE_MOD_EXP);
+		PKHA_OPERATION(OP_ALG_PKMODE_MOD_EXPO);
 
 		/*
 		 * 7. If g = 1 then go to step 5
 		 * Test g != 1 by calculating checking (g-1) != 0
 		 */
 		FIFOLOAD(PKB, IMM(0x01000001), 4, 0);
-		PKHA_OPERATION(OP_ALG_PKMODE_MOD_SUB_2);
+		PKHA_OPERATION(OP_ALG_PKMODE_MOD_SUB_BA);
 		ref_found_g =
 		    JUMP(IMM(found_g), LOCAL_JUMP, ANY_FALSE, WITH(PK_0));
 

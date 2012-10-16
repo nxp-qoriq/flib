@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "rta.h"
+#include "flib/rta.h"
 
 LABEL(decap_job_seqoutptr);
 REFERENCE(ref_decap_job);
@@ -40,9 +40,9 @@ int build_shdesc_kasumi_dcrc_decap(struct program *prg, uint32_t *buff,
 		 * things space out correctly
 		 * Start bringing in Preamble and set up PDB for DCRC
 		 */
-		LOAD(IMM(0), DCTRL, LDOFF_DISABLE_AUTO_IFIFO, 0, 0);
+		LOAD(IMM(0), DCTRL, LDOFF_DISABLE_AUTO_NFIFO, 0, 0);
 		SEQFIFOLOAD(PKA0, 60, 0);
-		LOAD(IMM(0), DCTRL, LDOFF_ENABLE_AUTO_IFIFO, 0, 0);
+		LOAD(IMM(0), DCTRL, LDOFF_ENABLE_AUTO_NFIFO, 0, 0);
 		MOVE(IFIFOABD, 0, CONTEXT1, 0, IMM(12), 0);
 		MOVE(IFIFOABD, 0, KEY1, 0, IMM(key_size), 0);
 		MOVE(IFIFOABD, 0, CONTEXT1, 32, IMM(32), 0);

@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "rta.h"
+#include "flib/rta.h"
 
 uint8_t modulus[20] = {
 	0x9A, 0x27, 0x7B, 0x10, 0x42, 0x3F, 0xEC, 0xDB,
@@ -34,7 +34,7 @@ int mod_exp(uint32_t *buff)
 		FIFOLOAD(PKN, PTR(mod), field_size, 0);
 		KEY(PKE, 0, PTR(exp), 20, 0);
 		FIFOLOAD(PKA, PTR(base + 1), 1, 0);
-		PKHA_OPERATION(OP_ALG_PKMODE_MOD_EXP);
+		PKHA_OPERATION(OP_ALG_PKMODE_MOD_EXPO);
 		JUMP(IMM(0x42), HALT_STATUS, ALL_TRUE, WITH(PK_0));
 		FIFOSTORE(PKB, 0, res, field_size, 0);
 	}

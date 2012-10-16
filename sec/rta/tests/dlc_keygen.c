@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "rta.h"
+#include "flib/rta.h"
 
 uint8_t modulus[20] = {
 	0x9A, 0x27, 0x7B, 0x10, 0x42, 0x3F, 0xEC, 0xDB,
@@ -52,7 +52,7 @@ int dlc_keygen(uint32_t *buff)
 		/* Step B.3. Reduce the private key down to within the
 		 * modulus */
 		/* B <= private key */
-		PKHA_OPERATION(OP_ALG_PKMODE_MOD_AMODN);
+		PKHA_OPERATION(OP_ALG_PKMODE_MOD_REDUCT);
 		/* 'Good practice' says to make sure this value is not 0, 1,
 		 * or p-1 ... */
 		/* Retry if key is 0 */
@@ -67,7 +67,7 @@ int dlc_keygen(uint32_t *buff)
 		p2_retry = JUMP(IMM(retry), HALT, ALL_TRUE, PK_0);
 
 		FIFOLOAD(PKA, IMM(0x02000002), 4, 0);
-		PKHA_OPERATION(OP_ALG_PKMODE_MOD_SUB_2);
+		PKHA_OPERATION(OP_ALG_PKMODE_MOD_SUB_BA);
 		/* Retry if key is 1 */
 		p3_retry = JUMP(IMM(retry), HALT, ALL_TRUE, PK_0);
 
@@ -77,7 +77,7 @@ int dlc_keygen(uint32_t *buff)
 		/* E <= Private key */
 		PKHA_OPERATION(OP_ALG_PKMODE_COPY_NSZ_B_E);
 		/* B <= Public Key */
-		PKHA_OPERATION(OP_ALG_PKMODE_MOD_EXP_TEQ);
+		PKHA_OPERATION(OP_ALG_PKMODE_MOD_EXPO_TEQ);
 
 		FIFOSTORE(PKB, 0, public_key, field_size, 0);
 	}

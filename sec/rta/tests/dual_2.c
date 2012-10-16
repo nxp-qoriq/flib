@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "rta.h"
+#include "flib/rta.h"
 
 int dual_2(uint32_t *buff)
 {
@@ -29,7 +29,7 @@ int dual_2(uint32_t *buff)
 		KEY(KEY1, 0, PTR(cipher_key), cipher_key_size, 0);
 		KEY(KEY2, 0, PTR(auth_key), auth_key_size, 0);
 		ALG_OPERATION(OP_ALG_ALGSEL_SHA256, OP_ALG_AAI_HMAC,
-			      OP_ALG_AS_INITFINAL, ICV_CHECK_ON,
+			      OP_ALG_AS_INITFINAL, ICV_CHECK_ENABLE,
 			      OP_ALG_ENCRYPT);
 		MOVE(CONTEXT1, 0, IFIFOAB2, 0, IMM(ctx_size), WITH(WAITCOMP));
 		ALG_OPERATION(OP_ALG_ALGSEL_AES, OP_ALG_AAI_CBC,

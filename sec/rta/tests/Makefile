@@ -1,4 +1,4 @@
-RTA_DIR=../
+RTA_DIR=../test_install/usr/include
 
 CFLAGS=-Wall -Wshadow -O3 -g
 CFLAGS+=-I${RTA_DIR}

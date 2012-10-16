@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "rta.h"
+#include "flib/rta.h"
 
 int prg_buff[1000];
 
@@ -42,8 +42,7 @@ int generate_capwap_code(uint32_t *buff, int mdatalen)
 	/* Location of the extra, custom part of PDB */
 	previous_iv = 16;
 	/* All of the IV, both next and previous */
-	ENDIAN_DATA(((uint8_t[]) {
-		     00, 00}));
+	ENDIAN_DATA(((uint8_t[]){ 00, 00}), 2);
 
 	ref1 = MOVE(DESCBUF, seqoutptr, MATH0, 0, IMM(16), WITH(WAITCOMP));
 	MATHB(MATH0, XOR, IMM(0x0840010000000000), MATH0, SIZE(8), 0);
@@ -55,8 +54,8 @@ int generate_capwap_code(uint32_t *buff, int mdatalen)
 	KEY(MDHA_SPLIT_KEY, WITH(ENC), IMM(key_addr), 4, 0);
 	KEY(KEY1, WITH(EKT), IMM(key_addr), 4, 0);
 	SET_LABEL(skip_keyloading);
-	ALG_OPERATION(OP_ALG_ALGSEL_AES, OP_ALG_AAI_CTR, OP_ALG_AS_INIT,
-		      ICV_CHECK_OFF, DIR_ENCAP);
+	ALG_OPERATION(OP_ALG_ALGSEL_AES, OP_ALG_AAI_CTR_MOD128, OP_ALG_AS_INIT,
+		      ICV_CHECK_DISABLE, DIR_ENC);
 	SET_LABEL(new_seqinptr);
 	WORD(0x0);
 	WORD(0x0);

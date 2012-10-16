@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "rta.h"
+#include "flib/rta.h"
 
 int make_prime_test(uint32_t *buff)
 {
@@ -23,7 +23,7 @@ int make_prime_test(uint32_t *buff)
 		LOAD(IMM((prime_size - 1)), PKASZ, 0, 4, 0);
 		SET_LABEL(gen);
 		/* Turn off auto info-fifo entries */
-		LOAD(IMM(0), DCTRL, LDOFF_DISABLE_AUTO_IFIFO, 0, 0);
+		LOAD(IMM(0), DCTRL, LDOFF_DISABLE_AUTO_NFIFO, 0, 0);
 
 		/*
 		   Send six bytes of random padding to DECO AB and then to
@@ -44,7 +44,7 @@ int make_prime_test(uint32_t *buff)
 		/* Send LSB byte from Input FIFO to PKHA N */
 		NFIFOADD(IFIFO, PKN, 1, WITH(FLUSH1));
 		/* Turn on auto info-fifo entries */
-		LOAD(IMM(0), DCTRL, LDOFF_ENABLE_AUTO_IFIFO, 0, 0);
+		LOAD(IMM(0), DCTRL, LDOFF_ENABLE_AUTO_NFIFO, 0, 0);
 		/*
 		 * Now set up other inputs size the PRIME_TEST test
 		 * Send random seed to PKHA A
@@ -53,7 +53,7 @@ int make_prime_test(uint32_t *buff)
 			 WITH(PAD_RANDOM | FLUSH1 | EXT));
 		/* Miller-Rabin iteration count (either-endian) */
 		FIFOLOAD(PKB, IMM(0x07000007), 4, 0);
-		PKHA_OPERATION(OP_ALG_PKMODE_PRIME_TEST);
+		PKHA_OPERATION(OP_ALG_PKMODE_MOD_PRIMALITY);
 		pjump1 = JUMP(IMM(gen), LOCAL_JUMP, ALL_FALSE, WITH(PK_PRIME));
 		FIFOSTORE(PKN, 0, prime, prime_size, 0);
 	}

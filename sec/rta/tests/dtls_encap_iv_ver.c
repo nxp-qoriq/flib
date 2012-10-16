@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "rta.h"
+#include "flib/rta.h"
 
 const uint8_t key1[16] = {
 	0x1d, 0xc9, 0xef, 0x2f, 0x7d, 0xa3, 0x3b, 0xd6,
@@ -15,14 +15,12 @@ const uint8_t key2[48] = {
 	0x98, 0x46, 0x25, 0x52, 0x2b, 0x9e, 0xd6, 0xd9
 };
 
-uint32_t options = 0x17;
-uint32_t seqnum = 0x179;
 
 /*
  * Function to generate a Shared Descriptor for DTLS encap, with metadata and
  * verification that IV is not used twice in a rwo.
  */
-int build_dtls_sharedesc(uint32_t *buff, uint32_t options, uint32_t seqnum,
+int build_dtls_sharedesc(uint32_t *buff, uint32_t seqnum,
 			 const uint8_t *aes_key, const uint8_t *hmac_key,
 			 uint32_t mdatalen, uint32_t cipher_alg)
 {
@@ -91,7 +89,7 @@ int build_dtls_sharedesc(uint32_t *buff, uint32_t options, uint32_t seqnum,
 		/* load DTLS AES confidentiality key */
 		SET_LABEL(skip_keyloading);
 		/* s4: Execute DTLS protocol thread */
-		PROTOCOL(OP_TYPE_ENCAP_PROTOCOL, OP_PCLID_DTLS10,
+		PROTOCOL(OP_TYPE_ENCAP_PROTOCOL, OP_PCLID_DTLS,
 			 WITH(cipher_alg));
 		SET_LABEL(new_seqinptr);
 		/* s5: These 3 words reserved for a new SEQ-IN-PTR cmd to
@@ -169,10 +167,12 @@ static void print_prog(uint32_t *buff, int size)
 
 int main(int argc, char **argv)
 {
+	uint32_t seqnum = 0x179;
+
 	int size;
 	printf("DTLS example program\n");
 	size =
-	    build_dtls_sharedesc((uint32_t *) prg_buff, options, seqnum, key1,
+	    build_dtls_sharedesc((uint32_t *) prg_buff, seqnum, key1,
 				 key2, 46, 0xff80);
 	printf("size = %d\n", size);
 	print_prog((uint32_t *) prg_buff, size);

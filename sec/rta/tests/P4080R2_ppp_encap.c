@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "rta.h"
+#include "flib/rta.h"
 
 uint32_t shr_addr = 0x00000B80ul;
 
@@ -77,13 +77,13 @@ int build_shr_desc_ppp_encap(struct program *prg, uint32_t *buff, int buffpos)
 
 			SET_LABEL(e);
 			MATHB(ZERO, ADD, IMM(8), VSEQOUTSZ, 4, 0);
-			LOAD(IMM(0), DCTRL, LDOFF_DISABLE_AUTO_IFIFO, 0, 0);
+			LOAD(IMM(0), DCTRL, LDOFF_DISABLE_AUTO_NFIFO, 0, 0);
 			MOVE(IFIFOAB2, 0, OFIFO, 0, IMM(64), 0);
 			pjump2 =
 			    JUMP(IMM(aprm), LOCAL_JUMP, ALL_TRUE, WITH(NOP));
 
 			SET_LABEL(a);
-			LOAD(IMM(0), DCTRL, LDOFF_DISABLE_AUTO_IFIFO, 0, 0);
+			LOAD(IMM(0), DCTRL, LDOFF_DISABLE_AUTO_NFIFO, 0, 0);
 
 			SET_LABEL(aprm);
 			MATHB(ZERO, ADD, OFIFO, MATH0, 8, 0);
@@ -217,7 +217,7 @@ int build_more_cmds(struct program *prg, uint32_t *buff, int buffpos)
 		MOVE(MATH0, 0, IFIFOAB1, 0, IMM(8), 0);
 
 		SET_LABEL(c);
-		LOAD(IMM(0), DCTRL, LDOFF_ENABLE_AUTO_IFIFO, 0, 0);
+		LOAD(IMM(0), DCTRL, LDOFF_ENABLE_AUTO_NFIFO, 0, 0);
 		MOVE(IFIFOABD, 0, OFIFO, 0, IMM(8), 0);
 		MATHB(VSEQOUTSZ, SUB, ONE, VSEQOUTSZ, 4, 0);
 		ref_jumpa = JUMP(IMM(a), LOCAL_JUMP, ALL_FALSE, WITH(MATH_Z));

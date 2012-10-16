@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "rta.h"
+#include "flib/rta.h"
 
 /*
  *  Test variable length of immediate byte data in a command.
@@ -36,7 +36,7 @@ int var_test(uint32_t *buff)
 		FIFOLOAD(PKA, PTR((intptr_t) &secret), secret_len,
 			 WITH(IMMED));
 		KEY(PKE, 0, IMM(0x03000003), 4, 0);
-		PKHA_OPERATION(OP_ALG_PKMODE_MOD_EXP);
+		PKHA_OPERATION(OP_ALG_PKMODE_MOD_EXPO);
 		FIFOSTORE(PKB, 0, secret_out, (sizeof(modulus)), 0);
 	}
 	size = PROGRAM_FINALIZE();

@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "rta.h"
+#include "flib/rta.h"
 
 uint8_t *iv1 = (uint8_t *) 0x64;	/* input constant */
 uint8_t *ipad = (uint8_t *) 0x664;

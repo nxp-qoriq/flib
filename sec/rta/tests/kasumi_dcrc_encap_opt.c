@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "rta.h"
+#include "flib/rta.h"
 
 LABEL(encap_job_seqout);
 REFERENCE(ref_job_seqout);
@@ -45,9 +45,9 @@ int build_shdesc_kasumi_dcrc_encap(struct program *prg, uint32_t *buff,
 		pjump1 = JUMP(IMM(do_dcrc), LOCAL_JUMP, ALL_TRUE, WITH(MATH_N));
 
 		/* Start bringing in Preamble */
-		LOAD(IMM(0), DCTRL, LDOFF_DISABLE_AUTO_IFIFO, 0, 0);
+		LOAD(IMM(0), DCTRL, LDOFF_DISABLE_AUTO_NFIFO, 0, 0);
 		SEQFIFOLOAD(PKA0, 60, 0);
-		LOAD(IMM(0), DCTRL, LDOFF_ENABLE_AUTO_IFIFO, 0, 0);
+		LOAD(IMM(0), DCTRL, LDOFF_ENABLE_AUTO_NFIFO, 0, 0);
 		pmove1 = MOVE(IFIFOABD, 0, DESCBUF, 4 * foo, IMM(12), 0);
 		MOVE(IFIFOABD, 0, KEY1, 0, IMM(key_size), 0);
 		MOVE(IFIFOABD, 0, CONTEXT2, 32, IMM(32), 0);
@@ -75,10 +75,10 @@ int build_shdesc_kasumi_dcrc_encap(struct program *prg, uint32_t *buff,
 		MATHB(MATH0, SHLD, MATH0, MATH0, 8, WITH(NFU));
 		pmove4 =
 		    MOVE(MATH0, 0, DESCBUF, get_data, IMM(4), WITH(WAITCOMP));
-		LOAD(IMM(0), DCTRL, LDOFF_DISABLE_AUTO_IFIFO, 0, 0);
+		LOAD(IMM(0), DCTRL, LDOFF_DISABLE_AUTO_NFIFO, 0, 0);
 		SEQFIFOLOAD(PKA0, 0, WITH(VLF));
 		SEQFIFOSTORE(MSG, 0, 0, WITH(VLF));
-		LOAD(IMM(0), DCTRL, LDOFF_ENABLE_AUTO_IFIFO, 0, 0);
+		LOAD(IMM(0), DCTRL, LDOFF_ENABLE_AUTO_NFIFO, 0, 0);
 
 		SET_LABEL(get_data);
 		WORD(0);

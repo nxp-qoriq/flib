@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "rta.h"
+#include "flib/rta.h"
 
 uint32_t shr_addr = 0x089ae500ul;
 
@@ -120,16 +120,16 @@ int build_shr_desc_ppp_decap(struct program *prg, uint32_t *buff, int buffpos)
 
 			SET_LABEL(e);
 			MATHB(ZERO, ADD, IMM(16), VSEQOUTSZ, 4, 0);
-			LOAD(IMM(0), DCTRL, LDOFF_DISABLE_AUTO_IFIFO, 0, 0);
+			LOAD(IMM(0), DCTRL, LDOFF_DISABLE_AUTO_NFIFO, 0, 0);
 			MOVE(IFIFOAB1, 0, OFIFO, 0, IMM(128), 0);
 
 			SET_LABEL(a);
-			LOAD(IMM(0), DCTRL, LDOFF_DISABLE_AUTO_IFIFO, 0, 0);
+			LOAD(IMM(0), DCTRL, LDOFF_DISABLE_AUTO_NFIFO, 0, 0);
 			pjumps = JUMP(IMM(s), LOCAL_JUMP, ALL_TRUE, WITH(NOP));
 			/* End of Main Loop - all 8 dwords have been handled */
 
 			SET_LABEL(h);
-			LOAD(IMM(0), DCTRL, LDOFF_ENABLE_AUTO_IFIFO, 0, 0);
+			LOAD(IMM(0), DCTRL, LDOFF_ENABLE_AUTO_NFIFO, 0, 0);
 			MATHB(VSEQINSZ, ADD, MATH2, VSEQOUTSZ, 4, 0);
 			SEQFIFOSTORE(MSG, 0, 0, WITH(VLF));
 			MATHB(ZERO, ADD, MATH3, NONE, 4, 0);
@@ -209,7 +209,7 @@ int build_extra_cmds(struct program *prg, uint32_t *buff, int buffpos)
 
 		SET_LABEL(g);
 		MOVE(MATH0, 0, IFIFOAB1, 0, IMM(8), 0);
-		LOAD(IMM(0), DCTRL, LDOFF_ENABLE_AUTO_IFIFO, 0, 0);
+		LOAD(IMM(0), DCTRL, LDOFF_ENABLE_AUTO_NFIFO, 0, 0);
 		MOVE(IFIFOABD, 0, OFIFO, 0, IMM(8), 0);
 
 		SET_LABEL(c);

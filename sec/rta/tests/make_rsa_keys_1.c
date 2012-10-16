@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "rta.h"
+#include "flib/rta.h"
 
 uint64_t pkha_make_rsa_keys_phys = (uint64_t) 0x08eb2f00ul;
 uint64_t pkha_make_rsa_p_q_phys = (uint64_t) 0xe6580300ul;
@@ -81,7 +81,7 @@ int jdesc_pkha_make_rsa_p_q(struct program *prg, uint32_t *buff, int buffpos)
 		MOVE(MATH0, 0, IFIFOAB1, 0, IMM(1), WITH(WAITCOMP));
 		NFIFOADD(IFIFO, PKB, 1, WITH(FLUSH1));
 		/* Crunch */
-		PKHA_OPERATION(OP_ALG_PKMODE_PRIME_TEST);
+		PKHA_OPERATION(OP_ALG_PKMODE_MOD_PRIMALITY);
 		pjump5 = JUMP(IMM(retry), LOCAL_JUMP, ALL_FALSE,
 				WITH(PK_PRIME));
 		/* p / q test */
@@ -127,7 +127,7 @@ int jdesc_pkha_make_rsa_check_pq(struct program *prg, uint32_t *buff,
 	PROGRAM_CNTXT_INIT(buff, buffpos, 0);
 	JOB_HDR(SHR_NEVER, 0, 0);
 	{
-		LOAD(IMM(0), DCTRL, LDOFF_ENABLE_AUTO_IFIFO, 0, 0);
+		LOAD(IMM(0), DCTRL, LDOFF_ENABLE_AUTO_NFIFO, 0, 0);
 		/* Finish FIFOSTORE of pkn so FIFOLOAD of pkn doesn't get
 		 * confused */
 		SEQFIFOSTORE(MSG, 0, 0, 0);
@@ -142,7 +142,7 @@ int jdesc_pkha_make_rsa_check_pq(struct program *prg, uint32_t *buff,
 		FIFOLOAD(PKA, PTR(prv_key_p), (pq_size), 0);
 		FIFOLOAD(PKB, PTR(prv_key_q), (pq_size), 0);
 		/* p - q % fffffffffff */
-		PKHA_OPERATION(OP_ALG_PKMODE_MOD_SUB_1);
+		PKHA_OPERATION(OP_ALG_PKMODE_MOD_SUB_AB);
 		LOAD(IMM(CCTRL_UNLOAD_PK_B), CCTRL, 0, 4, 0);
 		/* Get interesting bits */
 		MOVE(OFIFO, 0, MATH2, 0, IMM(16), WITH(WAITCOMP));
@@ -200,7 +200,7 @@ int jdesc_pkha_make_rsa_keys(struct program *prg, uint32_t *buff, int buffpos)
 		MATHB(ZERO, ADD, IMM(10), VSEQINSZ, 4, 0);
 		MATHB(ZERO, ADD, IMM(pq_size), SEQOUTSZ, 4, 0);
 		FIFOLOAD(PKA, IMM(0), 0, 0);	/* Acquire the PKHA */
-		LOAD(IMM(0), DCTRL, LDOFF_DISABLE_AUTO_IFIFO, 0, 0);
+		LOAD(IMM(0), DCTRL, LDOFF_DISABLE_AUTO_NFIFO, 0, 0);
 		JUMP(PTR(pkha_make_rsa_p_q_phys), FAR_JUMP, ALL_TRUE, 0);
 	}
 
@@ -221,20 +221,20 @@ int jdesc_pkha_make_rsa_d_n(struct program *prg, uint32_t *buff, int buffpos)
 	{
 		PKHA_OPERATION(OP_ALG_PKMODE_COPY_NSZ_N_B);
 		FIFOLOAD(PKA, IMM(0x01), 1, 0);
-		PKHA_OPERATION(OP_ALG_PKMODE_MOD_SUB_2);
+		PKHA_OPERATION(OP_ALG_PKMODE_MOD_SUB_BA);
 		FIFOSTORE(PKB, 0, prv_key_q, pq_size, 0);
 		FIFOLOAD(PKN, PTR(max_n), n_size, 0);
 		FIFOLOAD(PKB, PTR(prv_key_p), pq_size, 0);
-		PKHA_OPERATION(OP_ALG_PKMODE_MOD_SUB_2);
+		PKHA_OPERATION(OP_ALG_PKMODE_MOD_SUB_BA);
 		FIFOLOAD(PKA, PTR(prv_key_q), pq_size, 0);
-		PKHA_OPERATION(OP_ALG_PKMODE_MOD_MUL);
+		PKHA_OPERATION(OP_ALG_PKMODE_MOD_MULT);
 		PKHA_OPERATION(OP_ALG_PKMODE_COPY_SSZ_B_N);
 		FIFOLOAD(PKA, PTR(pub_key_e), e_size, 0);
 		PKHA_OPERATION(OP_ALG_PKMODE_MOD_GCD);
 		pjump1 =
 		    JUMP(IMM(phi_e_relatively_prime), LOCAL_JUMP, ALL_TRUE,
 			 WITH(PK_GCD_1));
-		LOAD(IMM(0), DCTRL, LDOFF_DISABLE_AUTO_IFIFO, 0, 0);
+		LOAD(IMM(0), DCTRL, LDOFF_DISABLE_AUTO_NFIFO, 0, 0);
 		JUMP(PTR(pkha_make_rsa_keys_phys), FAR_JUMP, ALL_TRUE, 0);
 
 		SET_LABEL(phi_e_relatively_prime);
@@ -248,7 +248,7 @@ int jdesc_pkha_make_rsa_d_n(struct program *prg, uint32_t *buff, int buffpos)
 		FIFOSTORE(PKB, 0, prv_key_q, pq_size, 0);
 		FIFOLOAD(PKN, PTR(max_n), n_size, 0);
 		FIFOLOAD(PKA, PTR(prv_key_p), pq_size, 0);
-		PKHA_OPERATION(OP_ALG_PKMODE_MOD_MUL);
+		PKHA_OPERATION(OP_ALG_PKMODE_MOD_MULT);
 		FIFOSTORE(PKB, 0, pub_key_n, n_size, 0);
 	}
 	PATCH_JUMP(pjump1, phi_e_relatively_prime);

@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "rta.h"
+#include "flib/rta.h"
 
 /* Global variables section */
 static LABEL(encap_share_end);
@@ -161,11 +161,11 @@ int generate_lte_code(struct program *prg, uint32_t *buff, int mdatalen,
 
 		ALG_OPERATION(OP_ALG_ALGSEL_KASUMI,
 			      OP_ALG_AAI_F8, OP_ALG_AS_INITFINAL,
-			      ICV_CHECK_OFF, DIR_ENCAP);
+			      ICV_CHECK_DISABLE, DIR_ENC);
 		/* Have CRC grab the PDU */
 		LOAD(IMM
-		     (IFIFOENTRY_STYPE_OFIFO | IFIFOENTRY_DEST_CLASS2 |
-		      IFIFOENTRY_DTYPE_MSG | 2), NFIFO, 0, BYTES_4, 0);
+		     (NFIFOENTRY_STYPE_OFIFO | NFIFOENTRY_DEST_CLASS2 |
+		      NFIFOENTRY_DTYPE_MSG | 2), NFIFO, 0, BYTES_4, 0);
 
 		/* need to know if both C & N are 0 */
 		MATHB(MATH1, ADD, MATH2, MATH0, BYTES_2, 0);
@@ -175,16 +175,16 @@ int generate_lte_code(struct program *prg, uint32_t *buff, int mdatalen,
 		pjump2 = JUMP(IMM(last_info), LOCAL_JUMP, ALL_TRUE,
 				WITH(MATH_Z));
 		SET_LABEL(info_len);
-		LOAD(IMM(IFIFOENTRY_STYPE_SNOOP | IFIFOENTRY_DEST_BOTH |
-			 IFIFOENTRY_DTYPE_MSG | IFIFOENTRY_LC1),
+		LOAD(IMM(NFIFOENTRY_STYPE_SNOOP | NFIFOENTRY_DEST_BOTH |
+			 NFIFOENTRY_DTYPE_MSG | NFIFOENTRY_LC1),
 		     NFIFO, 0, BYTES_4, 0);
 
 		/* skip over the last entry */
 		pjump3 = JUMP(IMM(after_info), LOCAL_JUMP, ALL_TRUE, 0);
 		SET_LABEL(last_info);
-		LOAD(IMM(IFIFOENTRY_STYPE_SNOOP | IFIFOENTRY_DEST_BOTH |
-			 IFIFOENTRY_DTYPE_MSG | IFIFOENTRY_LC1 |
-			 IFIFOENTRY_LC2), NFIFO, 0, BYTES_4, 0);
+		LOAD(IMM(NFIFOENTRY_STYPE_SNOOP | NFIFOENTRY_DEST_BOTH |
+			 NFIFOENTRY_DTYPE_MSG | NFIFOENTRY_LC1 |
+			 NFIFOENTRY_LC2), NFIFO, 0, BYTES_4, 0);
 		SET_LABEL(after_info);
 
 		/* Create offset in output FIFO of 6 */
@@ -335,8 +335,8 @@ int generate_yet_more_extra_desc_code(struct program *prg, uint32_t *buff,
 	LOAD(IMM(0), DATA2SZ, 0, 4, 0);
 	MOVE(IFIFOABD, 0, OFIFO, 0, IMM(0), WITH(FLUSH1));
 	LOAD(IMM
-	     (IFIFOENTRY_STYPE_OFIFO | IFIFOENTRY_DEST_CLASS2 |
-	      IFIFOENTRY_DTYPE_MSG | 2), NFIFO, 0, 4, 0);
+	     (NFIFOENTRY_STYPE_OFIFO | NFIFOENTRY_DEST_CLASS2 |
+	      NFIFOENTRY_DTYPE_MSG | 2), NFIFO, 0, 4, 0);
 
 	/*
 	 * It's a race - but the needed commands should be in the pipeline
@@ -348,7 +348,7 @@ int generate_yet_more_extra_desc_code(struct program *prg, uint32_t *buff,
 	ALG_OPERATION(OP_ALG_ALGSEL_CRC,
 		      OP_ALG_AAI_CUST_POLY | OP_ALG_AAI_IVZ | OP_ALG_AAI_DOC |
 		      OP_ALG_AAI_DIS | OP_ALG_AAI_DOS, OP_ALG_AS_FINALIZE,
-		      ICV_CHECK_OFF, DIR_ENCAP);
+		      ICV_CHECK_DISABLE, DIR_ENC);
 
 	size = PROGRAM_FINALIZE();
 	return size;

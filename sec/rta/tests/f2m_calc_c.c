@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "rta.h"
+#include "flib/rta.h"
 
 int f2m_calc_c_test(uint32_t *buff)
 {
@@ -57,16 +57,16 @@ int f2m_calc_c_test(uint32_t *buff)
 			      WITH(MATH_Z));
 
 		MATHB(MATH0, SUB, IMM(3), MATH0, 2, 0);	/* m-2 */
-		LOAD(IMM(0), DCTRL, LDOFF_DISABLE_AUTO_IFIFO, 0, 0);
+		LOAD(IMM(0), DCTRL, LDOFF_DISABLE_AUTO_NFIFO, 0, 0);
 		LOAD(IMM(2), PKESZ, 0, 4, 0);
 		MATHB(MATH0, LSHIFT, IMM(48), MATH0, 8, WITH(IFB));
 		MOVE(MATH0, 0, IFIFOAB1, 0, IMM(2), 0);
 		NFIFOADD(IFIFO, PKE, 2, WITH(FLUSH1));
-		LOAD(IMM(0), DCTRL, LDOFF_ENABLE_AUTO_IFIFO, 0, 0);
+		LOAD(IMM(0), DCTRL, LDOFF_ENABLE_AUTO_NFIFO, 0, 0);
 
 		/* pke is now 'm-2'; load 2 into pka */
 		FIFOLOAD(PKA, IMM(0x02000002), 4, 0);
-		PKHA_OPERATION(OP_ALG_PKMODE_MOD_EXP);
+		PKHA_OPERATION(OP_ALG_PKMODE_MOD_EXPO);
 		PKHA_OPERATION(OP_ALG_PKMODE_COPY_SSZ_B_E);
 
 		/* Now load curve parameter b */

@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "rta.h"
+#include "flib/rta.h"
 
 uint64_t shraddr = 0x51100030ull;
 REFERENCE(ref_jump_reload);
@@ -95,14 +95,14 @@ int build_shdesc_kasumi_bitshift_dcrc(struct program *prg, uint32_t *buff,
 		pmove1 = MOVE(MATH0, 0, DESCBUF, lab33, IMM(4), WITH(WAITCOMP));
 		/* [29] 16860800           ld: deco-deco-ctrl len=0 offs=8
 		 *                             imm -auto-nfifo-entries */
-		LOAD(IMM(0), DCTRL, LDOFF_DISABLE_AUTO_IFIFO, 0, 0);
+		LOAD(IMM(0), DCTRL, LDOFF_DISABLE_AUTO_NFIFO, 0, 0);
 		/* [30] 2B000000    seqfifold: class1 pk-a0 vlf */
 		SEQFIFOLOAD(PKA0, 0, WITH(VLF));
 		/* [31] 69300000   seqfifostr: deco msgdata vlf */
 		SEQFIFOSTORE(MSG, 0, 0, WITH(VLF));
 		/* [32] 16860400           ld: deco-deco-ctrl len=0 offs=4
 		 *                             imm +auto-nfifo-entries */
-		LOAD(IMM(0), DCTRL, LDOFF_ENABLE_AUTO_IFIFO, 0, 0);
+		LOAD(IMM(0), DCTRL, LDOFF_ENABLE_AUTO_NFIFO, 0, 0);
 		SET_LABEL(lab33);
 		/* [33] 78820000         move:  deco-algnblk->ofifo, len=0 */
 		MOVE(IFIFOABD, 0, OFIFO, 0, IMM(0), 0);

@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "rta.h"
+#include "flib/rta.h"
 
 int deco_dma(uint32_t *buff)
 {
@@ -52,7 +52,7 @@ int deco_dma(uint32_t *buff)
 		 * from 'ififoab1', as the data is already going to the Class 1
 		 * Alignment Block because of the seqfifoload, above.
 		 */
-		LOAD(IMM(0), DCTRL, LDOFF_DISABLE_AUTO_IFIFO, 0, 0);
+		LOAD(IMM(0), DCTRL, LDOFF_DISABLE_AUTO_NFIFO, 0, 0);
 
 		/* Put MOVE length (chunk size) into Math 1 */
 		MATHB(ZERO, ADD, IMM(move_size), MATH1, 4, 0);
