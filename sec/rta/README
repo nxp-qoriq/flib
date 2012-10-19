@@ -1,8 +1,8 @@
-
-Runtime Assembler's purpose is to provide an easy and flexible runtime method for writing CAAM descriptors.
+Runtime Assembler provides an easy and flexible runtime method for writing
+CAAM descriptors.
 
 1. What's supported
-==================
+===================
 1.1 Initialization/verification code for descriptor buffer.
 1.2 Configuration/verification code for CAAM commands:
        FIFOLOAD and SEQFIFOLOAD;
@@ -13,7 +13,7 @@ Runtime Assembler's purpose is to provide an easy and flexible runtime method fo
        LOAD and SEQLOAD;
        MATH;
        MOVE and MOVELEN;
-       NFIFO - pseudo command( shortcut for writing FIFO entries using LOAD command);
+       NFIFO - pseudo command (shortcut for writing FIFO entries using LOAD command);
        PKA OPERATION and ALGORITHM OPERATION;
        PROTOCOL;
        SEQ IN PTR and SEQ OUT PTR;
@@ -24,13 +24,27 @@ Runtime Assembler's purpose is to provide an easy and flexible runtime method fo
 1.4 Support for 32bits/36bits pointer size.
 
 2. What's not supported
-======================
+=======================
 2.1 Era verification for CAAM commands.
 
 3. Integration
-=============
+==============
 To integrate this tool into your project, rta.h file must be included.
 
 4. Run
 ======
-To run an example, enter tests/directory and use "gcc -Wall -I .. <example_file.c>" to compile.
+The examples are located in 'tests' directory:
+   tests/
+        kasumi_dcrc_decap_opt.c
+        test_nfifo.c
+        test_operation_alg.c
+        make_rsa_keys_1.c
+        ...
+
+The provided Makefile contains the necessary include paths and compiler flags
+to build all examples.
+
+$ cd tests
+$ make all
+ or
+$ make <test_name>
