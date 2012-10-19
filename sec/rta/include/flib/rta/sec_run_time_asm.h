@@ -6,7 +6,6 @@
 #include <string.h>
 #include <stdlib.h>
 
-
 #ifndef pr_debug
 #ifdef DEBUG
 #define pr_debug(...)    printf(...)
@@ -420,18 +419,22 @@
 #define PS              0x10000000
 #define BP              0x20000000
 
+/**
+ * @struct    program sec_run_time_asm.h
+ * @details   Descriptor buffer management structure
+ */
 struct program {
-	int current_pc;		/* Current offset in descriptor */
-	int current_instraction;
-	int first_error_pc;
-	int start_pc;		/* Start offset in descriptor buffer */
-	uint32_t *buffer;	/* Buffer carrying descriptor */
-	uint32_t *shrhdr;	/* Descriptor Header */
-	uint32_t *jobhdr;
-	uint sec_era; /* ERA of the SEC HW block */
+	int current_pc;		/**< Current offset in descriptor */
+	int current_instraction;/**< Current instruction in descriptor */
+	int first_error_pc;     /**< Offset of the first error in descriptor */
+	int start_pc;		/**< Start offset in descriptor buffer */
+	uint32_t *buffer;	/**< Buffer carrying descriptor */
+	uint32_t *shrhdr;	/**< Shared Descriptor Header */
+	uint32_t *jobhdr;       /**< Job Descriptor Header */
+	uint sec_era;           /**< ERA of the SEC HW block */
 #define MAX_SEC_ERA	5
 #define DEFAULT_SEC_ERA	MAX_SEC_ERA
-	uint8_t ps;		/* Pointer fields size; if ps is set to 1,
+	uint8_t ps;		/**< Pointer fields size; if ps is set to 1,
 				   pointers will be 36bits in length; if ps
 				   is set to 0, pointers will be 32bits in
 				   length. */

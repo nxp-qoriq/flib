@@ -1,5 +1,5 @@
 /*
- * CAAM descriptor composition header
+ * CAAM descriptor composition header.
  * Definitions to support CAAM descriptor instruction generation
  */
 

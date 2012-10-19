@@ -1,24 +1,31 @@
-/*
- * CAAM Descriptor Construction Library
- * Protocol-level Shared Descriptor Constructors
- */
-
 #ifndef __RTA_PROTOSHARED_H__
 #define __RTA_PROTOSHARED_H__
 
 #include "rta.h"
 
-/*
- * SNOW/f8 (UEA2) as a shared descriptor
+/**
+ * @file                 protoshared.h
+ * @brief                CAAM Descriptor Construction Library Protocol-level
+ *                       Shared Descriptor Constructors
+ */
+
+/**
+ * @defgroup sharedesc_group Shared Descriptor Example Routines
+ * @{
+ */
+
+/**
+ * @details              SNOW/f8 (UEA2) as a shared descriptor.
  *
- * @descbuf - pointer to descriptor-under-construction buffer
- * @bufsize - points to size to be updated at completion
- * @cipherkey - cipher key
- * @keylen  - size of key in bits
- * @dir     - cipher direction (DIR_ENCRYPT/DIR_DECRYPT)
- * @count   - UEA2 count value (32 bits)
- * @bearer  - UEA2 bearer ID (5 bits)
- * @direction - UEA2 direction (1 bit)
+ * @param [in] descbuf   Pointer to descriptor-under-construction buffer.
+ * @param [in] bufsize   Points to size to be updated at completion.
+ * @param [in] cipherkey Cipher key.
+ * @param [in] keylen    Size of key in bits.
+ * @param [in] dir       Cipher direction (DIR_ENCRYPT/DIR_DECRYPT).
+ * @param [in] count     UEA2 count value (32 bits).
+ * @param [in] bearer    UEA2 bearer ID (5 bits).
+ * @param [in] direction UEA2 direction (1 bit).
+ *
  */
 static inline void cnstr_shdsc_snow_f8(uint32_t *descbuf, uint16_t *bufsize,
 			 uint8_t *cipherkey, uint32_t keylen,
@@ -48,18 +55,18 @@ static inline void cnstr_shdsc_snow_f8(uint32_t *descbuf, uint16_t *bufsize,
 	*bufsize = PROGRAM_FINALIZE();
 }
 
-/*
- * SNOW/f9 (UIA2) as a shared descriptor
+/**
+ * @details             SNOW/f9 (UIA2) as a shared descriptor.
  *
- * @descbuf - pointer to descriptor-under-construction buffer
- * @bufsize - points to size to be updated at completion
- * @bufsize - points to size to be updated at completion
- * @cipherkey - cipher key
- * @keylen  - size of key in bits
- * @dir     - cipher direction (DIR_ENCRYPT/DIR_DECRYPT)
- * @count   - UEA2 count value (32 bits)
- * @fresh   - UEA2 fresh value ID (32 bits)
- * @direction - UEA2 direction (1 bit)
+ * @param[in] descbuf   Pointer to descriptor-under-construction buffer.
+ * @param[in] bufsize   Points to size to be updated at completion.
+ * @param[in] cipherkey Cipher key.
+ * @param[in] keylen    Size of key.
+ * @param[in] dir       Cipher direction (DIR_ENCRYPT/DIR_DECRYPT).
+ * @param[in] count     UEA2 count value (32 bits).
+ * @param[in] fresh     UEA2 fresh value ID (32 bits).
+ * @param[in] direction UEA2 direction (1 bit).
+ * @param[in] datalen   Size of data.
  */
 static inline void cnstr_shdsc_snow_f9(uint32_t *descbuf, uint16_t *bufsize,
 			 uint8_t *cipherkey, uint32_t keylen,
@@ -93,16 +100,17 @@ static inline void cnstr_shdsc_snow_f9(uint32_t *descbuf, uint16_t *bufsize,
 	*bufsize = PROGRAM_FINALIZE();
 }
 
-/*
- * CBC blockcipher
- * @descbuf - descriptor buffer
- * @bufsize - limit/returned descriptor buffer size
- * @cipherkey - key data to inline
- * @keylen  - key length
- * @iv      - iv data
- * @ivsize  - iv length
- * @dir     - DIR_ENCRYPT/DIR_DECRYPT
- * @cipher  - OP_ALG_ALGSEL_AES/DES/3DES
+/**
+ * @details             CBC blockcipher
+ *
+ * @param[in] descbuf   Pointer to descriptor-under-construction buffer.
+ * @param[in] bufsize   Limit/returned descriptor buffer size.
+ * @param[in] cipherkey Key data to inline.
+ * @param[in] keylen    Key length.
+ * @param[in] iv        IV data.
+ * @param[in] ivlen     IV length.
+ * @param[in] dir       DIR_ENCRYPT/DIR_DECRYPT.
+ * @param[in] cipher    OP_ALG_ALGSEL_AES/DES/3DES.
  */
 static inline void cnstr_shdsc_cbc_blkcipher(uint32_t *descbuf, uint16_t *bufsize,
 			       uint8_t *cipherkey, uint32_t keylen,
@@ -130,13 +138,15 @@ static inline void cnstr_shdsc_cbc_blkcipher(uint32_t *descbuf, uint16_t *bufsiz
 	*bufsize = PROGRAM_FINALIZE();
 }
 
-/*
- * HMAC shared
- * @descbuf - descriptor buffer
- * @bufsize - limit/returned descriptor buffer size
- * @md_key  - key data to inline (length based on message digest algorithm)
- * @md_algo - message digest algorithm: OP_ALG_ALGSEL_MD5/SHA1-512
- * @icv     - HMAC comparison for ICV, NULL if no check desired
+/**
+ * @details            HMAC shared
+ *
+ * @param[in] descbuf  Pointer to descriptor-under-construction buffer.
+ * @param[in] bufsize  Limit/returned descriptor buffer size.
+ * @param[in] md_key   Key data to inline (length based on message digest
+ *                     algorithm).
+ * @param[in] md_algo  Message digest algorithm: OP_ALG_ALGSEL_MD5/SHA1-512.
+ * @param[in] icv      HMAC comparison for ICV, NULL if no check desired.
  */
 static inline void cnstr_shdsc_hmac(uint32_t *descbuf, uint16_t *bufsize,
 		      uint8_t *md_key, uint32_t md_algo, uint8_t *icv)
@@ -190,18 +200,18 @@ static inline void cnstr_shdsc_hmac(uint32_t *descbuf, uint16_t *bufsize,
 	*bufsize = PROGRAM_FINALIZE();
 }
 
-/*
- * KASUMI F8 (Confidentialy) as a shared descriptor
- * (ETSI "Document 1: f8 and f9 specification")
+/**
+ * @details            KASUMI F8 (Confidentialy) as a shared descriptor (ETSI
+ *                     "Document 1: f8 and f9 specification").
  *
- * @descbuf - pointer to descriptor-under-construction buffer
- * @bufsize - points to size to be updated at completion
- * @cipherkey - cipher key
- * @keylen  - size of key in bits
- * @dir     - cipher direction (DIR_ENCRYPT/DIR_DECRYPT)
- * @count   - count value (32 bits)
- * @bearer  - bearer ID (5 bits)
- * @direction - direction (1 bit)
+ * @param[in] descbuf   Pointer to descriptor-under-construction buffer.
+ * @param[in] bufsize   Points to size to be updated at completion.
+ * @param[in] cipherkey Cipher key.
+ * @param[in] keylen    Size of key.
+ * @param[in] dir       Cipher direction (DIR_ENCRYPT/DIR_DECRYPT).
+ * @param[in] count     Count value (32 bits).
+ * @param[in] bearer    Bearer ID (5 bits).
+ * @param[in] direction Direction (1 bit).
  */
 static inline void cnstr_shdsc_kasumi_f8(uint32_t *descbuf, uint16_t *bufsize,
 			   uint8_t *cipherkey, uint32_t keylen,
@@ -231,19 +241,19 @@ static inline void cnstr_shdsc_kasumi_f8(uint32_t *descbuf, uint16_t *bufsize,
 	*bufsize = PROGRAM_FINALIZE();
 }
 
-/*
- * KASUMI F9 (Integrity) as a shared descriptor
- * (ETSI "Document 1: f8 and f9 specification")
+/**
+ * @details             KASUMI F9 (Integrity) as a shared descriptor (ETSI
+ *                      "Document 1: f8 and f9 specification").
  *
- * @descbuf - pointer to descriptor-under-construction buffer
- * @bufsize - points to size to be updated at completion
- * @cipherkey - cipher key
- * @keylen  - size of key in bits
- * @dir     - cipher direction (DIR_ENCRYPT/DIR_DECRYPT)
- * @count   - count value (32 bits)
- * @fresh   - fresh value ID (32 bits)
- * @direction - direction (1 bit)
- * @datalen - size of data in bits
+ * @param[in] descbuf   Pointer to descriptor-under-construction buffer.
+ * @param[in] bufsize   Points to size to be updated at completion.
+ * @param[in] cipherkey Cipher key.
+ * @param[in] keylen    Size of key.
+ * @param[in] dir       Cipher direction (DIR_ENCRYPT/DIR_DECRYPT).
+ * @param[in] count     Count value (32 bits).
+ * @param[in] fresh     Fresh value ID (32 bits).
+ * @param[in] direction Direction (1 bit).
+ * @param[in] datalen   Size of data.
  */
 static inline void cnstr_shdsc_kasumi_f9(uint32_t *descbuf, uint16_t *bufsize,
 			   uint8_t *cipherkey, uint32_t keylen,
@@ -278,15 +288,11 @@ static inline void cnstr_shdsc_kasumi_f9(uint32_t *descbuf, uint16_t *bufsize,
 	*bufsize = PROGRAM_FINALIZE();
 }
 
-/*
- * CRC32 Accelerator (IEEE 802 CRC32 protocol mode)
+/**
+ * @details            CRC32 Accelerator (IEEE 802 CRC32 protocol mode)
  *
- * @descbuf - descriptor buffer
- * @bufsize - limit of descriptor buffer size
- *
- *  DIS - turned on
- *  DOS - turned on
- *  DOC - turned off
+ * @param[in] descbuf  Pointer to descriptor-under-construction buffer.
+ * @param[in] bufsize  Limit of descriptor buffer size.
  */
 static inline void cnstr_shdsc_crc(uint32_t *descbuf, uint16_t *bufsize)
 {
@@ -306,5 +312,7 @@ static inline void cnstr_shdsc_crc(uint32_t *descbuf, uint16_t *bufsize)
 	}
 	*bufsize = PROGRAM_FINALIZE();
 }
+
+/** @} */ /* end of sharedesc_group */
 
 #endif /* __RTA_PROTOSHARED_H__ */
