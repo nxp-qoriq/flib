@@ -1,23 +1,17 @@
-DESTDIR ?= $(shell pwd)/test_install
+prefix=/usr
+includedir=$(prefix)/include
 
-HEADERS := $(wildcard *.h)
-TOP_HEADERS := desc.h protoshared.h rta.h
-IN_HEADERS := $(filter-out $(TOP_HEADERS),$(HEADERS))
 
 .PHONY: all
 all: ;
 
 .PHONY:	install
 install:
-	install -m 755 -d $(DESTDIR)/usr/include/flib/rta
-
-	for header in $(TOP_HEADERS); do \
-	install -m 0644 $$header $(DESTDIR)/usr/include/flib; \
-	done
-
-	for header in $(IN_HEADERS); do \
-	install -m 0644 $$header $(DESTDIR)/usr/include/flib/rta; \
-	done
+	install -m 755 -d $(DESTDIR)$(includedir)/flib/rta
+	cd include/flib &&\
+	install -m 0644 *.h $(DESTDIR)$(includedir)/flib
+	cd include/flib/rta &&\
+	install -m 0644 *.h $(DESTDIR)$(includedir)/flib/rta
 
 .PHONY: clean
 clean: ;
