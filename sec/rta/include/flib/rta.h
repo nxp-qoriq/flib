@@ -51,6 +51,8 @@
  * by whom needs to encode descriptors at runtime, with comprehensible flow
  * control in descriptor.
  *
+ * The \subpage userman "User Manual" page contains more details about RTA.
+ *
  * \image html rta_arch.png "RTA Integration Overview" width=10cm
  *
  * In SDK package, an example of RTA usage in user space is included. The
