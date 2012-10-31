@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include "flib/rta.h"
 
+uint rta_sec_era;
+
 const uint8_t key1[16] = {
 	0x1d, 0xc9, 0xef, 0x2f, 0x7d, 0xa3, 0x3b, 0xd6,
 	0x42, 0xa4, 0x61, 0xef, 0x5b, 0x10, 0x48, 0x73
@@ -41,7 +43,7 @@ int build_dtls_sharedesc(uint32_t *buff, uint32_t seqnum,
 	REFERENCE(pjump2);
 	LABEL(new_IV_OK);
 
-	PROGRAM_CNTXT_INIT(buff, 0, 0);
+	PROGRAM_CNTXT_INIT(buff, 0);
 	SHR_HDR(SHR_SERIAL, 7, 0);
 	{
 		{	/* Custom DTLS Encap AES-CBC */
@@ -168,13 +170,14 @@ static void print_prog(uint32_t *buff, int size)
 int main(int argc, char **argv)
 {
 	uint32_t seqnum = 0x179;
-
 	int size;
+
 	printf("DTLS example program\n");
-	size =
-	    build_dtls_sharedesc((uint32_t *) prg_buff, seqnum, key1,
-				 key2, 46, 0xff80);
+	rta_set_sec_era(1);
+	size = build_dtls_sharedesc((uint32_t *) prg_buff, seqnum, key1, key2,
+				    46, 0xff80);
 	printf("size = %d\n", size);
 	print_prog((uint32_t *) prg_buff, size);
+
 	return 0;
 }

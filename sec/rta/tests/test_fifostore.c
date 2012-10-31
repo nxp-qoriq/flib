@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "flib/rta.h"
 
+uint rta_sec_era;
 int prg_buff[1000];
 
 static void print_prog(uint32_t *buff, int size)
@@ -17,7 +18,7 @@ int test_fifo_store_op(uint32_t *buff)
 	int size;
 	uint64_t loc = 0x1224445;
 
-	PROGRAM_CNTXT_INIT(buff, 0, 0);
+	PROGRAM_CNTXT_INIT(buff, 0);
 	FIFOSTORE(MSG, 0, loc, 100000000, 0);
 	FIFOSTORE(RNG, 0, loc, 32, 0);
 	FIFOSTORE(RNGOFIFO, 0, 0, 1, 0);
@@ -72,9 +73,12 @@ int test_fifo_store_op(uint32_t *buff)
 int main(int argc, char **argv)
 {
 	int size;
+
 	printf("FIFOSTORE program\n");
+	rta_set_sec_era(1);
 	size = test_fifo_store_op((uint32_t *) prg_buff);
 	printf("size = %d\n", size);
 	print_prog((uint32_t *) prg_buff, size);
+
 	return 0;
 }

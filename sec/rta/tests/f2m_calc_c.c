@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include "flib/rta.h"
 
+uint rta_sec_era;
+
 int f2m_calc_c_test(uint32_t *buff)
 {
 	struct program prg;
@@ -11,7 +13,7 @@ int f2m_calc_c_test(uint32_t *buff)
 	REFERENCE(pjump1);
 	LABEL(shr_end);
 
-	PROGRAM_CNTXT_INIT(buff, 0, 0);
+	PROGRAM_CNTXT_INIT(buff, 0);
 	SHR_HDR(SHR_NEVER, 0, 0);
 	{
 		/*
@@ -97,9 +99,12 @@ static void print_prog(uint32_t *buff, int size)
 int main(int argc, char **argv)
 {
 	int size;
+
 	printf("F2M_calc_c example program\n");
+	rta_set_sec_era(1);
 	size = f2m_calc_c_test((uint32_t *) prg_buff);
 	printf("size = %d\n", size);
 	print_prog((uint32_t *) prg_buff, size);
+
 	return 0;
 }

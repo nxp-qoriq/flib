@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "flib/rta.h"
 
+uint rta_sec_era;
 int prg_buff[1000];
 
 static void print_prog(uint32_t *buff, int size)
@@ -18,7 +19,7 @@ int generate_capwap_code(uint32_t *buff, int mdatalen)
 	uint8_t key_imm[] = { 0x12, 0x13, 0x14, 0x15 };
 	intptr_t key_addr = (intptr_t) &key_imm;
 
-	PROGRAM_CNTXT_INIT(buff, 0, 0);
+	PROGRAM_CNTXT_INIT(buff, 0);
 
 	LABEL(encap_iv);
 	LABEL(previous_iv);
@@ -84,9 +85,12 @@ int generate_capwap_code(uint32_t *buff, int mdatalen)
 int main(int argc, char **argv)
 {
 	int size;
+
 	printf("CAPWAP program\n");
+	rta_set_sec_era(1);
 	size = generate_capwap_code((uint32_t *) prg_buff, 0);
 	printf("size = %d\n", size);
 	print_prog((uint32_t *) prg_buff, size);
+
 	return 0;
 }

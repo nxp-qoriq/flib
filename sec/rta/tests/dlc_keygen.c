@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include "flib/rta.h"
 
+uint rta_sec_era;
+
 uint8_t modulus[20] = {
 	0x9A, 0x27, 0x7B, 0x10, 0x42, 0x3F, 0xEC, 0xDB,
 	0x0F, 0x3B, 0x1A, 0x52, 0x2A, 0x61, 0x2D, 0x14,
@@ -28,7 +30,7 @@ int dlc_keygen(uint32_t *buff)
 	REFERENCE(p2_retry);
 	REFERENCE(p3_retry);
 
-	PROGRAM_CNTXT_INIT(buff, 0, 0);
+	PROGRAM_CNTXT_INIT(buff, 0);
 	PROGRAM_SET_36BIT_ADDR();
 
 	JOB_HDR(SHR_NEVER, 0, 0);
@@ -102,9 +104,12 @@ static void print_prog(uint32_t *buff, int size)
 int main(int argc, char **argv)
 {
 	int size;
+
 	printf("DLC KEYGEN program\n");
+	rta_set_sec_era(1);
 	size = dlc_keygen((uint32_t *) prg_buff);
 	printf("size = %d\n", size);
 	print_prog((uint32_t *) prg_buff, size);
+
 	return 0;
 }

@@ -15,6 +15,8 @@
   This will generate values of length 8*size bits for q and r
 */
 
+uint rta_sec_era;
+
 int r_size = 20;		/* 160 bits */
 int q_size = 128;
 uint64_t dom_r_addr = 0x51d121510ull;
@@ -34,7 +36,7 @@ int generate_dlc_fp_params(struct program *prg, uint32_t *buff)
 	LABEL(new_r);
 	REFERENCE(ref_new_r);
 
-	PROGRAM_CNTXT_INIT(buff, 0, 0);
+	PROGRAM_CNTXT_INIT(buff, 0);
 	PROGRAM_SET_36BIT_ADDR();
 
 	JOB_HDR(SHR_NEVER, 0, 0);
@@ -88,7 +90,7 @@ int dlc_fp_make_x(struct program *prg, uint32_t *buff)
 	struct program *program = prg;
 	int size;
 
-	PROGRAM_CNTXT_INIT(buff, 0, 0);
+	PROGRAM_CNTXT_INIT(buff, 0);
 	PROGRAM_SET_36BIT_ADDR();
 
 	JOB_HDR(SHR_NEVER, 0, 0);
@@ -128,7 +130,7 @@ int dlc_fp_make_q(struct program *prg, uint32_t *buff)
 	LABEL(store_q);
 	REFERENCE(ref_store_q);
 
-	PROGRAM_CNTXT_INIT(buff, 0, 0);
+	PROGRAM_CNTXT_INIT(buff, 0);
 	PROGRAM_SET_36BIT_ADDR();
 
 	JOB_HDR(SHR_NEVER, 0, 0);
@@ -201,7 +203,7 @@ int dlc_fp_make_g(struct program *prg, uint32_t *buff)
 	LABEL(found_g);
 	REFERENCE(ref_found_g);
 
-	PROGRAM_CNTXT_INIT(buff, 0, 0);
+	PROGRAM_CNTXT_INIT(buff, 0);
 	PROGRAM_SET_36BIT_ADDR();
 
 	JOB_HDR(SHR_NEVER, 0, 0);
@@ -298,6 +300,8 @@ int main(int argc, char **argv)
 	struct program make_q_prgm;
 	struct program make_g_prgm;
 	int size;
+
+	rta_set_sec_era(1);
 
 	printf("Generate DLC FP domain parameters\n");
 	size = generate_dlc_fp_params(&gen_dlc_fp_prgm, gen_dlc_fp_desc);

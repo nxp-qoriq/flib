@@ -2,6 +2,8 @@
 #include "flib/rta.h"
 
 /* Global variables section */
+uint rta_sec_era;
+
 static LABEL(encap_share_end);
 static REFERENCE(encap_share_end_ref3);
 static REFERENCE(encap_share_end_ref4);
@@ -66,7 +68,7 @@ int generate_lte_code(struct program *prg, uint32_t *buff, int mdatalen,
 	REFERENCE(pmove8);
 	REFERENCE(pmove9);
 
-	PROGRAM_CNTXT_INIT(buff, 0, 0);
+	PROGRAM_CNTXT_INIT(buff, 0);
 
 	SHR_HDR(SHR_ALWAYS, 0, 0);
 	{
@@ -228,7 +230,7 @@ int generate_extra_desc_code(struct program *prg, uint32_t *buff, int mdatalen,
 	int size;
 	struct program *program = prg;
 
-	PROGRAM_CNTXT_INIT(buff, buffpos, 0);
+	PROGRAM_CNTXT_INIT(buff, buffpos);
 
 	MATHB(MATH2, SUB, ONE, MATH2, 4, 0);	/* Done with a PDU */
 
@@ -259,7 +261,7 @@ int generate_more_extra_desc_code(struct program *prg, uint32_t *buff,
 	int size;
 	struct program *program = prg;
 
-	PROGRAM_CNTXT_INIT(buff, buffpos, 0);
+	PROGRAM_CNTXT_INIT(buff, buffpos);
 
 	/* end extras to C2 context for later use */
 	MOVE(IFIFOABD, 0, CONTEXT2, 0, IMM(num_ctx2_extras), WITH(FLUSH1));
@@ -294,7 +296,7 @@ int generate_even_more_extra_desc_code(struct program *prg, uint32_t *buff,
 	int size;
 	struct program *program = prg;
 
-	PROGRAM_CNTXT_INIT(buff, buffpos, 0);
+	PROGRAM_CNTXT_INIT(buff, buffpos);
 
 	MOVE(MATH0, 0, CONTEXT2, 4, IMM(8), 0);
 	/* fix up head info FIFO entry */
@@ -327,7 +329,7 @@ int generate_yet_more_extra_desc_code(struct program *prg, uint32_t *buff,
 	int size;
 	struct program *program = prg;
 
-	PROGRAM_CNTXT_INIT(buff, buffpos, 0);
+	PROGRAM_CNTXT_INIT(buff, buffpos);
 
 	/* get CRC init value into place */
 	MOVE(IFIFOABD, 0, CONTEXT2, 0, IMM(4), WITH(FLUSH1));
@@ -365,7 +367,7 @@ int generate_still_more_extra_desc_code(struct program *prg, uint32_t *buff,
 	int size;
 	struct program *program = prg;
 
-	PROGRAM_CNTXT_INIT(buff, buffpos, 0);
+	PROGRAM_CNTXT_INIT(buff, buffpos);
 
 	SET_LABEL(yet_more);
 	SEQFIFOSTORE(MSG, 0, 0, WITH(VLF));
@@ -394,7 +396,6 @@ int main(int argc, char *argv[])
 	int lte_desc_size, extra_desc_size, more_extra_desc_size;
 	int even_more_extra_desc_size, yet_more_extra_desc_size;
 	int still_more_extra_desc_size;
-	int era = 99;
 
 	struct program lte_prgm;
 	struct program extra_prgm;
@@ -403,8 +404,7 @@ int main(int argc, char *argv[])
 	struct program yet_more_extra_prgm;
 	struct program still_more_extra_prgm;
 
-	if (argc > 1)
-		era = atoi(argv[1]);
+	rta_set_sec_era(1);
 
 	memset(lte_desc, 0xFF, sizeof(lte_desc));
 	lte_desc_size = generate_lte_code(&lte_prgm, lte_desc, 500, 0);

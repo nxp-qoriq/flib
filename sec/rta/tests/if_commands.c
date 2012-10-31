@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include "flib/rta.h"
 
+uint rta_sec_era;
+
 int if_command_test(uint32_t *buff, uint8_t len)
 {
 	struct program prg;
@@ -9,7 +11,7 @@ int if_command_test(uint32_t *buff, uint8_t len)
 
 	PROGRAM_SET_36BIT_ADDR();
 
-	PROGRAM_CNTXT_INIT(buff, 0, 0);
+	PROGRAM_CNTXT_INIT(buff, 0);
 
 	if (len == 16)
 		MOVE(CONTEXT1, 0, CONTEXT2, 0, IMM(15), 0);
@@ -65,8 +67,10 @@ int main(int argc, char **argv)
 	uint8_t len = 16;
 
 	printf("IF_Command  example program\n");
+	rta_set_sec_era(1);
 	size = if_command_test((uint32_t *) prg_buff, len);
 	printf("size = %d\n", size);
 	print_prog((uint32_t *) prg_buff, size);
+
 	return 0;
 }

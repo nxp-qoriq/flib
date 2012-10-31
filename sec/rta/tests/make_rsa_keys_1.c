@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include "flib/rta.h"
 
+uint rta_sec_era;
+
 uint64_t pkha_make_rsa_keys_phys = (uint64_t) 0x08eb2f00ul;
 uint64_t pkha_make_rsa_p_q_phys = (uint64_t) 0xe6580300ul;
 uint64_t pkha_make_rsa_check_pq_phys = (uint64_t) 0xf97183c0ul;
@@ -33,7 +35,7 @@ int jdesc_pkha_make_rsa_p_q(struct program *prg, uint32_t *buff, int buffpos)
 	LABEL(now_do_q);
 	REFERENCE(pjump4);
 
-	PROGRAM_CNTXT_INIT(buff, buffpos, 0);
+	PROGRAM_CNTXT_INIT(buff, buffpos);
 	JOB_HDR(SHR_NEVER, 0, 0);
 	{
 		MATHB(ZERO, ADD, MATH0, MATH1, 4, 0);	/* try counter */
@@ -124,7 +126,7 @@ int jdesc_pkha_make_rsa_check_pq(struct program *prg, uint32_t *buff,
 	REFERENCE(pjump5);
 	REFERENCE(pjump6);
 
-	PROGRAM_CNTXT_INIT(buff, buffpos, 0);
+	PROGRAM_CNTXT_INIT(buff, buffpos);
 	JOB_HDR(SHR_NEVER, 0, 0);
 	{
 		LOAD(IMM(0), DCTRL, LDOFF_ENABLE_AUTO_NFIFO, 0, 0);
@@ -191,7 +193,7 @@ int jdesc_pkha_make_rsa_keys(struct program *prg, uint32_t *buff, int buffpos)
 	struct program *program = prg;
 	int size;
 
-	PROGRAM_CNTXT_INIT(buff, buffpos, 0);
+	PROGRAM_CNTXT_INIT(buff, buffpos);
 	JOB_HDR(SHR_NEVER, 0, 0);
 	{
 		/* Configure Miller-Rabin test count ||  max random prime
@@ -216,7 +218,7 @@ int jdesc_pkha_make_rsa_d_n(struct program *prg, uint32_t *buff, int buffpos)
 	LABEL(phi_e_relatively_prime);
 	REFERENCE(pjump1);
 
-	PROGRAM_CNTXT_INIT(buff, buffpos, 0);
+	PROGRAM_CNTXT_INIT(buff, buffpos);
 	JOB_HDR(SHR_NEVER, 0, 0);
 	{
 		PKHA_OPERATION(OP_ALG_PKMODE_COPY_NSZ_N_B);
@@ -280,6 +282,8 @@ int main(int argc, char **argv)
 	struct program rsa_p_q_prgm;
 	struct program rsa_check_p_q_prgm;
 	struct program rsa_d_n_prgm;
+
+	rta_set_sec_era(1);
 
 	memset(make_rsa_keys, 0xFF, sizeof(make_rsa_keys));
 	rsa_keys_size =

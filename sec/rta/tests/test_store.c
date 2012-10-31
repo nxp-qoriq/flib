@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "flib/rta.h"
 
+uint rta_sec_era;
 int prg_buff[1000];
 
 int test_store(uint32_t *buff)
@@ -16,7 +17,7 @@ int test_store(uint32_t *buff)
 
 	LABEL(here);
 
-	PROGRAM_CNTXT_INIT(buff, 0, 0);
+	PROGRAM_CNTXT_INIT(buff, 0);
 	/* Class-independent CCB registers */
 	STORE(CLRW, 0, PTR((intptr_t) foo), 4, 0);
 	STORE(CCTRL, 0, PTR((intptr_t) foo), 4, 0);
@@ -77,9 +78,12 @@ static void print_prog(uint32_t *buff, int size)
 int main(int argc, char **argv)
 {
 	int size;
+
 	printf("STORE program\n");
+	rta_set_sec_era(1);
 	size = test_store((uint32_t *) prg_buff);
 	printf("size = %d\n", size);
 	print_prog((uint32_t *) prg_buff, size);
+
 	return 0;
 }

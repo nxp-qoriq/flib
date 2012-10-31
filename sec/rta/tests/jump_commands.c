@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include "flib/rta.h"
 
+uint rta_sec_era;
+
 LABEL(aaa);
 REFERENCE(ref1_jump_aaa);
 REFERENCE(ref2_jump_aaa);
@@ -48,7 +50,7 @@ int jump_cmd_desc1(struct program *prg, uint32_t *buff, int buffpos)
 	REFERENCE(phdr3);
 	REFERENCE(phdr4);
 
-	PROGRAM_CNTXT_INIT(buff, 0, 0);
+	PROGRAM_CNTXT_INIT(buff, 0);
 	SHR_HDR(SHR_NEVER, 0, 0);
 	{
 		SET_LABEL(aaa);
@@ -102,7 +104,7 @@ int jump_cmd_desc2(struct program *prg, uint32_t *buff, int buffpos)
 	REFERENCE(phdr3);
 	REFERENCE(phdr4);
 
-	PROGRAM_CNTXT_INIT(buff, buffpos, 0);
+	PROGRAM_CNTXT_INIT(buff, buffpos);
 	JOB_HDR(SHR_NEVER, sharehdr, WITH(SHR));
 	{
 		SET_LABEL(fff);	/* first instruction in job header */
@@ -156,7 +158,7 @@ int jump_cmd_desc3(struct program *prg, uint32_t *buff, int buffpos)
 	REFERENCE(phdr1);
 	REFERENCE(phdr2);
 
-	PROGRAM_CNTXT_INIT(buff, buffpos, 0);
+	PROGRAM_CNTXT_INIT(buff, buffpos);
 	{
 		SET_LABEL(yyy);
 		yyy = 63;	/* last word in descbuf [63] */
@@ -188,7 +190,7 @@ int jump_cmd_desc4(struct program *prg, uint32_t *buff, int buffpos)
 	struct program *program = prg;
 	int size;
 
-	PROGRAM_CNTXT_INIT(buff, buffpos, 0);
+	PROGRAM_CNTXT_INIT(buff, buffpos);
 	{
 		JUMP(IMM(28), LOCAL_JUMP, ALL_TRUE, 0);
 	}
@@ -202,7 +204,7 @@ int jump_cmd_desc5(struct program *prg, uint32_t *buff, int buffpos)
 	struct program *program = prg;
 	int size;
 
-	PROGRAM_CNTXT_INIT(buff, buffpos, 0);
+	PROGRAM_CNTXT_INIT(buff, buffpos);
 	{
 		/* class done tests */
 		JUMP(PTR(0x500), FAR_JUMP, ALL_TRUE,
@@ -225,7 +227,7 @@ int jump_cmd_desc6(struct program *prg, uint32_t *buff, int buffpos)
 	struct program *program = prg;
 	int size;
 
-	PROGRAM_CNTXT_INIT(buff, buffpos, 0);
+	PROGRAM_CNTXT_INIT(buff, buffpos);
 	JOB_HDR(SHR_NEVER, 0, 0);
 	{
 		JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, WITH(NIFP));
@@ -261,6 +263,8 @@ int main(int argc, char **argv)
 	struct program desc4_prgm;
 	struct program desc5_prgm;
 	struct program desc6_prgm;
+
+	rta_set_sec_era(1);
 
 	memset(desc1, 0x00, sizeof(desc1));
 	buf1len = jump_cmd_desc1(&desc1_prgm, desc1, 0);

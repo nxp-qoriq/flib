@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include "flib/rta.h"
 
+uint rta_sec_era;
+
 /*
  *  Test variable length of immediate byte data in a command.
  *  This only works in Style 3.
@@ -27,7 +29,7 @@ int var_test(uint32_t *buff)
 
 	PROGRAM_SET_36BIT_ADDR();
 
-	PROGRAM_CNTXT_INIT(buff, 0, 0);
+	PROGRAM_CNTXT_INIT(buff, 0);
 	/* RSA Encrypt */
 	JOB_HDR(SHR_NEVER, 0, 0);
 	{
@@ -56,9 +58,12 @@ static void print_prog(uint32_t *buff, int size)
 int main(int argc, char **argv)
 {
 	int size;
+
 	printf("VAR_1 example program\n");
+	rta_set_sec_era(1);
 	size = var_test((uint32_t *) prg_buff);
 	printf("size = %d\n", size);
 	print_prog((uint32_t *) prg_buff, size);
+
 	return 0;
 }

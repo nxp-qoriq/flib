@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include "flib/rta.h"
 
+uint rta_sec_era;
+
 LABEL(decap_job_seqoutptr);
 REFERENCE(ref_decap_job);
 LABEL(decap_share_end);
@@ -22,7 +24,7 @@ int build_shdesc_kasumi_dcrc_decap(struct program *prg, uint32_t *buff,
 	LABEL(process_pdu);
 	REFERENCE(pjump2);
 
-	PROGRAM_CNTXT_INIT(buff, buffpos, 0);
+	PROGRAM_CNTXT_INIT(buff, buffpos);
 	SHR_HDR(SHR_NEVER, 6, 0);
 	{
 		{	/* 3G RLC DECAP PDB */
@@ -119,7 +121,7 @@ int build_jbdesc_kasumi_dcrc_decap(struct program *prg, uint32_t *buff,
 	uint64_t pdu_in_addr_1 = 0x00000b78ull;
 	uint64_t pdu_out_addr_1 = 0x098e449dull;
 
-	PROGRAM_CNTXT_INIT(buff, buffpos, 0);
+	PROGRAM_CNTXT_INIT(buff, buffpos);
 	JOB_HDR(SHR_ALWAYS, desc_addr_1, WITH(REO | SHR));
 	{
 		SET_LABEL(decap_job_seqoutptr);
@@ -147,6 +149,8 @@ int main(int argc, char **argv)
 
 	struct program lte_desc_prgm;
 	struct program job_desc_prgm;
+
+	rta_set_sec_era(1);
 
 	memset(lte_desc, 0xFF, sizeof(lte_desc));
 	lte_desc_size =

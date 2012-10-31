@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include "flib/rta.h"
 
+uint rta_sec_era;
+
 int dual_1(uint32_t *buff)
 {
 	struct program prg;
@@ -20,7 +22,7 @@ int dual_1(uint32_t *buff)
 	uint64_t mac = (uint64_t) 0x51f69ee10ull;
 	int mac_size = 32;
 
-	PROGRAM_CNTXT_INIT(buff, 0, 0);
+	PROGRAM_CNTXT_INIT(buff, 0);
 	PROGRAM_SET_36BIT_ADDR();
 
 	JOB_HDR(SHR_NEVER, 0, 0);
@@ -55,9 +57,12 @@ static void print_prog(uint32_t *buff, int size)
 int main(int argc, char **argv)
 {
 	int size;
+
 	printf("DUAL_1 example program\n");
+	rta_set_sec_era(1);
 	size = dual_1((uint32_t *) prg_buff);
 	printf("size = %d\n", size);
 	print_prog((uint32_t *) prg_buff, size);
+
 	return 0;
 }

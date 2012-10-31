@@ -27,6 +27,15 @@
  */
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 
+/* Maximum SEC HW block revision supported. */
+#define MAX_SEC_ERA	5
+
+/**
+ * The default value for the SEC era in case the user does not provide a
+ * value or provides an unsupported value.
+ */
+#define DEFAULT_SEC_ERA	MAX_SEC_ERA
+
 /* Convinience macros */
 #define WITH(x) (x)
 #define SIZE(x) (x)
@@ -437,17 +446,14 @@ struct program {
 	uint32_t *buffer;	/**< Buffer carrying descriptor */
 	uint32_t *shrhdr;	/**< Shared Descriptor Header */
 	uint32_t *jobhdr;       /**< Job Descriptor Header */
-	uint sec_era;           /**< ERA of the SEC HW block */
-#define MAX_SEC_ERA	5
-#define DEFAULT_SEC_ERA	MAX_SEC_ERA
 	uint8_t ps;		/**< Pointer fields size; if ps is set to 1,
 				   pointers will be 36bits in length; if ps
 				   is set to 0, pointers will be 32bits in
 				   length. */
 };
 
-static inline void program_cntxt_init(struct program *program, uint32_t *buffer, int offset,
-                        uint sec_era)
+static inline void program_cntxt_init(struct program *program, uint32_t *buffer,
+				      int offset)
 {
 	program->current_pc = 0;
 	program->current_instraction = 0;
@@ -456,15 +462,6 @@ static inline void program_cntxt_init(struct program *program, uint32_t *buffer,
 	program->buffer = buffer;
 	program->shrhdr = NULL;
 	program->jobhdr = NULL;
-
-	if ((!sec_era) || (sec_era > MAX_SEC_ERA)) {
-		program->sec_era = DEFAULT_SEC_ERA;
-		pr_debug("Unsupported SEC ERA. Defaulting to ERA %d\n",
-				DEFAULT_SEC_ERA);
-	} else {
-		program->sec_era = sec_era;
-	}
-
 	program->ps = 0;
 }
 

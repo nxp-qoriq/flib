@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include "flib/rta.h"
 
+uint rta_sec_era;
+
 int prepend(uint32_t *buff)
 {
 	struct program prg;
@@ -25,7 +27,7 @@ int prepend(uint32_t *buff)
 	LABEL(skip_key_load);
 	REFERENCE(pjump1);
 
-	PROGRAM_CNTXT_INIT(buff, 0, 0);
+	PROGRAM_CNTXT_INIT(buff, 0);
 	PROGRAM_SET_36BIT_ADDR();
 
 	SHR_HDR(SHR_SERIAL, 0, WITH(RIF));
@@ -74,9 +76,12 @@ static void print_prog(uint32_t *buff, int size)
 int main(int argc, char **argv)
 {
 	int size;
+
 	printf("PREPEND_1 example program\n");
+	rta_set_sec_era(1);
 	size = prepend((uint32_t *) prg_buff);
 	printf("size = %d\n", size);
 	print_prog((uint32_t *) prg_buff, size);
+
 	return 0;
 }

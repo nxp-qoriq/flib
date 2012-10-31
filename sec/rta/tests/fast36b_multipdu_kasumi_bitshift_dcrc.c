@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include "flib/rta.h"
 
+uint rta_sec_era;
+
 uint64_t shraddr = 0x51100030ull;
 REFERENCE(ref_jump_reload);
 LABEL(reload);
@@ -22,7 +24,7 @@ int build_shdesc_kasumi_bitshift_dcrc(struct program *prg, uint32_t *buff,
 	LABEL(pdb1);
 	REFERENCE(pmove2);
 
-	PROGRAM_CNTXT_INIT(buff, buffpos, 0);
+	PROGRAM_CNTXT_INIT(buff, buffpos);
 	PROGRAM_SET_36BIT_ADDR();
 
 	SHR_HDR(SHR_NEVER, 6, 0);
@@ -175,7 +177,7 @@ int build_jbdesc_kasumi_bitshift_dcrc(struct program *prg, uint32_t *buff,
 	struct program *program = prg;
 	int size;
 
-	PROGRAM_CNTXT_INIT(buff, buffpos, 0);
+	PROGRAM_CNTXT_INIT(buff, buffpos);
 	PROGRAM_SET_36BIT_ADDR();
 	JOB_HDR(SHR_ALWAYS, shraddr, WITH(REO | SHR));
 	{
@@ -204,6 +206,8 @@ int main(int argc, char **argv)
 	int lte_desc_size, job_desc_size;
 	struct program lte_desc_prgm;
 	struct program job_desc_prgm;
+
+	rta_set_sec_era(1);
 
 	memset(share, 0xFF, sizeof(share));
 	lte_desc_size =

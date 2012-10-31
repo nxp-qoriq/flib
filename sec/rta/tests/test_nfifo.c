@@ -1,13 +1,15 @@
 #include <stdio.h>
 #include "flib/rta.h"
 
+uint rta_sec_era;
+
 int test_nfifo_op(uint32_t *buff)
 {
 	struct program prg;
 	struct program *program = &prg;
 	int size;
 
-	PROGRAM_CNTXT_INIT(buff, 0, 0);
+	PROGRAM_CNTXT_INIT(buff, 0);
 	/* From Input Data FIFO to 'all' targets */
 	NFIFOADD(IFIFO, MSG1, 2045, 0);
 	NFIFOADD(IFIFO, MSG1, 2046, WITH(LAST1));
@@ -89,9 +91,12 @@ static void print_prog(uint32_t *buff, int size)
 int main(int argc, char **argv)
 {
 	int size;
+
 	printf("NFIFO ADD program\n");
+	rta_set_sec_era(1);
 	size = test_nfifo_op((uint32_t *) prg_buff);
 	printf("size = %d\n", size);
 	print_prog((uint32_t *) prg_buff, size);
+
 	return 0;
 }

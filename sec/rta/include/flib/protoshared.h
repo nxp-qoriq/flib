@@ -34,13 +34,12 @@ static inline void cnstr_shdsc_snow_f8(uint32_t *descbuf, uint16_t *bufsize,
 {
 	struct program prg;
 	struct program *program = &prg;
-	uint sec_subversion = 3;
 	uint64_t ct = count;
 	uint64_t br = bearer;
 	uint64_t dr = direction;
 	uint64_t context = (ct << 32) | (br << 27) | (dr << 26);
 
-	PROGRAM_CNTXT_INIT(descbuf, 0, sec_subversion);
+	PROGRAM_CNTXT_INIT(descbuf, 0);
 	SHR_HDR(SHR_ALWAYS, 1, 0);
 	{
 		KEY(KEY1, 0, IMM((uintptr_t)cipherkey), keylen, 0);
@@ -76,7 +75,6 @@ static inline void cnstr_shdsc_snow_f9(uint32_t *descbuf, uint16_t *bufsize,
 {
 	struct program prg;
 	struct program *program = &prg;
-	uint sec_subversion = 3;
 	uint64_t ct = count;
 	uint64_t fr = fresh;
 	uint64_t dr = direction;
@@ -85,7 +83,7 @@ static inline void cnstr_shdsc_snow_f9(uint32_t *descbuf, uint16_t *bufsize,
 	context[0] = (ct << 32) | (dr << 26);
 	context[1] = fr << 32;
 
-	PROGRAM_CNTXT_INIT(descbuf, 0, sec_subversion);
+	PROGRAM_CNTXT_INIT(descbuf, 0);
 	SHR_HDR(SHR_ALWAYS, 1, 0);
 	{
 		KEY(KEY2, 0, IMM((uintptr_t)cipherkey), keylen, 0);
@@ -119,7 +117,6 @@ static inline void cnstr_shdsc_cbc_blkcipher(uint32_t *descbuf, uint16_t *bufsiz
 {
 	struct program prg;
 	struct program *program = &prg;
-	uint sec_subversion = 3;
 
 	PROGRAM_CNTXT_INIT(descbuf, 0, sec_subversion);
 	SHR_HDR(SHR_ALWAYS, 1, SC);
@@ -153,7 +150,6 @@ static inline void cnstr_shdsc_hmac(uint32_t *descbuf, uint16_t *bufsize,
 {
 	struct program prg;
 	struct program *program = &prg;
-	uint sec_subversion = 3;
 	uint8_t storelen;
 	uint8_t opicv;
 
@@ -220,13 +216,12 @@ static inline void cnstr_shdsc_kasumi_f8(uint32_t *descbuf, uint16_t *bufsize,
 {
 	struct program prg;
 	struct program *program = &prg;
-	uint sec_subversion = 3;
 	uint64_t ct = count;
 	uint64_t br = bearer;
 	uint64_t dr = direction;
 	uint64_t context = (ct << 32) | (br << 27) | (dr << 26);
 
-	PROGRAM_CNTXT_INIT(descbuf, 0, sec_subversion);
+	PROGRAM_CNTXT_INIT(descbuf, 0);
 	SHR_HDR(SHR_ALWAYS, 1, 0);
 	{
 		KEY(KEY1, 0, IMM((uintptr_t)cipherkey), keylen, 0);
@@ -263,7 +258,6 @@ static inline void cnstr_shdsc_kasumi_f9(uint32_t *descbuf, uint16_t *bufsize,
 {
 	struct program prg;
 	struct program *program = &prg;
-	uint sec_subversion = 3;
 	uint16_t ctx_offset = 16;
 	uint64_t ct = count;
 	uint64_t fr = fresh;
@@ -273,7 +267,7 @@ static inline void cnstr_shdsc_kasumi_f9(uint32_t *descbuf, uint16_t *bufsize,
 	context[0] = (ct << 32) | (dr << 26);
 	context[1] = (fr << 32);
 
-	PROGRAM_CNTXT_INIT(descbuf, 0, sec_subversion);
+	PROGRAM_CNTXT_INIT(descbuf, 0);
 	SHR_HDR(SHR_ALWAYS, 1, 0);
 	{
 		KEY(KEY1, 0, IMM((uintptr_t)cipherkey), keylen, 0);
@@ -298,9 +292,8 @@ static inline void cnstr_shdsc_crc(uint32_t *descbuf, uint16_t *bufsize)
 {
 	struct program prg;
 	struct program *program = &prg;
-	uint sec_subversion = 3;
 
-	PROGRAM_CNTXT_INIT(descbuf, 0, sec_subversion);
+	PROGRAM_CNTXT_INIT(descbuf, 0);
 	SHR_HDR(SHR_ALWAYS, 1, 0);
 	{
 		MATHB(SEQINSZ, SUB, MATH2, VSEQINSZ, SIZE(4), 0);

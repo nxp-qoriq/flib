@@ -1,13 +1,15 @@
 #include <stdio.h>
 #include "flib/rta.h"
 
+uint rta_sec_era;
+
 int test_math_op(uint32_t *buff)
 {
 	struct program prg;
 	struct program *program = &prg;
 	int size;
 
-	PROGRAM_CNTXT_INIT(buff, 0, 0);
+	PROGRAM_CNTXT_INIT(buff, 0);
 	{
 		SHR_HDR(SHR_ALWAYS, 0, 0);
 		MATHB(MATH0, XOR, IMM(0x0840010008880000), MATH3, SIZE(8), 0);
@@ -31,7 +33,7 @@ int math_test(uint32_t *buff)
 	uint32_t smallnum = 393615378ULL;
 	uint64_t bignum = 0x19261959fedcba01ULL;
 
-	PROGRAM_CNTXT_INIT(buff, 0, 0);
+	PROGRAM_CNTXT_INIT(buff, 0);
 	/* ADD Operation: MATH0 Destination register */
 	MATHB(MATH0, ADD, MATH0, MATH0, SIZE(4), 0);
 	MATHB(MATH0, ADD, MATH1, MATH0, SIZE(1), WITH(STL));
@@ -13367,9 +13369,13 @@ static void print_prog(uint32_t *buff, int size)
 }
 
 uint32_t prg_buff[1000000];
+
 int main(int argc, char **argv)
 {
 	int size;
+
+	rta_set_sec_era(1);
+
 	printf("#MATH test #1\n");
 	size = math_test(prg_buff);
 	printf("#size %d\n", size);

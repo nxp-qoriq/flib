@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include "flib/rta.h"
 
+uint rta_sec_era;
+
 uint32_t shr_addr = 0x089ae500ul;
 
 LABEL(c);
@@ -94,7 +96,7 @@ int build_shr_desc_ppp_decap(struct program *prg, uint32_t *buff, int buffpos)
 	 *       that these words would contain addresss if 36-bit addressing
 	 *       was used instead of 32-bit addressing.
 	 */
-	PROGRAM_CNTXT_INIT(buff, buffpos, 0);
+	PROGRAM_CNTXT_INIT(buff, buffpos);
 	SHR_HDR(SHR_NEVER, 46, 0);
 	{
 		{
@@ -194,7 +196,7 @@ int build_extra_cmds(struct program *prg, uint32_t *buff, int buffpos)
 	LABEL(g);
 	REFERENCE(pjumpg);
 
-	PROGRAM_CNTXT_INIT(buff, buffpos, 0);
+	PROGRAM_CNTXT_INIT(buff, buffpos);
 	{
 		MATHB(ZERO, ADD, OFIFO, MATH0, 8, 0);
 		MATHB(MATH0, XOR, IMM(0x7d7d7d7d7d7d7d7d), MATH1, 8, 0);
@@ -232,7 +234,7 @@ int build_more_cmds(struct program *prg, uint32_t *buff, int buffpos)
 	LABEL(i);
 	REFERENCE(pjumpi);
 
-	PROGRAM_CNTXT_INIT(buff, buffpos, 0);
+	PROGRAM_CNTXT_INIT(buff, buffpos);
 	{
 		NFIFOADD(IFIFO, MSG, 8, 0);
 		MOVE(IFIFOABD, 0, OFIFO, 0, IMM(8), 0);
@@ -272,7 +274,7 @@ int build_jbdesc_ppp_decap(struct program *prg, uint32_t *buff, int buffpos)
 	uint32_t out_addr = 0x0818fe00ul;
 	uint32_t out_len = 2902;
 
-	PROGRAM_CNTXT_INIT(buff, buffpos, 0);
+	PROGRAM_CNTXT_INIT(buff, buffpos);
 	JOB_HDR(SHR_NEVER, shr_addr, WITH(REO | SHR));
 	{
 		JUMP(IMM(3), LOCAL_JUMP, ALL_TRUE, 0);
@@ -307,6 +309,8 @@ int main(int argc, char **argv)
 	struct program job_desc_prgm;
 	struct program extra_cmds_prgm;
 	struct program more_cmds_prgm;
+
+	rta_set_sec_era(2);
 
 	memset(shr, 0x00, sizeof(shr));
 	shr_size = build_shr_desc_ppp_decap(&shr_desc_prgm, shr, 0);

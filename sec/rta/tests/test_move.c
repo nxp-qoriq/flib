@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "flib/rta.h"
 
+uint rta_sec_era;
 int prg_buff[1000];
 
 static void print_prog(uint32_t *buff, int size)
@@ -16,7 +17,7 @@ int test_move_op(uint32_t *buff)
 	struct program *program = &prg;
 	int size, len = 16;
 
-	PROGRAM_CNTXT_INIT(buff, 0, 0);
+	PROGRAM_CNTXT_INIT(buff, 0);
 	/* MOVE from Class 1 Context */
 	MOVE(CONTEXT1, 19, CONTEXT1, 0, IMM(len), 0);
 	MOVE(CONTEXT1, 21, CONTEXT2, 0, IMM(len), 0);
@@ -293,9 +294,12 @@ int test_move_op(uint32_t *buff)
 int main(int argc, char **argv)
 {
 	int size;
+
 	printf("MOVE program\n");
+	rta_set_sec_era(1);
 	size = test_move_op((uint32_t *) prg_buff);
 	printf("size = %d\n", size);
 	print_prog((uint32_t *) prg_buff, size);
+
 	return 0;
 }

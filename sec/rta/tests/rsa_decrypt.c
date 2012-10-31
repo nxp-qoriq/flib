@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include "flib/rta.h"
 
+uint rta_sec_era;
+
 /* Subroutine to populate a Descriptor buffer */
 int build_rsa_decrypt_desc(uint32_t *buff, uint32_t n_len, uint32_t p_len,
 			   uint32_t q_len,
@@ -15,7 +17,7 @@ int build_rsa_decrypt_desc(uint32_t *buff, uint32_t n_len, uint32_t p_len,
 	struct program *program = &prg;
 	int size;
 
-	PROGRAM_CNTXT_INIT(buff, 0, 0);
+	PROGRAM_CNTXT_INIT(buff, 0);
 	PROGRAM_SET_36BIT_ADDR();
 
 	JOB_HDR(SHR_NEVER, 0, 0);
@@ -78,9 +80,12 @@ static void print_prog(uint32_t *buff, int size)
 int main(int argc, char **argv)
 {
 	int size;
+
 	printf("RSA Verify example program\n");
+	rta_set_sec_era(1);
 	size = test_rsa_decrypt((uint32_t *) prg_buff);
 	printf("size = %d\n", size);
 	print_prog((uint32_t *) prg_buff, size);
+
 	return 0;
 }

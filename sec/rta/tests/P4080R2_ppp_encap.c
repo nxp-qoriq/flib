@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include "flib/rta.h"
 
+uint rta_sec_era;
+
 uint32_t shr_addr = 0x00000B80ul;
 
 LABEL(a);
@@ -46,7 +48,7 @@ int build_shr_desc_ppp_encap(struct program *prg, uint32_t *buff, int buffpos)
 	REFERENCE(pmoves);
 	REFERENCE(pjumps);
 
-	PROGRAM_CNTXT_INIT(buff, buffpos, 0);
+	PROGRAM_CNTXT_INIT(buff, buffpos);
 	SHR_HDR(SHR_NEVER, 46, 0);
 	{
 		{
@@ -166,7 +168,7 @@ int build_extra_cmds(struct program *prg, uint32_t *buff, int buffpos)
 
 	REFERENCE(pjumpk);
 
-	PROGRAM_CNTXT_INIT(buff, buffpos, 0);
+	PROGRAM_CNTXT_INIT(buff, buffpos);
 	{
 		/* imm data for MATH cmd at end of PDB in shared descriptor */
 		DWORD(0x2000000000000000);
@@ -199,7 +201,7 @@ int build_more_cmds(struct program *prg, uint32_t *buff, int buffpos)
 	LABEL(g);
 	REFERENCE(pjumpg);
 
-	PROGRAM_CNTXT_INIT(buff, buffpos, 0);
+	PROGRAM_CNTXT_INIT(buff, buffpos);
 	{
 		MATHB(MATH0, XOR, IMM(0x7d7d7d7d7d7d7d7d), MATH1, 8, 0);
 		MATHU(MATH1, ZBYTE, MATH1, 8, 0);
@@ -238,7 +240,7 @@ int build_jbdesc_ppp_encap(struct program *prg, uint32_t *buff, int buffpos)
 	uint32_t out_addr = 0x00000000ul;
 	uint32_t out_len = 2902;
 
-	PROGRAM_CNTXT_INIT(buff, buffpos, 0);
+	PROGRAM_CNTXT_INIT(buff, buffpos);
 	JOB_HDR(SHR_NEVER, shr_addr, WITH(REO | SHR));
 	{
 		JUMP(IMM(3), LOCAL_JUMP, ALL_TRUE, 0);
@@ -274,6 +276,8 @@ int main(int argc, char **argv)
 	struct program job_desc_prgm;
 	struct program extra_cmds_prgm;
 	struct program more_cmds_prgm;
+
+	rta_set_sec_era(2);
 
 	memset(shr, 0x00, sizeof(shr));
 	shr_size = build_shr_desc_ppp_encap(&shr_desc_prgm, shr, 0);

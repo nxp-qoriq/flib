@@ -1,13 +1,15 @@
 #include <stdio.h>
 #include "flib/rta.h"
 
+uint rta_sec_era;
+
 int test_op_cipher(uint32_t *buff)
 {
 	struct program prg;
 	struct program *program = &prg;
 	int size;
 
-	PROGRAM_CNTXT_INIT(buff, 0, 0);
+	PROGRAM_CNTXT_INIT(buff, 0);
 	{
 /* RNG tests */
 		ALG_OPERATION(OP_ALG_ALGSEL_RNG, OP_ALG_AAI_RNG, 0, 0, 0);
@@ -83,7 +85,7 @@ int test_op_alg_mdha(uint32_t *buff)
 	struct program *program = &prg;
 	int size;
 
-	PROGRAM_CNTXT_INIT(buff, 0, 0);
+	PROGRAM_CNTXT_INIT(buff, 0);
 	{
 /* MDHA family tests */
 		ALG_OPERATION(OP_ALG_ALGSEL_MD5, OP_ALG_AAI_HASH,
@@ -147,6 +149,9 @@ static void print_prog(uint32_t *buff, int size)
 int main(int argc, char **argv)
 {
 	int size;
+
+	rta_set_sec_era(1);
+
 	printf("OPERATION ALGORITHM CIPHER program\n");
 	size = test_op_cipher((uint32_t *) prg_buff);
 	printf("size = %d\n", size);
@@ -156,5 +161,6 @@ int main(int argc, char **argv)
 	size = test_op_alg_mdha((uint32_t *) prg_buff);
 	printf("size = %d\n", size);
 	print_prog((uint32_t *) prg_buff, size);
+
 	return 0;
 }

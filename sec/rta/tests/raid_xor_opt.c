@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include "flib/rta.h"
 
+uint rta_sec_era;
+
 uint64_t share_desc_addr = 0x089c2c80ULL;
 uint32_t c1_ctxt_slots = 4;
 uint32_t c2_ctxt_slots = 4;
@@ -39,7 +41,7 @@ int build_shdesc_raid_xor_opt(struct program *prg, uint32_t *buff, int buffpos)
 	LABEL(store_here);
 	REFERENCE(pjump5);
 
-	PROGRAM_CNTXT_INIT(buff, buffpos, 0);
+	PROGRAM_CNTXT_INIT(buff, buffpos);
 	SHR_HDR(SHR_NEVER, 0, 0);
 	{
 		SEQLOAD(CONTEXT1, 0, c1_ctxt_slots * 16, 0);
@@ -135,7 +137,7 @@ int build_jbdesc_raid_xor_opt(struct program *prg, uint32_t *buff, int buffpos)
 	uint64_t context_ptr = 0x08858d80ULL;
 	uint64_t store_ptr = 0x00000040ULL;
 
-	PROGRAM_CNTXT_INIT(buff, buffpos, 0);
+	PROGRAM_CNTXT_INIT(buff, buffpos);
 	JOB_HDR(SHR_ALWAYS, share_desc_addr, WITH(REO | SHR));
 	{
 		SEQOUTPTR(store_ptr, data_size, WITH(EXT));
@@ -163,7 +165,7 @@ int build_more_cmds_raid_xor_opt(struct program *prg, uint32_t *buff,
 	load_data_addr[6] = 0x08868a80ULL;
 	load_data_addr[7] = 0x08093d40ULL;
 
-	PROGRAM_CNTXT_INIT(buff, buffpos, 0);
+	PROGRAM_CNTXT_INIT(buff, buffpos);
 	{
 		SEQINPTR(load_data_addr[0], data_size, WITH(EXT));
 		ref1_shr_first = SHR_HDR(SHR_NEVER, first, 0);
@@ -214,6 +216,8 @@ int main(int argc, char **argv)
 	struct program shr_desc_prgm;
 	struct program job_desc_prgm;
 	struct program ctx_buf_prgm;
+
+	rta_set_sec_era(1);
 
 	memset(sharedesc, 0xFF, sizeof(sharedesc));
 	shr_size = build_shdesc_raid_xor_opt(&shr_desc_prgm, sharedesc, 0);

@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include "flib/rta.h"
 
+uint rta_sec_era;
+
 int deco_dma(uint32_t *buff)
 {
 	struct program prg;
@@ -18,7 +20,7 @@ int deco_dma(uint32_t *buff)
 
 	PROGRAM_SET_36BIT_ADDR();
 
-	PROGRAM_CNTXT_INIT(buff, 0, 0);
+	PROGRAM_CNTXT_INIT(buff, 0);
 	/*
 	 * Job to perform DMA on CAAM Era 2 (and later) platforms
 	 * input/output/data_size configure the data to be moved.  move_size
@@ -102,9 +104,12 @@ static void print_prog(uint32_t *buff, int size)
 int main(int argc, char **argv)
 {
 	int size;
+
 	printf("DECO DMA example program\n");
+	rta_set_sec_era(1);
 	size = deco_dma((uint32_t *) prg_buff);
 	printf("size = %d\n", size);
 	print_prog((uint32_t *) prg_buff, size);
+
 	return 0;
 }

@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "flib/rta.h"
 
+uint rta_sec_era;
 int prg_buff[1000];
 
 static void print_prog(uint32_t *buff, int size)
@@ -23,7 +24,7 @@ int test_fifo_load_op(uint32_t *buff)
 	uint64_t auth_ptr = 0x13422591;
 	uint64_t mod = 0x24128820;
 
-	PROGRAM_CNTXT_INIT(buff, 0, 0);
+	PROGRAM_CNTXT_INIT(buff, 0);
 
 	FIFOLOAD(MSG1, PTR(msg), 1, WITH(FLUSH1));
 	FIFOLOAD(MSG1, PTR(msg), 2, WITH(LAST1));
@@ -64,9 +65,12 @@ int test_fifo_load_op(uint32_t *buff)
 int main(int argc, char **argv)
 {
 	int size;
+
 	printf("FIFOLOAD program\n");
+	rta_set_sec_era(1);
 	size = test_fifo_load_op((uint32_t *) prg_buff);
 	printf("size = %d\n", size);
 	print_prog((uint32_t *) prg_buff, size);
+
 	return 0;
 }

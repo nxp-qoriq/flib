@@ -27,7 +27,8 @@
  *
  * @defgroup program_group Descriptor Buffer Management Routines
  * @ingroup rta_api_group
- * Contains details of RTA descriptor buffer management routines.
+ * Contains details of RTA descriptor buffer management routines
+ * and of routines for SEC Era management.
  *
  * @defgroup cmd_group CAAM Commands Routines
  * @ingroup rta_api_group
@@ -74,12 +75,9 @@
  *                     (@c uint32_t *).
  * @param[in] offset   Offset in input buffer from where the data will be
  *                     written (@c int).
- * @param[in] sec_era  CAAM subversion for which the descriptor is written
- *                     (@c uint).
- *
  */
-#define PROGRAM_CNTXT_INIT(buffer, offset, sec_era) \
-	program_cntxt_init(program, buffer, offset, sec_era)
+#define PROGRAM_CNTXT_INIT(buffer, offset) \
+	program_cntxt_init(program, buffer, offset)
 
 /**
  * @def                PROGRAM_FINALIZE
@@ -125,6 +123,46 @@
  * @param[in] len      Length of input data (@c int).
  */
 #define ENDIAN_DATA(data, len) endian_data(program, (data), (len))
+
+/**
+ * @brief              SEC HW block revision.
+ *
+ * This *must not be confused with SEC version*:
+ * - SEC HW block revision format is "v"
+ * - SEC revision format is "x.y"
+ */
+extern uint rta_sec_era;
+
+/**
+ * @brief              Set SEC Era HW block revision for which the RTA library
+ *                     will generate the descriptors.
+ * @warning            Must be called *only once*, *before* using any other
+ *                     RTA API routine.
+ * @warning            *Not thread safe*.
+ *
+ * @param[in] era      SEC Era (@c uint).
+ */
+static inline void rta_set_sec_era(uint era)
+{
+	if ((!era) || (era > MAX_SEC_ERA)) {
+		era = DEFAULT_SEC_ERA;
+		pr_debug("Unsupported SEC ERA. Defaulting to ERA %d\n",
+			 DEFAULT_SEC_ERA);
+	} else {
+		rta_sec_era = era;
+	}
+}
+
+/**
+ * @brief              Get SEC Era HW block revision for which the RTA library
+ *                     will generate the descriptors.
+ *
+ * @return             SEC Era (@c uint).
+ */
+static inline uint rta_get_sec_era()
+{
+	 return rta_sec_era;
+}
 
 /** @} */ /* end of program_group */
 

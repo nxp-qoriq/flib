@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "flib/rta.h"
 
+uint rta_sec_era;
 int prg_buff[1000];
 
 static void print_prog(uint32_t *buff, int size)
@@ -30,7 +31,7 @@ int test_load_op(uint32_t *buff)
 	LABEL(where);
 	REFERENCE(where_ref);
 
-	PROGRAM_CNTXT_INIT(buff, 0, 0);
+	PROGRAM_CNTXT_INIT(buff, 0);
 	LOAD(IMM(03), CONTEXT1, 0, 1, 0);
 	LOAD(IMM(0x616263), IFIFO, 0, 3, 0);
 	LOAD(IMM(four), PKNSZ, 0, 4, 0);
@@ -95,9 +96,12 @@ int test_load_op(uint32_t *buff)
 int main(int argc, char **argv)
 {
 	int size;
+
 	printf("LOAD program\n");
+	rta_set_sec_era(1);
 	size = test_load_op((uint32_t *) prg_buff);
 	printf("size = %d\n", size);
 	print_prog((uint32_t *) prg_buff, size);
+
 	return 0;
 }

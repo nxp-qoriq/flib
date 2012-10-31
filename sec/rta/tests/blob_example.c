@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include "flib/rta.h"
 
+uint rta_sec_era;
+
 int test_blob_example(uint32_t *buff)
 {
 	struct program prg;
@@ -16,7 +18,7 @@ int test_blob_example(uint32_t *buff)
 	uint32_t data_length = 75;
 	uint32_t blob_length = data_length + 32 + 16;
 
-	PROGRAM_CNTXT_INIT(buff, 0, 0);
+	PROGRAM_CNTXT_INIT(buff, 0);
 	JOB_HDR(SHR_NEVER, 0, 0);
 	{
 		KEY(KEY2, 0, PTR((intptr_t) key_mod_addr), 16, 0);
@@ -42,9 +44,12 @@ static void print_prog(uint32_t *buff, int size)
 int main(int argc, char **argv)
 {
 	int size;
+
 	printf("BLOB example program\n");
+	rta_set_sec_era(1);
 	size = test_blob_example((uint32_t *) prg_buff);
 	printf("size = %d\n", size);
 	print_prog((uint32_t *) prg_buff, size);
+
 	return 0;
 }

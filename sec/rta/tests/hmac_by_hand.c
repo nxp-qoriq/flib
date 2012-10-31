@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include "flib/rta.h"
 
+uint rta_sec_era;
+
 uint8_t *iv1 = (uint8_t *) 0x64;	/* input constant */
 uint8_t *ipad = (uint8_t *) 0x664;
 uint8_t *opad = (uint8_t *) 0x12364;
@@ -14,7 +16,7 @@ int build_hmacprecomp(uint32_t *buff)
 	unsigned int hmac_key_len = 18;	/* input */
 	uint32_t *hmacprecompute_opad_phys = (uint32_t *) 0xaabb2200;
 
-	PROGRAM_CNTXT_INIT(buff, 0, 0);
+	PROGRAM_CNTXT_INIT(buff, 0);
 	JOB_HDR(SHR_NEVER, 0, 0);
 	{
 		LOAD(PTR((uintptr_t) hmac_key), CONTEXT1, 0, hmac_key_len, 0);
@@ -77,7 +79,7 @@ int build_hmacprecomp_opad(uint32_t *buff)
 	struct program *program = &prg;
 	int size;
 
-	PROGRAM_CNTXT_INIT(buff, 0, 0);
+	PROGRAM_CNTXT_INIT(buff, 0);
 	JOB_HDR(SHR_NEVER, 0, 0);
 	{
 		LOAD(IMM(CLRW_CLR_C2CTX | CLRW_CLR_C2MODE | CLRW_CLR_C2DATAS),
@@ -143,7 +145,7 @@ int build_hmac_from_pre(uint32_t *buff)
 	void *msg = (void *)0x12341234ul;	/* physical ptr */
 	unsigned int maclen = 28;
 
-	PROGRAM_CNTXT_INIT(buff, 0, 0);
+	PROGRAM_CNTXT_INIT(buff, 0);
 	JOB_HDR(SHR_NEVER, 0, 0);
 	{
 		/* Set up current state of inner hash */
@@ -189,6 +191,8 @@ static void print_prog(uint32_t *buff, int size)
 int main(int argc, char **argv)
 {
 	int size;
+
+	rta_set_sec_era(1);
 
 	printf("HMAC_By_Hand #1 JD program\n");
 	size = build_hmacprecomp((uint32_t *) prg_buff);
