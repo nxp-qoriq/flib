@@ -1,6 +1,17 @@
 #ifndef __RTA_KEY_CMD_H__
 #define __RTA_KEY_CMD_H__
 
+extern uint rta_sec_era;
+
+/* Allowed encryption flags for each SEC Era */
+static const uint32_t key_enc_flags[MAX_SEC_ERA] = {
+	ENC,
+	ENC | NWB | EKT | TK,
+	ENC | NWB | EKT | TK,
+	ENC | NWB | EKT | TK,
+	ENC | NWB | EKT | TK,
+};
+
 static inline uint32_t key(struct program *program, uint32_t key_dst,
 		uint32_t key_type, uint32_t encrypt_flags,
 		uint64_t dst, uint32_t dst_type, uint32_t length,
@@ -9,6 +20,12 @@ static inline uint32_t key(struct program *program, uint32_t key_dst,
 	uint32_t opcode = 0, is_seq_cmd = 0;
 	uint8_t *tmp, i;
 	uintptr_t dst_ptr;
+
+	if (encrypt_flags & ~key_enc_flags[rta_sec_era]) {
+		pr_debug("KEY: Flag(s) not supported by SEC Era %d\n",
+			 rta_sec_era);
+		goto err;
+	}
 
 	/* write cmd type */
 	if (flags & SEQ) {
