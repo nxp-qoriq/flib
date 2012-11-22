@@ -1,6 +1,8 @@
 #ifndef __RTA_JUMP_CMD_H__
 #define __RTA_JUMP_CMD_H__
 
+extern uint rta_sec_era;
+
 static const uint32_t jump_test_cond[][2] = {
 	{ NIFP,     JUMP_JSL | JUMP_COND_NIFP },
 	{ NIP,      JUMP_JSL | JUMP_COND_NIP },
@@ -22,11 +24,26 @@ static const uint32_t jump_test_cond[][2] = {
 	{ BOTH,     JUMP_CLASS_BOTH }
 };
 
+/* Allowed jump types for each SEC Era */
+static const uint32_t jump_type_allowed[MAX_SEC_ERA] = {
+	LOCAL_JUMP | HALT | HALT_STATUS | FAR_JUMP,
+	LOCAL_JUMP | HALT | HALT_STATUS | FAR_JUMP,
+	LOCAL_JUMP | HALT | HALT_STATUS | FAR_JUMP,
+	LOCAL_JUMP | HALT | HALT_STATUS | FAR_JUMP | GOSUB | RETURN,
+	LOCAL_JUMP | HALT | HALT_STATUS | FAR_JUMP | GOSUB | RETURN
+};
+
 static inline uint32_t jump(struct program *program, int64_t address,
 		     uint32_t address_type, uint32_t jump_type,
 		     uint32_t test_type, uint32_t test_condition)
 {
 	uint32_t opcode = CMD_JUMP;
+
+	if (jump_type & ~jump_type_allowed[rta_sec_era]) {
+		pr_debug("JUMP: Jump type not supported by SEC Era %d\n",
+			 rta_sec_era);
+		goto err;
+	}
 
 	switch (jump_type) {
 	case (LOCAL_JUMP):
@@ -41,7 +58,12 @@ static inline uint32_t jump(struct program *program, int64_t address,
 	case (FAR_JUMP):
 		opcode |= JUMP_TYPE_NONLOCAL;
 		break;
-
+	case (GOSUB):
+		opcode |= JUMP_TYPE_GOSUB;
+		break;
+	case (RETURN):
+		opcode |= JUMP_TYPE_RETURN;
+		break;
 	default:
 		pr_debug("JUMP: Invalid jump type. SEC Program Line: %d\n",
 			program->current_pc);
@@ -73,7 +95,7 @@ static inline uint32_t jump(struct program *program, int64_t address,
 		  &opcode);
 
 	/* write local offset field for local jumps */
-	if (jump_type != FAR_JUMP)
+	if ((jump_type == LOCAL_JUMP) || (jump_type == GOSUB))
 		opcode |= address & JUMP_OFFSET_MASK;
 
 	program->buffer[program->current_pc] = opcode;
