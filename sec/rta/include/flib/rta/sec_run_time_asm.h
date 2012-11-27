@@ -358,6 +358,24 @@
 #define _BIT_DATA       (0x5b | REGISTER)
 #define BIT_DATA        _BIT_DATA, REG_TYPE
 
+#define _NFIFO_SZL	(0x5c | REGISTER)
+#define NFIFO_SZL	_NFIFO_SZL, REG_TYPE
+
+#define _NFIFO_SZM	(0x5d | REGISTER)
+#define NFIFO_SZM	_NFIFO_SZM, REG_TYPE
+
+#define _NFIFO_L	(0x5e | REGISTER)
+#define NFIFO_L		_NFIFO_L, REG_TYPE
+
+#define _NFIFO_M	(0x5f | REGISTER)
+#define NFIFO_M		_NFIFO_M, REG_TYPE
+
+#define _SZL		(0x60 | REGISTER)
+#define SZL		_SZL, REG_TYPE
+
+#define _SZM		(0x61 | REGISTER)
+#define SZM		_SZM, REG_TYPE
+
 /* Command flags */
 #define FLUSH1          0x00000001
 #define LAST1           0x00000002

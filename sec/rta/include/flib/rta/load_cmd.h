@@ -1,12 +1,32 @@
 #ifndef __RTA_LOAD_CMD_H__
 #define __RTA_LOAD_CMD_H__
 
+extern uint rta_sec_era;
+
+/* Allowed length and offset masks for each SEC Era in case DST = _DCTRL */
+static const uint32_t load_len_mask_allowed[MAX_SEC_ERA] = {
+	0x000000ee,
+	0x000000ef,
+	0x000000ef,
+	0x000000ef,
+	0x000000ef
+};
+
+static const uint32_t load_off_mask_allowed[MAX_SEC_ERA] = {
+	0x000000f0,
+	0x000000ff,
+	0x000000ff,
+	0x000000ff,
+	0x000000ff
+};
+
 #define IMM_MUST 0
 #define IMM_CAN  1
 #define IMM_NO   2
 #define IMM_DSNM 3 /* it doesn't matter the src type */
 
 enum e_lenoff {
+	LENOF_03,
 	LENOF_4,
 	LENOF_48,
 	LENOF_448,
@@ -29,7 +49,7 @@ struct load_map {
 };
 
 static const struct load_map load_dst[] = {
-	{ _KEY1SZ,  LDST_CLASS_1_CCB | LDST_SRCDST_WORD_KEYSZ_REG,
+/*1*/	{ _KEY1SZ,  LDST_CLASS_1_CCB | LDST_SRCDST_WORD_KEYSZ_REG,
 		    LENOF_4,   IMM_MUST },
 	{ _KEY2SZ,  LDST_CLASS_2_CCB | LDST_SRCDST_WORD_KEYSZ_REG,
 		    LENOF_4,   IMM_MUST },
@@ -41,8 +61,6 @@ static const struct load_map load_dst[] = {
 		    LENOF_4,   IMM_MUST },
 	{ _ICV2SZ,  LDST_CLASS_2_CCB | LDST_SRCDST_WORD_ICVSZ_REG,
 		    LENOF_4,   IMM_MUST },
-	{ _DPID,    LDST_CLASS_DECO | LDST_SRCDST_WORD_PID,
-		    LENOF_448, IMM_MUST },
 	{ _CCTRL,   LDST_CLASS_IND_CCB | LDST_SRCDST_WORD_CHACTRL,
 		    LENOF_4,   IMM_MUST },
 	{ _DCTRL,   LDST_CLASS_DECO | LDST_IMM | LDST_SRCDST_WORD_DECOCTRL,
@@ -67,10 +85,6 @@ static const struct load_map load_dst[] = {
 		    LENOF_4,   IMM_MUST },
 	{ _PKESZ,   LDST_CLASS_1_CCB | LDST_SRCDST_WORD_PKHA_E_SZ,
 		    LENOF_4,   IMM_MUST },
-	{ _IDFNS,   LDST_SRCDST_WORD_IFNSR, LENOF_18,  IMM_MUST },
-	{ _ODFNS,   LDST_SRCDST_WORD_OFNSR, LENOF_18,  IMM_MUST },
-	{ _ALTSOURCE, LDST_SRCDST_BYTE_ALTSOURCE,
-		    LENOF_18,  IMM_MUST },
 	{ _NFIFO,   LDST_CLASS_IND_CCB | LDST_SRCDST_WORD_INFO_FIFO,
 		    LENOF_48,  IMM_MUST },
 	{ _IFIFO,   LDST_SRCDST_BYTE_INFIFO,  LENOF_18, IMM_MUST },
@@ -92,13 +106,39 @@ static const struct load_map load_dst[] = {
 	{ _KEY2,    LDST_CLASS_2_CCB | LDST_SRCDST_BYTE_KEY,
 		    LENOF_32,  IMM_CAN },
 	{ _DESCBUF, LDST_CLASS_DECO | LDST_SRCDST_WORD_DESCBUF,
-		    LENOF_64,  IMM_NO }
+		    LENOF_64,  IMM_NO },
+	{ _DPID,    LDST_CLASS_DECO | LDST_SRCDST_WORD_PID,
+		    LENOF_448, IMM_MUST },
+/*32*/	{ _IDFNS,   LDST_SRCDST_WORD_IFNSR, LENOF_18,  IMM_MUST },
+	{ _ODFNS,   LDST_SRCDST_WORD_OFNSR, LENOF_18,  IMM_MUST },
+	{ _ALTSOURCE, LDST_SRCDST_BYTE_ALTSOURCE, LENOF_18,  IMM_MUST },
+/*35*/	{ _NFIFO_SZL, LDST_SRCDST_WORD_INFO_FIFO_SZL, LENOF_48, IMM_MUST },
+	{ _NFIFO_SZM, LDST_SRCDST_WORD_INFO_FIFO_SZM, LENOF_03, IMM_MUST },
+	{ _NFIFO_L, LDST_SRCDST_WORD_INFO_FIFO_L, LENOF_48, IMM_MUST },
+	{ _NFIFO_M, LDST_SRCDST_WORD_INFO_FIFO_M, LENOF_03, IMM_MUST },
+	{ _SZL,     LDST_SRCDST_WORD_SZL, LENOF_48, IMM_MUST },
+/*40*/	{ _SZM,     LDST_SRCDST_WORD_SZM, LENOF_03, IMM_MUST }
 };
 
-static inline int8_t load_check_len_offset(enum e_lenoff len_off, uint32_t length,
+/*
+ * Allowed LOAD destinations for each SEC Era.
+ * Values represent the number of entries from load_dst[] that are supported.
+ */
+static const uint32_t load_dst_sz[MAX_SEC_ERA] = { 31, 34, 34, 40, 40 };
+
+static inline int8_t load_check_len_offset(int8_t pos, uint32_t length,
 		uint32_t offset)
 {
-	switch (len_off) {
+	if ((load_dst[pos].dst == _DCTRL) &&
+	    ((length & ~load_len_mask_allowed[rta_sec_era]) ||
+	     (offset & ~load_off_mask_allowed[rta_sec_era])))
+		goto err;
+
+	switch (load_dst[pos].len_off) {
+	case (LENOF_03):
+		if ((length > 3) || (!offset))
+			goto err;
+		break;
 	case (LENOF_4):
 		if ((length != 4) || (offset != 0))
 			goto err;
@@ -171,7 +211,7 @@ static inline uint32_t load(struct program *program, uint64_t src,
 		opcode = CMD_LOAD;
 
 	if ((length & 0xffffff00) || (offset & 0xffffff00)) {
-		pr_debug("Bad length/offset passed. Should be 8 bits\n");
+		pr_debug("LOAD: Bad length/offset passed. Should be 8 bits\n");
 		goto err;
 	}
 
@@ -181,7 +221,7 @@ static inline uint32_t load(struct program *program, uint64_t src,
 		opcode |= LDST_VLF;
 
 	/* check load destination, length and offset and source type */
-	for (i = 0; i < ARRAY_SIZE(load_dst); i++)
+	for (i = 0; i < load_dst_sz[rta_sec_era]; i++)
 		if (dst == load_dst[i].dst) {
 			pos = i;
 			break;
@@ -207,8 +247,7 @@ static inline uint32_t load(struct program *program, uint64_t src,
 		goto err;
 	}
 
-	if (-1 == load_check_len_offset(load_dst[pos].len_off, length,
-					offset)) {
+	if (-1 == load_check_len_offset(pos, length, offset)) {
 		pr_debug("LOAD: Invalid length/offset. SEC Program Line: %d\n",
 				program->current_pc);
 		goto err;
