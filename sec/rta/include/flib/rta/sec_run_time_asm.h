@@ -376,6 +376,12 @@
 #define _SZM		(0x61 | REGISTER)
 #define SZM		_SZM, REG_TYPE
 
+#define _JOBDESCBUF_EFF	(0x62 | REGISTER)
+#define JOBDESCBUF_EFF	_JOBDESCBUF_EFF, REG_TYPE
+
+#define _SHAREDESCBUF_EFF	(0x63 | REGISTER)
+#define SHAREDESCBUF_EFF	_SHAREDESCBUF_EFF, REG_TYPE
+
 /* Command flags */
 #define FLUSH1          0x00000001
 #define LAST1           0x00000002

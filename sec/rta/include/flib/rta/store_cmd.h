@@ -1,8 +1,10 @@
 #ifndef __RTA_STORE_CMD_H__
 #define __RTA_STORE_CMD_H__
 
+extern uint rta_sec_era;
+
 static const uint32_t store_src_table[][2] = {
-	{ _KEY1SZ,       LDST_CLASS_1_CCB | LDST_SRCDST_WORD_KEYSZ_REG },
+/*1*/	{ _KEY1SZ,       LDST_CLASS_1_CCB | LDST_SRCDST_WORD_KEYSZ_REG },
 	{ _KEY2SZ,       LDST_CLASS_2_CCB | LDST_SRCDST_WORD_KEYSZ_REG },
 	{ _DJQDA,        LDST_CLASS_DECO | LDST_SRCDST_WORD_DECO_JQDAR },
 	{ _MODE1,        LDST_CLASS_1_CCB | LDST_SRCDST_WORD_MODE_REG },
@@ -31,10 +33,20 @@ static const uint32_t store_src_table[][2] = {
 	{ _CONTEXT1,     LDST_CLASS_1_CCB | LDST_SRCDST_BYTE_CONTEXT },
 	{ _CONTEXT2,     LDST_CLASS_2_CCB | LDST_SRCDST_BYTE_CONTEXT },
 	{ _DESCBUF,      LDST_CLASS_DECO | LDST_SRCDST_WORD_DESCBUF },
-	{ _JOBDESCBUF,   LDST_CLASS_DECO | LDST_SRCDST_WORD_JOBDESCBUF },
-	{ _SHAREDESCBUF, LDST_CLASS_DECO | LDST_SRCDST_WORD_SHRDESCBUF }
+/*30*/	{ _JOBDESCBUF,   LDST_CLASS_DECO | LDST_SRCDST_WORD_JOBDESCBUF },
+	{ _SHAREDESCBUF, LDST_CLASS_DECO | LDST_SRCDST_WORD_SHRDESCBUF },
+/*32*/	{ _JOBDESCBUF_EFF,   LDST_CLASS_DECO |
+		LDST_SRCDST_WORD_JOBDESCBUF_EFF },
+	{ _SHAREDESCBUF_EFF, LDST_CLASS_DECO |
+		LDST_SRCDST_WORD_SHRDESCBUF_EFF }
 };
 
+/*
+ * Allowed STORE sources for each SEC ERA.
+ * Values represent the number of entries from source_src_table[] that are
+ * supported.
+ */
+static const uint32_t store_src_table_sz[] = {29, 31, 33, 33, 33};
 
 static inline uint32_t store(struct program *program, uintptr_t src,
 			     int type_src, uint16_t offset, uint64_t dst,
@@ -83,7 +95,7 @@ static inline uint32_t store(struct program *program, uintptr_t src,
 	 */
 	if (type_src == REG_TYPE) {
 		ret = map_opcode(src, store_src_table,
-				 ARRAY_SIZE(store_src_table), &val);
+				 store_src_table_sz[rta_sec_era], &val);
 		if (ret == -1) {
 			pr_debug("STORE: Invalid source. SEC PC: %d; "
 					"Instr: %d\n", program->current_pc,
