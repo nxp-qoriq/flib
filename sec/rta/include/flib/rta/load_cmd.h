@@ -28,7 +28,7 @@ struct load_map {
 
 };
 
-static const struct load_map load_dst[36] = {
+static const struct load_map load_dst[] = {
 	{ _KEY1SZ,  LDST_CLASS_1_CCB | LDST_SRCDST_WORD_KEYSZ_REG,
 		    LENOF_4,   IMM_MUST },
 	{ _KEY2SZ,  LDST_CLASS_2_CCB | LDST_SRCDST_WORD_KEYSZ_REG,
@@ -181,7 +181,7 @@ static inline uint32_t load(struct program *program, uint64_t src,
 		opcode |= LDST_VLF;
 
 	/* check load destination, length and offset and source type */
-	for (i = 0; i < sizeof(load_dst)/sizeof(load_dst[0]); i++)
+	for (i = 0; i < ARRAY_SIZE(load_dst); i++)
 		if (dst == load_dst[i].dst) {
 			pos = i;
 			break;

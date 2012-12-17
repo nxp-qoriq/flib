@@ -8,7 +8,7 @@
 
 #define MASK_16b  0xFF
 
-static const uint32_t move_src_table[14][2] = {
+static const uint32_t move_src_table[][2] = {
 	{ _CONTEXT1, MOVE_SRC_CLASS1CTX },
 	{ _CONTEXT2, MOVE_SRC_CLASS2CTX },
 	{ _OFIFO,    MOVE_SRC_OUTFIFO },
@@ -25,7 +25,7 @@ static const uint32_t move_src_table[14][2] = {
 	{ _DESCBUF,  MOVE_SRC_DESCBUF }
 };
 
-static const uint32_t move_dst_table[14][2] = {
+static const uint32_t move_dst_table[][2] = {
 	{ _CONTEXT1,  MOVE_DEST_CLASS1CTX },
 	{ _CONTEXT2,  MOVE_DEST_CLASS2CTX },
 	{ _OFIFO,     MOVE_DEST_OUTFIFO },
@@ -87,7 +87,7 @@ static inline uint32_t move(struct program *program, uint64_t src, int type_src,
 		opcode |= MOVE_AUX_LS;
 
 	/* write source field */
-	ret = map_opcode(src, move_src_table, sizeof(move_src_table), &val);
+	ret = map_opcode(src, move_src_table, ARRAY_SIZE(move_src_table), &val);
 	if (ret == -1) {
 		pr_debug("MOVE: Invalid SRC. SEC PC: %d; Instr: %d\n",
 				program->current_pc,
@@ -97,7 +97,7 @@ static inline uint32_t move(struct program *program, uint64_t src, int type_src,
 	opcode |= val;
 
 	/* write destination field */
-	ret = map_opcode(dst, move_dst_table, sizeof(move_dst_table), &val);
+	ret = map_opcode(dst, move_dst_table, ARRAY_SIZE(move_dst_table), &val);
 	if (ret == -1) {
 		pr_debug("MOVE: Invalid DST. SEC PC: %d; Instr: %d\n",
 				program->current_pc,

@@ -1,7 +1,7 @@
 #ifndef __RTA_JUMP_CMD_H__
 #define __RTA_JUMP_CMD_H__
 
-static const uint32_t jump_test_cond[18][2] = {
+static const uint32_t jump_test_cond[][2] = {
 	{ NIFP,     JUMP_JSL | JUMP_COND_NIFP },
 	{ NIP,      JUMP_JSL | JUMP_COND_NIP },
 	{ NOP,      JUMP_JSL | JUMP_COND_NOP },
@@ -69,9 +69,8 @@ static inline uint32_t jump(struct program *program, int64_t address,
 	}
 
 	/* write test condition field */
-	map_flags(test_condition, jump_test_cond,
-			sizeof(jump_test_cond)/sizeof(jump_test_cond[0]),
-			&opcode);
+	map_flags(test_condition, jump_test_cond, ARRAY_SIZE(jump_test_cond),
+		  &opcode);
 
 	/* write local offset field for local jumps */
 	if (jump_type != FAR_JUMP)

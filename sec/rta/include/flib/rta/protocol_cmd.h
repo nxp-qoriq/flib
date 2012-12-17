@@ -235,7 +235,7 @@ struct proto_map {
 	int32_t (*protoinfo_func)(uint16_t);
 };
 
-static const struct proto_map proto_table[29] = {
+static const struct proto_map proto_table[] = {
 	{ OP_TYPE_UNI_PROTOCOL,   OP_PCLID_SSL30_PRF,	  ssl_proto },
 	{ OP_TYPE_UNI_PROTOCOL,   OP_PCLID_TLS10_PRF,	  ssl_proto },
 	{ OP_TYPE_UNI_PROTOCOL,   OP_PCLID_TLS11_PRF,	  ssl_proto },
@@ -274,7 +274,7 @@ static inline uint32_t proto_operation(struct program *program, uint32_t optype,
 	uint8_t i, found = 0;
 	uint32_t optype_tmp = optype;
 
-	for (i = 0; i < sizeof(proto_table); i++) {
+	for (i = 0; i < ARRAY_SIZE(proto_table); i++) {
 		/* clear last bit in optype to match also decap proto */
 		optype_tmp &= ~(1 << OP_TYPE_SHIFT);
 		if (optype_tmp == proto_table[i].optype) {

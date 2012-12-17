@@ -22,6 +22,11 @@
 #define low_32b(x) ((uint32_t)(x))
 #endif
 
+/**
+ * ARRAY_SIZE(x) - Returns the number of elements in an array
+ */
+#define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
+
 /* Convinience macros */
 #define WITH(x) (x)
 #define SIZE(x) (x)

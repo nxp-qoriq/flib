@@ -1,7 +1,7 @@
 #ifndef __RTA_FIFO_LOAD_STORE_CMD_H__
 #define __RTA_FIFO_LOAD_STORE_CMD_H__
 
-static const uint32_t fifo_load_table[23][2] = {
+static const uint32_t fifo_load_table[][2] = {
 	{ _PKA0,        FIFOLD_CLASS_CLASS1 | FIFOLD_TYPE_PK_A0 },
 	{ _PKA1,        FIFOLD_CLASS_CLASS1 | FIFOLD_TYPE_PK_A1 },
 	{ _PKA2,        FIFOLD_CLASS_CLASS1 | FIFOLD_TYPE_PK_A2 },
@@ -73,7 +73,8 @@ static inline uint32_t fifo_load(struct program *program, uint32_t src,
 	}
 
 	/* write input data type field */
-	ret = map_opcode(src, fifo_load_table, sizeof(fifo_load_table), &val);
+	ret = map_opcode(src, fifo_load_table, ARRAY_SIZE(fifo_load_table),
+			 &val);
 	if (ret == -1) {
 		pr_debug("FIFO LOAD: Source value is not supported. "
 				"SEC Program Line: %d\n", program->current_pc);
@@ -208,7 +209,8 @@ static inline uint32_t fifo_store(struct program *program, uint32_t src,
 	}
 
 	/* write output data type field */
-	ret = map_opcode(src, fifo_store_table, sizeof(fifo_store_table), &val);
+	ret = map_opcode(src, fifo_store_table, ARRAY_SIZE(fifo_store_table),
+			 &val);
 	if (ret == -1) {
 		pr_debug("FIFO STORE: Source type not supported. "
 				"SEC Program Line: %d\n", program->current_pc);

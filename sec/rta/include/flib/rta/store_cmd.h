@@ -1,7 +1,7 @@
 #ifndef __RTA_STORE_CMD_H__
 #define __RTA_STORE_CMD_H__
 
-static const uint32_t store_src_table[31][2] = {
+static const uint32_t store_src_table[][2] = {
 	{ _KEY1SZ,       LDST_CLASS_1_CCB | LDST_SRCDST_WORD_KEYSZ_REG },
 	{ _KEY2SZ,       LDST_CLASS_2_CCB | LDST_SRCDST_WORD_KEYSZ_REG },
 	{ _DJQDA,        LDST_CLASS_DECO | LDST_SRCDST_WORD_DECO_JQDAR },
@@ -83,7 +83,7 @@ static inline uint32_t store(struct program *program, uintptr_t src,
 	 */
 	if (type_src == REG_TYPE) {
 		ret = map_opcode(src, store_src_table,
-				sizeof(store_src_table), &val);
+				 ARRAY_SIZE(store_src_table), &val);
 		if (ret == -1) {
 			pr_debug("STORE: Invalid source. SEC PC: %d; "
 					"Instr: %d\n", program->current_pc,

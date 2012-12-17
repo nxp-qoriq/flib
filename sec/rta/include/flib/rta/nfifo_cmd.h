@@ -1,7 +1,7 @@
 #ifndef __RTA_NFIFO_CMD_H__
 #define __RTA_NFIFO_CMD_H__
 
-static const uint32_t nfifo_src[5][2] = {
+static const uint32_t nfifo_src[][2] = {
 	{ _IFIFO,       NFIFOENTRY_STYPE_DFIFO },
 	{ _OFIFO,       NFIFOENTRY_STYPE_OFIFO },
 	{ _PAD,         NFIFOENTRY_STYPE_PAD },
@@ -9,7 +9,7 @@ static const uint32_t nfifo_src[5][2] = {
 	{ _ALTSOURCE,   NFIFOENTRY_STYPE_ALTSOURCE }
 };
 
-static const uint32_t nfifo_data[27][2] = {
+static const uint32_t nfifo_data[][2] = {
 	{ _MSG,   NFIFOENTRY_DTYPE_MSG },
 	{ _MSG1,  NFIFOENTRY_DEST_CLASS1 | NFIFOENTRY_DTYPE_MSG },
 	{ _MSG2,  NFIFOENTRY_DEST_CLASS2 | NFIFOENTRY_DTYPE_MSG },
@@ -39,7 +39,7 @@ static const uint32_t nfifo_data[27][2] = {
 	{ _ABD,   NFIFOENTRY_DEST_DECO }
 };
 
-static const uint32_t nfifo_flags[14][2] = {
+static const uint32_t nfifo_flags[][2] = {
 	{ LAST1,         NFIFOENTRY_LC1 },
 	{ LAST2,         NFIFOENTRY_LC2 },
 	{ FLUSH1,        NFIFOENTRY_FC1 },
@@ -56,7 +56,7 @@ static const uint32_t nfifo_flags[14][2] = {
 	{ PAD_NONZERO_N, NFIFOENTRY_PTYPE_RND_NZ_N }
 };
 
-static const uint32_t nfifo_pad_flags[3][2] = {
+static const uint32_t nfifo_pad_flags[][2] = {
 	{ BM, NFIFOENTRY_BM },
 	{ PR, NFIFOENTRY_OC },
 	{ PS, NFIFOENTRY_PS }
@@ -72,8 +72,7 @@ static inline uint32_t nfifo_load(struct program *program, uint32_t src,
 				     | LDST_SRCDST_WORD_INFO_FIFO;
 
 	/* write source field */
-	ret = map_opcode(src, nfifo_src,
-			 sizeof(nfifo_src)/sizeof(nfifo_src[0]), &val);
+	ret = map_opcode(src, nfifo_src, ARRAY_SIZE(nfifo_src), &val);
 	if (ret == -1) {
 		pr_debug("NFIFO: Invalid SRC. SEC PC: %d; Instr: %d\n",
 				program->current_pc,
@@ -83,8 +82,7 @@ static inline uint32_t nfifo_load(struct program *program, uint32_t src,
 	opcode |= val;
 
 	/* write type field */
-	ret = map_opcode(data, nfifo_data,
-			 sizeof(nfifo_data)/sizeof(nfifo_data[0]), &val);
+	ret = map_opcode(data, nfifo_data, ARRAY_SIZE(nfifo_data), &val);
 	if (ret == -1) {
 		pr_debug("NFIFO: Invalid data. SEC PC: %d; Instr: %d\n",
 				program->current_pc,
@@ -102,13 +100,11 @@ static inline uint32_t nfifo_load(struct program *program, uint32_t src,
 	}
 
 	/* write flags */
-	map_flags(flags, nfifo_flags,
-			sizeof(nfifo_flags)/sizeof(nfifo_flags[0]), &opcode);
+	map_flags(flags, nfifo_flags, ARRAY_SIZE(nfifo_flags), &opcode);
 
 	/* in case of padding, check the destination */
 	if (src == _PAD)
-		map_flags(flags, nfifo_pad_flags,
-			  sizeof(nfifo_pad_flags)/sizeof(nfifo_pad_flags[0]),
+		map_flags(flags, nfifo_pad_flags, ARRAY_SIZE(nfifo_pad_flags),
 			  &opcode);
 
 	/* write LOAD command first */

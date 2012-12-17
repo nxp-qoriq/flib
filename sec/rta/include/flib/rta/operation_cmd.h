@@ -122,7 +122,7 @@ struct alg_aii_map {
 
 };
 
-static const struct alg_aii_map alg_table[15] = {
+static const struct alg_aii_map alg_table[] = {
 	{ OP_ALG_ALGSEL_AES,      alg_aii_aes,    OP_TYPE_CLASS1_ALG },
 	{ OP_ALG_ALGSEL_DES,      alg_aii_des,    OP_TYPE_CLASS1_ALG },
 	{ OP_ALG_ALGSEL_3DES,     alg_aii_des,    OP_TYPE_CLASS1_ALG },
@@ -147,7 +147,7 @@ static inline uint32_t operation(struct program *program, uint32_t cipher_algo,
 	uint32_t opcode = CMD_OPERATION;
 	uint32_t i, found = 0;
 
-	for (i = 0; i < sizeof(alg_table); i++) {
+	for (i = 0; i < ARRAY_SIZE(alg_table); i++) {
 		if (alg_table[i].chipher_algo == cipher_algo) {
 			opcode |= cipher_algo | alg_table[i].class;
 			/* nothig else to verify */

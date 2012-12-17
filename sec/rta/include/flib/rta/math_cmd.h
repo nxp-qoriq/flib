@@ -1,7 +1,7 @@
 #ifndef __RTA_MATH_CMD_H__
 #define __RTA_MATH_CMD_H__
 
-static const uint32_t math_op1[12][2] = {
+static const uint32_t math_op1[][2] = {
 	{ _MATH0,     MATH_SRC0_REG0 },
 	{ _MATH1,     MATH_SRC0_REG1 },
 	{ _MATH2,     MATH_SRC0_REG2 },
@@ -15,7 +15,7 @@ static const uint32_t math_op1[12][2] = {
 	{ _ONE,       MATH_SRC0_ONE },
 	{ _NONE,      0 } /* dummy value */
 };
-static const uint32_t math_op2[13][2] = {
+static const uint32_t math_op2[][2] = {
 	{ _MATH0,     MATH_SRC1_REG0 },
 	{ _MATH1,     MATH_SRC1_REG1 },
 	{ _MATH2,     MATH_SRC1_REG2 },
@@ -31,7 +31,7 @@ static const uint32_t math_op2[13][2] = {
 	{ _NONE,      0 } /* dummy value */
 };
 
-static const uint32_t math_result[10][2] = {
+static const uint32_t math_result[][2] = {
 	{ _MATH0,     MATH_DEST_REG0 },
 	{ _MATH1,     MATH_DEST_REG1 },
 	{ _MATH2,     MATH_DEST_REG2 },
@@ -80,7 +80,8 @@ static inline uint32_t math(struct program *program, uint64_t operand1,
 	if (type_op1 == IMM_DATA)
 		opcode |= MATH_SRC0_IMM;
 	else {
-		ret = map_opcode(operand1, math_op1, sizeof(math_op1), &val);
+		ret = map_opcode(operand1, math_op1, ARRAY_SIZE(math_op1),
+				 &val);
 		if (ret == -1) {
 			pr_debug("MATH: operand1 not supported. SEC PC: %d; "
 					"Instr: %d\n", program->current_pc,
@@ -94,7 +95,8 @@ static inline uint32_t math(struct program *program, uint64_t operand1,
 	if (type_op2 == IMM_DATA)
 		opcode |= MATH_SRC1_IMM;
 	else {
-		ret = map_opcode(operand2, math_op2, sizeof(math_op2), &val);
+		ret = map_opcode(operand2, math_op2, ARRAY_SIZE(math_op2),
+				 &val);
 		if (ret == -1) {
 			pr_debug("MATH: operand2 not supported. SEC PC: %d; "
 					"Instr: %d\n", program->current_pc,
@@ -105,7 +107,7 @@ static inline uint32_t math(struct program *program, uint64_t operand1,
 	}
 
 	/* Write result field */
-	ret = map_opcode(result, math_result, sizeof(math_result), &val);
+	ret = map_opcode(result, math_result, ARRAY_SIZE(math_result), &val);
 	if (ret == -1) {
 		pr_debug("MATH: result not supported. SEC PC: %d; "
 				"Instr: %d\n", program->current_pc,
