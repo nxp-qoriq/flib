@@ -222,10 +222,8 @@ static inline uint32_t fifo_store(struct program *program, uint32_t src,
 		opcode |= (0x1 << FIFOST_TYPE_SHIFT);
 	if (encrypt_flags & EKT) {
 		opcode |= (0x10 << FIFOST_TYPE_SHIFT);
-		opcode &= 0xFFDFFFFF;
+		opcode &= ~(0x20 << FIFOST_TYPE_SHIFT);
 	}
-	if (encrypt_flags & EKT)
-		opcode &= 0xFFDFFFFF;
 
 	/* write flags fields: CONT, VLF|SGF */
 	if (flags & CONT)
