@@ -1,8 +1,10 @@
 #ifndef __RTA_FIFO_LOAD_STORE_CMD_H__
 #define __RTA_FIFO_LOAD_STORE_CMD_H__
 
+extern uint rta_sec_era;
+
 static const uint32_t fifo_load_table[][2] = {
-	{ _PKA0,        FIFOLD_CLASS_CLASS1 | FIFOLD_TYPE_PK_A0 },
+/*1*/	{ _PKA0,        FIFOLD_CLASS_CLASS1 | FIFOLD_TYPE_PK_A0 },
 	{ _PKA1,        FIFOLD_CLASS_CLASS1 | FIFOLD_TYPE_PK_A1 },
 	{ _PKA2,        FIFOLD_CLASS_CLASS1 | FIFOLD_TYPE_PK_A2 },
 	{ _PKA3,        FIFOLD_CLASS_CLASS1 | FIFOLD_TYPE_PK_A3 },
@@ -13,7 +15,6 @@ static const uint32_t fifo_load_table[][2] = {
 	{ _PKA,         FIFOLD_CLASS_CLASS1 | FIFOLD_TYPE_PK_A },
 	{ _PKB,         FIFOLD_CLASS_CLASS1 | FIFOLD_TYPE_PK_B },
 	{ _PKN,         FIFOLD_CLASS_CLASS1 | FIFOLD_TYPE_PK_N },
-	{ _IFIFO,       FIFOLD_CLASS_CLASS1 | FIFOLD_TYPE_DFIFO },
 	{ _SKIP,        FIFOLD_CLASS_SKIP },
 	{ _MSG1,        FIFOLD_CLASS_CLASS1 | FIFOLD_TYPE_MSG },
 	{ _MSG2,        FIFOLD_CLASS_CLASS2 | FIFOLD_TYPE_MSG },
@@ -24,8 +25,16 @@ static const uint32_t fifo_load_table[][2] = {
 	{ _AAD1,        FIFOLD_CLASS_CLASS1 | FIFOLD_TYPE_AAD },
 	{ _ICV1,        FIFOLD_CLASS_CLASS1 | FIFOLD_TYPE_ICV },
 	{ _ICV2,        FIFOLD_CLASS_CLASS2 | FIFOLD_TYPE_ICV },
-	{ _BIT_DATA,    FIFOLD_TYPE_BITDATA }
+	{ _BIT_DATA,    FIFOLD_TYPE_BITDATA },
+/*23*/	{ _IFIFO,       FIFOLD_CLASS_CLASS1 | FIFOLD_TYPE_DFIFO }
 };
+
+/*
+ * Allowed FIFO_LOAD input data types for each SEC Era.
+ * Values represent the number of entries from fifo_load_table[] that are
+ * supported.
+ */
+static const uint32_t fifo_load_table_sz[MAX_SEC_ERA] = {22, 22, 23, 23, 23};
 
 static inline uint32_t fifo_load(struct program *program, uint32_t src,
 				 uint32_t type_src, uint64_t loc,
@@ -73,7 +82,7 @@ static inline uint32_t fifo_load(struct program *program, uint32_t src,
 	}
 
 	/* write input data type field */
-	ret = map_opcode(src, fifo_load_table, ARRAY_SIZE(fifo_load_table),
+	ret = map_opcode(src, fifo_load_table, fifo_load_table_sz[rta_sec_era],
 			 &val);
 	if (ret == -1) {
 		pr_debug("FIFO LOAD: Source value is not supported. "
@@ -152,7 +161,7 @@ static inline uint32_t fifo_load(struct program *program, uint32_t src,
 	return program->current_pc;
 }
 
-static const uint32_t fifo_store_table[20][2] = {
+static const uint32_t fifo_store_table[][2] = {
 	{ _PKA0,      FIFOST_TYPE_PKHA_A0 },
 	{ _PKA1,      FIFOST_TYPE_PKHA_A1 },
 	{ _PKA2,      FIFOST_TYPE_PKHA_A2 },
@@ -172,6 +181,7 @@ static const uint32_t fifo_store_table[20][2] = {
 	{ _MSG,       FIFOST_TYPE_MESSAGE_DATA },
 	{ _KEY1,      FIFOST_CLASS_CLASS1KEY | FIFOST_TYPE_KEY_KEK },
 	{ _KEY2,      FIFOST_CLASS_CLASS2KEY | FIFOST_TYPE_KEY_KEK },
+	{ _OFIFO,     FIFOST_TYPE_OUTFIFO_KEK},
 	{ _SKIP,      FIFOST_TYPE_SKIP }
 };
 
@@ -221,6 +231,11 @@ static inline uint32_t fifo_store(struct program *program, uint32_t src,
 	if (encrypt_flags & TK)
 		opcode |= (0x1 << FIFOST_TYPE_SHIFT);
 	if (encrypt_flags & EKT) {
+		if (rta_sec_era == 1) {
+			pr_debug("FIFO STORE: AES-CCM source types not "
+				 "supported\n");
+			goto err;
+		}
 		opcode |= (0x10 << FIFOST_TYPE_SHIFT);
 		opcode &= ~(0x20 << FIFOST_TYPE_SHIFT);
 	}
