@@ -1,10 +1,36 @@
 #ifndef __RTA_HEADER_CMD_H__
 #define __RTA_HEADER_CMD_H__
 
+extern uint rta_sec_era;
+
+/* Allowed job header flags for each SEC Era. */
+static const uint32_t job_header_flags[MAX_SEC_ERA] = {
+	DNR | TD | MTD | SHR | REO,
+	DNR | TD | MTD | SHR | REO | RSMS,
+	DNR | TD | MTD | SHR | REO | RSMS,
+	DNR | TD | MTD | SHR | REO | RSMS,
+	DNR | TD | MTD | SHR | REO | RSMS | EXT
+};
+
+/* Allowed shared header flags for each SEC Era. */
+static const uint32_t shr_header_flags[MAX_SEC_ERA] = {
+	DNR | SC | PD,
+	DNR | SC | PD | CIF,
+	DNR | SC | PD | CIF,
+	DNR | SC | PD | CIF | RIF,
+	DNR | SC | PD | CIF | RIF
+};
+
 static inline uint32_t shr_header(struct program *program, uint32_t share,
 			   uint32_t start_idx, uint32_t flags)
 {
 	uint32_t opcode = CMD_SHARED_DESC_HDR;
+
+	if (flags & ~shr_header_flags[rta_sec_era]) {
+		pr_debug("SHR_DESC: Flag(s) not supported by SEC Era %d\n",
+			 rta_sec_era);
+		goto err;
+	}
 
 	switch (share) {
 	case SHR_ALWAYS:
@@ -56,8 +82,13 @@ static inline uint32_t job_header(struct program *program, uint32_t share,
 {
 	uint32_t opcode = CMD_DESC_HDR;
 
-	switch (share) {
+	if (flags & ~job_header_flags[rta_sec_era]) {
+		pr_debug("JOB_DESC: Flag(s) not supported by SEC Era %d\n",
+			 rta_sec_era);
+		goto err;
+	}
 
+	switch (share) {
 	case SHR_ALWAYS:
 		opcode |= HDR_SHARE_ALWAYS;
 		break;
