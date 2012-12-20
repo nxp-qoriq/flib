@@ -390,6 +390,7 @@
 #define MTD             0x00000040
 #define REO             0x00000080
 #define SHR             0x00000100
+#define SC		0x00000200
 
 /* JUMP Command specific flags */
 #define NIFP            0x00100000

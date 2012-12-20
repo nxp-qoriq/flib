@@ -122,7 +122,7 @@ static inline void cnstr_shdsc_cbc_blkcipher(uint32_t *descbuf, uint16_t *bufsiz
 	uint sec_subversion = 3;
 
 	PROGRAM_CNTXT_INIT(descbuf, 0, sec_subversion);
-	SHR_HDR(SHR_ALWAYS, 1, HDR_SAVECTX);
+	SHR_HDR(SHR_ALWAYS, 1, SC);
 	{
 		/* Insert Key */
 		KEY(KEY1, 0, IMM((uintptr_t)cipherkey), keylen, 0);
@@ -184,7 +184,7 @@ static inline void cnstr_shdsc_hmac(uint32_t *descbuf, uint16_t *bufsize,
 	opicv = icv ? ICV_CHECK_ENABLE : ICV_CHECK_DISABLE;
 
 	PROGRAM_CNTXT_INIT(descbuf, 0, sec_subversion);
-	SHR_HDR(SHR_ALWAYS, 1, HDR_SAVECTX);
+	SHR_HDR(SHR_ALWAYS, 1, SC);
 	{
 		KEY(KEY2, 0, IMM((uintptr_t)md_key), storelen, 0);
 		/* compute sequences */

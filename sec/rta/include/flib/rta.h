@@ -141,8 +141,7 @@
  *                     SHR_NEVER, SHR_WAIT</em>.
  * @param[in] start_idx Index in descriptor buffer where the execution of the
  *                     Shared Descriptor should start (@c uint32_t).
- * @param[in] flags    Operational flags:@n @li <em>RIF, DNR, CIF, HDR_SAVECTX,
- *                     PD</em>.
+ * @param[in] flags    Operational flags:@n @li <em>RIF, DNR, CIF, SC, PD</em>.
  * @return             @li Updated descriptor size on success (@c uint32_t).
  *                     @li First error program counter will be incremented on
  *                     error; in debug mode, a log message will be shown at

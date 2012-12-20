@@ -32,7 +32,7 @@ static inline uint32_t shr_header(struct program *program, uint32_t share,
 		opcode |= HDR_DNR;
 	if (flags & CIF)
 		opcode |= HDR_CLEAR_IFIFO;
-	if (flags & HDR_SAVECTX)
+	if (flags & SC)
 		opcode |= HDR_SAVECTX;
 	if (flags & PD)
 		opcode |= HDR_PROP_DNR;
