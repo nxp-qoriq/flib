@@ -1,48 +1,70 @@
 #ifndef __RTA_MATH_CMD_H__
 #define __RTA_MATH_CMD_H__
 
+extern uint rta_sec_era;
+
 static const uint32_t math_op1[][2] = {
-	{ _MATH0,     MATH_SRC0_REG0 },
+/*1*/	{ _MATH0,     MATH_SRC0_REG0 },
 	{ _MATH1,     MATH_SRC0_REG1 },
 	{ _MATH2,     MATH_SRC0_REG2 },
 	{ _MATH3,     MATH_SRC0_REG3 },
-	{ _DPOVRD,    MATH_SRC0_PROT },
 	{ _SEQINSZ,   MATH_SRC0_SEQINLEN },
 	{ _SEQOUTSZ,  MATH_SRC0_SEQOUTLEN },
 	{ _VSEQINSZ,  MATH_SRC0_VARSEQINLEN },
 	{ _VSEQOUTSZ, MATH_SRC0_VARSEQOUTLEN },
 	{ _ZERO,      MATH_SRC0_ZERO },
-	{ _ONE,       MATH_SRC0_ONE },
-	{ _NONE,      0 } /* dummy value */
+/*10*/	{ _NONE,      0 }, /* dummy value */
+	{ _DPOVRD,    MATH_SRC0_PROT },
+	{ _ONE,       MATH_SRC0_ONE }
 };
+
+/*
+ * Allowed MATH op1 sources for each SEC Era.
+ * Values represent the number of entries from math_op1[] that are supported.
+ */
+static const uint32_t math_op1_sz[MAX_SEC_ERA] = {10, 10, 12, 12, 12};
+
 static const uint32_t math_op2[][2] = {
-	{ _MATH0,     MATH_SRC1_REG0 },
+/*1*/	{ _MATH0,     MATH_SRC1_REG0 },
 	{ _MATH1,     MATH_SRC1_REG1 },
 	{ _MATH2,     MATH_SRC1_REG2 },
 	{ _MATH3,     MATH_SRC1_REG3 },
+	{ _ABD,       MATH_SRC1_INFIFO },
+	{ _OFIFO,     MATH_SRC1_OUTFIFO },
+	{ _ONE,       MATH_SRC1_ONE },
+/*8*/	{ _NONE,      0 }, /* dummy value */
+	{ _JOBSRC,    MATH_SRC1_JOBSOURCE },
 	{ _DPOVRD,    MATH_SRC1_PROT },
 	{ _VSEQINSZ,  MATH_SRC1_VARSEQINLEN },
 	{ _VSEQOUTSZ, MATH_SRC1_VARSEQOUTLEN },
-	{ _ABD,       MATH_SRC1_INFIFO },
-	{ _OFIFO,     MATH_SRC1_OUTFIFO },
-	{ _JOBSRC,    MATH_SRC1_JOBSOURCE },
-	{ _ZERO,      MATH_SRC1_ZERO },
-	{ _ONE,       MATH_SRC1_ONE },
-	{ _NONE,      0 } /* dummy value */
+/*13*/	{ _ZERO,      MATH_SRC1_ZERO }
 };
 
+/*
+ * Allowed MATH op2 sources for each SEC Era.
+ * Values represent the number of entries from math_op2[] that are supported.
+ */
+static const uint32_t math_op2_sz[MAX_SEC_ERA] = {8, 9, 13, 13, 13};
+
 static const uint32_t math_result[][2] = {
-	{ _MATH0,     MATH_DEST_REG0 },
+/*1*/	{ _MATH0,     MATH_DEST_REG0 },
 	{ _MATH1,     MATH_DEST_REG1 },
 	{ _MATH2,     MATH_DEST_REG2 },
 	{ _MATH3,     MATH_DEST_REG3 },
-	{ _DPOVRD,    MATH_DEST_PROT },
 	{ _SEQINSZ,   MATH_DEST_SEQINLEN },
 	{ _SEQOUTSZ,  MATH_DEST_SEQOUTLEN },
 	{ _VSEQINSZ,  MATH_DEST_VARSEQINLEN },
 	{ _VSEQOUTSZ, MATH_DEST_VARSEQOUTLEN },
-	{ _NONE,      MATH_DEST_NONE }
+/*9*/	{ _NONE,      MATH_DEST_NONE },
+	{ _DPOVRD,    MATH_DEST_PROT }
 };
+
+/*
+ * Allowed MATH result destinations for each SEC Era.
+ * Values represent the number of entries from math_result[] that are
+ * supported.
+ */
+static const uint32_t math_result_sz[MAX_SEC_ERA] = {9, 9, 10, 10, 10};
 
 static inline uint32_t math(struct program *program, uint64_t operand1,
 		int type_op1, uint32_t op, uint64_t operand2, int type_op2,
@@ -52,6 +74,14 @@ static inline uint32_t math(struct program *program, uint64_t operand1,
 	uint32_t val = 0;
 	int8_t ret = 0;
 
+	if (((op == BSWAP) && (rta_sec_era < 4)) ||
+	    ((op == ZBYTE) && (rta_sec_era < 2))) {
+		pr_debug("MATH: operation not supported by SEC Era %d. "
+			 "SEC PC: %d; Instr: %d\n", rta_sec_era,
+			 program->current_pc,
+			 program->current_instraction);
+		goto err;
+	}
 
 	/*
 	 * SHLD operation is different from others and we
@@ -80,7 +110,7 @@ static inline uint32_t math(struct program *program, uint64_t operand1,
 	if (type_op1 == IMM_DATA)
 		opcode |= MATH_SRC0_IMM;
 	else {
-		ret = map_opcode(operand1, math_op1, ARRAY_SIZE(math_op1),
+		ret = map_opcode(operand1, math_op1, math_op1_sz[rta_sec_era],
 				 &val);
 		if (ret == -1) {
 			pr_debug("MATH: operand1 not supported. SEC PC: %d; "
@@ -95,7 +125,7 @@ static inline uint32_t math(struct program *program, uint64_t operand1,
 	if (type_op2 == IMM_DATA)
 		opcode |= MATH_SRC1_IMM;
 	else {
-		ret = map_opcode(operand2, math_op2, ARRAY_SIZE(math_op2),
+		ret = map_opcode(operand2, math_op2, math_op2_sz[rta_sec_era],
 				 &val);
 		if (ret == -1) {
 			pr_debug("MATH: operand2 not supported. SEC PC: %d; "
@@ -107,7 +137,8 @@ static inline uint32_t math(struct program *program, uint64_t operand1,
 	}
 
 	/* Write result field */
-	ret = map_opcode(result, math_result, ARRAY_SIZE(math_result), &val);
+	ret = map_opcode(result, math_result, math_result_sz[rta_sec_era],
+			 &val);
 	if (ret == -1) {
 		pr_debug("MATH: result not supported. SEC PC: %d; "
 				"Instr: %d\n", program->current_pc,
