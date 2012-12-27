@@ -8,39 +8,54 @@
 
 #define MASK_16b  0xFF
 
+extern uint rta_sec_era;
+
 static const uint32_t move_src_table[][2] = {
-	{ _CONTEXT1, MOVE_SRC_CLASS1CTX },
+/*1*/	{ _CONTEXT1, MOVE_SRC_CLASS1CTX },
 	{ _CONTEXT2, MOVE_SRC_CLASS2CTX },
 	{ _OFIFO,    MOVE_SRC_OUTFIFO },
+	{ _DESCBUF,  MOVE_SRC_DESCBUF },
 	{ _MATH0,    MOVE_SRC_MATH0 },
 	{ _MATH1,    MOVE_SRC_MATH1 },
 	{ _MATH2,    MOVE_SRC_MATH2 },
 	{ _MATH3,    MOVE_SRC_MATH3 },
-	{ _IFIFOABD, MOVE_SRC_INFIFO },
+/*9*/	{ _IFIFOABD, MOVE_SRC_INFIFO },
 	{ _IFIFOAB1, MOVE_SRC_INFIFO_CL | MOVE_AUX_LS },
 	{ _IFIFOAB2, MOVE_SRC_INFIFO_CL },
-	{ _ABD,      MOVE_SRC_INFIFO_NO_NFIFO },
+/*12*/	{ _ABD,      MOVE_SRC_INFIFO_NO_NFIFO },
 	{ _AB1,      MOVE_SRC_INFIFO_NO_NFIFO | MOVE_AUX_LS },
-	{ _AB2,      MOVE_SRC_INFIFO_NO_NFIFO | MOVE_AUX_MS },
-	{ _DESCBUF,  MOVE_SRC_DESCBUF }
+	{ _AB2,      MOVE_SRC_INFIFO_NO_NFIFO | MOVE_AUX_MS }
 };
 
+/* Allowed MOVE / MOVE_LEN sources for each SEC Era.
+ * Values represent the number of entries from move_src_table[] that are
+ * supported.
+ */
+static const uint32_t move_src_table_sz[MAX_SEC_ERA] = {8, 11, 14, 14, 14};
+
 static const uint32_t move_dst_table[][2] = {
-	{ _CONTEXT1,  MOVE_DEST_CLASS1CTX },
+/*1*/	{ _CONTEXT1,  MOVE_DEST_CLASS1CTX },
 	{ _CONTEXT2,  MOVE_DEST_CLASS2CTX },
 	{ _OFIFO,     MOVE_DEST_OUTFIFO },
+	{ _DESCBUF,   MOVE_DEST_DESCBUF },
 	{ _MATH0,     MOVE_DEST_MATH0 },
 	{ _MATH1,     MOVE_DEST_MATH1 },
 	{ _MATH2,     MOVE_DEST_MATH2 },
 	{ _MATH3,     MOVE_DEST_MATH3 },
 	{ _IFIFOAB1,  MOVE_DEST_CLASS1INFIFO },
 	{ _IFIFOAB2,  MOVE_DEST_CLASS2INFIFO },
-	{ _IFIFO,     MOVE_DEST_INFIFO },
 	{ _PKA,       MOVE_DEST_PK_A },
 	{ _KEY1,      MOVE_DEST_CLASS1KEY },
 	{ _KEY2,      MOVE_DEST_CLASS2KEY },
-	{ _DESCBUF,   MOVE_DEST_DESCBUF }
+/*14*/	{ _IFIFO,     MOVE_DEST_INFIFO },
+/*15*/	{_ALTSOURCE,  MOVE_DEST_ALTSOURCE}
 };
+
+/* Allowed MOVE / MOVE_LEN destinations for each SEC Era.
+ * Values represent the number of entries from move_dst_table[] that are
+ * supported.
+ */
+static const uint32_t move_dst_table_sz[MAX_SEC_ERA] = {13, 14, 14, 15, 15};
 
 static inline uint16_t set_move_offset(struct program *program, uint64_t src,
 				       uint16_t src_offset, uint64_t dst,
@@ -59,9 +74,22 @@ static inline uint32_t move(struct program *program, uint64_t src, int type_src,
 
 	/* write command type */
 	if (type_length == REG_TYPE) {
-		if ((length != _MATH0) && (length != _MATH1)
-		    && (length != _MATH2) && (length != _MATH3))
+		if (rta_sec_era < 3) {
+			pr_debug("MOVE: MOVE_LEN not supported by SEC Era %d. "
+				 "SEC PC: %d; Instr: %d\n", rta_sec_era,
+				 program->current_pc,
+				 program->current_instraction);
 			goto err;
+		}
+
+		if ((length != _MATH0) && (length != _MATH1) &&
+		    (length != _MATH2) && (length != _MATH3)) {
+			pr_debug("MOVE: MOVE_LEN length must be MATH[0-3]. "
+				 "SEC PC: %d; Instr: %d\n", program->current_pc,
+				 program->current_instraction);
+			goto err;
+		}
+
 		opcode = CMD_MOVE_LEN;
 		is_move_len_cmd = 1;
 	} else
@@ -87,7 +115,8 @@ static inline uint32_t move(struct program *program, uint64_t src, int type_src,
 		opcode |= MOVE_AUX_LS;
 
 	/* write source field */
-	ret = map_opcode(src, move_src_table, ARRAY_SIZE(move_src_table), &val);
+	ret = map_opcode(src, move_src_table, move_src_table_sz[rta_sec_era],
+			 &val);
 	if (ret == -1) {
 		pr_debug("MOVE: Invalid SRC. SEC PC: %d; Instr: %d\n",
 				program->current_pc,
@@ -97,7 +126,8 @@ static inline uint32_t move(struct program *program, uint64_t src, int type_src,
 	opcode |= val;
 
 	/* write destination field */
-	ret = map_opcode(dst, move_dst_table, ARRAY_SIZE(move_dst_table), &val);
+	ret = map_opcode(dst, move_dst_table, move_dst_table_sz[rta_sec_era],
+			 &val);
 	if (ret == -1) {
 		pr_debug("MOVE: Invalid DST. SEC PC: %d; Instr: %d\n",
 				program->current_pc,
