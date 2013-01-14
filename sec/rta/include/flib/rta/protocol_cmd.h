@@ -1,6 +1,8 @@
 #ifndef __RTA_PROTOCOL_CMD_H__
 #define __RTA_PROTOCOL_CMD_H__
 
+extern uint rta_sec_era;
+
 static inline int32_t ssl_proto(uint16_t protoinfo)
 {
 	switch (protoinfo) {
@@ -175,6 +177,7 @@ static inline int32_t ssl_proto(uint16_t protoinfo)
 	case OP_PCL_TLS_PVT_MASTER_SECRET_PRF_FF:
 		return 0;
 	}
+
 	return -1;
 }
 
@@ -190,15 +193,21 @@ static inline int32_t ike_proto(uint16_t protoinfo)
 	case OP_PCL_IKE_HMAC_AES128_CMAC:
 		return 0;
 	}
+
 	return -1;
 }
 
 static inline int32_t ipsec_proto(uint16_t protoinfo)
 {
-	uint16_t proto_cls1 = protoinfo & 0xff00;
-	uint16_t proto_cls2 = protoinfo & 0x00ff;
+	uint16_t proto_cls1 = protoinfo & OP_PCL_IPSEC_CIPHER_MASK;
+	uint16_t proto_cls2 = protoinfo & OP_PCL_IPSEC_AUTH_MASK;
 
 	switch (proto_cls1) {
+	case OP_PCL_IPSEC_NULL:
+	case OP_PCL_IPSEC_AES_NULL_WITH_GMAC:
+		if (rta_sec_era < 2)
+			return -1;
+		break;
 	case OP_PCL_IPSEC_AES_CCM8:
 	case OP_PCL_IPSEC_AES_CCM12:
 	case OP_PCL_IPSEC_AES_CCM16:
@@ -206,26 +215,250 @@ static inline int32_t ipsec_proto(uint16_t protoinfo)
 	case OP_PCL_IPSEC_AES_GCM12:
 		if (proto_cls2 == OP_PCL_IPSEC_HMAC_NULL)
 			return 0;
+		/* no break */
 	case OP_PCL_IPSEC_DES_IV64:
 	case OP_PCL_IPSEC_DES:
 	case OP_PCL_IPSEC_3DES:
-	case OP_PCL_IPSEC_NULL:
 	case OP_PCL_IPSEC_AES_CBC:
-	case OP_PCL_IPSEC_AES_NULL_WITH_GMAC:
+		break;
+	default:
+		return -1;
+	}
+
+	switch (proto_cls2) {
+	case OP_PCL_IPSEC_HMAC_MD5_96:
+	case OP_PCL_IPSEC_HMAC_SHA1_96:
+	case OP_PCL_IPSEC_AES_XCBC_MAC_96:
+	case OP_PCL_IPSEC_HMAC_MD5_128:
+	case OP_PCL_IPSEC_HMAC_SHA1_160:
+	case OP_PCL_IPSEC_AES_CMAC_96:
+	case OP_PCL_IPSEC_HMAC_SHA2_256_128:
+	case OP_PCL_IPSEC_HMAC_SHA2_384_192:
+	case OP_PCL_IPSEC_HMAC_SHA2_512_256:
+		return 0;
+	}
+
+	return -1;
+}
+
+static inline int32_t srtp_proto(uint16_t protoinfo)
+{
+	uint16_t proto_cls1 = protoinfo & OP_PCL_SRTP_CIPHER_MASK;
+	uint16_t proto_cls2 = protoinfo & OP_PCL_SRTP_AUTH_MASK;
+
+	switch (proto_cls1) {
+	case OP_PCL_SRTP_AES_CTR:
 		switch (proto_cls2) {
-		case OP_PCL_IPSEC_HMAC_MD5_96:
-		case OP_PCL_IPSEC_HMAC_SHA1_96:
-		case OP_PCL_IPSEC_AES_XCBC_MAC_96:
-		case OP_PCL_IPSEC_HMAC_MD5_128:
-		case OP_PCL_IPSEC_HMAC_SHA1_160:
-		case OP_PCL_IPSEC_AES_CMAC_96:
-		case OP_PCL_IPSEC_HMAC_SHA2_256_128:
-		case OP_PCL_IPSEC_HMAC_SHA2_384_192:
-		case OP_PCL_IPSEC_HMAC_SHA2_512_256:
+		case OP_PCL_SRTP_HMAC_SHA1_160:
 			return 0;
 		}
-
+		/* no break */
 	}
+
+	return -1;
+}
+
+static inline int32_t macsec_proto(uint16_t protoinfo)
+{
+	switch (protoinfo) {
+	case OP_PCL_MACSEC:
+		return 0;
+	}
+
+	return -1;
+}
+
+static inline int32_t wifi_proto(uint16_t protoinfo)
+{
+	switch (protoinfo) {
+	case OP_PCL_WIFI:
+		return 0;
+	}
+
+	return -1;
+}
+
+static inline int32_t wimax_proto(uint16_t protoinfo)
+{
+	switch (protoinfo) {
+	case OP_PCL_WIMAX_OFDM:
+	case OP_PCL_WIMAX_OFDMA:
+		return 0;
+	}
+
+	return -1;
+}
+
+/* Allowed blob proto flags for each SEC Era */
+static const uint32_t proto_blob_flags[MAX_SEC_ERA] = {
+	OP_PCL_BLOB_BLACK,
+	OP_PCL_BLOB_BLACK | OP_PCL_BLOB_TKEK | OP_PCL_BLOB_EKT |
+		OP_PCL_BLOB_REG_MASK,
+	OP_PCL_BLOB_BLACK | OP_PCL_BLOB_TKEK | OP_PCL_BLOB_EKT |
+		OP_PCL_BLOB_REG_MASK,
+	OP_PCL_BLOB_BLACK | OP_PCL_BLOB_TKEK | OP_PCL_BLOB_EKT |
+		OP_PCL_BLOB_REG_MASK | OP_PCL_BLOB_SEC_MEM,
+	OP_PCL_BLOB_BLACK | OP_PCL_BLOB_TKEK | OP_PCL_BLOB_EKT |
+		OP_PCL_BLOB_REG_MASK | OP_PCL_BLOB_SEC_MEM,
+};
+
+static inline int32_t blob_proto(uint16_t protoinfo)
+{
+	if (protoinfo & ~proto_blob_flags[rta_sec_era])
+		return -1;
+
+	switch (protoinfo & OP_PCL_BLOB_FORMAT_MASK) {
+	case OP_PCL_BLOB_FORMAT_NORMAL:
+	case OP_PCL_BLOB_FORMAT_MASTER_VER:
+	case OP_PCL_BLOB_FORMAT_TEST:
+		break;
+	default:
+		return -1;
+	}
+
+	switch (protoinfo & OP_PCL_BLOB_REG_MASK) {
+	case OP_PCL_BLOB_AFHA_SBOX:
+		if (rta_sec_era < 3)
+			return -1;
+		/* no break */
+	case OP_PCL_BLOB_REG_MEMORY:
+	case OP_PCL_BLOB_REG_KEY1:
+	case OP_PCL_BLOB_REG_KEY2:
+	case OP_PCL_BLOB_REG_SPLIT:
+	case OP_PCL_BLOB_REG_PKE:
+		return 0;
+	}
+
+	return -1;
+}
+
+static inline int32_t dlc_proto(uint16_t protoinfo)
+{
+	if ((rta_sec_era < 2) &&
+	    (protoinfo & (OP_PCL_PKPROT_DSA_MSG | OP_PCL_PKPROT_HASH_MASK |
+	     OP_PCL_PKPROT_EKT_Z | OP_PCL_PKPROT_DECRYPT_Z |
+	     OP_PCL_PKPROT_DECRYPT_PRI)))
+		return -1;
+
+	switch (protoinfo & OP_PCL_PKPROT_HASH_MASK) {
+	case OP_PCL_PKPROT_HASH_MD5:
+	case OP_PCL_PKPROT_HASH_SHA1:
+	case OP_PCL_PKPROT_HASH_SHA224:
+	case OP_PCL_PKPROT_HASH_SHA256:
+	case OP_PCL_PKPROT_HASH_SHA384:
+	case OP_PCL_PKPROT_HASH_SHA512:
+		if (protoinfo & OP_PCL_PKPROT_DSA_MSG)
+			break;
+		/* no break */
+	default:
+		return -1;
+	}
+
+	if ((protoinfo & OP_PCLID_DSAVERIFY) &&
+	    (protoinfo & OP_PCL_PKPROT_DECRYPT_PRI))
+		return -1;
+
+	if ((protoinfo & OP_PCL_PKPROT_DECRYPT_Z) &&
+	    !(protoinfo & OP_PCLID_DIFFIEHELLMAN))
+		return -1;
+
+	return 0;
+}
+
+static inline int32_t rsa_enc_proto(uint16_t protoinfo)
+{
+	switch (protoinfo & OP_PCL_RSAPROT_OP_MASK) {
+	case OP_PCL_RSAPROT_OP_ENC_F_IN:
+		if ((protoinfo & OP_PCL_RSAPROT_FFF_MASK) !=
+		    OP_PCL_RSAPROT_FFF_RED)
+			return -1;
+		break;
+	case OP_PCL_RSAPROT_OP_ENC_F_OUT:
+		switch (protoinfo & OP_PCL_RSAPROT_FFF_MASK) {
+		case OP_PCL_RSAPROT_FFF_RED:
+		case OP_PCL_RSAPROT_FFF_ENC:
+		case OP_PCL_RSAPROT_FFF_EKT:
+			break;
+		default:
+			return -1;
+		}
+		break;
+	default:
+		return -1;
+	}
+
+	return 0;
+}
+
+static inline int32_t rsa_dec_proto(uint16_t protoinfo)
+{
+	switch (protoinfo & OP_PCL_RSAPROT_OP_MASK) {
+	case OP_PCL_RSAPROT_OP_DEC_ND:
+	case OP_PCL_RSAPROT_OP_DEC_PQD:
+	case OP_PCL_RSAPROT_OP_DEC_PQDPDQC:
+		break;
+	default:
+		return -1;
+	}
+
+	switch (protoinfo & OP_PCL_RSAPROT_PPP_MASK) {
+	case OP_PCL_RSAPROT_PPP_RED:
+	case OP_PCL_RSAPROT_PPP_ENC:
+	case OP_PCL_RSAPROT_PPP_EKT:
+	case OP_PCL_RSAPROT_PPP_TK_ENC:
+	case OP_PCL_RSAPROT_PPP_TK_EKT:
+		break;
+	default:
+		return -1;
+	}
+
+	if (protoinfo & OP_PCL_RSAPROT_FMT_PKCSV15)
+		switch (protoinfo & OP_PCL_RSAPROT_FFF_MASK) {
+		case OP_PCL_RSAPROT_FFF_RED:
+		case OP_PCL_RSAPROT_FFF_ENC:
+		case OP_PCL_RSAPROT_FFF_EKT:
+		case OP_PCL_RSAPROT_FFF_TK_ENC:
+		case OP_PCL_RSAPROT_FFF_TK_EKT:
+			break;
+		default:
+			return -1;
+		}
+
+	return 0;
+}
+
+static inline int32_t _3g_dcrc_proto(uint16_t protoinfo)
+{
+	switch (protoinfo) {
+	case OP_PCL_3G_DCRC_CRC7:
+	case OP_PCL_3G_DCRC_CRC11:
+		return 0;
+	}
+
+	return -1;
+}
+
+static inline int32_t _3g_rlc_proto(uint16_t protoinfo)
+{
+	switch (protoinfo) {
+	case OP_PCL_3G_RLC_NULL:
+	case OP_PCL_3G_RLC_KASUMI:
+	case OP_PCL_3G_RLC_SNOW:
+		return 0;
+	}
+
+	return -1;
+}
+
+static inline int32_t lte_pdcp_proto(uint16_t protoinfo)
+{
+	switch (protoinfo) {
+	case OP_PCL_LTE_NULL:
+	case OP_PCL_LTE_SNOW:
+	case OP_PCL_LTE_AES:
+		return 0;
+	}
+
 	return -1;
 }
 
@@ -236,36 +469,42 @@ struct proto_map {
 };
 
 static const struct proto_map proto_table[] = {
-	{ OP_TYPE_UNI_PROTOCOL,   OP_PCLID_SSL30_PRF,	  ssl_proto },
+/*1*/	{ OP_TYPE_UNI_PROTOCOL,   OP_PCLID_SSL30_PRF,	  ssl_proto },
 	{ OP_TYPE_UNI_PROTOCOL,   OP_PCLID_TLS10_PRF,	  ssl_proto },
 	{ OP_TYPE_UNI_PROTOCOL,   OP_PCLID_TLS11_PRF,	  ssl_proto },
 	{ OP_TYPE_UNI_PROTOCOL,   OP_PCLID_TLS12_PRF,	  ssl_proto },
 	{ OP_TYPE_UNI_PROTOCOL,   OP_PCLID_DTLS10_PRF,	  ssl_proto },
 	{ OP_TYPE_UNI_PROTOCOL,   OP_PCLID_IKEV1_PRF,	  ike_proto },
 	{ OP_TYPE_UNI_PROTOCOL,   OP_PCLID_IKEV2_PRF,	  ike_proto },
-	{ OP_TYPE_UNI_PROTOCOL,   OP_PCLID_PUBLICKEYPAIR, NULL },
-	{ OP_TYPE_UNI_PROTOCOL,   OP_PCLID_DSASIGN,	      NULL },
-	{ OP_TYPE_UNI_PROTOCOL,   OP_PCLID_DSAVERIFY,	  NULL },
-	{ OP_TYPE_UNI_PROTOCOL,   OP_PCLID_DIFFIEHELLMAN, NULL },
-	{ OP_TYPE_UNI_PROTOCOL,   OP_PCLID_RSADECRYPT,	  NULL },
-	{ OP_TYPE_UNI_PROTOCOL,   OP_PCLID_RSAENCRYPT,	  NULL },
+	{ OP_TYPE_UNI_PROTOCOL,   OP_PCLID_PUBLICKEYPAIR, dlc_proto },
+	{ OP_TYPE_UNI_PROTOCOL,   OP_PCLID_DSASIGN,	  dlc_proto },
+	{ OP_TYPE_UNI_PROTOCOL,   OP_PCLID_DSAVERIFY,	  dlc_proto },
 	{ OP_TYPE_DECAP_PROTOCOL, OP_PCLID_IPSEC,         ipsec_proto },
-	{ OP_TYPE_DECAP_PROTOCOL, OP_PCLID_SRTP,	      ipsec_proto },
-	{ OP_TYPE_DECAP_PROTOCOL, OP_PCLID_SSL30,	      ssl_proto },
-	{ OP_TYPE_DECAP_PROTOCOL, OP_PCLID_TLS10,	      ssl_proto },
-	{ OP_TYPE_DECAP_PROTOCOL, OP_PCLID_TLS11,	      ssl_proto },
-	{ OP_TYPE_DECAP_PROTOCOL, OP_PCLID_TLS12,	      ssl_proto },
-	{ OP_TYPE_DECAP_PROTOCOL, OP_PCLID_DTLS,	      ssl_proto },
-	{ OP_TYPE_DECAP_PROTOCOL, OP_PCLID_MACSEC,        NULL },
-	{ OP_TYPE_DECAP_PROTOCOL, OP_PCLID_WIFI,          NULL },
-	{ OP_TYPE_DECAP_PROTOCOL, OP_PCLID_WIMAX,         NULL },
-	{ OP_TYPE_DECAP_PROTOCOL, OP_PCLID_3G_DCRC,       NULL },
-	{ OP_TYPE_DECAP_PROTOCOL, OP_PCLID_3G_RLC_PDU,    NULL },
-	{ OP_TYPE_DECAP_PROTOCOL, OP_PCLID_3G_RLC_SDU,    NULL },
-	{ OP_TYPE_DECAP_PROTOCOL, OP_PCLID_LTE_PDCP_USER, NULL },
-	{ OP_TYPE_DECAP_PROTOCOL, OP_PCLID_LTE_PDCP_CTRL, NULL },
-	{ OP_TYPE_DECAP_PROTOCOL, OP_PCLID_BLOB,          NULL }
+	{ OP_TYPE_DECAP_PROTOCOL, OP_PCLID_SRTP,	  srtp_proto },
+	{ OP_TYPE_DECAP_PROTOCOL, OP_PCLID_SSL30,	  ssl_proto },
+	{ OP_TYPE_DECAP_PROTOCOL, OP_PCLID_TLS10,	  ssl_proto },
+	{ OP_TYPE_DECAP_PROTOCOL, OP_PCLID_TLS11,	  ssl_proto },
+	{ OP_TYPE_DECAP_PROTOCOL, OP_PCLID_TLS12,	  ssl_proto },
+	{ OP_TYPE_DECAP_PROTOCOL, OP_PCLID_DTLS10,	  ssl_proto },
+	{ OP_TYPE_DECAP_PROTOCOL, OP_PCLID_MACSEC,        macsec_proto },
+	{ OP_TYPE_DECAP_PROTOCOL, OP_PCLID_WIFI,          wifi_proto },
+	{ OP_TYPE_DECAP_PROTOCOL, OP_PCLID_WIMAX,         wimax_proto },
+/*21*/	{ OP_TYPE_DECAP_PROTOCOL, OP_PCLID_BLOB,          blob_proto },
+	{ OP_TYPE_UNI_PROTOCOL,   OP_PCLID_DIFFIEHELLMAN, dlc_proto },
+	{ OP_TYPE_UNI_PROTOCOL,   OP_PCLID_RSAENCRYPT,	  rsa_enc_proto },
+	{ OP_TYPE_UNI_PROTOCOL,   OP_PCLID_RSADECRYPT,	  rsa_dec_proto },
+	{ OP_TYPE_DECAP_PROTOCOL, OP_PCLID_3G_DCRC,       _3g_dcrc_proto },
+	{ OP_TYPE_DECAP_PROTOCOL, OP_PCLID_3G_RLC_PDU,    _3g_rlc_proto },
+	{ OP_TYPE_DECAP_PROTOCOL, OP_PCLID_3G_RLC_SDU,    _3g_rlc_proto },
+	{ OP_TYPE_DECAP_PROTOCOL, OP_PCLID_LTE_PDCP_USER, lte_pdcp_proto },
+/*29*/	{ OP_TYPE_DECAP_PROTOCOL, OP_PCLID_LTE_PDCP_CTRL, lte_pdcp_proto }
 };
+
+/*
+ * Allowed OPERATION protocols for each SEC Era.
+ * Values represent the number of entries from proto_table[] that are supported.
+ */
+static const uint8_t proto_table_sz[MAX_SEC_ERA] = {21, 29, 29, 29, 29};
 
 static inline uint32_t proto_operation(struct program *program, uint32_t optype,
 				       uint32_t protid, uint16_t protoinfo)
@@ -274,12 +513,12 @@ static inline uint32_t proto_operation(struct program *program, uint32_t optype,
 	uint8_t i, found = 0;
 	uint32_t optype_tmp = optype;
 
-	for (i = 0; i < ARRAY_SIZE(proto_table); i++) {
+	for (i = 0; i < proto_table_sz[rta_sec_era]; i++) {
 		/* clear last bit in optype to match also decap proto */
 		optype_tmp &= ~(1 << OP_TYPE_SHIFT);
 		if (optype_tmp == proto_table[i].optype) {
 			if (proto_table[i].protid == protid) {
-				/* nothig else to verify */
+				/* nothing else to verify */
 				if (proto_table[i].protoinfo_func == NULL) {
 					found = 1;
 					break;

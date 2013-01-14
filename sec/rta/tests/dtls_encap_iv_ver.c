@@ -91,7 +91,7 @@ int build_dtls_sharedesc(uint32_t *buff, uint32_t seqnum,
 		/* load DTLS AES confidentiality key */
 		SET_LABEL(skip_keyloading);
 		/* s4: Execute DTLS protocol thread */
-		PROTOCOL(OP_TYPE_ENCAP_PROTOCOL, OP_PCLID_DTLS,
+		PROTOCOL(OP_TYPE_ENCAP_PROTOCOL, OP_PCLID_DTLS10,
 			 WITH(cipher_alg));
 		SET_LABEL(new_seqinptr);
 		/* s5: These 3 words reserved for a new SEQ-IN-PTR cmd to
