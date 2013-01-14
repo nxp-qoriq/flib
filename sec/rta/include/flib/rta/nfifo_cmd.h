@@ -1,13 +1,21 @@
 #ifndef __RTA_NFIFO_CMD_H__
 #define __RTA_NFIFO_CMD_H__
 
+extern uint rta_sec_era;
+
 static const uint32_t nfifo_src[][2] = {
-	{ _IFIFO,       NFIFOENTRY_STYPE_DFIFO },
+/*1*/	{ _IFIFO,       NFIFOENTRY_STYPE_DFIFO },
 	{ _OFIFO,       NFIFOENTRY_STYPE_OFIFO },
 	{ _PAD,         NFIFOENTRY_STYPE_PAD },
-	{ _MSGOUTSNOOP, NFIFOENTRY_STYPE_SNOOP | NFIFOENTRY_DEST_BOTH },
+/*4*/	{ _MSGOUTSNOOP, NFIFOENTRY_STYPE_SNOOP | NFIFOENTRY_DEST_BOTH },
 	{ _ALTSOURCE,   NFIFOENTRY_STYPE_ALTSOURCE }
 };
+
+/*
+ * Allowed NFIFO LOAD sources for each SEC Era.
+ * Values represent the number of entries from nfifo_src[] that are supported.
+ */
+static const uint8_t nfifo_src_sz[MAX_SEC_ERA] = {4, 5, 5, 5, 5};
 
 static const uint32_t nfifo_data[][2] = {
 	{ _MSG,   NFIFOENTRY_DTYPE_MSG },
@@ -40,11 +48,9 @@ static const uint32_t nfifo_data[][2] = {
 };
 
 static const uint32_t nfifo_flags[][2] = {
-	{ LAST1,         NFIFOENTRY_LC1 },
+/*1*/	{ LAST1,         NFIFOENTRY_LC1 },
 	{ LAST2,         NFIFOENTRY_LC2 },
 	{ FLUSH1,        NFIFOENTRY_FC1 },
-	{ FLUSH2,        NFIFOENTRY_FC2 },
-	{ OC,            NFIFOENTRY_OC },
 	{ BP,            NFIFOENTRY_BND },
 	{ PAD_ZERO,      NFIFOENTRY_PTYPE_ZEROS },
 	{ PAD_NONZERO,   NFIFOENTRY_PTYPE_RND_NOZEROS },
@@ -53,14 +59,29 @@ static const uint32_t nfifo_flags[][2] = {
 	{ PAD_ZERO_N1,   NFIFOENTRY_PTYPE_ZEROS_NZ },
 	{ PAD_NONZERO_0, NFIFOENTRY_PTYPE_RND_NZ_LZ },
 	{ PAD_N1,        NFIFOENTRY_PTYPE_N },
-	{ PAD_NONZERO_N, NFIFOENTRY_PTYPE_RND_NZ_N }
+/*12*/	{ PAD_NONZERO_N, NFIFOENTRY_PTYPE_RND_NZ_N },
+	{ FLUSH2,        NFIFOENTRY_FC2 },
+	{ OC,            NFIFOENTRY_OC }
 };
+
+/*
+ * Allowed NFIFO LOAD flags for each SEC Era.
+ * Values represent the number of entries from nfifo_flags[] that are supported.
+ */
+static const uint8_t nfifo_flags_sz[MAX_SEC_ERA] = {12, 14, 14, 14, 14};
 
 static const uint32_t nfifo_pad_flags[][2] = {
 	{ BM, NFIFOENTRY_BM },
-	{ PR, NFIFOENTRY_OC },
-	{ PS, NFIFOENTRY_PS }
+	{ PS, NFIFOENTRY_PS },
+	{ PR, NFIFOENTRY_PR }
 };
+
+/*
+ * Allowed NFIFO LOAD pad flags for each SEC Era.
+ * Values represent the number of entries from nfifo_pad_flags[] that are
+ * supported.
+ */
+static const uint8_t nfifo_pad_flags_sz[MAX_SEC_ERA] = {2, 2, 2, 2, 3};
 
 static inline uint32_t nfifo_load(struct program *program, uint32_t src,
 				  int type_src, uint32_t data, int type_data,
@@ -72,7 +93,7 @@ static inline uint32_t nfifo_load(struct program *program, uint32_t src,
 				     | LDST_SRCDST_WORD_INFO_FIFO;
 
 	/* write source field */
-	ret = map_opcode(src, nfifo_src, ARRAY_SIZE(nfifo_src), &val);
+	ret = map_opcode(src, nfifo_src, nfifo_src_sz[rta_sec_era], &val);
 	if (ret == -1) {
 		pr_debug("NFIFO: Invalid SRC. SEC PC: %d; Instr: %d\n",
 				program->current_pc,
@@ -100,12 +121,12 @@ static inline uint32_t nfifo_load(struct program *program, uint32_t src,
 	}
 
 	/* write flags */
-	map_flags(flags, nfifo_flags, ARRAY_SIZE(nfifo_flags), &opcode);
+	map_flags(flags, nfifo_flags, nfifo_flags_sz[rta_sec_era], &opcode);
 
 	/* in case of padding, check the destination */
 	if (src == _PAD)
-		map_flags(flags, nfifo_pad_flags, ARRAY_SIZE(nfifo_pad_flags),
-			  &opcode);
+		map_flags(flags, nfifo_pad_flags,
+			  nfifo_pad_flags_sz[rta_sec_era], &opcode);
 
 	/* write LOAD command first */
 	program->buffer[program->current_pc++] = load_cmd;
