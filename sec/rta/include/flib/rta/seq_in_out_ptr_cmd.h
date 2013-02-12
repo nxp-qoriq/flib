@@ -22,7 +22,7 @@ static inline uint32_t seq_in_ptr(struct program *program, uintptr_t src,
 		pr_debug("SEQ IN PTR: Invalid usage of INL and RJD flags\n");
 		goto err;
 	}
-	if ((src) && (flags & (RTO || PRE))) {
+	if ((src) && (flags & (RTO | PRE))) {
 		pr_debug("SEQ IN PTR: Invalid usage of RTO or PRE flag\n");
 		goto err;
 	}
@@ -50,7 +50,7 @@ static inline uint32_t seq_in_ptr(struct program *program, uintptr_t src,
 	program->current_instraction++;
 
 	/* write pointer or immidiate data field */
-	if (!(opcode & (SQIN_PRE || SQIN_RTO))) {
+	if (!(opcode & (SQIN_PRE | SQIN_RTO))) {
 		program->buffer[program->current_pc] = src;
 		program->current_pc++;
 	}
@@ -83,7 +83,7 @@ static inline uint32_t seq_out_ptr(struct program *program, uintptr_t dst,
 		pr_debug("SEQ OUT PTR: Invalid usage of RTO and PRE flags\n");
 		goto err;
 	}
-	if ((dst) && (flags & (RTO || PRE))) {
+	if ((dst) && (flags & (RTO | PRE))) {
 		pr_debug("SEQ OUT PTR: Invalid usage of RTO or PRE flag\n");
 		goto err;
 	}
@@ -103,7 +103,7 @@ static inline uint32_t seq_out_ptr(struct program *program, uintptr_t dst,
 	program->current_instraction++;
 
 	/* write pointer or immidiate data field */
-	if (!(opcode & (SQOUT_PRE || SQOUT_RTO))) {
+	if (!(opcode & (SQOUT_PRE | SQOUT_RTO))) {
 		program->buffer[program->current_pc] = dst;
 		program->current_pc++;
 	}
