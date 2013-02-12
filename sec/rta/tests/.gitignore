@@ -18,7 +18,6 @@ if_commands
 jump_commands
 kasumi_dcrc_decap_opt
 kasumi_dcrc_encap_opt
-Makefile
 make_prime
 make_rsa_keys_1
 mod_exp
