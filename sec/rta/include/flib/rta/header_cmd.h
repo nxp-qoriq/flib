@@ -52,7 +52,7 @@ static inline uint32_t shr_header(struct program *program, uint32_t share,
 	}
 
 	opcode |= HDR_ONE;
-	opcode |= (start_idx & HDR_START_IDX_MASK) << HDR_START_IDX_SHIFT;
+	opcode |= (start_idx << HDR_START_IDX_SHIFT) & HDR_START_IDX_MASK;
 
 	if (flags & DNR)
 		opcode |= HDR_DNR;

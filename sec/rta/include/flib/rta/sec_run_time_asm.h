@@ -582,8 +582,7 @@ static inline void patch_header(struct program *program, uint32_t line,
 {
 	uint32_t opcode = program->buffer[line];
 	opcode &= ~HDR_START_IDX_MASK;
-	opcode |=
-	    (((uint8_t) new_ref) & HDR_START_IDX_MASK) << HDR_START_IDX_SHIFT;
+	opcode |= (new_ref << HDR_START_IDX_SHIFT) & HDR_START_IDX_MASK;
 	program->buffer[line] = opcode;
 }
 
