@@ -202,7 +202,6 @@ static inline uint32_t load(struct program *program, uint64_t src,
 	uint32_t opcode = 0, cpy_length, i;
 	uint8_t data_type = LDST_BYTE;
 	uint8_t *tmp;
-	uintptr_t src_ptr;
 	int8_t pos = -1;
 
 	if (flags & SEQ)
@@ -290,11 +289,10 @@ static inline uint32_t load(struct program *program, uint64_t src,
 	}
 
 	if ((src_type == PTR_DATA) && (flags & IMMED)) {
-		src_ptr = (uintptr_t)src;
 		tmp = (uint8_t *) &program->buffer[program->current_pc];
 
 		for (i = 0; i < cpy_length; i++)
-			*tmp++ = ((uint8_t *)src_ptr)[i];
+			*tmp++ = ((uint8_t *)&src)[i];
 		program->current_pc += ((cpy_length + 3) / 4);
 
 		return program->current_pc;

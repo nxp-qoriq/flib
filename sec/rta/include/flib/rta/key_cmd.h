@@ -19,7 +19,6 @@ static inline uint32_t key(struct program *program, uint32_t key_dst,
 {
 	uint32_t opcode = 0, is_seq_cmd = 0;
 	uint8_t *tmp, i;
-	uintptr_t dst_ptr;
 
 	if (encrypt_flags & ~key_enc_flags[rta_sec_era]) {
 		pr_debug("KEY: Flag(s) not supported by SEC Era %d\n",
@@ -108,10 +107,9 @@ static inline uint32_t key(struct program *program, uint32_t key_dst,
 	program->current_instraction++;
 
 	if (opcode & KEY_IMM) {
-		dst_ptr = (uintptr_t)dst;
 		tmp = (uint8_t *) &program->buffer[program->current_pc];
 		for (i = 0; i < length; i++)
-			*tmp++ = ((uint8_t *) dst_ptr)[i];
+			*tmp++ = ((uint8_t *) &dst)[i];
 		program->current_pc += ((length + 3) / 4);
 	} else {
 		if (program->ps == 1) {
