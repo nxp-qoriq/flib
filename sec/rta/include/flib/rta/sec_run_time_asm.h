@@ -595,34 +595,6 @@ static inline void patch_load(struct program *program, uint32_t line, uint32_t n
 	program->buffer[line] = opcode;
 }
 
-static inline void patch_jump_non_local(struct program *src_program, uint32_t line,
-		     struct program *dst_program, uint32_t new_ref)
-{
-	uint32_t opcode = src_program->buffer[line];
-	opcode &= ~JUMP_OFFSET_MASK;
-	opcode |= (new_ref - (line + src_program->start_pc)) & JUMP_OFFSET_MASK;
-	src_program->buffer[line] = opcode;
-}
-
-static inline void patch_move_non_local(struct program *src_program, uint32_t line,
-		     struct program *dst_program, uint32_t new_ref)
-{
-	uint32_t opcode = src_program->buffer[line];
-	opcode &= ~MOVE_OFFSET_MASK;
-	opcode |= (((int8_t) new_ref) * 4) << MOVE_OFFSET_SHIFT;
-	src_program->buffer[line] = opcode;
-}
-
-static inline void patch_header_non_local(struct program *src_program, uint32_t line,
-		       struct program *dst_program, uint32_t new_ref)
-{
-	uint32_t opcode = src_program->buffer[line];
-	opcode &= ~HDR_START_IDX_MASK;
-	opcode |=
-	    (((uint8_t) new_ref) & HDR_START_IDX_MASK) << HDR_START_IDX_SHIFT;
-	src_program->buffer[line] = opcode;
-}
-
 static inline int8_t map_opcode(uint32_t name, const uint32_t (*map_table)[2],
 		uint8_t num_of_entries, uint32_t *val)
 {

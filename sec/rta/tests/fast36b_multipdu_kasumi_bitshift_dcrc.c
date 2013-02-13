@@ -161,11 +161,11 @@ int build_shdesc_kasumi_bitshift_dcrc(struct program *prg, uint32_t *buff,
 		PROTOCOL(OP_TYPE_ENCAP_PROTOCOL, OP_PCLID_3G_DCRC,
 			 WITH(OP_PCL_3G_DCRC_CRC7));
 	}
-	PATCH_JUMP(pjump1, do_dcrc);
-	PATCH_JUMP(pjump2, lab23);
-	PATCH_MOVE(pmove1, lab33);
-	PATCH_JUMP(pjump3, lab35);
-	PATCH_MOVE(pmove2, pdb1);
+	PATCH_JUMP(program, pjump1, do_dcrc);
+	PATCH_JUMP(program, pjump2, lab23);
+	PATCH_MOVE(program, pmove1, lab33);
+	PATCH_JUMP(program, pjump3, lab35);
+	PATCH_MOVE(program, pmove2, pdb1);
 
 	size = PROGRAM_FINALIZE();
 	return size;
@@ -218,8 +218,7 @@ int main(int argc, char **argv)
 	    build_jbdesc_kasumi_bitshift_dcrc(&job_desc_prgm, job,
 					      lte_desc_size);
 
-	PATCH_JUMP_NON_LOCAL(&lte_desc_prgm, ref_jump_reload, &job_desc_prgm,
-			     reload);
+	PATCH_JUMP(&lte_desc_prgm, ref_jump_reload, reload);
 
 	printf("FAST36B multipdu kasumi bitshift program\n");
 	printf("size = %d\n", lte_desc_size);

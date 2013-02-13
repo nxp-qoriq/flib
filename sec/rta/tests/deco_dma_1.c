@@ -85,8 +85,8 @@ int deco_dma(uint32_t *buff)
 		MOVE(DESCBUF, 0, MATH3, 0, IMM(8), WITH(WAITCOMP));
 		JUMP(IMM(0), LOCAL_JUMP, ALL_TRUE, 0);
 	}
-	PATCH_JUMP(pjump1, loop);
-	PATCH_JUMP(pjump2, done_full);
+	PATCH_JUMP(program, pjump1, loop);
+	PATCH_JUMP(program, pjump2, done_full);
 
 	size = PROGRAM_FINALIZE();
 	return size;

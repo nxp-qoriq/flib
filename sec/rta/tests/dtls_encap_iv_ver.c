@@ -147,12 +147,12 @@ int build_dtls_sharedesc(uint32_t *buff, uint32_t seqnum,
 		SET_LABEL(seqoutptr);
 		seqoutptr += 2;
 	}
-	PATCH_MOVE(pmove1, seqoutptr);
-	PATCH_MOVE(pmove2, new_seqinptr);
-	PATCH_MOVE(pmove4, encap_iv);
-	PATCH_JUMP(pjump1, skip_keyloading);
-	PATCH_MOVE(pmove3, previous_iv);
-	PATCH_JUMP(pjump2, new_IV_OK);
+	PATCH_MOVE(program, pmove1, seqoutptr);
+	PATCH_MOVE(program, pmove2, new_seqinptr);
+	PATCH_MOVE(program, pmove4, encap_iv);
+	PATCH_JUMP(program, pjump1, skip_keyloading);
+	PATCH_MOVE(program, pmove3, previous_iv);
+	PATCH_JUMP(program, pjump2, new_IV_OK);
 
 	size = PROGRAM_FINALIZE();
 	return size;

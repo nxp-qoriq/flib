@@ -31,8 +31,8 @@ int test_jump(uint32_t *buff)
 		MATHU(MATH0, BSWAP, MATH1, 8, 0);
 		LOAD(IMM(test_data), CONTEXT2, 0, 8, 0);
 
-		PATCH_JUMP(ptest1, test1);
-		PATCH_JUMP(ptest2, test2);
+		PATCH_JUMP(program, ptest1, test1);
+		PATCH_JUMP(program, ptest2, test2);
 
 		size = PROGRAM_FINALIZE();
 	}

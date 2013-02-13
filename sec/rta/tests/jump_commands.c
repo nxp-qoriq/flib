@@ -81,12 +81,12 @@ int jump_cmd_desc1(struct program *prg, uint32_t *buff, int buffpos)
 		SET_LABEL(share1end);
 	}
 
-	PATCH_JUMP(pjump1, aaa);
-	PATCH_JUMP(pjump2, bbb);
-	PATCH_HDR(phdr1, aaa);
-	PATCH_HDR(phdr2, bbb);
-	PATCH_HDR(phdr3, aaa);
-	PATCH_HDR(phdr4, bbb);
+	PATCH_JUMP(program, pjump1, aaa);
+	PATCH_JUMP(program, pjump2, bbb);
+	PATCH_HDR(program, phdr1, aaa);
+	PATCH_HDR(program, phdr2, bbb);
+	PATCH_HDR(program, phdr3, aaa);
+	PATCH_HDR(program, phdr4, bbb);
 
 	size = PROGRAM_FINALIZE();
 	return size;
@@ -138,12 +138,12 @@ int jump_cmd_desc2(struct program *prg, uint32_t *buff, int buffpos)
 		JUMP(IMM(40), LOCAL_JUMP, ALL_TRUE, 0);
 		JUMP(IMM(-2), LOCAL_JUMP, ALL_TRUE, 0);
 	}
-	PATCH_JUMP(pjump1, fff);
-	PATCH_JUMP(pjump2, ggg);
-	PATCH_HDR(phdr1, fff);
-	PATCH_HDR(phdr2, ggg);
-	PATCH_HDR(phdr3, fff);
-	PATCH_HDR(phdr4, ggg);
+	PATCH_JUMP(program, pjump1, fff);
+	PATCH_JUMP(program, pjump2, ggg);
+	PATCH_HDR(program, phdr1, fff);
+	PATCH_HDR(program, phdr2, ggg);
+	PATCH_HDR(program, phdr3, fff);
+	PATCH_HDR(program, phdr4, ggg);
 
 	size = PROGRAM_FINALIZE();
 	return size;
@@ -177,9 +177,9 @@ int jump_cmd_desc3(struct program *prg, uint32_t *buff, int buffpos)
 		SET_LABEL(zzz);
 		MOVE(CONTEXT2, 0, CONTEXT1, 0, IMM(44), 0);
 	}
-	PATCH_JUMP(pjump1, yyy);
-	PATCH_HDR(phdr1, zzz);
-	PATCH_HDR(phdr2, yyy);
+	PATCH_JUMP(program, pjump1, yyy);
+	PATCH_HDR(program, phdr1, zzz);
+	PATCH_HDR(program, phdr2, yyy);
 
 	size = PROGRAM_FINALIZE();
 	return size;
@@ -284,36 +284,36 @@ int main(int argc, char **argv)
 	memset(desc6, 0x00, sizeof(desc6));
 	buf6len = jump_cmd_desc6(&desc6_prgm, desc6, 0);
 
-	PATCH_JUMP_NON_LOCAL(&desc2_prgm, ref1_jump_aaa, &desc1_prgm, aaa);
-	PATCH_JUMP_NON_LOCAL(&desc3_prgm, ref2_jump_aaa, &desc1_prgm, aaa);
-	PATCH_JUMP_NON_LOCAL(&desc2_prgm, ref1_jump_bbb, &desc1_prgm, bbb);
-	PATCH_JUMP_NON_LOCAL(&desc3_prgm, ref2_jump_bbb, &desc1_prgm, bbb);
-	PATCH_JUMP_NON_LOCAL(&desc1_prgm, ref1_jump_fff, &desc2_prgm, fff);
-	PATCH_JUMP_NON_LOCAL(&desc1_prgm, ref1_jump_ggg, &desc2_prgm, ggg);
-	PATCH_JUMP_NON_LOCAL(&desc2_prgm, ref2_jump_zzz, &desc3_prgm, zzz);
-	PATCH_JUMP_NON_LOCAL(&desc1_prgm, ref1_jump_zzz, &desc3_prgm, zzz);
-	PATCH_JUMP_NON_LOCAL(&desc3_prgm, ref3_jump_zzz, &desc3_prgm, zzz);
+	PATCH_JUMP(&desc2_prgm, ref1_jump_aaa, aaa);
+	PATCH_JUMP(&desc3_prgm, ref2_jump_aaa, aaa);
+	PATCH_JUMP(&desc2_prgm, ref1_jump_bbb, bbb);
+	PATCH_JUMP(&desc3_prgm, ref2_jump_bbb, bbb);
+	PATCH_JUMP(&desc1_prgm, ref1_jump_fff, fff);
+	PATCH_JUMP(&desc1_prgm, ref1_jump_ggg, ggg);
+	PATCH_JUMP(&desc2_prgm, ref2_jump_zzz, zzz);
+	PATCH_JUMP(&desc1_prgm, ref1_jump_zzz, zzz);
+	PATCH_JUMP(&desc3_prgm, ref3_jump_zzz, zzz);
 
-	PATCH_HDR_NON_LOCAL(&desc2_prgm, ref1_job_aaa, &desc1_prgm, aaa);
-	PATCH_HDR_NON_LOCAL(&desc2_prgm, ref1_shr_aaa, &desc1_prgm, aaa);
-	PATCH_HDR_NON_LOCAL(&desc3_prgm, ref2_job_aaa, &desc1_prgm, aaa);
-	PATCH_HDR_NON_LOCAL(&desc2_prgm, ref1_job_bbb, &desc1_prgm, bbb);
-	PATCH_HDR_NON_LOCAL(&desc2_prgm, ref1_shr_bbb, &desc1_prgm, bbb);
+	PATCH_HDR(&desc2_prgm, ref1_job_aaa, aaa);
+	PATCH_HDR(&desc2_prgm, ref1_shr_aaa, aaa);
+	PATCH_HDR(&desc3_prgm, ref2_job_aaa, aaa);
+	PATCH_HDR(&desc2_prgm, ref1_job_bbb, bbb);
+	PATCH_HDR(&desc2_prgm, ref1_shr_bbb, bbb);
 
-	PATCH_HDR_NON_LOCAL(&desc1_prgm, ref1_job_fff, &desc2_prgm, fff);
-	PATCH_HDR_NON_LOCAL(&desc1_prgm, ref1_shr_fff, &desc2_prgm, fff);
+	PATCH_HDR(&desc1_prgm, ref1_job_fff, fff);
+	PATCH_HDR(&desc1_prgm, ref1_shr_fff, fff);
 
-	PATCH_HDR_NON_LOCAL(&desc1_prgm, ref1_job_ggg, &desc2_prgm, ggg);
-	PATCH_HDR_NON_LOCAL(&desc1_prgm, ref1_shr_ggg, &desc2_prgm, ggg);
+	PATCH_HDR(&desc1_prgm, ref1_job_ggg, ggg);
+	PATCH_HDR(&desc1_prgm, ref1_shr_ggg, ggg);
 
-	PATCH_HDR_NON_LOCAL(&desc1_prgm, ref1_job_zzz, &desc3_prgm, zzz);
-	PATCH_HDR_NON_LOCAL(&desc1_prgm, ref1_shr_zzz, &desc3_prgm, zzz);
-	PATCH_HDR_NON_LOCAL(&desc2_prgm, ref2_job_zzz, &desc3_prgm, zzz);
-	PATCH_HDR_NON_LOCAL(&desc2_prgm, ref2_shr_zzz, &desc3_prgm, zzz);
+	PATCH_HDR(&desc1_prgm, ref1_job_zzz, zzz);
+	PATCH_HDR(&desc1_prgm, ref1_shr_zzz, zzz);
+	PATCH_HDR(&desc2_prgm, ref2_job_zzz, zzz);
+	PATCH_HDR(&desc2_prgm, ref2_shr_zzz, zzz);
 
-	PATCH_HDR_NON_LOCAL(&desc2_prgm, ref1_job_yyy, &desc3_prgm, yyy);
-	PATCH_HDR_NON_LOCAL(&desc2_prgm, ref1_shr_yyy, &desc3_prgm, yyy);
-	PATCH_JUMP_NON_LOCAL(&desc2_prgm, ref1_jump_yyy, &desc3_prgm, yyy);
+	PATCH_HDR(&desc2_prgm, ref1_job_yyy, yyy);
+	PATCH_HDR(&desc2_prgm, ref1_shr_yyy, yyy);
+	PATCH_JUMP(&desc2_prgm, ref1_jump_yyy, yyy);
 
 	printf("JUMP commands program\n");
 	printf("size = %d\n", buf1len);

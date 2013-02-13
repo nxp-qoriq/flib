@@ -79,7 +79,7 @@ int generate_dlc_fp_params(struct program *prg, uint32_t *buff)
 		MATHB(ZERO, ADD, IMM(4096), MATH3, 4, 0);
 		JUMP(PTR(make_X_addr), FAR_JUMP, ALL_TRUE, 0);
 	}
-	PATCH_JUMP(ref_new_r, new_r);
+	PATCH_JUMP(program, ref_new_r, new_r);
 
 	size = PROGRAM_FINALIZE();
 	return size;
@@ -187,7 +187,7 @@ int dlc_fp_make_q(struct program *prg, uint32_t *buff)
 		FIFOSTORE(PKN, 0, dom_q_addr, q_size, 0);
 		JUMP(PTR(make_g_addr), FAR_JUMP, ALL_TRUE, 0);
 	}
-	PATCH_JUMP(ref_store_q, store_q);
+	PATCH_JUMP(program, ref_store_q, store_q);
 	size = PROGRAM_FINALIZE();
 
 	return size;
@@ -273,8 +273,8 @@ int dlc_fp_make_g(struct program *prg, uint32_t *buff)
 		/* 8. Output q, r, g */
 		FIFOSTORE(PKB, 0, dom_g_addr, q_size, 0);
 	}
-	PATCH_JUMP(ref_h_loop, h_loop);
-	PATCH_JUMP(ref_found_g, found_g);
+	PATCH_JUMP(program, ref_h_loop, h_loop);
+	PATCH_JUMP(program, ref_found_g, found_g);
 
 	size = PROGRAM_FINALIZE();
 

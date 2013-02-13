@@ -73,10 +73,10 @@ int generate_capwap_code(uint32_t *buff, int mdatalen)
 	SEQSTORE(DESCBUF, 4, 8, 0);
 	seqoutptr = 8;
 
-	PATCH_MOVE(ref1, descbuf + seqoutptr);
-	PATCH_MOVE(ref2, descbuf + new_seqinptr);
-	PATCH_JUMP(pjump1, new_IV_OK);
-	PATCH_JUMP(pjump2, skip_keyloading);
+	PATCH_MOVE(program, ref1, descbuf + seqoutptr);
+	PATCH_MOVE(program, ref2, descbuf + new_seqinptr);
+	PATCH_JUMP(program, pjump1, new_IV_OK);
+	PATCH_JUMP(program, pjump2, skip_keyloading);
 	size = PROGRAM_FINALIZE();
 
 	return size;

@@ -42,8 +42,7 @@ int main(int argc, char **argv)
 
 	generate_capwap_code(&capwap_program, capwap_buf);
 	generate_job_desc(&job_desc_snippet, job_buf);
-	patch_jump_non_local(&capwap_program, label_different_ref,
-			     &job_desc_snippet, label_different_desc);
+	PATCH_JUMP(&capwap_program, label_different_ref, label_different_desc);
 
 	return 0;
 }

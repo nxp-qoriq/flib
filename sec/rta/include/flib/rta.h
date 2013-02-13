@@ -676,6 +676,7 @@ static inline uint rta_get_sec_era()
  * @def                PATCH_JUMP
  * @details            Auxiliary command to resolve self referential code.
  *
+ * @param[in] program  Buffer to be updated (<c>struct program *</c>).
  * @param[in] line     Position in descriptor buffer where the update will be
  *                     done; this value is previously retained in program flow
  *                     using a reference near the sequence to be modified.
@@ -686,12 +687,13 @@ static inline uint rta_get_sec_era()
  *                     For @b JUMP command, the value represents the offset
  *                     field.
  */
-#define PATCH_JUMP(line, new_ref) patch_jmp(program, line, new_ref)
+#define PATCH_JUMP(program, line, new_ref) patch_jmp(program, line, new_ref)
 
 /**
  * @def                PATCH_MOVE
  * @details            Auxiliary command to resolve self referential code.
  *
+ * @param[in] program  Buffer to be updated (<c>struct program *</c>).
  * @param[in] line     Position in descriptor buffer where the update will be
  *                     done; this value is previously retained in program flow
  *                     using a reference near the sequence to be modified
@@ -703,12 +705,13 @@ static inline uint rta_get_sec_era()
  *                     For @b MOVE command, the value represents the offset
  *                     field.
  */
-#define PATCH_MOVE(line, new_ref) patch_move(program, line, new_ref)
+#define PATCH_MOVE(program, line, new_ref) patch_move(program, line, new_ref)
 
 /**
  * @def                PATCH_LOAD
  * @details            Auxiliary command to resolve self referential code.
  *
+ * @param[in] program  Buffer to be updated (<c>struct program *</c>).
  * @param[in] line     Position in descriptor buffer where the update will be
  *                     done; this value is previously retained in program flow
  *                     using a reference near the sequence to be modified
@@ -720,12 +723,13 @@ static inline uint rta_get_sec_era()
  *                     For @b LOAD command, the value represents the offset
  *                     field.
  */
-#define PATCH_LOAD(line, new_ref) patch_load(program, line, new_ref)
+#define PATCH_LOAD(program, line, new_ref) patch_load(program, line, new_ref)
 
 /**
  * @def                PATCH_HDR
  * @details            Auxiliary command to resolve self referential code.
  *
+ * @param[in] program  Buffer to be updated (<c>struct program *</c>).
  * @param[in] line     Position in descriptor buffer where the update will be
  *                     done; this value is previously retained in program flow
  *                     using a reference near the sequence to be modified
@@ -737,74 +741,7 @@ static inline uint rta_get_sec_era()
  *                     For @b HEADER command, the value represents the start
  *                     index field.
  */
-#define PATCH_HDR(line, new_ref) patch_header(program, line, new_ref)
-
-/**
- * @def                PATCH_JUMP_NON_LOCAL
- * @details            Auxiliary command to resolve referential code between
- *                     two program buffers.
- *
- * @param[in] src_program Buffer to be updated (<c>struct program *</c>).
- * @param[in] line     Position in source descriptor buffer where the update
- *                     will be done; this value is previously retained in
- *                     program flow using a reference near the sequence to be
- *                     modified (@c uint32_t).
- * @param[in] dst_program Buffer that contain the new reference
- *                     (<c>struct program *</c>).
- * @param[in] new_ref  Updated value that will be inserted in source descriptor
- *                     buffer at the specified line; this value is previously
- *                     obtained using @b SET_LABEL macro near the line that
- *                     will be used as reference (@c uint32_t).
- *                     For @b JUMP command, the value represents the offset
- *                     field.
- */
-#define PATCH_JUMP_NON_LOCAL(src_program, line, dst_program, new_ref) \
-	patch_jump_non_local(src_program, line, dst_program, new_ref)
-
-/**
- * @def                PATCH_MOVE_NON_LOCAL
- * @details            Auxiliary command to resolve referential code between
- *                     two program buffers.
- *
- * @param[in] src_program Buffer to be updated (<c>struct program *</c>).
- * @param[in] line     Position in source descriptor buffer where the update
- *                     will be done; this value is previously retained in
- *                     program flow using a reference near the sequence to be
- *                     modified (@c uint32_t).
- * @param[in] dst_program Buffer that contain the new reference
- *                     (<c>struct program *</c>).
- * @param[in] new_ref  Updated value that will be inserted in source descriptor
- *                     buffer at the specified line; this value is previously
- *                     obtained using @b SET_LABEL macro near the line that
- *                     will be used as reference (@c uint32_t).
- *                     For @b MOVE command, the value represents the offset
- *                     field.
- */
-#define PATCH_MOVE_NON_LOCAL(src_program, line, dst_program, new_ref) \
-	patch_move_non_local(src_program, line, dst_program, new_ref)
-
-/**
- * @def                PATCH_HDR_NON_LOCAL
- * @details            Auxiliary command to resolve referential code between
- *                     two program buffers.
- *
- * @param[in] src_program Buffer to be updated (<c>struct program *</c>).
- * @param[in] line     Position in source descriptor buffer where the update
- *                     will be done; this value is previously retained in
- *                     program flow using a reference near the sequence to be
- *                     modified (@c uint32_t).
- * @param[in] dst_program Buffer that contain the new reference
- *                     (<c>struct program *</c>).
- * @param[in] new_ref  Updated value that will be inserted in source descriptor
- *                     buffer at the specified line; this value is previously
- *                     obtained using @b SET_LABEL macro near the line that
- *                     will be used as reference (@c uint32_t).
- *                     For @b HEADER command, the value represents the start
- *                     index field.
- *
- */
-#define PATCH_HDR_NON_LOCAL(src_program, line, dst_program, new_ref) \
-	patch_header_non_local(src_program, line, dst_program, new_ref)
+#define PATCH_HDR(program, line, new_ref) patch_header(program, line, new_ref)
 
 /** @} */ /* end of refcode_group */
 

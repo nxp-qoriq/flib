@@ -42,12 +42,12 @@ int test_load_op(uint32_t *buff)
 	here_ref = SET_LABEL(here);
 	LOAD(PTR((intptr_t) descwords), DESCBUF, here, 4, 0);
 	SEQLOAD(DESCBUF, here, 4, 0);
-	PATCH_LOAD(here_ref, here);
+	PATCH_LOAD(program, here_ref, here);
 
 	where_ref = SET_LABEL(where);
 	LOAD(PTR((intptr_t) descwords), DESCBUF, where, 4, 0);
 	SEQLOAD(DESCBUF, where, 4, 0);
-	PATCH_LOAD(where_ref, where);
+	PATCH_LOAD(program, where_ref, where);
 
 	LOAD(IMM(0x00000003), CLRW, 0, 4, 0);
 	LOAD(IMM(0x00200003), CCTRL, 0, 4, 0);

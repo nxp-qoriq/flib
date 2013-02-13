@@ -55,7 +55,7 @@ int postpend(uint32_t *buff)
 			      OP_PCL_IPSEC_HMAC_SHA1_160));
 		SEQSTORE(IMM((intptr_t) &data_in), 0, 15, 0);
 	}
-	PATCH_JUMP(pjump1, skip_key_load);
+	PATCH_JUMP(program, pjump1, skip_key_load);
 	size = PROGRAM_FINALIZE();
 
 	return size;

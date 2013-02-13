@@ -81,7 +81,7 @@ int f2m_calc_c_test(uint32_t *buff)
 
 		SET_LABEL(shr_end);
 	}
-	PATCH_JUMP(pjump1, bit_search_top);
+	PATCH_JUMP(program, pjump1, bit_search_top);
 	size = PROGRAM_FINALIZE();
 
 	return size;

@@ -113,18 +113,18 @@ int build_shdesc_raid_xor_opt(struct program *prg, uint32_t *buff, int buffpos)
 		phdr4 = SHR_HDR(SHR_NEVER, c, 0);
 	}
 
-	PATCH_MOVE(pmove1, new_source);
-	PATCH_MOVE(pmove2, new_source);
-	PATCH_MOVE(pmove3, new_source);
-	PATCH_HDR(phdr1, label_2);
-	PATCH_HDR(phdr2, label_2);
-	PATCH_HDR(phdr3, label_2);
-	PATCH_HDR(phdr4, c);
-	PATCH_JUMP(pjump1, label_2);
-	PATCH_JUMP(pjump2, return_point);
-	PATCH_JUMP(pjump3, return_point);
-	PATCH_JUMP(pjump4, return_point);
-	PATCH_JUMP(pjump5, store_here);
+	PATCH_MOVE(program, pmove1, new_source);
+	PATCH_MOVE(program, pmove2, new_source);
+	PATCH_MOVE(program, pmove3, new_source);
+	PATCH_HDR(program, phdr1, label_2);
+	PATCH_HDR(program, phdr2, label_2);
+	PATCH_HDR(program, phdr3, label_2);
+	PATCH_HDR(program, phdr4, c);
+	PATCH_JUMP(program, pjump1, label_2);
+	PATCH_JUMP(program, pjump2, return_point);
+	PATCH_JUMP(program, pjump3, return_point);
+	PATCH_JUMP(program, pjump4, return_point);
+	PATCH_JUMP(program, pjump5, store_here);
 
 	size = PROGRAM_FINALIZE();
 	return size;
@@ -228,13 +228,10 @@ int main(int argc, char **argv)
 	memset(context_buf, 0xFF, sizeof(context_buf));
 	ctx_size = build_more_cmds_raid_xor_opt(&ctx_buf_prgm, context_buf, 7);
 
-	PATCH_MOVE_NON_LOCAL(&ctx_buf_prgm, ref1_move_new_source,
-			     &shr_desc_prgm, new_source);
-	PATCH_MOVE_NON_LOCAL(&ctx_buf_prgm, ref2_move_new_source,
-			     &shr_desc_prgm, new_source);
-	PATCH_HDR_NON_LOCAL(&ctx_buf_prgm, ref1_shr_first, &shr_desc_prgm,
-			    first);
-	PATCH_HDR_NON_LOCAL(&ctx_buf_prgm, ref1_shr_last, &shr_desc_prgm, last);
+	PATCH_MOVE(&ctx_buf_prgm, ref1_move_new_source, new_source);
+	PATCH_MOVE(&ctx_buf_prgm, ref2_move_new_source, new_source);
+	PATCH_HDR(&ctx_buf_prgm, ref1_shr_first, first);
+	PATCH_HDR(&ctx_buf_prgm, ref1_shr_last, last);
 
 	printf("raid xor program shared desc\n");
 	printf("size = %d\n", shr_size);
