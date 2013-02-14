@@ -118,7 +118,7 @@ static inline void cnstr_shdsc_cbc_blkcipher(uint32_t *descbuf, uint16_t *bufsiz
 	struct program prg;
 	struct program *program = &prg;
 
-	PROGRAM_CNTXT_INIT(descbuf, 0, sec_subversion);
+	PROGRAM_CNTXT_INIT(descbuf, 0);
 	SHR_HDR(SHR_ALWAYS, 1, SC);
 	{
 		/* Insert Key */
@@ -179,7 +179,7 @@ static inline void cnstr_shdsc_hmac(uint32_t *descbuf, uint16_t *bufsize,
 
 	opicv = icv ? ICV_CHECK_ENABLE : ICV_CHECK_DISABLE;
 
-	PROGRAM_CNTXT_INIT(descbuf, 0, sec_subversion);
+	PROGRAM_CNTXT_INIT(descbuf, 0);
 	SHR_HDR(SHR_ALWAYS, 1, SC);
 	{
 		KEY(KEY2, 0, IMM((uintptr_t)md_key), storelen, 0);
