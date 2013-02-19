@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include "flib/rta.h"
 
-uint rta_sec_era;
+enum rta_sec_era rta_sec_era;
 
 uint64_t shraddr = 0x51100030ull;
 REFERENCE(ref_jump_reload);
@@ -207,7 +207,7 @@ int main(int argc, char **argv)
 	struct program lte_desc_prgm;
 	struct program job_desc_prgm;
 
-	rta_set_sec_era(1);
+	rta_set_sec_era(RTA_SEC_ERA_1);
 
 	memset(share, 0xFF, sizeof(share));
 	lte_desc_size =

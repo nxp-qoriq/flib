@@ -1,7 +1,7 @@
 #ifndef __RTA_STORE_CMD_H__
 #define __RTA_STORE_CMD_H__
 
-extern uint rta_sec_era;
+extern enum rta_sec_era rta_sec_era;
 
 static const uint32_t store_src_table[][2] = {
 /*1*/	{ _KEY1SZ,       LDST_CLASS_1_CCB | LDST_SRCDST_WORD_KEYSZ_REG },

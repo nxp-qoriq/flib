@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include "flib/rta.h"
 
-uint rta_sec_era;
+enum rta_sec_era rta_sec_era;
 int prg_buff[1000];
 
 static void print_prog(uint32_t *buff, int size)
@@ -296,7 +296,7 @@ int main(int argc, char **argv)
 	int size;
 
 	printf("MOVE program\n");
-	rta_set_sec_era(1);
+	rta_set_sec_era(RTA_SEC_ERA_1);
 	size = test_move_op((uint32_t *) prg_buff);
 	printf("size = %d\n", size);
 	print_prog((uint32_t *) prg_buff, size);

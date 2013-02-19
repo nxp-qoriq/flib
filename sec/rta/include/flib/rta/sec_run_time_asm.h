@@ -27,14 +27,32 @@
  */
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 
-/* Maximum SEC HW block revision supported. */
-#define MAX_SEC_ERA	5
+/**
+ * @enum rta_sec_era
+ * @details SEC HW block revisions supported by the RTA library.
+ */
+enum rta_sec_era {
+	RTA_SEC_ERA_1,
+	RTA_SEC_ERA_2,
+	RTA_SEC_ERA_3,
+	RTA_SEC_ERA_4,
+	RTA_SEC_ERA_5,
+	MAX_SEC_ERA = RTA_SEC_ERA_5 /**< Maximum SEC HW block revision
+					 supported by RTA library */
+};
 
 /**
- * The default value for the SEC era in case the user does not provide a
- * value or provides an unsupported value.
+ * @def DEFAULT_SEC_ERA
+ * The default value for the SEC era in case the user provides an unsupported.
+ * value.
  */
 #define DEFAULT_SEC_ERA	MAX_SEC_ERA
+
+/**
+ * @def USER_SEC_ERA(sec_era)
+ * Translates the SEC Era from internal to user representation.
+ */
+#define USER_SEC_ERA(sec_era)	(sec_era + 1)
 
 /* Convinience macros */
 #define WITH(x) (x)

@@ -15,7 +15,7 @@
   This will generate values of length 8*size bits for q and r
 */
 
-uint rta_sec_era;
+enum rta_sec_era rta_sec_era;
 
 int r_size = 20;		/* 160 bits */
 int q_size = 128;
@@ -301,7 +301,7 @@ int main(int argc, char **argv)
 	struct program make_g_prgm;
 	int size;
 
-	rta_set_sec_era(1);
+	rta_set_sec_era(RTA_SEC_ERA_1);
 
 	printf("Generate DLC FP domain parameters\n");
 	size = generate_dlc_fp_params(&gen_dlc_fp_prgm, gen_dlc_fp_desc);

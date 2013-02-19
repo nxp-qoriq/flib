@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include "flib/rta.h"
 
-uint rta_sec_era;
+enum rta_sec_era rta_sec_era;
 
 uint8_t *iv1 = (uint8_t *) 0x64;	/* input constant */
 uint8_t *ipad = (uint8_t *) 0x664;
@@ -192,7 +192,7 @@ int main(int argc, char **argv)
 {
 	int size;
 
-	rta_set_sec_era(1);
+	rta_set_sec_era(RTA_SEC_ERA_1);
 
 	printf("HMAC_By_Hand #1 JD program\n");
 	size = build_hmacprecomp((uint32_t *) prg_buff);

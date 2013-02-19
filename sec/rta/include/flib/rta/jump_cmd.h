@@ -1,7 +1,7 @@
 #ifndef __RTA_JUMP_CMD_H__
 #define __RTA_JUMP_CMD_H__
 
-extern uint rta_sec_era;
+extern enum rta_sec_era rta_sec_era;
 
 static const uint32_t jump_test_cond[][2] = {
 	{ NIFP,     JUMP_JSL | JUMP_COND_NIFP },
@@ -25,7 +25,7 @@ static const uint32_t jump_test_cond[][2] = {
 };
 
 /* Allowed jump types for each SEC Era */
-static const uint32_t jump_type_allowed[MAX_SEC_ERA] = {
+static const uint32_t jump_type_allowed[] = {
 	LOCAL_JUMP | HALT | HALT_STATUS | FAR_JUMP,
 	LOCAL_JUMP | HALT | HALT_STATUS | FAR_JUMP,
 	LOCAL_JUMP | HALT | HALT_STATUS | FAR_JUMP,
@@ -41,7 +41,7 @@ static inline uint32_t jump(struct program *program, int64_t address,
 
 	if (jump_type & ~jump_type_allowed[rta_sec_era]) {
 		pr_debug("JUMP: Jump type not supported by SEC Era %d\n",
-			 rta_sec_era);
+			 USER_SEC_ERA(rta_sec_era));
 		goto err;
 	}
 

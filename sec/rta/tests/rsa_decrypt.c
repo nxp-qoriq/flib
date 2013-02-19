@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include "flib/rta.h"
 
-uint rta_sec_era;
+enum rta_sec_era rta_sec_era;
 
 /* Subroutine to populate a Descriptor buffer */
 int build_rsa_decrypt_desc(uint32_t *buff, uint32_t n_len, uint32_t p_len,
@@ -82,7 +82,7 @@ int main(int argc, char **argv)
 	int size;
 
 	printf("RSA Verify example program\n");
-	rta_set_sec_era(1);
+	rta_set_sec_era(RTA_SEC_ERA_1);
 	size = test_rsa_decrypt((uint32_t *) prg_buff);
 	printf("size = %d\n", size);
 	print_prog((uint32_t *) prg_buff, size);

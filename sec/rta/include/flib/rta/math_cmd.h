@@ -1,7 +1,7 @@
 #ifndef __RTA_MATH_CMD_H__
 #define __RTA_MATH_CMD_H__
 
-extern uint rta_sec_era;
+extern enum rta_sec_era rta_sec_era;
 
 static const uint32_t math_op1[][2] = {
 /*1*/	{ _MATH0,     MATH_SRC0_REG0 },
@@ -22,7 +22,7 @@ static const uint32_t math_op1[][2] = {
  * Allowed MATH op1 sources for each SEC Era.
  * Values represent the number of entries from math_op1[] that are supported.
  */
-static const uint32_t math_op1_sz[MAX_SEC_ERA] = {10, 10, 12, 12, 12};
+static const uint32_t math_op1_sz[] = {10, 10, 12, 12, 12};
 
 static const uint32_t math_op2[][2] = {
 /*1*/	{ _MATH0,     MATH_SRC1_REG0 },
@@ -44,7 +44,7 @@ static const uint32_t math_op2[][2] = {
  * Allowed MATH op2 sources for each SEC Era.
  * Values represent the number of entries from math_op2[] that are supported.
  */
-static const uint32_t math_op2_sz[MAX_SEC_ERA] = {8, 9, 13, 13, 13};
+static const uint32_t math_op2_sz[] = {8, 9, 13, 13, 13};
 
 static const uint32_t math_result[][2] = {
 /*1*/	{ _MATH0,     MATH_DEST_REG0 },
@@ -64,7 +64,7 @@ static const uint32_t math_result[][2] = {
  * Values represent the number of entries from math_result[] that are
  * supported.
  */
-static const uint32_t math_result_sz[MAX_SEC_ERA] = {9, 9, 10, 10, 10};
+static const uint32_t math_result_sz[] = {9, 9, 10, 10, 10};
 
 static inline uint32_t math(struct program *program, uint64_t operand1,
 		int type_op1, uint32_t op, uint64_t operand2, int type_op2,
@@ -74,12 +74,11 @@ static inline uint32_t math(struct program *program, uint64_t operand1,
 	uint32_t val = 0;
 	int8_t ret = 0;
 
-	if (((op == BSWAP) && (rta_sec_era < 4)) ||
-	    ((op == ZBYTE) && (rta_sec_era < 2))) {
+	if (((op == BSWAP) && (rta_sec_era < RTA_SEC_ERA_4)) ||
+	    ((op == ZBYTE) && (rta_sec_era < RTA_SEC_ERA_2))) {
 		pr_debug("MATH: operation not supported by SEC Era %d. "
-			 "SEC PC: %d; Instr: %d\n", rta_sec_era,
-			 program->current_pc,
-			 program->current_instraction);
+			 "SEC PC: %d; Instr: %d\n", USER_SEC_ERA(rta_sec_era),
+			 program->current_pc, program->current_instraction);
 		goto err;
 	}
 

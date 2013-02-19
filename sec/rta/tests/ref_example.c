@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include "flib/rta.h"
 
-uint rta_sec_era;
+enum rta_sec_era rta_sec_era;
 
 struct program capwap_program;
 struct program job_desc_snippet;
@@ -38,7 +38,7 @@ int generate_job_desc(struct program *program, uint32_t *buff)
 
 int main(int argc, char **argv)
 {
-	rta_set_sec_era(1);
+	rta_set_sec_era(RTA_SEC_ERA_1);
 
 	generate_capwap_code(&capwap_program, capwap_buf);
 	generate_job_desc(&job_desc_snippet, job_buf);

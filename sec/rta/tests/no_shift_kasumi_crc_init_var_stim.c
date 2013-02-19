@@ -2,7 +2,7 @@
 #include "flib/rta.h"
 
 /* Global variables section */
-uint rta_sec_era;
+enum rta_sec_era rta_sec_era;
 
 static LABEL(encap_share_end);
 static REFERENCE(encap_share_end_ref3);
@@ -404,7 +404,7 @@ int main(int argc, char *argv[])
 	struct program yet_more_extra_prgm;
 	struct program still_more_extra_prgm;
 
-	rta_set_sec_era(1);
+	rta_set_sec_era(RTA_SEC_ERA_1);
 
 	memset(lte_desc, 0xFF, sizeof(lte_desc));
 	lte_desc_size = generate_lte_code(&lte_prgm, lte_desc, 500, 0);

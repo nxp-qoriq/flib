@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include "flib/rta.h"
 
-uint rta_sec_era;
+enum rta_sec_era rta_sec_era;
 
 uint32_t shr_addr = 0x00000B80ul;
 
@@ -277,7 +277,7 @@ int main(int argc, char **argv)
 	struct program extra_cmds_prgm;
 	struct program more_cmds_prgm;
 
-	rta_set_sec_era(2);
+	rta_set_sec_era(RTA_SEC_ERA_2);
 
 	memset(shr, 0x00, sizeof(shr));
 	shr_size = build_shr_desc_ppp_encap(&shr_desc_prgm, shr, 0);

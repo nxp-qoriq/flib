@@ -1,7 +1,7 @@
 #ifndef __RTA_SEQ_IN_OUT_PTR_CMD_H__
 #define __RTA_SEQ_IN_OUT_PTR_CMD_H__
 
-extern uint rta_sec_era;
+extern enum rta_sec_era rta_sec_era;
 
 static inline uint32_t seq_in_ptr(struct program *program, uintptr_t src,
 				  uint32_t length, uint32_t flags)
@@ -13,7 +13,7 @@ static inline uint32_t seq_in_ptr(struct program *program, uintptr_t src,
 		pr_debug("SEQ IN PTR: Invalid usage of RTO and PRE flags\n");
 		goto err;
 	}
-	if ((rta_sec_era == 1) && (flags & RJD)) {
+	if ((rta_sec_era == RTA_SEC_ERA_1) && (flags & RJD)) {
 		pr_debug("SEQ IN PTR: Replacement Job Descriptors (RJD) not "
 			 "supported\n");
 		goto err;
@@ -74,7 +74,7 @@ static inline uint32_t seq_out_ptr(struct program *program, uintptr_t dst,
 	uint32_t opcode = CMD_SEQ_OUT_PTR;
 
 	/* Parameters checking */
-	if ((rta_sec_era == 1) && (flags & RTO)) {
+	if ((rta_sec_era == RTA_SEC_ERA_1) && (flags & RTO)) {
 		pr_debug("SEQ IN PTR: Restoring output sequences (RTO) not "
 			 "supported\n");
 		goto err;

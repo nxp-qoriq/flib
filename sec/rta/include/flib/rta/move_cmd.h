@@ -8,7 +8,7 @@
 
 #define MASK_16b  0xFF
 
-extern uint rta_sec_era;
+extern enum rta_sec_era rta_sec_era;
 
 static const uint32_t move_src_table[][2] = {
 /*1*/	{ _CONTEXT1, MOVE_SRC_CLASS1CTX },
@@ -31,7 +31,7 @@ static const uint32_t move_src_table[][2] = {
  * Values represent the number of entries from move_src_table[] that are
  * supported.
  */
-static const uint32_t move_src_table_sz[MAX_SEC_ERA] = {8, 11, 14, 14, 14};
+static const uint32_t move_src_table_sz[] = {8, 11, 14, 14, 14};
 
 static const uint32_t move_dst_table[][2] = {
 /*1*/	{ _CONTEXT1,  MOVE_DEST_CLASS1CTX },
@@ -55,7 +55,7 @@ static const uint32_t move_dst_table[][2] = {
  * Values represent the number of entries from move_dst_table[] that are
  * supported.
  */
-static const uint32_t move_dst_table_sz[MAX_SEC_ERA] = {13, 14, 14, 15, 15};
+static const uint32_t move_dst_table_sz[] = {13, 14, 14, 15, 15};
 
 static inline uint16_t set_move_offset(struct program *program, uint64_t src,
 				       uint16_t src_offset, uint64_t dst,
@@ -74,10 +74,10 @@ static inline uint32_t move(struct program *program, uint64_t src, int type_src,
 
 	/* write command type */
 	if (type_length == REG_TYPE) {
-		if (rta_sec_era < 3) {
+		if (rta_sec_era < RTA_SEC_ERA_3) {
 			pr_debug("MOVE: MOVE_LEN not supported by SEC Era %d. "
-				 "SEC PC: %d; Instr: %d\n", rta_sec_era,
-				 program->current_pc,
+				 "SEC PC: %d; Instr: %d\n",
+				 USER_SEC_ERA(rta_sec_era), program->current_pc,
 				 program->current_instraction);
 			goto err;
 		}

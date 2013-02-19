@@ -1,7 +1,7 @@
 #ifndef __RTA_NFIFO_CMD_H__
 #define __RTA_NFIFO_CMD_H__
 
-extern uint rta_sec_era;
+extern enum rta_sec_era rta_sec_era;
 
 static const uint32_t nfifo_src[][2] = {
 /*1*/	{ _IFIFO,       NFIFOENTRY_STYPE_DFIFO },
@@ -15,7 +15,7 @@ static const uint32_t nfifo_src[][2] = {
  * Allowed NFIFO LOAD sources for each SEC Era.
  * Values represent the number of entries from nfifo_src[] that are supported.
  */
-static const uint8_t nfifo_src_sz[MAX_SEC_ERA] = {4, 5, 5, 5, 5};
+static const uint8_t nfifo_src_sz[] = {4, 5, 5, 5, 5};
 
 static const uint32_t nfifo_data[][2] = {
 	{ _MSG,   NFIFOENTRY_DTYPE_MSG },
@@ -68,7 +68,7 @@ static const uint32_t nfifo_flags[][2] = {
  * Allowed NFIFO LOAD flags for each SEC Era.
  * Values represent the number of entries from nfifo_flags[] that are supported.
  */
-static const uint8_t nfifo_flags_sz[MAX_SEC_ERA] = {12, 14, 14, 14, 14};
+static const uint8_t nfifo_flags_sz[] = {12, 14, 14, 14, 14};
 
 static const uint32_t nfifo_pad_flags[][2] = {
 	{ BM, NFIFOENTRY_BM },
@@ -81,7 +81,7 @@ static const uint32_t nfifo_pad_flags[][2] = {
  * Values represent the number of entries from nfifo_pad_flags[] that are
  * supported.
  */
-static const uint8_t nfifo_pad_flags_sz[MAX_SEC_ERA] = {2, 2, 2, 2, 3};
+static const uint8_t nfifo_pad_flags_sz[] = {2, 2, 2, 2, 3};
 
 static inline uint32_t nfifo_load(struct program *program, uint32_t src,
 				  int type_src, uint32_t data, int type_data,

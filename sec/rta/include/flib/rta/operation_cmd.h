@@ -1,14 +1,14 @@
 #ifndef __RTA_OPERATION_CMD_H__
 #define __RTA_OPERATION_CMD_H__
 
-extern uint rta_sec_era;
+extern enum rta_sec_era rta_sec_era;
 
 static inline int32_t alg_aai_aes(uint16_t aai)
 {
 	uint16_t aes_mode = aai & OP_ALG_AESA_MODE_MASK;
 
 	if (aai & OP_ALG_AAI_C2K) {
-		if (rta_sec_era < 5)
+		if (rta_sec_era < RTA_SEC_ERA_5)
 			return -1;
 		if ((aes_mode != OP_ALG_AAI_CCM) &&
 		    (aes_mode != OP_ALG_AAI_GCM))
@@ -19,7 +19,7 @@ static inline int32_t alg_aai_aes(uint16_t aai)
 	case OP_ALG_AAI_CBC_CMAC:
 	case OP_ALG_AAI_CTR_CMAC_LTE:
 	case OP_ALG_AAI_CTR_CMAC:
-		if (rta_sec_era < 2)
+		if (rta_sec_era < RTA_SEC_ERA_2)
 			return -1;
 		/* no break */
 	case OP_ALG_AAI_CTR:
@@ -59,7 +59,7 @@ static inline int32_t alg_aai_md5(uint16_t aai)
 {
 	switch (aai) {
 	case OP_ALG_AAI_HMAC:
-		if (rta_sec_era < 2)
+		if (rta_sec_era < RTA_SEC_ERA_2)
 			return -1;
 		/* no break */
 	case OP_ALG_AAI_SMAC:
@@ -75,7 +75,7 @@ static inline int32_t alg_aai_sha(uint16_t aai)
 {
 	switch (aai) {
 	case OP_ALG_AAI_HMAC:
-		if (rta_sec_era < 2)
+		if (rta_sec_era < RTA_SEC_ERA_2)
 			return -1;
 		/* no break */
 	case OP_ALG_AAI_HASH:
@@ -101,7 +101,7 @@ static inline int32_t alg_aai_rng(uint16_t aai)
 	}
 
 	/* State Handle bits are reserved for SEC Era < 5 */
-	if ((rta_sec_era < 5) & rng_sh)
+	if ((rta_sec_era < RTA_SEC_ERA_5) && rng_sh)
 		return -1;
 
 	switch (rng_sh) {
@@ -202,7 +202,7 @@ static const struct alg_aai_map alg_table[] = {
  * Allowed OPERATION algorithms for each SEC Era.
  * Values represent the number of entries from alg_table[] that are supported.
  */
-static const uint8_t alg_table_sz[MAX_SEC_ERA] = {14, 15, 15, 15, 17};
+static const uint8_t alg_table_sz[] = {14, 15, 15, 15, 17};
 
 static inline uint32_t operation(struct program *program, uint32_t cipher_algo,
 	  uint16_t aai, uint8_t algo_state, uint8_t icv_checking, uint8_t enc)

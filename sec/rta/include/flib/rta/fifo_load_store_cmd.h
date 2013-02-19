@@ -1,7 +1,7 @@
 #ifndef __RTA_FIFO_LOAD_STORE_CMD_H__
 #define __RTA_FIFO_LOAD_STORE_CMD_H__
 
-extern uint rta_sec_era;
+extern enum rta_sec_era rta_sec_era;
 
 static const uint32_t fifo_load_table[][2] = {
 /*1*/	{ _PKA0,        FIFOLD_CLASS_CLASS1 | FIFOLD_TYPE_PK_A0 },
@@ -34,7 +34,7 @@ static const uint32_t fifo_load_table[][2] = {
  * Values represent the number of entries from fifo_load_table[] that are
  * supported.
  */
-static const uint32_t fifo_load_table_sz[MAX_SEC_ERA] = {22, 22, 23, 23, 23};
+static const uint32_t fifo_load_table_sz[] = {22, 22, 23, 23, 23};
 
 static inline uint32_t fifo_load(struct program *program, uint32_t src,
 				 uint32_t type_src, uint64_t loc,
@@ -231,7 +231,7 @@ static inline uint32_t fifo_store(struct program *program, uint32_t src,
 	if (encrypt_flags & TK)
 		opcode |= (0x1 << FIFOST_TYPE_SHIFT);
 	if (encrypt_flags & EKT) {
-		if (rta_sec_era == 1) {
+		if (rta_sec_era == RTA_SEC_ERA_1) {
 			pr_debug("FIFO STORE: AES-CCM source types not "
 				 "supported\n");
 			goto err;

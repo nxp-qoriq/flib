@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include "flib/rta.h"
 
-uint rta_sec_era;
+enum rta_sec_era rta_sec_era;
 
 LABEL(encap_job_seqout);
 REFERENCE(ref_job_seqout);
@@ -165,7 +165,7 @@ int main(int argc, char **argv)
 	struct program lte_desc_prgm;
 	struct program job_desc_prgm;
 
-	rta_set_sec_era(1);
+	rta_set_sec_era(RTA_SEC_ERA_1);
 
 	memset(lte_desc, 0xFF, sizeof(lte_desc));
 	lte_desc_size =

@@ -1,10 +1,10 @@
 #ifndef __RTA_LOAD_CMD_H__
 #define __RTA_LOAD_CMD_H__
 
-extern uint rta_sec_era;
+extern enum rta_sec_era rta_sec_era;
 
 /* Allowed length and offset masks for each SEC Era in case DST = _DCTRL */
-static const uint32_t load_len_mask_allowed[MAX_SEC_ERA] = {
+static const uint32_t load_len_mask_allowed[] = {
 	0x000000ee,
 	0x000000ef,
 	0x000000ef,
@@ -12,7 +12,7 @@ static const uint32_t load_len_mask_allowed[MAX_SEC_ERA] = {
 	0x000000ef
 };
 
-static const uint32_t load_off_mask_allowed[MAX_SEC_ERA] = {
+static const uint32_t load_off_mask_allowed[] = {
 	0x000000f0,
 	0x000000ff,
 	0x000000ff,
@@ -124,7 +124,7 @@ static const struct load_map load_dst[] = {
  * Allowed LOAD destinations for each SEC Era.
  * Values represent the number of entries from load_dst[] that are supported.
  */
-static const uint32_t load_dst_sz[MAX_SEC_ERA] = { 31, 34, 34, 40, 40 };
+static const uint32_t load_dst_sz[] = { 31, 34, 34, 40, 40 };
 
 static inline int8_t load_check_len_offset(int8_t pos, uint32_t length,
 		uint32_t offset)

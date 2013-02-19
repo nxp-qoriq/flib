@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include "flib/rta.h"
 
-uint rta_sec_era;
+enum rta_sec_era rta_sec_era;
 
 uint64_t pkha_make_rsa_keys_phys = (uint64_t) 0x08eb2f00ul;
 uint64_t pkha_make_rsa_p_q_phys = (uint64_t) 0xe6580300ul;
@@ -283,7 +283,7 @@ int main(int argc, char **argv)
 	struct program rsa_check_p_q_prgm;
 	struct program rsa_d_n_prgm;
 
-	rta_set_sec_era(1);
+	rta_set_sec_era(RTA_SEC_ERA_1);
 
 	memset(make_rsa_keys, 0xFF, sizeof(make_rsa_keys));
 	rsa_keys_size =

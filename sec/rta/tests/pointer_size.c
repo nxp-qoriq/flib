@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include "flib/rta.h"
 
-uint rta_sec_era;
+enum rta_sec_era rta_sec_era;
 
 int pointer_size_1(uint32_t *buff)
 {
@@ -50,7 +50,7 @@ int main(int argc, char **argv)
 {
 	int size;
 
-	rta_set_sec_era(1);
+	rta_set_sec_era(RTA_SEC_ERA_1);
 
 	printf("POINTER_SIZE_1 example program\n");
 	size = pointer_size_1((uint32_t *) prg_buff);

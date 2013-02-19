@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include "flib/rta.h"
 
-uint rta_sec_era;
+enum rta_sec_era rta_sec_era;
 
 uint64_t share_desc_addr = 0x089c2c80ULL;
 uint32_t c1_ctxt_slots = 4;
@@ -217,7 +217,7 @@ int main(int argc, char **argv)
 	struct program job_desc_prgm;
 	struct program ctx_buf_prgm;
 
-	rta_set_sec_era(1);
+	rta_set_sec_era(RTA_SEC_ERA_1);
 
 	memset(sharedesc, 0xFF, sizeof(sharedesc));
 	shr_size = build_shdesc_raid_xor_opt(&shr_desc_prgm, sharedesc, 0);

@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include "flib/rta.h"
 
-uint rta_sec_era;
+enum rta_sec_era rta_sec_era;
 
 LABEL(aaa);
 REFERENCE(ref1_jump_aaa);
@@ -264,7 +264,7 @@ int main(int argc, char **argv)
 	struct program desc5_prgm;
 	struct program desc6_prgm;
 
-	rta_set_sec_era(1);
+	rta_set_sec_era(RTA_SEC_ERA_1);
 
 	memset(desc1, 0x00, sizeof(desc1));
 	buf1len = jump_cmd_desc1(&desc1_prgm, desc1, 0);

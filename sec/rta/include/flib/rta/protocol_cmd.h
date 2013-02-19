@@ -1,7 +1,7 @@
 #ifndef __RTA_PROTOCOL_CMD_H__
 #define __RTA_PROTOCOL_CMD_H__
 
-extern uint rta_sec_era;
+extern enum rta_sec_era rta_sec_era;
 
 static inline int32_t ssl_proto(uint16_t protoinfo)
 {
@@ -205,7 +205,7 @@ static inline int32_t ipsec_proto(uint16_t protoinfo)
 	switch (proto_cls1) {
 	case OP_PCL_IPSEC_NULL:
 	case OP_PCL_IPSEC_AES_NULL_WITH_GMAC:
-		if (rta_sec_era < 2)
+		if (rta_sec_era < RTA_SEC_ERA_2)
 			return -1;
 		break;
 	case OP_PCL_IPSEC_AES_CCM8:
@@ -290,7 +290,7 @@ static inline int32_t wimax_proto(uint16_t protoinfo)
 }
 
 /* Allowed blob proto flags for each SEC Era */
-static const uint32_t proto_blob_flags[MAX_SEC_ERA] = {
+static const uint32_t proto_blob_flags[] = {
 	OP_PCL_BLOB_BLACK,
 	OP_PCL_BLOB_BLACK | OP_PCL_BLOB_TKEK | OP_PCL_BLOB_EKT |
 		OP_PCL_BLOB_REG_MASK,
@@ -318,7 +318,7 @@ static inline int32_t blob_proto(uint16_t protoinfo)
 
 	switch (protoinfo & OP_PCL_BLOB_REG_MASK) {
 	case OP_PCL_BLOB_AFHA_SBOX:
-		if (rta_sec_era < 3)
+		if (rta_sec_era < RTA_SEC_ERA_3)
 			return -1;
 		/* no break */
 	case OP_PCL_BLOB_REG_MEMORY:
@@ -334,7 +334,7 @@ static inline int32_t blob_proto(uint16_t protoinfo)
 
 static inline int32_t dlc_proto(uint16_t protoinfo)
 {
-	if ((rta_sec_era < 2) &&
+	if ((rta_sec_era < RTA_SEC_ERA_2) &&
 	    (protoinfo & (OP_PCL_PKPROT_DSA_MSG | OP_PCL_PKPROT_HASH_MASK |
 	     OP_PCL_PKPROT_EKT_Z | OP_PCL_PKPROT_DECRYPT_Z |
 	     OP_PCL_PKPROT_DECRYPT_PRI)))
@@ -504,7 +504,7 @@ static const struct proto_map proto_table[] = {
  * Allowed OPERATION protocols for each SEC Era.
  * Values represent the number of entries from proto_table[] that are supported.
  */
-static const uint8_t proto_table_sz[MAX_SEC_ERA] = {21, 29, 29, 29, 29};
+static const uint8_t proto_table_sz[] = {21, 29, 29, 29, 29};
 
 static inline uint32_t proto_operation(struct program *program, uint32_t optype,
 				       uint32_t protid, uint16_t protoinfo)

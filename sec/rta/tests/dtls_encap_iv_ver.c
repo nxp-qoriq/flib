@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include "flib/rta.h"
 
-uint rta_sec_era;
+enum rta_sec_era rta_sec_era;
 
 const uint8_t key1[16] = {
 	0x1d, 0xc9, 0xef, 0x2f, 0x7d, 0xa3, 0x3b, 0xd6,
@@ -173,7 +173,7 @@ int main(int argc, char **argv)
 	int size;
 
 	printf("DTLS example program\n");
-	rta_set_sec_era(1);
+	rta_set_sec_era(RTA_SEC_ERA_1);
 	size = build_dtls_sharedesc((uint32_t *) prg_buff, seqnum, key1, key2,
 				    46, 0xff80);
 	printf("size = %d\n", size);

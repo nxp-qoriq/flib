@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include "flib/rta.h"
 
-uint rta_sec_era;
+enum rta_sec_era rta_sec_era;
 
 int if_command_test(uint32_t *buff, uint8_t len)
 {
@@ -67,7 +67,7 @@ int main(int argc, char **argv)
 	uint8_t len = 16;
 
 	printf("IF_Command  example program\n");
-	rta_set_sec_era(1);
+	rta_set_sec_era(RTA_SEC_ERA_1);
 	size = if_command_test((uint32_t *) prg_buff, len);
 	printf("size = %d\n", size);
 	print_prog((uint32_t *) prg_buff, size);

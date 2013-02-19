@@ -131,7 +131,7 @@
  * - SEC HW block revision format is "v"
  * - SEC revision format is "x.y"
  */
-extern uint rta_sec_era;
+extern enum rta_sec_era rta_sec_era;
 
 /**
  * @brief              Set SEC Era HW block revision for which the RTA library
@@ -140,14 +140,14 @@ extern uint rta_sec_era;
  *                     RTA API routine.
  * @warning            *Not thread safe*.
  *
- * @param[in] era      SEC Era (@c uint).
+ * @param[in] era      SEC Era (<c> enum rta_sec_era</c>).
  */
-static inline void rta_set_sec_era(uint era)
+static inline void rta_set_sec_era(enum rta_sec_era era)
 {
-	if ((!era) || (era > MAX_SEC_ERA)) {
-		era = DEFAULT_SEC_ERA;
+	if (era > MAX_SEC_ERA) {
+		rta_sec_era = DEFAULT_SEC_ERA;
 		pr_debug("Unsupported SEC ERA. Defaulting to ERA %d\n",
-			 DEFAULT_SEC_ERA);
+			 DEFAULT_SEC_ERA + 1);
 	} else {
 		rta_sec_era = era;
 	}

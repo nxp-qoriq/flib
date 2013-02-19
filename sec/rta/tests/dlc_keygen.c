@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include "flib/rta.h"
 
-uint rta_sec_era;
+enum rta_sec_era rta_sec_era;
 
 uint8_t modulus[20] = {
 	0x9A, 0x27, 0x7B, 0x10, 0x42, 0x3F, 0xEC, 0xDB,
@@ -106,7 +106,7 @@ int main(int argc, char **argv)
 	int size;
 
 	printf("DLC KEYGEN program\n");
-	rta_set_sec_era(1);
+	rta_set_sec_era(RTA_SEC_ERA_1);
 	size = dlc_keygen((uint32_t *) prg_buff);
 	printf("size = %d\n", size);
 	print_prog((uint32_t *) prg_buff, size);

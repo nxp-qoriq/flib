@@ -1,10 +1,10 @@
 #ifndef __RTA_HEADER_CMD_H__
 #define __RTA_HEADER_CMD_H__
 
-extern uint rta_sec_era;
+extern enum rta_sec_era rta_sec_era;
 
 /* Allowed job header flags for each SEC Era. */
-static const uint32_t job_header_flags[MAX_SEC_ERA] = {
+static const uint32_t job_header_flags[] = {
 	DNR | TD | MTD | SHR | REO,
 	DNR | TD | MTD | SHR | REO | RSMS,
 	DNR | TD | MTD | SHR | REO | RSMS,
@@ -13,7 +13,7 @@ static const uint32_t job_header_flags[MAX_SEC_ERA] = {
 };
 
 /* Allowed shared header flags for each SEC Era. */
-static const uint32_t shr_header_flags[MAX_SEC_ERA] = {
+static const uint32_t shr_header_flags[] = {
 	DNR | SC | PD,
 	DNR | SC | PD | CIF,
 	DNR | SC | PD | CIF,
@@ -28,7 +28,7 @@ static inline uint32_t shr_header(struct program *program, uint32_t share,
 
 	if (flags & ~shr_header_flags[rta_sec_era]) {
 		pr_debug("SHR_DESC: Flag(s) not supported by SEC Era %d\n",
-			 rta_sec_era);
+			 USER_SEC_ERA(rta_sec_era));
 		goto err;
 	}
 
@@ -84,7 +84,7 @@ static inline uint32_t job_header(struct program *program, uint32_t share,
 
 	if (flags & ~job_header_flags[rta_sec_era]) {
 		pr_debug("JOB_DESC: Flag(s) not supported by SEC Era %d\n",
-			 rta_sec_era);
+			 USER_SEC_ERA(rta_sec_era));
 		goto err;
 	}
 
