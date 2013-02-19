@@ -1,4 +1,4 @@
-CFLAGS=-Wall -Wshadow -O3 -g
+CFLAGS=-Wall -Wshadow -O3 -g -DDEBUG
 CFLAGS+=-I../include
 
 SRCS=$(wildcard *.c)

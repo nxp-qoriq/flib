@@ -8,9 +8,9 @@
 
 #ifndef pr_debug
 #ifdef DEBUG
-#define pr_debug(...)    printf(...)
+#define pr_debug(fmt, ...)    printf(fmt, ##__VA_ARGS__)
 #else
-#define pr_debug(...)
+#define pr_debug(fmt, ...)
 #endif
 #endif
 
