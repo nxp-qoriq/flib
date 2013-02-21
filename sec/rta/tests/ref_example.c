@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "flib/rta.h"
+#include "test_common.h"
 
 enum rta_sec_era rta_sec_era;
 

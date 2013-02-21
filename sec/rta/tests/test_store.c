@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "flib/rta.h"
+#include "test_common.h"
 
 enum rta_sec_era rta_sec_era;
 int prg_buff[1000];
@@ -66,13 +67,6 @@ int test_store(uint32_t *buff)
 	size = SEQSTORE(DESCBUF, here, 12, 0);
 
 	return size;
-}
-
-static void print_prog(uint32_t *buff, int size)
-{
-	int i;
-	for (i = 0; i < size; i++)
-		printf("%08x\n", buff[i]);
 }
 
 int main(int argc, char **argv)

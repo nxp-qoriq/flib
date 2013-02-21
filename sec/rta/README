@@ -48,3 +48,9 @@ $ cd tests
 $ make all
  or
 $ make <test_name>
+
+In order to run all examples, use
+$ make check
+
+This will automatically build the tests and run all of them sequentially,
+saving the output in corresponding *.desc files.

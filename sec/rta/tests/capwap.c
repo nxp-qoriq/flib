@@ -1,15 +1,9 @@
 #include <stdio.h>
 #include "flib/rta.h"
+#include "test_common.h"
 
 enum rta_sec_era rta_sec_era;
 int prg_buff[1000];
-
-static void print_prog(uint32_t *buff, int size)
-{
-	int i;
-	for (i = 0; i < size; i++)
-		printf("0x%08x\n", buff[i]);
-}
 
 int generate_capwap_code(uint32_t *buff, int mdatalen)
 {

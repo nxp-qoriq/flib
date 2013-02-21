@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "flib/rta.h"
+#include "test_common.h"
 
 /*
   Example job to create DLC/DSA Domain Parameters for q=p
@@ -279,13 +280,6 @@ int dlc_fp_make_g(struct program *prg, uint32_t *buff)
 	size = PROGRAM_FINALIZE();
 
 	return size;
-}
-
-static void print_prog(uint32_t *buff, int size)
-{
-	int i;
-	for (i = 0; i < size; i++)
-		printf("%08X\n", buff[i]);
 }
 
 int main(int argc, char **argv)

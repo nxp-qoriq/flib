@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "flib/rta.h"
+#include "test_common.h"
 
 /* Global variables section */
 enum rta_sec_era rta_sec_era;
@@ -376,13 +377,6 @@ int generate_still_more_extra_desc_code(struct program *prg, uint32_t *buff,
 
 	size = PROGRAM_FINALIZE();
 	return size;
-}
-
-static void print_prog(uint32_t *buff, int size)
-{
-	int i;
-	for (i = 0; i < size; i++)
-		printf("[%02d] %08X\n", i, buff[i]);
 }
 
 int main(int argc, char *argv[])

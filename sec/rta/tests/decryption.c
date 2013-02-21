@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "flib/rta.h"
+#include "test_common.h"
 
 enum rta_sec_era rta_sec_era;
 
@@ -33,13 +34,6 @@ int test_decryption(uint32_t *buff)
 }
 
 int prg_buff[1000];
-
-static void print_prog(uint32_t *buff, int size)
-{
-	int i;
-	for (i = 0; i < size; i++)
-		printf("%08X\n", buff[i]);
-}
 
 int main(int argc, char **argv)
 {

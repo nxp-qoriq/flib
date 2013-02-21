@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "flib/rta.h"
+#include "test_common.h"
 
 enum rta_sec_era rta_sec_era;
 
@@ -13359,13 +13360,6 @@ int math_test(uint32_t *buff)
 	size = PROGRAM_FINALIZE();
 	return size;
 
-}
-
-static void print_prog(uint32_t *buff, int size)
-{
-	int i;
-	for (i = 0; i < size; i++)
-		printf("%08X\n", buff[i]);
 }
 
 uint32_t prg_buff[1000000];
