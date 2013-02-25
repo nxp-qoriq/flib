@@ -565,7 +565,7 @@ static inline uint32_t endian_data(struct program *program, uint8_t *data, int l
 
 	for (i = 0; i < length; i++)
 		*tmp++ = data[i];
-	program->current_pc += (length / 4 + 1);
+	program->current_pc += (length + 3) / 4;
 	return pc;
 }
 
