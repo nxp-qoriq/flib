@@ -306,6 +306,106 @@ static inline void cnstr_shdsc_crc(uint32_t *descbuf, uint16_t *bufsize)
 	*bufsize = PROGRAM_FINALIZE();
 }
 
+/**
+ * @details		MACsec(802.1AE) encapsulation
+ *
+ * @param[in] descbuf   Pointer to descriptor-under-construction buffer.
+ * @param[in] bufsize   Points to size to be updated at completion.
+ * @param[in] cipherkey Key data to inline.
+ * @param[in] keylen    Key size in bytes.
+ * @param[in] sci       PDB Secure Channel Identifier.
+ * @param[in] ethertype PDB EtherType.
+ * @param[in] tci_an    TAG Control Information and Association Number
+ *                      are treated as a single field of 8 bits in PDB.
+ * @param[in] pn        PDB Packet Number.
+ **/
+static inline void cnstr_shdsc_macsec_encap(uint32_t *descbuf,
+					    uint16_t *bufsize,
+					    uint8_t *cipherkey,
+					    uint32_t keylen, uint64_t sci,
+					    uint16_t ethertype, uint8_t tci_an,
+					    uint32_t pn)
+{
+	struct program prg;
+	struct program *program = &prg;
+	struct macsec_encap_pdb pdb;
+	uint32_t startidx;
+
+	LABEL(keyjump);
+	REFERENCE(pkeyjump);
+
+	memset(&pdb, 0x00, sizeof(struct macsec_encap_pdb));
+	pdb.sci_hi = high_32b(sci);
+	pdb.sci_lo = low_32b(sci);
+	pdb.ethertype = ethertype;
+	pdb.tci_an = tci_an;
+	pdb.pn = pn;
+
+	startidx = sizeof(struct macsec_encap_pdb) >> 2;
+
+	PROGRAM_CNTXT_INIT(descbuf, 0);
+	SHR_HDR(SHR_SERIAL, ++startidx, WITH(SC));
+	{
+		ENDIAN_DATA((uint8_t *)&pdb, sizeof(struct macsec_encap_pdb));
+		pkeyjump = program->current_pc;
+		JUMP(IMM(keyjump), LOCAL_JUMP, ALL_TRUE,
+		     WITH(SHRD | SELF | BOTH));
+		KEY(KEY1, 0, PTR((uintptr_t) cipherkey), keylen, WITH(IMMED));
+		SET_LABEL(keyjump);
+		PROTOCOL(OP_TYPE_ENCAP_PROTOCOL, OP_PCLID_MACSEC,
+			 WITH(OP_PCL_MACSEC));
+	}
+	PATCH_JUMP(program, pkeyjump, keyjump);
+	*bufsize = PROGRAM_FINALIZE();
+}
+
+/**
+ * @details		MACsec(802.1AE) decapsulation
+ *
+ * @param[in] descbuf   Pointer to descriptor-under-construction buffer.
+ * @param[in] bufsize   Points to size to be updated at completion.
+ * @param[in] cipherkey Key data to inline.
+ * @param[in] keylen    Key size in bytes.
+ * @param[in] sci       PDB Secure Channel Identifier.
+ * @param[in] pn        PDB Packet Number.
+ **/
+static inline void cnstr_shdsc_macsec_decap(uint32_t *descbuf,
+					    uint16_t *bufsize,
+					    uint8_t *cipherkey,
+					    uint32_t keylen, uint64_t sci,
+					    uint32_t pn)
+{
+	struct program prg;
+	struct program *program = &prg;
+	struct macsec_decap_pdb pdb;
+	uint32_t startidx;
+
+	LABEL(keyjump);
+	REFERENCE(pkeyjump);
+
+	memset(&pdb, 0x00, sizeof(struct macsec_decap_pdb));
+	pdb.sci_hi = high_32b(sci);
+	pdb.sci_lo = low_32b(sci);
+	pdb.pn = pn;
+
+	startidx = sizeof(struct macsec_decap_pdb) >> 2;
+
+	PROGRAM_CNTXT_INIT(descbuf, 0);
+	SHR_HDR(SHR_SERIAL, ++startidx, WITH(SC));
+	{
+		ENDIAN_DATA((uint8_t *)&pdb, sizeof(struct macsec_decap_pdb));
+		pkeyjump = program->current_pc;
+		JUMP(IMM(keyjump), LOCAL_JUMP, ALL_TRUE,
+		     WITH(SHRD | SELF | BOTH));
+		KEY(KEY1, 0, PTR((uintptr_t) cipherkey), keylen, WITH(IMMED));
+		SET_LABEL(keyjump);
+		PROTOCOL(OP_TYPE_DECAP_PROTOCOL, OP_PCLID_MACSEC,
+			 WITH(OP_PCL_MACSEC));
+	}
+	PATCH_JUMP(program, pkeyjump, keyjump);
+	*bufsize = PROGRAM_FINALIZE();
+}
+
 /** @} */ /* end of sharedesc_group */
 
 #endif /* __RTA_PROTOSHARED_H__ */
