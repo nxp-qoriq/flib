@@ -13,7 +13,7 @@ static const uint32_t load_len_mask_allowed[] = {
 };
 
 static const uint32_t load_off_mask_allowed[] = {
-	0x000000f0,
+	0x0000000f,
 	0x000000ff,
 	0x000000ff,
 	0x000000ff,
