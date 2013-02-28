@@ -31,7 +31,7 @@ static const uint32_t move_src_table[][2] = {
  * Values represent the number of entries from move_src_table[] that are
  * supported.
  */
-static const uint32_t move_src_table_sz[] = {8, 11, 14, 14, 14};
+static const uint32_t move_src_table_sz[] = {9, 11, 14, 14, 14};
 
 static const uint32_t move_dst_table[][2] = {
 /*1*/	{ _CONTEXT1,  MOVE_DEST_CLASS1CTX },
