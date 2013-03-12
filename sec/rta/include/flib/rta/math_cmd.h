@@ -202,39 +202,30 @@ static inline uint32_t math(struct program *program, uint64_t operand1,
 	program->current_instraction++;
 
 	/* Write immediate value */
-	if (type_op1 == IMM_DATA && type_op2 != IMM_DATA) {
+	if ((type_op1 == IMM_DATA) && (type_op2 != IMM_DATA)) {
 
 		if ((length > 4) && !(options & IFB)) {
-			*(uint64_t *) &program->buffer[program->current_pc] =
-			    (operand1 >> 32) | (operand1 << 32);
-			program->current_pc += 2;
-
-		} else {
 			program->buffer[program->current_pc] =
-			    (uint32_t) operand1;
+				high_32b(operand1);
 			program->current_pc++;
 		}
-
-	} else if (type_op2 == IMM_DATA && type_op1 != IMM_DATA) {
-
-		if ((length > 4) && !(options & IFB)) {
-			*(uint64_t *) &program->buffer[program->current_pc] =
-			    (operand2 >> 32) | (operand2 << 32);
-			program->current_pc += 2;
-
-		} else {
-			program->buffer[program->current_pc] =
-			    (uint32_t) operand2;
-			program->current_pc++;
-		}
-
-	} else if (type_op1 == IMM_DATA && type_op2 == IMM_DATA) {
-		*(uint32_t *) &program->buffer[program->current_pc] =
-		    (uint32_t) operand1;
+		program->buffer[program->current_pc] = low_32b(operand1);
 		program->current_pc++;
 
-		*(uint32_t *) &program->buffer[program->current_pc] =
-		    (uint32_t) operand2;
+	} else if ((type_op2 == IMM_DATA) && (type_op1 != IMM_DATA)) {
+
+		if ((length > 4) && !(options & IFB)) {
+			program->buffer[program->current_pc] =
+				high_32b(operand2);
+			program->current_pc++;
+		}
+		program->buffer[program->current_pc] = low_32b(operand2);
+		program->current_pc++;
+
+	} else if ((type_op1 == IMM_DATA) && (type_op2 == IMM_DATA)) {
+		program->buffer[program->current_pc] = low_32b(operand1);
+		program->current_pc++;
+		program->buffer[program->current_pc] = low_32b(operand2);
 		program->current_pc++;
 	}
 
