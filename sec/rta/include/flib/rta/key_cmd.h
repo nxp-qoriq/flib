@@ -82,13 +82,28 @@ static inline uint32_t key(struct program *program, uint32_t key_dst,
 		break;
 	}
 
+	/* write key length */
+	length &= KEY_LENGTH_MASK;
+	opcode |= length;
+
 	/* write key command specific flags */
-	if (encrypt_flags & ENC)
+	if (encrypt_flags & ENC) {
+		/* Encrypted (black) keys must be padded to 8 bytes (CCM) or
+		   16 bytes (ECB) depending on EKT bit. AES-CCM encrypted keys
+		   (EKT = 1) have 6-byte nonce and 6-byte MAC after padding.
+		 */
 		opcode |= KEY_ENC;
-	if (encrypt_flags & EKT)
-		opcode |= KEY_EKT;
-	if (encrypt_flags & TK)
-		opcode |= KEY_TK;
+		if (encrypt_flags & EKT) {
+			opcode |= KEY_EKT;
+			length = ALIGN(length, 8);
+			length += 12;
+		}
+		else {
+			length = ALIGN(length, 16);
+		}
+		if (encrypt_flags & TK)
+			opcode |= KEY_TK;
+	}
 	if (encrypt_flags & NWB)
 		opcode |= KEY_NWB;
 
@@ -97,10 +112,6 @@ static inline uint32_t key(struct program *program, uint32_t key_dst,
 		opcode |= KEY_IMM;
 	if (flags & SGF)
 		opcode |= KEY_SGF;
-
-	/* write length */
-	length &= 0x000003FF;
-	opcode |= length;
 
 	program->buffer[program->current_pc] = opcode;
 	program->current_pc++;
