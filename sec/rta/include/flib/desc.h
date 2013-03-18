@@ -65,6 +65,11 @@
  */
 
 /*
+ * Read input frame as soon as possible (SHR HDR)
+ */
+#define HDR_RIF			0x02000000
+
+/*
  * Require SEQ LIODN to be the Same  (JOB HDR)
  */
 #define HDR_RSLS		0x02000000

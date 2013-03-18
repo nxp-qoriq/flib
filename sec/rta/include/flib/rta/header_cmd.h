@@ -62,6 +62,8 @@ static inline uint32_t shr_header(struct program *program, uint32_t share,
 		opcode |= HDR_SAVECTX;
 	if (flags & PD)
 		opcode |= HDR_PROP_DNR;
+	if (flags & RIF)
+		opcode |= HDR_RIF;
 
 	program->buffer[program->current_pc] = opcode;
 	program->current_instraction++;
