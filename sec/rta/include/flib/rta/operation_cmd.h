@@ -288,8 +288,6 @@ static inline uint32_t operation(struct program *program, uint32_t cipher_algo,
  */
 static inline int32_t pkha_clearmem(uint32_t pkha_op)
 {
-	pkha_op &= ~OP_ALG_PKMODE_OUT_A;
-
 	switch (pkha_op) {
 	case (OP_ALG_PKMODE_CLEARMEM_ALL):
 	case (OP_ALG_PKMODE_CLEARMEM_ABE):
@@ -371,8 +369,6 @@ static inline int32_t pkha_mod_arithmetic(uint32_t pkha_op)
 
 static inline int32_t pkha_copymem(uint32_t pkha_op)
 {
-	pkha_op &= ~OP_ALG_PKMODE_OUT_A;
-
 	switch (pkha_op) {
 	case (OP_ALG_PKMODE_COPY_NSZ_A0_B0):
 	case (OP_ALG_PKMODE_COPY_NSZ_A0_B1):
