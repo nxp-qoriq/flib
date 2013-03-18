@@ -252,8 +252,10 @@ static inline uint32_t operation(struct program *program, uint32_t cipher_algo,
 
 	switch (icv_checking) {
 	case ICV_CHECK_DISABLE:
+		opcode |= OP_ALG_ICV_OFF;
+		break;
 	case ICV_CHECK_ENABLE:
-		opcode |= icv_checking;
+		opcode |= OP_ALG_ICV_ON;
 		break;
 	default:
 		pr_debug("Invalid Operation Command\n");
@@ -262,8 +264,10 @@ static inline uint32_t operation(struct program *program, uint32_t cipher_algo,
 
 	switch (enc) {
 	case OP_ALG_DECRYPT:
+		opcode |= OP_ALG_DECRYPT;
+		break;
 	case OP_ALG_ENCRYPT:
-		opcode |= enc;
+		opcode |= OP_ALG_ENCRYPT;
 		break;
 	default:
 		pr_debug("Invalid Operation Command\n");
