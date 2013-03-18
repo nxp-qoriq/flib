@@ -136,7 +136,7 @@ static inline int8_t load_check_len_offset(int8_t pos, uint32_t length,
 
 	switch (load_dst[pos].len_off) {
 	case (LENOF_03):
-		if ((length > 3) || (!offset))
+		if ((length > 3) || (offset))
 			goto err;
 		break;
 	case (LENOF_4):
