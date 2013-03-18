@@ -94,8 +94,9 @@ static inline uint32_t jump(struct program *program, int64_t address,
 	map_flags(test_condition, jump_test_cond, ARRAY_SIZE(jump_test_cond),
 		  &opcode);
 
-	/* write local offset field for local jumps */
-	if ((jump_type == LOCAL_JUMP) || (jump_type == GOSUB))
+	/* write local offset field for local jumps and user-defined halt */
+	if ((jump_type == LOCAL_JUMP) || (jump_type == GOSUB) ||
+	    (jump_type == HALT_STATUS))
 		opcode |= address & JUMP_OFFSET_MASK;
 
 	program->buffer[program->current_pc] = opcode;
