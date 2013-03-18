@@ -76,7 +76,8 @@ static inline uint32_t store(struct program *program, uintptr_t src,
 		goto err;
 	}
 
-	if ((flags & SEQ) && ((src == _JOBDESCBUF) || (src == _SHAREDESCBUF))) {
+	if ((flags & SEQ) && ((src == _JOBDESCBUF) || (src == _SHAREDESCBUF) ||
+	    (src == _JOBDESCBUF_EFF) || (src == _SHAREDESCBUF_EFF))) {
 		pr_debug("STORE: Invalid SRC type. SEC PC: %d; Instr: %d\n",
 			program->current_pc, program->current_instraction);
 		goto err;
@@ -112,7 +113,8 @@ static inline uint32_t store(struct program *program, uintptr_t src,
 	program->current_pc++;
 	program->current_instraction++;
 
-	if ((src == _JOBDESCBUF) || (src == _SHAREDESCBUF))
+	if ((src == _JOBDESCBUF) || (src == _SHAREDESCBUF) ||
+	    (src == _JOBDESCBUF_EFF) || (src == _SHAREDESCBUF_EFF))
 		return program->current_pc;
 
 	/* for STORE, a pointer to where the data will be stored is needed */
