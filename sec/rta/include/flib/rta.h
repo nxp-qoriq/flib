@@ -243,8 +243,8 @@ static inline uint rta_get_sec_era()
  * @param[in] src      Pointer or actual data in case of immediate load; @b IMM
  *                     or @b PTR macros must be used to indicate type.
  * @param[in] length   Number of bytes to load (@c uint32_t).
- * @param[in] flags    Operational flags:@n @li <em>SGF, IMMED, EXT, DONE1,
- *                     DONE2, DONEBOTH, FLUSH1, LAST1, LAST2</em>.
+ * @param[in] flags    Operational flags:@n @li <em>SGF, IMMED, EXT, CLASS1,
+ *                     CLASS2, BOTH, FLUSH1, LAST1, LAST2</em>.
  * @return             @li Updated descriptor size on success (@c uint32_t).
  *                     @li First error program counter will be incremented on
  *                     error; in debug mode, a log message will be shown at
@@ -264,8 +264,8 @@ static inline uint rta_get_sec_era()
  *                     AAD1, ICV1, ICV2, BIT_DATA, SKIP</em>.
  * @param[in] length   Number of bytes to load; can be set to 0 for SEQ command
  *                     w/ @e VLF set (@c uint32_t).
- * @param[in] flags    Operational flags:@n @li <em>VLF, DONE1, DONE2,
- *                     DONEBOTH, FLUSH1, LAST1, LAST2</em>.
+ * @param[in] flags    Operational flags:@n @li <em>VLF, CLASS1, CLASS2, BOTH,
+ *                     FLUSH1, LAST1, LAST2</em>.
  * @return             @li Updated descriptor size on success.
  *                     @li First error program counter will be incremented on
  *                     error; in debug mode, a log message will be shown at
@@ -286,7 +286,8 @@ static inline uint rta_get_sec_era()
  *                     TK, JDK</em>.
  * @param[in] dst      Pointer to store location (@c uint64_t).
  * @param[in] length   Number of bytes to load (@c uint32_t).
- * @param[in] flags    Operational flags:@n @li <em>SGF, CONT, EXT</em>.
+ * @param[in] flags    Operational flags:@n @li <em>SGF, CONT, EXT, CLASS1,
+ *                     CLASS2, BOTH</em>.
  * @return             @li Updated descriptor size on success.
  *                     @li First error program counter will be incremented on
  *                     error; in debug mode, a log message will be shown at
@@ -307,7 +308,8 @@ static inline uint rta_get_sec_era()
  *                     TK, JDK</em>.
  * @param[in] length   Number of bytes to load; can be set to 0 for SEQ command
  *                     w/ @e VLF set (@c uint32_t).
- * @param[in] flags    Operational flags:@n @li <em>VLF, CONT, EXT</em>.
+ * @param[in] flags    Operational flags:@n @li <em>VLF, CONT, EXT, CLASS1,
+ *                     CLASS2, BOTH</em>.
  * @return             @li Updated descriptor size on success.
  *                     @li First error program counter will be incremented on
  *                     error; in debug mode, a log message will be shown at

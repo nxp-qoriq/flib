@@ -240,13 +240,19 @@ static inline uint32_t fifo_store(struct program *program, uint32_t src,
 		opcode &= ~(0x20 << FIFOST_TYPE_SHIFT);
 	}
 
-	/* write flags fields: CONT, VLF|SGF */
+	/* write flags fields */
 	if (flags & CONT)
 		opcode |= FIFOST_CONT;
 	if ((flags & VLF) && (is_seq_cmd))
 		opcode |= FIFOLDST_VLF;
 	if ((flags & SGF) && (!is_seq_cmd))
 		opcode |= FIFOLDST_SGF;
+	if (flags & CLASS1)
+		opcode |= FIFOST_CLASS_CLASS1KEY;
+	if (flags & CLASS2)
+		opcode |= FIFOST_CLASS_CLASS2KEY;
+	if (flags & BOTH)
+		opcode |= FIFOST_CLASS_BOTH;
 
 	/* Verify if extended length is required */
 	if ((length >> 16) || (flags & EXT))
