@@ -368,6 +368,8 @@ static inline int32_t rsa_enc_proto(uint16_t protoinfo)
 		case OP_PCL_RSAPROT_FFF_RED:
 		case OP_PCL_RSAPROT_FFF_ENC:
 		case OP_PCL_RSAPROT_FFF_EKT:
+		case OP_PCL_RSAPROT_FFF_TK_ENC:
+		case OP_PCL_RSAPROT_FFF_TK_EKT:
 			break;
 		default:
 			return -1;
