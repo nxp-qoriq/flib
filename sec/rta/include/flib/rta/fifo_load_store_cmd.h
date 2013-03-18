@@ -162,7 +162,7 @@ static inline uint32_t fifo_load(struct program *program, uint32_t src,
 }
 
 static const uint32_t fifo_store_table[][2] = {
-	{ _PKA0,      FIFOST_TYPE_PKHA_A0 },
+/*1*/	{ _PKA0,      FIFOST_TYPE_PKHA_A0 },
 	{ _PKA1,      FIFOST_TYPE_PKHA_A1 },
 	{ _PKA2,      FIFOST_TYPE_PKHA_A2 },
 	{ _PKA3,      FIFOST_TYPE_PKHA_A3 },
@@ -182,8 +182,16 @@ static const uint32_t fifo_store_table[][2] = {
 	{ _KEY1,      FIFOST_CLASS_CLASS1KEY | FIFOST_TYPE_KEY_KEK },
 	{ _KEY2,      FIFOST_CLASS_CLASS2KEY | FIFOST_TYPE_KEY_KEK },
 	{ _OFIFO,     FIFOST_TYPE_OUTFIFO_KEK},
-	{ _SKIP,      FIFOST_TYPE_SKIP }
+	{ _SKIP,      FIFOST_TYPE_SKIP },
+/*22*/	{ _METADATA,  FIFOST_TYPE_METADATA}
 };
+
+/*
+ * Allowed FIFO_STORE output data types for each SEC Era.
+ * Values represent the number of entries from fifo_store_table[] that are
+ * supported.
+ */
+static const uint32_t fifo_store_table_sz[] = {21, 21, 21, 21, 22};
 
 static inline uint32_t fifo_store(struct program *program, uint32_t src,
 				  uint32_t type_src, uint32_t encrypt_flags,
@@ -210,17 +218,21 @@ static inline uint32_t fifo_store(struct program *program, uint32_t src,
 			pr_debug("SEQ FIFO STORE: Invalid command\n");
 			goto err;
 		}
+		if ((src == _METADATA) && (flags & (CONT | EXT))) {
+			pr_debug("SEQ FIFO STORE: Invalid flags\n");
+			goto err;
+		}
 	} else {
-		if ((src == _RNGOFIFO) && ((dst) || (flags & EXT))) {
+		if (((src == _RNGOFIFO) && ((dst) || (flags & EXT))) ||
+		    (src == _METADATA)) {
 			pr_debug("FIFO STORE: Invalid destination\n");
 			goto err;
 		}
-
 	}
 
 	/* write output data type field */
-	ret = map_opcode(src, fifo_store_table, ARRAY_SIZE(fifo_store_table),
-			 &val);
+	ret = map_opcode(src, fifo_store_table,
+			 fifo_store_table_sz[rta_sec_era], &val);
 	if (ret == -1) {
 		pr_debug("FIFO STORE: Source type not supported. "
 				"SEC Program Line: %d\n", program->current_pc);

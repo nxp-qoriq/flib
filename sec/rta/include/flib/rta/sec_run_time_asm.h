@@ -400,6 +400,9 @@ enum rta_sec_era {
 #define _SHAREDESCBUF_EFF	(0x63 | REGISTER)
 #define SHAREDESCBUF_EFF	_SHAREDESCBUF_EFF, REG_TYPE
 
+#define _METADATA	(0x64 | REGISTER)
+#define METADATA	_METADATA, REG_TYPE
+
 /* Command flags */
 #define FLUSH1          0x00000001
 #define LAST1           0x00000002

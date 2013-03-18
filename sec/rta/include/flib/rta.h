@@ -303,7 +303,7 @@ static inline uint rta_get_sec_era()
  *
  * @param[in] data     Output data type to store:@n @li <em>PKHA registers,
  *                     IFIFO, OFIFO, RNG, RNGOFIFO, AFHA_SBOX, MDHA_SPLIT_KEY,
- *                     MSG, KEY1, KEY2, SKIP</em>.
+ *                     MSG, KEY1, KEY2, METADATA, SKIP</em>.
  * @param[in] encrypt_flags  Store data encryption mode:@n @li <em>EKT, NRM,
  *                     TK, JDK</em>.
  * @param[in] length   Number of bytes to load; can be set to 0 for SEQ command
