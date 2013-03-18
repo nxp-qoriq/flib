@@ -347,20 +347,10 @@ static inline int32_t dlc_proto(uint16_t protoinfo)
 	case OP_PCL_PKPROT_HASH_SHA256:
 	case OP_PCL_PKPROT_HASH_SHA384:
 	case OP_PCL_PKPROT_HASH_SHA512:
-		if (protoinfo & OP_PCL_PKPROT_DSA_MSG)
-			break;
-		/* no break */
+		break;
 	default:
 		return -1;
 	}
-
-	if ((protoinfo & OP_PCLID_DSAVERIFY) &&
-	    (protoinfo & OP_PCL_PKPROT_DECRYPT_PRI))
-		return -1;
-
-	if ((protoinfo & OP_PCL_PKPROT_DECRYPT_Z) &&
-	    !(protoinfo & OP_PCLID_DIFFIEHELLMAN))
-		return -1;
 
 	return 0;
 }
