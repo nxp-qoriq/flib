@@ -106,8 +106,15 @@ static inline uint32_t store(struct program *program, uintptr_t src,
 		opcode |= val;
 	}
 
-	opcode |= offset << LDST_OFFSET_SHIFT;
-	opcode |= length;
+	/* DESC BUFFER: length / offset values are specified in 4-byte words */
+	if ((src == _DESCBUF) || (src == _JOBDESCBUF) || (src == _SHAREDESCBUF)
+	    || (src == _JOBDESCBUF_EFF) || (src == _SHAREDESCBUF_EFF)) {
+		opcode |= (length >> 2);
+		opcode |= ((offset >> 2) << LDST_OFFSET_SHIFT);
+	} else {
+		opcode |= length;
+		opcode |= (offset << LDST_OFFSET_SHIFT);
+	}
 
 	program->buffer[program->current_pc] = opcode;
 	program->current_pc++;

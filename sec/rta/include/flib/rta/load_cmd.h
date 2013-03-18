@@ -36,7 +36,7 @@ enum e_lenoff {
 	LENOF_16,
 	LENOF_8,
 	LENOF_128,
-	LENOF_64,
+	LENOF_256,
 	DSNM /* it doesn't matter the lenght/offset values */
 };
 
@@ -106,7 +106,7 @@ static const struct load_map load_dst[] = {
 	{ _KEY2,    LDST_CLASS_2_CCB | LDST_SRCDST_BYTE_KEY,
 		    LENOF_32,  IMM_CAN },
 	{ _DESCBUF, LDST_CLASS_DECO | LDST_SRCDST_WORD_DESCBUF,
-		    LENOF_64,  IMM_NO },
+		    LENOF_256,  IMM_NO },
 	{ _DPID,    LDST_CLASS_DECO | LDST_SRCDST_WORD_PID,
 		    LENOF_448, IMM_MUST },
 /*32*/	{ _IDFNS,   LDST_SRCDST_WORD_IFNSR, LENOF_18,  IMM_MUST },
@@ -179,8 +179,8 @@ static inline int8_t load_check_len_offset(int8_t pos, uint32_t length,
 				     ((offset + length) > 128))
 			goto err;
 		break;
-	case (LENOF_64):
-		if ((length < 1) || (length > 64) || ((length + offset) > 64))
+	case (LENOF_256):
+		if ((length < 1) || (length > 256) || ((length + offset) > 256))
 			goto err;
 		break;
 	case (DSNM):
@@ -199,8 +199,7 @@ static inline uint32_t load(struct program *program, uint64_t src,
 		uint32_t src_type, uint64_t dst, uint32_t dst_type,
 		uint32_t offset, uint32_t length, uint32_t flags)
 {
-	uint32_t opcode = 0, cpy_length, i;
-	uint8_t data_type = LDST_BYTE;
+	uint32_t opcode = 0, i;
 	uint8_t *tmp;
 	int8_t pos = -1;
 
@@ -253,24 +252,22 @@ static inline uint32_t load(struct program *program, uint64_t src,
 	}
 
 	opcode |= load_dst[pos].dst_opcode;
-	opcode |= length | (offset << LDST_OFFSET_SHIFT);
+
+	/* DESC BUFFER: length / offset values are specified in 4-byte words */
+	if (dst == _DESCBUF) {
+		opcode |= (length >> 2);
+		opcode |= ((offset >> 2) << LDST_OFFSET_SHIFT);
+	} else {
+		opcode |= length;
+		opcode |= (offset << LDST_OFFSET_SHIFT);
+	}
 
 	program->buffer[program->current_pc++] = opcode;
 	program->current_instraction++;
 
-	/* DESC BUFFER: length/offset values are specified in 4-byte words */
-	if (dst == _DESCBUF)
-		data_type = LDST_WORD;
-
 	/* DECO COTROL: skip writing pointer of imm data */
 	if (dst == _DCTRL)
 		return program->current_pc;
-
-	/* Set size of data to be copied in descriptor */
-	if (data_type == LDST_WORD)
-		cpy_length = length * sizeof(uint32_t);
-	else
-		cpy_length = length;
 
 	/* For data copy, 3 possible ways to specify how to copy data:
 	 *  - src_type is IMM: copy data directly from src( max 8 bytes)
@@ -278,7 +275,7 @@ static inline uint32_t load(struct program *program, uint64_t src,
 	 *    from the location specified by user
 	 *  - src_type is PTR and is not SEQ cmd: copy the address */
 	if (src_type == IMM_DATA) {
-		if (cpy_length <= BYTES_4) {
+		if (length <= BYTES_4) {
 			program->buffer[program->current_pc++] = low_32b(src);
 		} else {
 			program->buffer[program->current_pc++] =
@@ -291,9 +288,9 @@ static inline uint32_t load(struct program *program, uint64_t src,
 	if ((src_type == PTR_DATA) && (flags & IMMED)) {
 		tmp = (uint8_t *) &program->buffer[program->current_pc];
 
-		for (i = 0; i < cpy_length; i++)
+		for (i = 0; i < length; i++)
 			*tmp++ = ((uint8_t *)&src)[i];
-		program->current_pc += ((cpy_length + 3) / 4);
+		program->current_pc += ((length + 3) / 4);
 
 		return program->current_pc;
 	}
