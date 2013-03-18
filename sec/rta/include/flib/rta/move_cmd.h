@@ -57,10 +57,10 @@ static const uint32_t move_dst_table[][2] = {
  */
 static const uint32_t move_dst_table_sz[] = {13, 14, 14, 15, 15};
 
-static inline uint16_t set_move_offset(struct program *program, uint64_t src,
-				       uint16_t src_offset, uint64_t dst,
-				       uint16_t dst_offset, uint16_t *offset,
-				       uint16_t *opt);
+static inline int set_move_offset(struct program *program, uint64_t src,
+				  uint16_t src_offset, uint64_t dst,
+				  uint16_t dst_offset, uint16_t *offset,
+				  uint16_t *opt);
 
 
 static inline uint32_t move(struct program *program, uint64_t src, int type_src,
@@ -69,8 +69,9 @@ static inline uint32_t move(struct program *program, uint64_t src, int type_src,
 			    int type_length, uint32_t flags)
 {
 	uint32_t opcode = 0, is_move_len_cmd = 0;
-	uint16_t offset = 0, opt = 0, ret = 0;
+	uint16_t offset = 0, opt = 0;
 	uint32_t val = 0;
+	int ret = 0;
 
 	/* write command type */
 	if (type_length == REG_TYPE) {
@@ -177,10 +178,10 @@ static inline uint32_t move(struct program *program, uint64_t src, int type_src,
 	return program->current_pc++;
 }
 
-static inline uint16_t set_move_offset(struct program *program, uint64_t src,
-				       uint16_t src_offset, uint64_t dst,
-				       uint16_t dst_offset, uint16_t *offset,
-				       uint16_t *opt)
+static inline int set_move_offset(struct program *program, uint64_t src,
+				  uint16_t src_offset, uint64_t dst,
+				  uint16_t dst_offset, uint16_t *offset,
+				  uint16_t *opt)
 {
 	switch (src) {
 	case (_CONTEXT1):
