@@ -67,12 +67,12 @@ static inline uint32_t shr_header(struct program *program, uint32_t share,
 
 	program->buffer[program->current_pc] = opcode;
 	program->current_instraction++;
+	program->current_pc++;
 
-	if (program->current_instraction == 1) {
+	if (program->current_instraction == 1)
 		program->shrhdr = program->buffer;
-		*program->shrhdr |= (program->current_pc << 16);
-	}
-	return program->current_pc++;
+
+	return program->current_pc;
  err:
 	program->first_error_pc = program->current_pc;
 	program->current_instraction++;
