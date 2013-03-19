@@ -113,6 +113,13 @@ static inline uint32_t job_header(struct program *program, uint32_t share,
 		goto err;
 	}
 
+	if ((flags & TD) && (flags & REO)) {
+		pr_debug("JOB_DESC: REO flag not supported for trusted "
+			 "descriptors. SEC Program Line: %d\n",
+			 program->current_pc);
+		goto err;
+	}
+
 	opcode |= HDR_ONE;
 	opcode |= ((start_idx << HDR_START_IDX_SHIFT) & HDR_START_IDX_MASK);
 
