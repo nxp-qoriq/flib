@@ -1356,7 +1356,7 @@
 #define OP_ALG_ALGSEL_ZUCA	(0xC0 << OP_ALG_ALGSEL_SHIFT)
 
 #define OP_ALG_AAI_SHIFT	4
-#define OP_ALG_AAI_MASK		(0x1ff << OP_ALG_AAI_SHIFT)
+#define OP_ALG_AAI_MASK		(0x3ff << OP_ALG_AAI_SHIFT)
 
 /* blockcipher AAI set */
 #define OP_ALG_AESA_MODE_MASK	(0xF0 << OP_ALG_AAI_SHIFT)
