@@ -48,12 +48,12 @@ static const uint32_t store_src_table[][2] = {
  */
 static const uint32_t store_src_table_sz[] = {29, 31, 33, 33, 33};
 
-static inline uint32_t store(struct program *program, uintptr_t src,
+static inline uint32_t store(struct program *program, uint64_t src,
 			     int type_src, uint16_t offset, uint64_t dst,
 			     int type_dst, uint32_t length, uint32_t flags)
 {
 	uint32_t opcode = 0, val;
-	uint8_t *tmp, i;
+	uint8_t i;
 	int8_t ret;
 
 	if (flags & SEQ)
@@ -127,19 +127,32 @@ static inline uint32_t store(struct program *program, uintptr_t src,
 	/* for STORE, a pointer to where the data will be stored is needed */
 	if (!(flags & SEQ)) {
 		if (program->ps == 1) {
-			program->buffer[program->current_pc++] = high_32b(dst);
-			program->buffer[program->current_pc++] = low_32b(dst);
-		} else {
-			program->buffer[program->current_pc++] = low_32b(dst);
+			program->buffer[program->current_pc] = high_32b(dst);
+			program->current_pc++;
 		}
+
+		program->buffer[program->current_pc] = low_32b(dst);
+		program->current_pc++;
 	}
 
 	/* for imm data, place the data here */
 	if (flags & IMMED) {
-		tmp = (uint8_t *) &program->buffer[program->current_pc];
-		for (i = 0; i < length; i++)
-			*tmp++ = ((uint8_t *) src)[i];
-		program->current_pc += ((length + 3) / 4);
+		if (type_src == IMM_DATA) {
+			if (length > BYTES_4) {
+				program->buffer[program->current_pc] =
+					high_32b(src);
+				program->current_pc++;
+			}
+
+			program->buffer[program->current_pc] = low_32b(src);
+			program->current_pc++;
+		} else {
+			uint8_t *tmp = (uint8_t *) &program->buffer[program->current_pc];
+
+			for (i = 0; i < length; i++)
+				*tmp++ = ((uint8_t *) src)[i];
+			program->current_pc += ((length + 3) / 4);
+		}
 	}
 
 	return program->current_pc;

@@ -200,7 +200,6 @@ static inline uint32_t load(struct program *program, uint64_t src,
 		uint32_t offset, uint32_t length, uint32_t flags)
 {
 	uint32_t opcode = 0, i;
-	uint8_t *tmp;
 	int8_t pos = -1;
 
 	if (flags & SEQ)
@@ -275,21 +274,21 @@ static inline uint32_t load(struct program *program, uint64_t src,
 	 *    from the location specified by user
 	 *  - src_type is PTR and is not SEQ cmd: copy the address */
 	if (src_type == IMM_DATA) {
-		if (length <= BYTES_4) {
-			program->buffer[program->current_pc++] = low_32b(src);
-		} else {
-			program->buffer[program->current_pc++] =
-					high_32b(src);
-			program->buffer[program->current_pc++] =
-					low_32b(src);
-			}
+		if (length > BYTES_4) {
+			program->buffer[program->current_pc] = high_32b(src);
+			program->current_pc++;
+		}
+
+		program->buffer[program->current_pc] = low_32b(src);
+		program->current_pc++;
 	}
 
 	if ((src_type == PTR_DATA) && (flags & IMMED)) {
-		tmp = (uint8_t *) &program->buffer[program->current_pc];
+		uint8_t *tmp =
+			(uint8_t *) &program->buffer[program->current_pc];
 
 		for (i = 0; i < length; i++)
-			*tmp++ = ((uint8_t *)&src)[i];
+			*tmp++ = ((uint8_t *) src)[i];
 		program->current_pc += ((length + 3) / 4);
 
 		return program->current_pc;
@@ -297,15 +296,12 @@ static inline uint32_t load(struct program *program, uint64_t src,
 
 	if ((src_type == PTR_DATA) && (!(flags & SEQ))) {
 		if (program->ps == 1) {
-				program->buffer[program->current_pc++] =
-					high_32b(src);
-				program->buffer[program->current_pc++] =
-					low_32b(src);
-			}
-		else {
-			program->buffer[program->current_pc++] =
-				low_32b(src);
+			program->buffer[program->current_pc] = high_32b(src);
+			program->current_pc++;
 		}
+
+		program->buffer[program->current_pc] = low_32b(src);
+		program->current_pc++;
 	}
 
 	return program->current_pc;

@@ -43,7 +43,6 @@ static inline uint32_t fifo_load(struct program *program, uint32_t src,
 {
 	uint32_t opcode = 0;
 	uint32_t is_seq_cmd = 0, ext_length = 0, val = 0;
-	uint8_t *tmp;
 	int8_t ret = 0, i;
 
 	/* write command type field */
@@ -132,19 +131,32 @@ static inline uint32_t fifo_load(struct program *program, uint32_t src,
 	program->current_pc++;
 	program->current_instraction++;
 
-	/* write pointer or immidiate data field */
-	if (opcode & FIFOLD_IMM) {
-		tmp = (uint8_t *) &program->buffer[program->current_pc];
-		for (i = 0; i < length; i++)
-			*tmp++ = ((uint8_t *) &loc)[i];
-		program->current_pc += ((length + 3) / 4);
-	} else if ((opcode & CMD_MASK) == CMD_FIFO_LOAD) {
-		if (program->ps == 1) {
-			program->buffer[program->current_pc++] = high_32b(loc);
-			program->buffer[program->current_pc++] = low_32b(loc);
+	/* write pointer or immediate data field */
+	if (flags & IMMED) {
+		if (type_loc == IMM_DATA) {
+			if (length > BYTES_4) {
+				program->buffer[program->current_pc] =
+					high_32b(loc);
+				program->current_pc++;
+			}
+
+			program->buffer[program->current_pc] = low_32b(loc);
+			program->current_pc++;
 		} else {
-			program->buffer[program->current_pc++] = low_32b(loc);
+			uint8_t *tmp = (uint8_t *) &program->buffer[program->current_pc];
+
+			for (i = 0; i < length; i++)
+				*tmp++ = ((uint8_t *) loc)[i];
+			program->current_pc += ((length + 3) / 4);
 		}
+	} else if (is_seq_cmd) {
+		if (program->ps == 1) {
+			program->buffer[program->current_pc] = high_32b(loc);
+			program->current_pc++;
+		}
+
+		program->buffer[program->current_pc] = low_32b(loc);
+		program->current_pc++;
 	}
 
 	/* write extended length field */
@@ -279,11 +291,12 @@ static inline uint32_t fifo_store(struct program *program, uint32_t src,
 	/* write pointer field */
 	if ((!is_seq_cmd) && (dst)) {
 		if (program->ps == 1) {
-			program->buffer[program->current_pc++] = high_32b(dst);
-			program->buffer[program->current_pc++] = low_32b(dst);
-		} else {
-			program->buffer[program->current_pc++] = low_32b(dst);
+			program->buffer[program->current_pc] = high_32b(dst);
+			program->current_pc++;
 		}
+
+		program->buffer[program->current_pc] = low_32b(dst);
+		program->current_pc++;
 	}
 
 	/* write extended length field */

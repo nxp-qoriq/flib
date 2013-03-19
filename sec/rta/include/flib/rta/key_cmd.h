@@ -18,7 +18,7 @@ static inline uint32_t key(struct program *program, uint32_t key_dst,
 		uint32_t flags)
 {
 	uint32_t opcode = 0, is_seq_cmd = 0;
-	uint8_t *tmp, i;
+	uint8_t i;
 
 	if (encrypt_flags & ~key_enc_flags[rta_sec_era]) {
 		pr_debug("KEY: Flag(s) not supported by SEC Era %d\n",
@@ -106,18 +106,31 @@ static inline uint32_t key(struct program *program, uint32_t key_dst,
 	program->current_pc++;
 	program->current_instraction++;
 
-	if (opcode & KEY_IMM) {
-		tmp = (uint8_t *) &program->buffer[program->current_pc];
-		for (i = 0; i < length; i++)
-			*tmp++ = ((uint8_t *) &dst)[i];
-		program->current_pc += ((length + 3) / 4);
+	if (flags & IMMED) {
+		if (dst_type == IMM_DATA) {
+			if (length > BYTES_4) {
+				program->buffer[program->current_pc] =
+					high_32b(dst);
+				program->current_pc++;
+			}
+
+			program->buffer[program->current_pc] = low_32b(dst);
+			program->current_pc++;
+		} else {
+			uint8_t *tmp = (uint8_t *) &program->buffer[program->current_pc];
+
+			for (i = 0; i < length; i++)
+				*tmp++ = ((uint8_t *) dst)[i];
+			program->current_pc += ((length + 3) / 4);
+		}
 	} else {
 		if (program->ps == 1) {
-			program->buffer[program->current_pc++] = high_32b(dst);
-			program->buffer[program->current_pc++] = low_32b(dst);
-		} else {
-			program->buffer[program->current_pc++] = low_32b(dst);
+			program->buffer[program->current_pc] = high_32b(dst);
+			program->current_pc++;
 		}
+
+		program->buffer[program->current_pc] = low_32b(dst);
+		program->current_pc++;
 	}
 
 	return program->current_pc;
