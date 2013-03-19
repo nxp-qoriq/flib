@@ -732,6 +732,24 @@ static inline uint rta_get_sec_era()
 #define PATCH_LOAD(program, line, new_ref) patch_load(program, line, new_ref)
 
 /**
+ * @def                PATCH_STORE
+ * @details            Auxiliary command to resolve self referential code.
+ *
+ * @param[in] program  Buffer to be updated (<c>struct program *</c>).
+ * @param[in] line     Position in descriptor buffer where the update will be
+ *                     done; this value is previously retained in program flow
+ *                     using a reference near the sequence to be modified
+ *                     (@c uint32_t).
+ * @param[in] new_ref  Updated value that will be inserted in descriptor
+ *                     buffer at the specified line; this value is previously
+ *                     obtained using @b SET_LABEL macro near the line that
+ *                     will be used as reference (@c uint32_t).
+ *                     For @b STORE command, the value represents the offset
+ *                     field.
+ */
+#define PATCH_STORE(program, line, new_ref) patch_store(program, line, new_ref)
+
+/**
  * @def                PATCH_HDR
  * @details            Auxiliary command to resolve self referential code.
  *

@@ -624,6 +624,26 @@ static inline void patch_load(struct program *program, uint32_t line, uint32_t n
 	else
 		opcode |= (((int8_t) new_ref) * 4) << LDST_OFFSET_SHIFT;
 
+	program->buffer[line] = opcode;
+}
+
+static inline void patch_store(struct program *program, uint32_t line, uint32_t new_ref)
+{
+	uint32_t opcode = program->buffer[line];
+
+	opcode &= ~LDST_OFFSET_MASK;
+
+	switch (opcode & LDST_SRCDST_MASK) {
+	case LDST_SRCDST_WORD_DESCBUF:
+	case LDST_SRCDST_WORD_JOBDESCBUF:
+	case LDST_SRCDST_WORD_SHRDESCBUF:
+	case LDST_SRCDST_WORD_JOBDESCBUF_EFF:
+	case LDST_SRCDST_WORD_SHRDESCBUF_EFF:
+		opcode |= ((int8_t) new_ref) << LDST_OFFSET_SHIFT;
+		break;
+	default:
+		opcode |= (((int8_t) new_ref) * 4) << LDST_OFFSET_SHIFT;
+	}
 
 	program->buffer[line] = opcode;
 }
