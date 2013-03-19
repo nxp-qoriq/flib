@@ -194,6 +194,10 @@ static inline uint rta_get_sec_era()
  *
  * @param[in] share    Descriptor share state:@n @li <em>SHR_ALWAYS,
  *                     SHR_SERIAL, SHR_NEVER, SHR_WAIT, SHR_DEFER</em>.
+ * @param[in] start_idx Index in descriptor buffer where the execution of the
+ *                     Job Descriptor should start (@c uint32_t).
+ *                     In case SHR bit is present in flags, this will be the
+ *                     shared descriptor length.
  * @param[in] share_desc Pointer to shared descriptor, in case @em SHR bit is
  *                     set (@c uint64_t).
  * @param[in] flags    Operational flags:@n @li <em>RSMS, DNR, TD, MTD, REO,
@@ -203,8 +207,8 @@ static inline uint rta_get_sec_era()
  *                     error; in debug mode, a log message will be shown at
  *                     output.
  */
-#define JOB_HDR(share, share_desc, flags) \
-	job_header(program, share, share_desc, flags)
+#define JOB_HDR(share, start_idx, share_desc, flags) \
+	job_header(program, share, start_idx, share_desc, flags)
 
 /**
  * @def                MOVE

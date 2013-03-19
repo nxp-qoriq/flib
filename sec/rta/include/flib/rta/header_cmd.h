@@ -80,7 +80,8 @@ static inline uint32_t shr_header(struct program *program, uint32_t share,
 }
 
 static inline uint32_t job_header(struct program *program, uint32_t share,
-			   uint64_t shr_desc, uint32_t flags)
+				  uint32_t start_idx, uint64_t shr_desc,
+				  uint32_t flags)
 {
 	uint32_t opcode = CMD_DESC_HDR;
 
@@ -113,6 +114,7 @@ static inline uint32_t job_header(struct program *program, uint32_t share,
 	}
 
 	opcode |= HDR_ONE;
+	opcode |= ((start_idx << HDR_START_IDX_SHIFT) & HDR_START_IDX_MASK);
 
 	if (flags & RSMS)
 		opcode |= HDR_RSLS;
@@ -128,28 +130,22 @@ static inline uint32_t job_header(struct program *program, uint32_t share,
 		opcode |= HDR_SHARED;
 
 	program->buffer[program->current_pc] = opcode;
+	program->current_pc++;
 	program->current_instraction++;
 
 	if (program->current_instraction == 1) {
 		program->jobhdr = program->buffer;
 
 		if (opcode & HDR_SHARED) {
-			*program->jobhdr |= ((shr_desc & HDR_DESCLEN_SHR_MASK)
-						<< 16);
-			program->current_pc++;
-
 			if (program->ps == 1) {
-				program->buffer[program->current_pc++] =
-						high_32b(shr_desc);
 				program->buffer[program->current_pc] =
-						low_32b(shr_desc);
-			} else {
-				program->buffer[program->current_pc] =
-						low_32b(shr_desc);
+					high_32b(shr_desc);
+				program->current_pc++;
 			}
-		} else {
+
+			program->buffer[program->current_pc] =
+				low_32b(shr_desc);
 			program->current_pc++;
-			*program->jobhdr |= (program->current_pc << 16);
 		}
 	}
 
