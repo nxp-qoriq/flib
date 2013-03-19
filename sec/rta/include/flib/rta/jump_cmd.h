@@ -100,25 +100,26 @@ static inline uint32_t jump(struct program *program, int64_t address,
 		opcode |= address & JUMP_OFFSET_MASK;
 
 	program->buffer[program->current_pc] = opcode;
+	program->current_pc++;
 	program->current_instraction++;
 
 	if (jump_type == FAR_JUMP) {
 		if (program->ps == 1) {
-			program->buffer[++program->current_pc] =
-					high_32b(address);
-			program->buffer[++program->current_pc] =
-					low_32b(address);
-
-		} else {
-			program->buffer[++program->current_pc] =
-					low_32b(address);
+			program->buffer[program->current_pc] =
+				high_32b(address);
+			program->current_pc++;
 		}
+
+		program->buffer[program->current_pc] =
+			low_32b(address);
+		program->current_pc++;
 	}
-	return program->current_pc++;
+
+	return program->current_pc;
  err:
 	program->first_error_pc = program->current_pc;
 	program->current_instraction++;
-	return program->current_pc++;
+	return program->current_pc;
 }
 
 #endif /* __RTA_JUMP_CMD_H__ */

@@ -261,7 +261,8 @@ static inline uint32_t load(struct program *program, uint64_t src,
 		opcode |= (offset << LDST_OFFSET_SHIFT);
 	}
 
-	program->buffer[program->current_pc++] = opcode;
+	program->buffer[program->current_pc] = opcode;
+	program->current_pc++;
 	program->current_instraction++;
 
 	/* DECO COTROL: skip writing pointer of imm data */
@@ -308,7 +309,7 @@ static inline uint32_t load(struct program *program, uint64_t src,
  err:
 	program->first_error_pc = program->current_pc;
 	program->current_instraction++;
-	return program->current_pc++;
+	return program->current_pc;
 }
 
 #endif /* __RTA_LOAD_CMD_H__*/

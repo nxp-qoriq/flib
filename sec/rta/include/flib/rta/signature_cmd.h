@@ -18,13 +18,13 @@ static inline uint32_t signature(struct program *program, uint32_t sign_type)
 		pr_debug("SIGNATURE Command: Invalid type selection\n");
 		goto err;
 	}
-	program->buffer[program->current_pc++] = opcode;
+	program->buffer[program->current_pc] = opcode;
+	program->current_pc++;
 	program->current_instraction++;
 
 	return program->current_pc;
  err:
 	program->first_error_pc = program->current_pc;
-	program->current_pc++;
 	program->current_instraction++;
 	return program->current_pc;
 }

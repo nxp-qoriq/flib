@@ -63,7 +63,6 @@ static inline uint32_t seq_in_ptr(struct program *program, uintptr_t src,
 
  err:
 	program->first_error_pc = program->current_pc;
-	program->current_pc++;
 	program->current_instraction++;
 	return program->current_pc;
 }
@@ -117,7 +116,6 @@ static inline uint32_t seq_out_ptr(struct program *program, uintptr_t dst,
 
  err:
 	program->first_error_pc = program->current_pc;
-	program->current_pc++;
 	program->current_instraction++;
 	return program->current_pc;
 }

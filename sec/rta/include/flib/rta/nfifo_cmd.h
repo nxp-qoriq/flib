@@ -129,12 +129,16 @@ static inline uint32_t nfifo_load(struct program *program, uint32_t src,
 			  nfifo_pad_flags_sz[rta_sec_era], &opcode);
 
 	/* write LOAD command first */
-	program->buffer[program->current_pc++] = load_cmd;
-	program->buffer[program->current_pc++] = opcode;
+	program->buffer[program->current_pc] = load_cmd;
+	program->current_pc++;
+	program->buffer[program->current_pc] = opcode;
+	program->current_pc++;
 
-	if (flags & EXT)
-		program->buffer[program->current_pc++] =
+	if (flags & EXT) {
+		program->buffer[program->current_pc] =
 		    length & NFIFOENTRY_DLEN_MASK;
+		program->current_pc++;
+	}
 	program->current_instraction++;
 
 	return program->current_pc;
@@ -142,7 +146,6 @@ static inline uint32_t nfifo_load(struct program *program, uint32_t src,
  err:
 	program->first_error_pc = program->current_pc;
 	program->current_instraction++;
-	program->current_pc++;
 	return program->current_pc;
 }
 

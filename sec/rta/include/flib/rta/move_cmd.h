@@ -169,13 +169,14 @@ static inline uint32_t move(struct program *program, uint64_t src, int type_src,
 		}
 	}
 	program->buffer[program->current_pc] = opcode;
+	program->current_pc++;
 	program->current_instraction++;
 
-	return program->current_pc++;
+	return program->current_pc;
  err:
 	program->first_error_pc = program->current_pc;
 	program->current_instraction++;
-	return program->current_pc++;
+	return program->current_pc;
 }
 
 static inline int set_move_offset(struct program *program, uint64_t src,

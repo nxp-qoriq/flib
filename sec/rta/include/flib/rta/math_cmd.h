@@ -229,17 +229,19 @@ static inline uint32_t math(struct program *program, uint64_t operand1,
 		}
 
 	} else if (type_op1 == IMM_DATA && type_op2 == IMM_DATA) {
-		*(uint32_t *) &program->buffer[program->current_pc++] =
+		*(uint32_t *) &program->buffer[program->current_pc] =
 		    (uint32_t) operand1;
-		*(uint32_t *) &program->buffer[program->current_pc++] =
+		program->current_pc++;
+
+		*(uint32_t *) &program->buffer[program->current_pc] =
 		    (uint32_t) operand2;
+		program->current_pc++;
 	}
 
 	return program->current_pc;
  err:
 	program->first_error_pc = program->current_pc;
 	program->current_instraction++;
-	program->current_pc++;	/* skipping one word regardless immediates */
 	return program->current_pc;
 }
 

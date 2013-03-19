@@ -538,14 +538,20 @@ static inline uint32_t program_set_36bit_addr(struct program *program)
 
 static inline uint32_t word(struct program *program, uint32_t val)
 {
-	*(uint32_t *) &program->buffer[program->current_pc] = val;
-	return program->current_pc++;
+	program->buffer[program->current_pc] = val;
+	program->current_pc++;
+
+	return program->current_pc;
 }
 
 static inline uint32_t dword(struct program *program, uint64_t val)
 {
-	*(uint32_t *) &program->buffer[program->current_pc++] = high_32b(val);
-	*(uint32_t *) &program->buffer[program->current_pc++] = low_32b(val);
+	program->buffer[program->current_pc] = high_32b(val);
+	program->current_pc++;
+
+	program->buffer[program->current_pc] = low_32b(val);
+	program->current_pc++;
+
 	return program->current_pc;
 }
 

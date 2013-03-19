@@ -537,11 +537,12 @@ static inline uint32_t proto_operation(struct program *program, uint32_t optype,
 	program->buffer[program->current_pc] = opcode | optype | protid
 						      | protoinfo;
 	program->current_instraction++;
-	return program->current_pc++;
+	program->current_pc++;
+	return program->current_pc;
  err:
 	program->first_error_pc = program->current_pc;
 	program->current_instraction++;
-	return program->current_pc++;
+	return program->current_pc;
 }
 
 #endif /* __RTA_PROTOCOL_CMD_H__ */

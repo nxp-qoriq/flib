@@ -137,7 +137,6 @@ static inline uint32_t key(struct program *program, uint32_t key_dst,
  err:
 	program->first_error_pc = program->current_pc;
 	program->current_instraction++;
-	program->current_pc++;
 	return program->current_pc;
 }
 

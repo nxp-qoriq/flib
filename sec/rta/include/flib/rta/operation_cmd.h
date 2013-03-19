@@ -274,13 +274,13 @@ static inline uint32_t operation(struct program *program, uint32_t cipher_algo,
 		goto err;
 	}
 
-	program->buffer[program->current_pc++] = opcode;
+	program->buffer[program->current_pc] = opcode;
+	program->current_pc++;
 	program->current_instraction++;
 	return program->current_pc;
  err:
 	program->first_error_pc = program->current_pc;
-	/* skipping one word regardless immediates */
-	return program->current_pc++;
+	return program->current_pc;
 }
 
 /*
@@ -505,14 +505,14 @@ static inline uint32_t pkha_operation(struct program *program, uint32_t op_pkha)
 
 	opcode |= op_pkha;
 
-	program->buffer[program->current_pc++] = opcode;
+	program->buffer[program->current_pc] = opcode;
+	program->current_pc++;
 	program->current_instraction++;
 	return program->current_pc;
 
  err:
 	program->first_error_pc = program->current_pc;
 	program->current_instraction++;
-	program->current_pc++;
 	return program->current_pc;
 }
 

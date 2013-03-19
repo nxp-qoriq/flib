@@ -158,7 +158,6 @@ static inline uint32_t store(struct program *program, uint64_t src,
 	return program->current_pc;
  err:
 	program->first_error_pc = program->current_pc;
-	program->current_pc++;
 	program->current_instraction++;
 	return program->current_pc;
 }
