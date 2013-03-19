@@ -616,8 +616,15 @@ static inline void patch_header(struct program *program, uint32_t line,
 static inline void patch_load(struct program *program, uint32_t line, uint32_t new_ref)
 {
 	uint32_t opcode = program->buffer[line];
+
 	opcode &= ~LDST_OFFSET_MASK;
-	opcode |= (((int8_t) new_ref) * 4) << LDST_OFFSET_SHIFT;
+
+	if (opcode & (LDST_SRCDST_WORD_DESCBUF | LDST_CLASS_DECO))
+		opcode |= ((int8_t) new_ref) << LDST_OFFSET_SHIFT;
+	else
+		opcode |= (((int8_t) new_ref) * 4) << LDST_OFFSET_SHIFT;
+
+
 	program->buffer[line] = opcode;
 }
 
