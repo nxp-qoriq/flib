@@ -20,7 +20,7 @@ int test_blob_example(uint32_t *buff)
 	uint32_t blob_length = data_length + 32 + 16;
 
 	PROGRAM_CNTXT_INIT(buff, 0);
-	JOB_HDR(SHR_NEVER, 0, 0);
+	JOB_HDR(SHR_NEVER, 0, 0, 0);
 	{
 		KEY(KEY2, 0, PTR((intptr_t) key_mod_addr), 16, 0);
 		SEQINPTR((intptr_t) data_in_addr, data_length, 0);

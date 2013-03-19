@@ -12,11 +12,12 @@ int build_rsa_verify_desc(uint32_t *buff, uint32_t n_len, uint32_t e_len,
 	struct program prg;
 	struct program *program = &prg;
 	int size;
+	LABEL(pdb_end);
 
 	PROGRAM_SET_36BIT_ADDR();
 
 	PROGRAM_CNTXT_INIT(buff, 0);
-	JOB_HDR(SHR_NEVER, 0, 0);
+	JOB_HDR(SHR_NEVER, 0, 0, 0);
 	{
 		{	/* RSA Verify */
 			WORD(((e_len << 12) + n_len));	/* e length, n length */
@@ -25,10 +26,12 @@ int build_rsa_verify_desc(uint32_t *buff, uint32_t n_len, uint32_t e_len,
 			DWORD(n);	/* modulus */
 			DWORD(e);	/* public expnenent */
 			WORD(n_len);	/* g length */
+			SET_LABEL(pdb_end);
 
 		}
 		PROTOCOL(OP_TYPE_UNI_PROTOCOL, OP_PCLID_RSAENCRYPT, 0);
 	}
+	PATCH_HDR(program, 0, pdb_end);
 	size = PROGRAM_FINALIZE();
 	return size;
 }
@@ -56,7 +59,7 @@ int main(int argc, char **argv)
 	int size;
 
 	printf("RSA Verify example program\n");
-	rta_set_sec_era(RTA_SEC_ERA_1);
+	rta_set_sec_era(RTA_SEC_ERA_2);
 	size = test_rsa_verify((uint32_t *) prg_buff);
 	printf("size = %d\n", size);
 	print_prog((uint32_t *) prg_buff, size);

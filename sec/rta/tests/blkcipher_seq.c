@@ -21,7 +21,7 @@ int test_blkcipher_seq(uint32_t *buff)
 	int keylen = 32;
 
 	PROGRAM_CNTXT_INIT(buff, 0);
-	JOB_HDR(SHR_NEVER, 0, 0);
+	JOB_HDR(SHR_NEVER, 0, 0, 0);
 	SEQINPTR((intptr_t) data_in, datasz, 0);
 	SEQOUTPTR((intptr_t) data_out, datasz, 0);
 	LOAD(PTR((intptr_t) iv), CONTEXT1, 0, ivlen, 0);
@@ -44,7 +44,7 @@ int main(int argc, char **argv)
 	int size;
 
 	printf("BLKCIPHER SEQ program\n");
-	rta_set_sec_era(RTA_SEC_ERA_1);
+	rta_set_sec_era(RTA_SEC_ERA_3);
 	size = test_blkcipher_seq((uint32_t *) prg_buff);
 	printf("size = %d\n", size);
 	print_prog((uint32_t *) prg_buff, size);

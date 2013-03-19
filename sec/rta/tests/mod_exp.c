@@ -32,7 +32,7 @@ int mod_exp(uint32_t *buff)
 	uint64_t res = (uint64_t) 0x332244514ull;
 
 	PROGRAM_CNTXT_INIT(buff, 0);
-	JOB_HDR(SHR_NEVER, 0, 0);
+	JOB_HDR(SHR_NEVER, 0, 0, 0);
 	{
 		FIFOLOAD(PKN, PTR(mod), field_size, 0);
 		KEY(PKE, 0, PTR(exp), 20, 0);

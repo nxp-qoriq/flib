@@ -32,13 +32,13 @@ int var_test(uint32_t *buff)
 
 	PROGRAM_CNTXT_INIT(buff, 0);
 	/* RSA Encrypt */
-	JOB_HDR(SHR_NEVER, 0, 0);
+	JOB_HDR(SHR_NEVER, 0, 0, 0);
 	{
 		FIFOLOAD(PKN, PTR((intptr_t) &modulus), (sizeof(modulus)),
 			 WITH(IMMED));
 		FIFOLOAD(PKA, PTR((intptr_t) &secret), secret_len,
 			 WITH(IMMED));
-		KEY(PKE, 0, IMM(0x03000003), 4, 0);
+		KEY(PKE, 0, IMM(0x03), 1, 0);
 		PKHA_OPERATION(OP_ALG_PKMODE_MOD_EXPO);
 		FIFOSTORE(PKB, 0, secret_out, (sizeof(modulus)), 0);
 	}

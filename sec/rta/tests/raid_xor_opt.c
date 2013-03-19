@@ -47,12 +47,11 @@ int build_shdesc_raid_xor_opt(struct program *prg, uint32_t *buff, int buffpos)
 	{
 		SEQLOAD(CONTEXT1, 0, c1_ctxt_slots * 16, 0);
 		SEQLOAD(CONTEXT2, 0, c2_ctxt_slots * 16, 0);
-		LOAD(IMM(0), DCTRL, LDOFF_DISABLE_AUTO_NFIFO, 0, 0);
-		pmove1 =
-		    MOVE(CONTEXT1, 0, DESCBUF, new_source, IMM(16),
-			 WITH(WAITCOMP));
+		pmove1 = LOAD(IMM(0), DCTRL, LDOFF_DISABLE_AUTO_NFIFO, 0, 0);
+		phdr1 = MOVE(CONTEXT1, 0, DESCBUF, new_source, IMM(16),
+			     WITH(WAITCOMP));
 
-		phdr1 = SHR_HDR(SHR_NEVER, label_2, 0);
+		SHR_HDR(SHR_NEVER, label_2, 0);
 
 		SET_LABEL(label_2);
 		SET_LABEL(new_source);
@@ -75,43 +74,41 @@ int build_shdesc_raid_xor_opt(struct program *prg, uint32_t *buff, int buffpos)
 		MATHB(MATH2, XOR, OFIFO, MATH2, SIZE(8), 0);
 		MATHB(MATH3, XOR, OFIFO, MATH3, SIZE(8), 0);
 		MOVE(MATH0, 0, OFIFO, 0, IMM(32), 0);
-		MATHB(VSEQOUTSZ, SUB, IMM(32), VSEQOUTSZ, SIZE(4), 0);
-		pjump5 = JUMP(IMM(store_here), LOCAL_JUMP, ALL_TRUE,
-				WITH(MATH_Z));
-		MATHB(VSEQOUTSZ, SUB, IMM(fetch_limit), NONE, SIZE(4), 0);
-		pjump1 = JUMP(IMM(label_2), LOCAL_JUMP, ALL_TRUE,
-				WITH(MATH_Z));
-		pjump2 = JUMP(IMM(return_point), LOCAL_JUMP, ALL_TRUE, 0);
+		pjump5 = MATHB(VSEQOUTSZ, SUB, IMM(32), VSEQOUTSZ, SIZE(4), 0);
+		JUMP(IMM(store_here), LOCAL_JUMP, ALL_TRUE, WITH(MATH_Z));
+		pjump1 = MATHB(VSEQOUTSZ, SUB, IMM(fetch_limit), NONE, SIZE(4),
+			       0);
+		pjump2 = JUMP(IMM(label_2), LOCAL_JUMP, ALL_TRUE, WITH(MATH_Z));
+		JUMP(IMM(return_point), LOCAL_JUMP, ALL_TRUE, 0);
 
 		SET_LABEL(store_here);
 		SEQFIFOSTORE(MSG, 0, chunk_size, 0);
 		MATHB(SEQOUTSZ, SUB, ONE, NONE, SIZE(4), 0);
 		JUMP(IMM(0), HALT_STATUS, ALL_TRUE, WITH(MATH_N));
-		MOVE(IFIFOABD, 0, OFIFO, 0, IMM(chunk_size), 0);
-		phdr2 = SHR_HDR(SHR_NEVER, label_2, 0);
+		phdr2 = MOVE(IFIFOABD, 0, OFIFO, 0, IMM(chunk_size), 0);
+		SHR_HDR(SHR_NEVER, label_2, 0);
 
 		SET_LABEL(first);
 		SEQFIFOLOAD(SKIP, 0, WITH(VLF));
-		MATHB(SEQINSZ, SUB, ONE, NONE, SIZE(4), 0);
-		pjump3 = JUMP(IMM(return_point), LOCAL_JUMP, ALL_TRUE,
-				WITH(MATH_N));
+		pjump3 = MATHB(SEQINSZ, SUB, ONE, NONE, SIZE(4), 0);
+		JUMP(IMM(return_point), LOCAL_JUMP, ALL_TRUE, WITH(MATH_N));
 		SEQFIFOLOAD(PKA0, chunk_size, 0);
-		NFIFOADD(IFIFO, MSG, chunk_size, WITH(LAST1));
+		pmove2 = NFIFOADD(IFIFO, MSG, chunk_size, WITH(LAST1));
 
-		pmove2 = MOVE(CONTEXT1, 16, DESCBUF, new_source, IMM(16), 0);
-		MATHB(VSEQINSZ, SUB, ONE, NONE, SIZE(4), 0);
-		pjump4 =
-		    JUMP(IMM(return_point), LOCAL_JUMP, ALL_FALSE,
-				    WITH(MATH_N));
+		MOVE(CONTEXT1, 16, DESCBUF, new_source, IMM(16), 0);
+		pjump4 = MATHB(VSEQINSZ, SUB, ONE, NONE, SIZE(4), 0);
+		JUMP(IMM(return_point), LOCAL_JUMP, ANY_FALSE, WITH(MATH_N));
 		MOVE(IFIFOABD, 0, OFIFO, 0, IMM(128), 0);
-		MATHB(SEQINSZ, ADD, IMM(chunk_size), SEQOUTSZ, SIZE(4), 0);
-		phdr3 = SHR_HDR(SHR_NEVER, label_2, 0);
+		phdr3 = MATHB(SEQINSZ, ADD, IMM(chunk_size), SEQOUTSZ, SIZE(4),
+			      0);
+		SHR_HDR(SHR_NEVER, label_2, 0);
 
 		SET_LABEL(last);
 		SEQFIFOLOAD(SKIP, 0, WITH(VLF));
-		MATHB(VSEQINSZ, ADD, IMM(chunk_size), VSEQINSZ, SIZE(4), 0);
-		pmove3 = MOVE(CONTEXT1, 0, DESCBUF, new_source, IMM(16), 0);
-		phdr4 = SHR_HDR(SHR_NEVER, c, 0);
+		pmove3 = MATHB(VSEQINSZ, ADD, IMM(chunk_size), VSEQINSZ,
+			       SIZE(4), 0);
+		phdr4 = MOVE(CONTEXT1, 0, DESCBUF, new_source, IMM(16), 0);
+		SHR_HDR(SHR_NEVER, c, 0);
 	}
 
 	PATCH_MOVE(program, pmove1, new_source);
@@ -139,7 +136,7 @@ int build_jbdesc_raid_xor_opt(struct program *prg, uint32_t *buff, int buffpos)
 	uint64_t store_ptr = 0x00000040ULL;
 
 	PROGRAM_CNTXT_INIT(buff, buffpos);
-	JOB_HDR(SHR_ALWAYS, share_desc_addr, WITH(REO | SHR));
+	JOB_HDR(SHR_ALWAYS, buffpos, share_desc_addr, WITH(REO | SHR));
 	{
 		SEQOUTPTR(store_ptr, data_size, WITH(EXT));
 		SEQINPTR(context_ptr, 8 * 16, 0);
@@ -168,32 +165,40 @@ int build_more_cmds_raid_xor_opt(struct program *prg, uint32_t *buff,
 
 	PROGRAM_CNTXT_INIT(buff, buffpos);
 	{
-		SEQINPTR(load_data_addr[0], data_size, WITH(EXT));
-		ref1_shr_first = SHR_HDR(SHR_NEVER, first, 0);
+		ref1_shr_first = SEQINPTR(load_data_addr[0], data_size,
+					  WITH(EXT));
+		SHR_HDR(SHR_NEVER, first, 0);
 		JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, 0);
 
-		for (i = 1; i < (num_sources - 1); i++) {
+		for (i = 1; i < (num_sources - 1); i++)
 			if (i < (c1_ctxt_slots - 1)) {
-				SEQINPTR(load_data_addr[i], data_size,
-					 WITH(EXT));
 				ref1_move_new_source =
-				    MOVE(CONTEXT1, (16 * (i + 1)), DESCBUF,
-					 new_source, IMM(16), 0);
+					SEQINPTR(load_data_addr[i], data_size,
+						 WITH(EXT));
+				MOVE(CONTEXT1, (16 * (i + 1)), DESCBUF,
+				     new_source, IMM(16), 0);
 				JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, 0);
+				PATCH_MOVE(program, ref1_move_new_source,
+					   new_source);
 			} else {
-				SEQINPTR(load_data_addr[i], data_size,
-					 WITH(EXT));
 				ref2_move_new_source =
-				    MOVE(CONTEXT2, (16 * (i + 1)), DESCBUF,
-					 new_source, IMM(16), 0);
+					SEQINPTR(load_data_addr[i], data_size,
+						 WITH(EXT));
+				MOVE(CONTEXT2, (16 * (i + 1)), DESCBUF,
+				     new_source, IMM(16), 0);
 				JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, 0);
+				PATCH_MOVE(program, ref2_move_new_source,
+					   new_source);
 			}
-		}
 
-		SEQINPTR(load_data_addr[i], data_size, WITH(EXT));
-		ref1_shr_last = SHR_HDR(SHR_NEVER, last, 0);
+		ref1_shr_last = SEQINPTR(load_data_addr[i], data_size,
+					 WITH(EXT));
+		SHR_HDR(SHR_NEVER, last, 0);
 		JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, 0);
 	}
+
+	PATCH_HDR(program, ref1_shr_first, first);
+	PATCH_HDR(program, ref1_shr_last, last);
 
 	size = PROGRAM_FINALIZE();
 	return size;
@@ -217,15 +222,10 @@ int main(int argc, char **argv)
 	shr_size = build_shdesc_raid_xor_opt(&shr_desc_prgm, sharedesc, 0);
 
 	memset(jobdesc, 0xFF, sizeof(jobdesc));
-	job_size = build_jbdesc_raid_xor_opt(&job_desc_prgm, jobdesc, 0);
+	job_size = build_jbdesc_raid_xor_opt(&job_desc_prgm, jobdesc, shr_size);
 
 	memset(context_buf, 0xFF, sizeof(context_buf));
 	ctx_size = build_more_cmds_raid_xor_opt(&ctx_buf_prgm, context_buf, 7);
-
-	PATCH_MOVE(&ctx_buf_prgm, ref1_move_new_source, new_source);
-	PATCH_MOVE(&ctx_buf_prgm, ref2_move_new_source, new_source);
-	PATCH_HDR(&ctx_buf_prgm, ref1_shr_first, first);
-	PATCH_HDR(&ctx_buf_prgm, ref1_shr_last, last);
 
 	printf("raid xor program shared desc\n");
 	printf("size = %d\n", shr_size);

@@ -18,7 +18,7 @@ int build_hmacprecomp(uint32_t *buff)
 	uint32_t *hmacprecompute_opad_phys = (uint32_t *) 0xaabb2200;
 
 	PROGRAM_CNTXT_INIT(buff, 0);
-	JOB_HDR(SHR_NEVER, 0, 0);
+	JOB_HDR(SHR_NEVER, 0, 0, 0);
 	{
 		LOAD(PTR((uintptr_t) hmac_key), CONTEXT1, 0, hmac_key_len, 0);
 		MATHB(ZERO, XOR, IMM(0x3636363636363636), MATH0, 8, 0);
@@ -81,7 +81,7 @@ int build_hmacprecomp_opad(uint32_t *buff)
 	int size;
 
 	PROGRAM_CNTXT_INIT(buff, 0);
-	JOB_HDR(SHR_NEVER, 0, 0);
+	JOB_HDR(SHR_NEVER, 0, 0, 0);
 	{
 		LOAD(IMM(CLRW_CLR_C2CTX | CLRW_CLR_C2MODE | CLRW_CLR_C2DATAS),
 		     CLRW, 0, 4, 0);
@@ -147,7 +147,7 @@ int build_hmac_from_pre(uint32_t *buff)
 	unsigned int maclen = 28;
 
 	PROGRAM_CNTXT_INIT(buff, 0);
-	JOB_HDR(SHR_NEVER, 0, 0);
+	JOB_HDR(SHR_NEVER, 0, 0, 0);
 	{
 		/* Set up current state of inner hash */
 		LOAD(PTR((uintptr_t) ipad), CONTEXT2, 0, 64, 0);

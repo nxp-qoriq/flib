@@ -31,35 +31,38 @@ int test_fifo_store_op(uint32_t *buff)
 	FIFOSTORE(KEY1, WITH(NRM), loc, 32, 0);
 	FIFOSTORE(KEY2, 0, loc, 16, 0);
 	FIFOSTORE(PKE, WITH(JDK | NRM), loc, 10, 0);
-	FIFOSTORE(IFIFO, 0, loc, 10, 0);
-	FIFOSTORE(OFIFO, WITH(JDK), loc, 10, 0);
 	FIFOSTORE(AFHA_SBOX, 0, loc, 258, 0);
 	FIFOSTORE(MDHA_SPLIT_KEY, 0, loc, 128, 0);
 	/* Encrypted (keys) section - enhanced */
 	FIFOSTORE(KEY1, WITH(EKT), loc, 32, 0);
 	FIFOSTORE(KEY2, WITH(EKT), loc, 16, 0);
 	FIFOSTORE(PKE, WITH(EKT), loc, 10, 0);
-	FIFOSTORE(IFIFO, WITH(EKT), loc, 10, 0);
-	FIFOSTORE(OFIFO, WITH(EKT), loc, 10, 0);
 	FIFOSTORE(AFHA_SBOX, WITH(EKT), loc, 258, 0);
 	FIFOSTORE(MDHA_SPLIT_KEY, WITH(EKT), loc, 128, 0);
 	/* Encrypted (keys) section - trusted */
 	FIFOSTORE(KEY1, WITH(TK), loc, 32, 0);
 	FIFOSTORE(KEY2, WITH(TK), loc, 16, 0);
 	FIFOSTORE(PKE, WITH(TK), loc, 10, 0);
-	FIFOSTORE(IFIFO, WITH(TK), loc, 10, 0);
-	FIFOSTORE(OFIFO, WITH(TK), loc, 10, 0);
 	FIFOSTORE(AFHA_SBOX, WITH(TK), loc, 258, 0);
 	FIFOSTORE(MDHA_SPLIT_KEY, WITH(TK), loc, 128, 0);
 	/* Encrypted (keys) section - enhanced, trusted */
 	FIFOSTORE(KEY1, WITH(EKT | TK), loc, 32, 0);
 	FIFOSTORE(KEY2, WITH(EKT | TK), loc, 16, 0);
 	FIFOSTORE(PKE, WITH(EKT | TK), loc, 10, 0);
-	FIFOSTORE(IFIFO, WITH(EKT | TK), loc, 10, 0);
-	FIFOSTORE(OFIFO, WITH(EKT | TK), loc, 10, 0);
 	FIFOSTORE(AFHA_SBOX, WITH(EKT | TK), loc, 258, 0);
 	FIFOSTORE(MDHA_SPLIT_KEY, WITH(EKT | TK), loc, 128, 0);
-	size = SEQFIFOSTORE(MSG, 0, 0, WITH(VLF));
+	SEQFIFOSTORE(MSG, 0, 12, WITH(CONT));
+	SEQFIFOSTORE(MSG, 0, 0, WITH(VLF));
+	SEQFIFOSTORE(SKIP, 0, 33, 0);
+	SEQFIFOSTORE(SKIP, 0, 0, WITH(VLF));
+	SEQFIFOSTORE(METADATA, 0, 24, 0);
+	SEQFIFOSTORE(METADATA, 0, 0, WITH(VLF));
+	SEQFIFOSTORE(METADATA, 0, 13, WITH(CLASS1));
+	SEQFIFOSTORE(METADATA, 0, 0, WITH(CLASS1 | VLF));
+	SEQFIFOSTORE(METADATA, 0, 24, WITH(CLASS2));
+	SEQFIFOSTORE(METADATA, 0, 0, WITH(CLASS2 | VLF));
+	SEQFIFOSTORE(METADATA, 0, 92, WITH(BOTH));
+	size = SEQFIFOSTORE(METADATA, 0, 0, WITH(BOTH | VLF));
 
 	return size;
 }
@@ -69,7 +72,7 @@ int main(int argc, char **argv)
 	int size;
 
 	printf("FIFOSTORE program\n");
-	rta_set_sec_era(RTA_SEC_ERA_1);
+	rta_set_sec_era(RTA_SEC_ERA_5);
 	size = test_fifo_store_op((uint32_t *) prg_buff);
 	printf("size = %d\n", size);
 	print_prog((uint32_t *) prg_buff, size);

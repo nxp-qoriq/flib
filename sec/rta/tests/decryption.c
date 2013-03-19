@@ -20,7 +20,7 @@ int test_decryption(uint32_t *buff)
 	PROGRAM_CNTXT_INIT(buff, 0);
 	PROGRAM_SET_36BIT_ADDR();
 
-	JOB_HDR(SHR_NEVER, 0, 0);
+	JOB_HDR(SHR_NEVER, 0, 0, 0);
 	{
 		LOAD(PTR(iv), CONTEXT1, 0, ivlen, 0);
 		KEY(KEY1, 0, PTR(key_data), keylen, 0);

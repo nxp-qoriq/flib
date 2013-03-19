@@ -26,14 +26,14 @@ int dual_2(uint32_t *buff)
 	PROGRAM_CNTXT_INIT(buff, 0);
 	PROGRAM_SET_36BIT_ADDR();
 
-	JOB_HDR(SHR_NEVER, 0, 0);
+	JOB_HDR(SHR_NEVER, 0, 0, 0);
 	{
 		LOAD(PTR(ctx), CONTEXT1, 0, ctx_size, 0);
 		KEY(KEY1, 0, PTR(cipher_key), cipher_key_size, 0);
 		KEY(KEY2, 0, PTR(auth_key), auth_key_size, 0);
 		ALG_OPERATION(OP_ALG_ALGSEL_SHA256, OP_ALG_AAI_HMAC,
 			      OP_ALG_AS_INITFINAL, ICV_CHECK_ENABLE,
-			      OP_ALG_ENCRYPT);
+			      OP_ALG_DECRYPT);
 		MOVE(CONTEXT1, 0, IFIFOAB2, 0, IMM(ctx_size), WITH(WAITCOMP));
 		ALG_OPERATION(OP_ALG_ALGSEL_AES, OP_ALG_AAI_CBC,
 			      OP_ALG_AS_INITFINAL, 0, OP_ALG_DECRYPT);
@@ -54,7 +54,7 @@ int main(int argc, char **argv)
 	int size;
 
 	printf("DUAL_2 example program\n");
-	rta_set_sec_era(RTA_SEC_ERA_1);
+	rta_set_sec_era(RTA_SEC_ERA_2);
 	size = dual_2((uint32_t *) prg_buff);
 	printf("size = %d\n", size);
 	print_prog((uint32_t *) prg_buff, size);

@@ -34,7 +34,7 @@ int dlc_keygen(uint32_t *buff)
 	PROGRAM_CNTXT_INIT(buff, 0);
 	PROGRAM_SET_36BIT_ADDR();
 
-	JOB_HDR(SHR_NEVER, 0, 0);
+	JOB_HDR(SHR_NEVER, 0, 0, 0);
 	{
 		/* Step A. Load the modulus (prime) we will be using for DH. */
 		FIFOLOAD(PKN, PTR(mod), field_size, 0);	/* N <= Modulus */
@@ -55,28 +55,28 @@ int dlc_keygen(uint32_t *buff)
 		/* Step B.3. Reduce the private key down to within the
 		 * modulus */
 		/* B <= private key */
-		PKHA_OPERATION(OP_ALG_PKMODE_MOD_REDUCT);
+		p1_retry = PKHA_OPERATION(OP_ALG_PKMODE_MOD_REDUCT);
 		/* 'Good practice' says to make sure this value is not 0, 1,
 		 * or p-1 ... */
 		/* Retry if key is 0 */
-		p1_retry = JUMP(IMM(retry), HALT, ALL_TRUE, PK_0);
+		JUMP(IMM(retry), LOCAL_JUMP, ALL_TRUE, PK_0);
 
 		/* Step B.4. Store the private key for later use. */
 		FIFOSTORE(PKB, 0, private_key, field_size, 0);
 
-		FIFOLOAD(PKA, IMM(0x01000001), 4, 0);
-		PKHA_OPERATION(OP_ALG_PKMODE_MOD_ADD);
+		FIFOLOAD(PKA, IMM(0x01), 1, 0);
+		p2_retry = PKHA_OPERATION(OP_ALG_PKMODE_MOD_ADD);
 		/* Retry if key is -1 */
-		p2_retry = JUMP(IMM(retry), HALT, ALL_TRUE, PK_0);
+		JUMP(IMM(retry), LOCAL_JUMP, ALL_TRUE, PK_0);
 
-		FIFOLOAD(PKA, IMM(0x02000002), 4, 0);
-		PKHA_OPERATION(OP_ALG_PKMODE_MOD_SUB_BA);
+		FIFOLOAD(PKA, IMM(0x02), 1, 0);
+		p3_retry = PKHA_OPERATION(OP_ALG_PKMODE_MOD_SUB_BA);
 		/* Retry if key is 1 */
-		p3_retry = JUMP(IMM(retry), HALT, ALL_TRUE, PK_0);
+		JUMP(IMM(retry), LOCAL_JUMP, ALL_TRUE, PK_0);
 
 		/* Step C.  Generate the public key */
 		/* A <= Generator (2) */
-		FIFOLOAD(PKA, IMM(0x02000002), 4, 0);
+		FIFOLOAD(PKA, IMM(0x02), 1, 0);
 		/* E <= Private key */
 		PKHA_OPERATION(OP_ALG_PKMODE_COPY_NSZ_B_E);
 		/* B <= Public Key */

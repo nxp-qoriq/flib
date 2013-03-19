@@ -31,7 +31,7 @@ int prepend(uint32_t *buff)
 	PROGRAM_CNTXT_INIT(buff, 0);
 	PROGRAM_SET_36BIT_ADDR();
 
-	SHR_HDR(SHR_SERIAL, 0, WITH(RIF));
+	SHR_HDR(SHR_SERIAL, 15, WITH(RIF));
 	{
 		{	/* IPSEC ESP ENCAP (CBC) PDB */
 			/* Options:NextHdr=0x09 NHOffset=0 ChainedIV
@@ -48,9 +48,8 @@ int prepend(uint32_t *buff)
 			WORD(0x79890a98);	/* Opt IP Hdr */
 		}
 
-		SEQSTORE(IMM((intptr_t) &data_in), 0, 14, 0);
-		pjump1 =
-		    JUMP(IMM(skip_key_load), LOCAL_JUMP, ALL_TRUE, WITH(SHRD));
+		pjump1 = SEQSTORE(IMM((intptr_t) &data_in), 0, 14, 0);
+		JUMP(IMM(skip_key_load), LOCAL_JUMP, ALL_TRUE, WITH(SHRD));
 		KEY(MDHA_SPLIT_KEY, 0, PTR((intptr_t) &key_1), 40,
 		    WITH(IMMED));
 		KEY(KEY1, 0, PTR((intptr_t) &key_2), 16, WITH(IMMED));
@@ -72,7 +71,7 @@ int main(int argc, char **argv)
 	int size;
 
 	printf("PREPEND_1 example program\n");
-	rta_set_sec_era(RTA_SEC_ERA_1);
+	rta_set_sec_era(RTA_SEC_ERA_4);
 	size = prepend((uint32_t *) prg_buff);
 	printf("size = %d\n", size);
 	print_prog((uint32_t *) prg_buff, size);

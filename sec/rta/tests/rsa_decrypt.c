@@ -17,11 +17,12 @@ int build_rsa_decrypt_desc(uint32_t *buff, uint32_t n_len, uint32_t p_len,
 	struct program prg;
 	struct program *program = &prg;
 	int size;
+	LABEL(pdb_end);
 
 	PROGRAM_CNTXT_INIT(buff, 0);
 	PROGRAM_SET_36BIT_ADDR();
 
-	JOB_HDR(SHR_NEVER, 0, 0);
+	JOB_HDR(SHR_NEVER, 0, 0, 0);
 	{
 		{	/* RSA Decrypt */
 			WORD(n_len);
@@ -35,12 +36,14 @@ int build_rsa_decrypt_desc(uint32_t *buff, uint32_t n_len, uint32_t p_len,
 			DWORD(t1);
 			DWORD(t2);
 			WORD(((q_len << 12) | p_len));
+			SET_LABEL(pdb_end);
 		}
 		PROTOCOL(OP_TYPE_UNI_PROTOCOL, OP_PCLID_RSADECRYPT,
 			 WITH(OP_PCL_RSAPROT_OP_DEC_PQDPDQC |
 			      OP_PCL_RSAPROT_FMT_PKCSV15));
 		STORE(MATH0, 4, PTR(msglen), 4, 0);
 	}
+	PATCH_HDR(program, 0, pdb_end);
 	size = PROGRAM_FINALIZE();
 	return size;
 }
@@ -75,8 +78,8 @@ int main(int argc, char **argv)
 {
 	int size;
 
-	printf("RSA Verify example program\n");
-	rta_set_sec_era(RTA_SEC_ERA_1);
+	printf("RSA Decrypt example program\n");
+	rta_set_sec_era(RTA_SEC_ERA_2);
 	size = test_rsa_decrypt((uint32_t *) prg_buff);
 	printf("size = %d\n", size);
 	print_prog((uint32_t *) prg_buff, size);

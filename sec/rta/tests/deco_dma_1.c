@@ -29,7 +29,7 @@ int deco_dma(uint32_t *buff)
 	 * fast the movement will take place.  Beyond that limit, the
 	 * Descriptor might not work.  move_size must be a multiple of 8.
 	 */
-	JOB_HDR(SHR_NEVER, 0, 0);
+	JOB_HDR(SHR_NEVER, 0, 0, 0);
 	{
 		/*
 		 * Set up the ins and outs.  These two Commands could be in a
@@ -66,15 +66,14 @@ int deco_dma(uint32_t *buff)
 		JUMP(IMM(0), HALT_STATUS, ALL_TRUE, 0);
 
 		SET_LABEL(loop);	/* size each full transfer */
-		MATHB(VSEQINSZ, SUB, MATH1, NONE, 4, 0);
-		pjump2 =
-		    JUMP(IMM(done_full), LOCAL_JUMP, ANY_TRUE,
-				    WITH(MATH_N | MATH_Z));
+		pjump2 = MATHB(VSEQINSZ, SUB, MATH1, NONE, 4, 0);
+		JUMP(IMM(done_full), LOCAL_JUMP, ANY_TRUE,
+		     WITH(MATH_N | MATH_Z));
 
 		/* Move a 'full chunk' */
 		MOVE(IFIFOAB1, 0, OFIFO, 0, IMM(move_size), WITH(VLF));
-		MATHB(VSEQINSZ, SUB, MATH1, VSEQINSZ, 4, 0);
-		pjump1 = JUMP(IMM(loop), LOCAL_JUMP, ALL_TRUE, 0);
+		pjump1 = MATHB(VSEQINSZ, SUB, MATH1, VSEQINSZ, 4, 0);
+		JUMP(IMM(loop), LOCAL_JUMP, ALL_TRUE, 0);
 
 		SET_LABEL(done_full);	/* Only last partial xfer remaining */
 		/*
@@ -83,7 +82,7 @@ int deco_dma(uint32_t *buff)
 		 */
 		MATHB(VSEQINSZ, LSHIFT, IMM(32), MATH1, 8, WITH(IFB));
 		MATHB(MATH1, OR, MATH3, MATH3, 8, 0);
-		MOVE(DESCBUF, 0, MATH3, 0, IMM(8), WITH(WAITCOMP));
+		MOVE(MATH3, 0, DESCBUF, 0, IMM(8), WITH(WAITCOMP));
 		JUMP(IMM(0), LOCAL_JUMP, ALL_TRUE, 0);
 	}
 	PATCH_JUMP(program, pjump1, loop);
@@ -100,7 +99,7 @@ int main(int argc, char **argv)
 	int size;
 
 	printf("DECO DMA example program\n");
-	rta_set_sec_era(RTA_SEC_ERA_1);
+	rta_set_sec_era(RTA_SEC_ERA_3);
 	size = deco_dma((uint32_t *) prg_buff);
 	printf("size = %d\n", size);
 	print_prog((uint32_t *) prg_buff, size);

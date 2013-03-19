@@ -30,7 +30,7 @@ int f2m_calc_c_test(uint32_t *buff)
 
 		/* Test for 'too big' (to fit into 4096-bit PKHA memory...) */
 		MATHB(MATH2, RSHIFT, IMM(9), MATH1, 4, 0);
-		JUMP(IMM(0x12), HALT_STATUS, ALL_FALSE, WITH(MATH_Z));
+		JUMP(IMM(0x12), HALT_STATUS, ANY_FALSE, WITH(MATH_Z));
 
 		/* Direct first byte of polynomial to MATH1 via Class 1 CTX */
 		SEQLOAD(CONTEXT1, 0, 1, 0);
@@ -51,13 +51,12 @@ int f2m_calc_c_test(uint32_t *buff)
 		MATHB(MATH2, SUB, ONE, MATH2, 4, 0);
 		/* Move first byte from MSB to LSB */
 		MATHB(MATH1, RSHIFT, IMM(56), MATH1, 8, WITH(IFB));
-		JUMP(IMM(0x13), HALT_STATUS, ANY_TRUE, WITH(MATH_Z));
+		JUMP(IMM(0x13), HALT_STATUS, ALL_TRUE, WITH(MATH_Z));
 
 		SET_LABEL(bit_search_top);
 		MATHB(MATH0, ADD, ONE, MATH0, 2, 0);	/* m = m + 1 */
-		MATHB(MATH1, RSHIFT, ONE, MATH1, 2, 0);	/* byte >> 1 */
-		pjump1 = JUMP(IMM(bit_search_top), LOCAL_JUMP, ALL_FALSE,
-			      WITH(MATH_Z));
+		pjump1 = MATHB(MATH1, RSHIFT, ONE, MATH1, 2, 0); /* byte >> 1 */
+		JUMP(IMM(bit_search_top), LOCAL_JUMP, ANY_FALSE, WITH(MATH_Z));
 
 		MATHB(MATH0, SUB, IMM(3), MATH0, 2, 0);	/* m-2 */
 		LOAD(IMM(0), DCTRL, LDOFF_DISABLE_AUTO_NFIFO, 0, 0);
@@ -68,7 +67,7 @@ int f2m_calc_c_test(uint32_t *buff)
 		LOAD(IMM(0), DCTRL, LDOFF_ENABLE_AUTO_NFIFO, 0, 0);
 
 		/* pke is now 'm-2'; load 2 into pka */
-		FIFOLOAD(PKA, IMM(0x02000002), 4, 0);
+		FIFOLOAD(PKA, IMM(0x02), 1, 0);
 		PKHA_OPERATION(OP_ALG_PKMODE_MOD_EXPO);
 		PKHA_OPERATION(OP_ALG_PKMODE_COPY_SSZ_B_E);
 
@@ -95,7 +94,7 @@ int main(int argc, char **argv)
 	int size;
 
 	printf("F2M_calc_c example program\n");
-	rta_set_sec_era(RTA_SEC_ERA_1);
+	rta_set_sec_era(RTA_SEC_ERA_3);
 	size = f2m_calc_c_test((uint32_t *) prg_buff);
 	printf("size = %d\n", size);
 	print_prog((uint32_t *) prg_buff, size);

@@ -16,7 +16,7 @@ int make_prime_test(uint32_t *buff)
 	REFERENCE(pjump1);
 
 	PROGRAM_CNTXT_INIT(buff, 0);
-	JOB_HDR(SHR_NEVER, 0, 0);
+	JOB_HDR(SHR_NEVER, 0, 0, 0);
 	{
 		/* Acquire the PKHA */
 		FIFOLOAD(PKA, IMM(0), 0, 0);
@@ -55,9 +55,9 @@ int make_prime_test(uint32_t *buff)
 		NFIFOADD(PAD, PKA, (prime_size - 1),
 			 WITH(PAD_RANDOM | FLUSH1 | EXT));
 		/* Miller-Rabin iteration count (either-endian) */
-		FIFOLOAD(PKB, IMM(0x07000007), 4, 0);
-		PKHA_OPERATION(OP_ALG_PKMODE_MOD_PRIMALITY);
-		pjump1 = JUMP(IMM(gen), LOCAL_JUMP, ALL_FALSE, WITH(PK_PRIME));
+		FIFOLOAD(PKB, IMM(0x07), 1, 0);
+		pjump1 = PKHA_OPERATION(OP_ALG_PKMODE_MOD_PRIMALITY);
+		JUMP(IMM(gen), LOCAL_JUMP, ANY_FALSE, WITH(PK_PRIME));
 		FIFOSTORE(PKN, 0, prime, prime_size, 0);
 	}
 	PATCH_JUMP(program, pjump1, gen);
@@ -73,7 +73,7 @@ int main(int argc, char **argv)
 	int size;
 
 	printf("Make prime example program\n");
-	rta_set_sec_era(RTA_SEC_ERA_1);
+	rta_set_sec_era(RTA_SEC_ERA_3);
 	size = make_prime_test((uint32_t *) prg_buff);
 	printf("size = %d\n", size);
 	print_prog((uint32_t *) prg_buff, size);

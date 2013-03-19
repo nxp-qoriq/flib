@@ -17,16 +17,15 @@ int test_nfifo_op(uint32_t *buff)
 	NFIFOADD(IFIFO, MSG1, 2047, WITH(FLUSH1));
 	NFIFOADD(IFIFO, MSG1, 2048, WITH(LAST1 | FLUSH1));
 
-	NFIFOADD(IFIFO, MSG2, 2044, WITH(LAST2));
+	NFIFOADD(IFIFO, MSG2, 2043, WITH(LAST2));
+
+	NFIFOADD(IFIFO, MSG2, 2044, WITH(FLUSH2));
 	NFIFOADD(IFIFO, MSG2, 2045, 0);
 
 	NFIFOADD(IFIFO, IV1, 45, 0);
 	NFIFOADD(IFIFO, IV1, 46, WITH(LAST1));
 	NFIFOADD(IFIFO, IV1, 47, WITH(FLUSH1));
 	NFIFOADD(IFIFO, IV1, 48, WITH(LAST1 | FLUSH1));
-
-	NFIFOADD(IFIFO, IV2, 44, WITH(LAST2));
-	NFIFOADD(IFIFO, IV2, 45, 0);
 
 	NFIFOADD(IFIFO, ICV1, 45, 0);
 	NFIFOADD(IFIFO, ICV1, 46, WITH(LAST1));
@@ -69,8 +68,8 @@ int test_nfifo_op(uint32_t *buff)
 	NFIFOADD(PAD, AB1, 16, WITH(PAD_NONZERO_N));
 
 	/* From Alt Source to 'all' targets */
-	NFIFOADD(ALTSOURCE, IV2, 24, WITH(FLUSH2));
-	NFIFOADD(IFIFO, ABD, 2045, WITH(EXT));
+	NFIFOADD(ALTSOURCE, IV1, 24, WITH(FLUSH1));
+	NFIFOADD(IFIFO, MSG, 2045, WITH(EXT));
 
 	/* Boundary padding */
 	NFIFOADD(IFIFO, ICV1, 45, WITH(BP | PAD_ZERO));
@@ -87,7 +86,7 @@ int main(int argc, char **argv)
 	int size;
 
 	printf("NFIFO ADD program\n");
-	rta_set_sec_era(RTA_SEC_ERA_1);
+	rta_set_sec_era(RTA_SEC_ERA_2);
 	size = test_nfifo_op((uint32_t *) prg_buff);
 	printf("size = %d\n", size);
 	print_prog((uint32_t *) prg_buff, size);

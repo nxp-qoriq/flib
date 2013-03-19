@@ -4,28 +4,6 @@
 
 enum rta_sec_era rta_sec_era;
 
-int test_math_op(uint32_t *buff)
-{
-	struct program prg;
-	struct program *program = &prg;
-	int size;
-
-	PROGRAM_CNTXT_INIT(buff, 0);
-	{
-		SHR_HDR(SHR_ALWAYS, 0, 0);
-		MATHB(MATH0, XOR, IMM(0x0840010008880000), MATH3, SIZE(8), 0);
-		MATHB(IMM(0x08400100009990), XOR, MATH1, MATH3, SIZE(8), 0);
-		MATHB(IMM(0x0840010000aaa0), XOR, MATH1, MATH3, SIZE(8), 0);
-		MATHB(MATH2, XOR, MATH1, MATH3, SIZE(4), 0);
-		MATHU(MATH2, BSWAP, MATH3, SIZE(8), WITH(NFU));
-		MATHU(MATH0, BSWAP, MATH1, SIZE(8), 0);
-		size =
-		    MATHB(IMM(0x19261959fedcba01), ADD, IMM(1), MATH1, SIZE(8),
-			  WITH(NFU | STL));
-	}
-	return size;
-}
-
 int math_test(uint32_t *buff)
 {
 	struct program prg;
@@ -13357,9 +13335,11 @@ int math_test(uint32_t *buff)
 	MATHB(NONE, SHLD, MATH1, NONE, SIZE(8), 0);
 	MATHB(NONE, SHLD, MATH2, NONE, SIZE(8), 0);
 	MATHB(NONE, SHLD, MATH3, NONE, SIZE(8), 0);
+	MATHB(ZERO, ADD, JOBSRC, MATH0, SIZE(4), 0);
+	MATHB(IMM(0x07), AND, JOBSRC, MATH0, SIZE(4), 0);
+
 	size = PROGRAM_FINALIZE();
 	return size;
-
 }
 
 uint32_t prg_buff[1000000];
@@ -13368,15 +13348,10 @@ int main(int argc, char **argv)
 {
 	int size;
 
-	rta_set_sec_era(RTA_SEC_ERA_1);
+	rta_set_sec_era(RTA_SEC_ERA_4);
 
 	printf("#MATH test #1\n");
 	size = math_test(prg_buff);
-	printf("#size %d\n", size);
-	print_prog(prg_buff, size);
-
-	printf("#MATH test #2\n");
-	size = test_math_op(prg_buff);
 	printf("#size %d\n", size);
 	print_prog(prg_buff, size);
 

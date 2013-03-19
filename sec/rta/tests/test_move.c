@@ -10,6 +10,7 @@ int test_move_op(uint32_t *buff)
 	struct program prg;
 	struct program *program = &prg;
 	int size, len = 16;
+	int label1 = 24;
 
 	PROGRAM_CNTXT_INIT(buff, 0);
 	/* MOVE from Class 1 Context */
@@ -19,6 +20,7 @@ int test_move_op(uint32_t *buff)
 	MOVE(CONTEXT1, 0, DESCBUF, 17, IMM(len), 0);
 	MOVE(CONTEXT1, 16, DESCBUF, 18, IMM(len), 0);
 	MOVE(CONTEXT1, 32, DESCBUF, 19, IMM(len), 0);
+	MOVE(CONTEXT1, 48, DESCBUF, label1, IMM(len), 0);
 	MOVE(CONTEXT1, 1, MATH0, 0, IMM(len), 0);
 	MOVE(CONTEXT1, 2, MATH1, 0, IMM(len), 0);
 	MOVE(CONTEXT1, 3, MATH2, 0, IMM(len), 0);
@@ -74,6 +76,7 @@ int test_move_op(uint32_t *buff)
 	MOVE(OFIFO, 0, MATH2, 3, IMM(len), 0);
 	MOVE(OFIFO, 0, MATH3, 5, IMM(len), 0);
 	MOVE(OFIFO, 0, IFIFOAB1, 0, IMM(len), 0);
+	MOVE(OFIFO, 0, IFIFOAB1, 0, IMM(16), 0);
 	MOVE(OFIFO, 0, IFIFOAB1, 0, IMM(len), WITH(FLUSH1));
 	MOVE(OFIFO, 0, IFIFOAB1, 0, IMM(len), WITH(LAST1));
 	MOVE(OFIFO, 0, IFIFOAB1, 0, IMM(len), WITH(LAST1 | FLUSH1));
@@ -89,6 +92,7 @@ int test_move_op(uint32_t *buff)
 	MOVE(DESCBUF, 17, CONTEXT1, 0, IMM(8), 0);
 	MOVE(DESCBUF, 18, CONTEXT1, 16, IMM(8), 0);
 	MOVE(DESCBUF, 19, CONTEXT1, 32, IMM(8), 0);
+	MOVE(DESCBUF, label1, CONTEXT1, 48, IMM(8), 0);
 	MOVE(DESCBUF, 17, CONTEXT2, 0, IMM(8), 0);
 	MOVE(DESCBUF, 18, CONTEXT2, 16, IMM(8), 0);
 	MOVE(DESCBUF, 19, CONTEXT2, 32, IMM(8), 0);
@@ -290,7 +294,7 @@ int main(int argc, char **argv)
 	int size;
 
 	printf("MOVE program\n");
-	rta_set_sec_era(RTA_SEC_ERA_1);
+	rta_set_sec_era(RTA_SEC_ERA_4);
 	size = test_move_op((uint32_t *) prg_buff);
 	printf("size = %d\n", size);
 	print_prog((uint32_t *) prg_buff, size);

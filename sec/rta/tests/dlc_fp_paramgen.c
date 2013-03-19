@@ -40,7 +40,7 @@ int generate_dlc_fp_params(struct program *prg, uint32_t *buff)
 	PROGRAM_CNTXT_INIT(buff, 0);
 	PROGRAM_SET_36BIT_ADDR();
 
-	JOB_HDR(SHR_NEVER, 0, 0);
+	JOB_HDR(SHR_NEVER, 0, 0, 0);
 	{
 		SEQFIFOLOAD(PKA, 0, 0);	/* acquire / wake up the PKHA */
 
@@ -68,12 +68,11 @@ int generate_dlc_fp_params(struct program *prg, uint32_t *buff)
 		NFIFOADD(PAD, PKA, (r_size - 1),
 			 WITH(FLUSH1 | PAD_RANDOM | EXT));
 		/* Iteration count */
-		FIFOLOAD(PKB, IMM(0x32000032), 4, 0);
-		PKHA_OPERATION(OP_ALG_PKMODE_MOD_PRIMALITY);
+		FIFOLOAD(PKB, IMM(0x32), 1, 0);
+		ref_new_r = PKHA_OPERATION(OP_ALG_PKMODE_MOD_PRIMALITY);
 
 		/* If r did not test prime, go try another */
-		ref_new_r = JUMP(IMM(new_r), LOCAL_JUMP, ALL_FALSE,
-				WITH(PK_PRIME));
+		JUMP(IMM(new_r), LOCAL_JUMP, ANY_FALSE, WITH(PK_PRIME));
 		FIFOSTORE(PKN, 0, dom_r_addr, r_size, 0);
 
 		/* Set up maximum number of tries to compute a q from this r */
@@ -94,7 +93,7 @@ int dlc_fp_make_x(struct program *prg, uint32_t *buff)
 	PROGRAM_CNTXT_INIT(buff, 0);
 	PROGRAM_SET_36BIT_ADDR();
 
-	JOB_HDR(SHR_NEVER, 0, 0);
+	JOB_HDR(SHR_NEVER, 0, 0, 0);
 	{
 		/* 2. Generate a random prime q */
 		LOAD(IMM(q_size), PKNSZ, 0, 4, 0);
@@ -134,7 +133,7 @@ int dlc_fp_make_q(struct program *prg, uint32_t *buff)
 	PROGRAM_CNTXT_INIT(buff, 0);
 	PROGRAM_SET_36BIT_ADDR();
 
-	JOB_HDR(SHR_NEVER, 0, 0);
+	JOB_HDR(SHR_NEVER, 0, 0, 0);
 	{
 		/* Calculate 2r */
 		FIFOLOAD(PKA, PTR(dom_r_addr), r_size, 0);
@@ -163,7 +162,7 @@ int dlc_fp_make_q(struct program *prg, uint32_t *buff)
 		PKHA_OPERATION(OP_ALG_PKMODE_COPY_NSZ_N_B);
 		/* X - c   ( % X) */
 		PKHA_OPERATION(OP_ALG_PKMODE_MOD_SUB_BA);
-		FIFOLOAD(PKA, IMM(0x01000001), 4, 0);
+		FIFOLOAD(PKA, IMM(0x01), 1, 0);
 		/* q = X - c + 1   ( % X) */
 		PKHA_OPERATION(OP_ALG_PKMODE_MOD_ADD);
 
@@ -171,16 +170,15 @@ int dlc_fp_make_q(struct program *prg, uint32_t *buff)
 		PKHA_OPERATION(OP_ALG_PKMODE_COPY_NSZ_B_N);
 		LOAD(IMM((q_size - 1)), PKASZ, 0, 4, 0);
 		NFIFOADD(PAD, PKA, q_size - 1, WITH(PAD_RANDOM | EXT | FLUSH1));
-		FIFOLOAD(PKB, IMM(0x14000014), 4, 0);
-		PKHA_OPERATION(OP_ALG_PKMODE_MOD_PRIMALITY);
+		FIFOLOAD(PKB, IMM(0x14), 1, 0);
+		ref_store_q = PKHA_OPERATION(OP_ALG_PKMODE_MOD_PRIMALITY);
 
-		ref_store_q =
-		    JUMP(IMM(store_q), LOCAL_JUMP, ALL_TRUE, WITH(PK_PRIME));
+		JUMP(IMM(store_q), LOCAL_JUMP, ALL_TRUE, WITH(PK_PRIME));
 
 		/* Decrement try-X counter */
 		MATHB(MATH3, SUB, ONE, MATH3, 4, 0);
 		/* Go get another X */
-		JUMP(PTR(make_X_addr), FAR_JUMP, ALL_FALSE, WITH(MATH_Z));
+		JUMP(PTR(make_X_addr), FAR_JUMP, ANY_FALSE, WITH(MATH_Z));
 		/* Start over with a new r */
 		JUMP(PTR(generate_dlc_fp_params_addr), FAR_JUMP, ALL_TRUE, 0);
 
@@ -207,7 +205,7 @@ int dlc_fp_make_g(struct program *prg, uint32_t *buff)
 	PROGRAM_CNTXT_INIT(buff, 0);
 	PROGRAM_SET_36BIT_ADDR();
 
-	JOB_HDR(SHR_NEVER, 0, 0);
+	JOB_HDR(SHR_NEVER, 0, 0, 0);
 	{
 		/*
 		 * 3. Let k = (q - 1) / r
@@ -219,7 +217,7 @@ int dlc_fp_make_g(struct program *prg, uint32_t *buff)
 
 		/* Compute q-1  ( % q ) */
 		PKHA_OPERATION(OP_ALG_PKMODE_COPY_NSZ_N_A);
-		FIFOLOAD(PKB, IMM(0x01000001), 4, 0);
+		FIFOLOAD(PKB, IMM(0x01), 1, 0);
 		PKHA_OPERATION(OP_ALG_PKMODE_MOD_SUB_AB);
 
 		/* k = q-1 / r  ( % q ) */
@@ -237,7 +235,7 @@ int dlc_fp_make_g(struct program *prg, uint32_t *buff)
 		 * h++
 		 * } while true
 		 */
-		FIFOLOAD(PKB, IMM(0x02000002), 4, 0);	/* h = 2 */
+		FIFOLOAD(PKB, IMM(0x02), 1, 0);	/* h = 2 */
 		PKHA_OPERATION(OP_ALG_PKMODE_CLEARMEM_A);
 		/* get q-sized 2 into pka */
 		PKHA_OPERATION(OP_ALG_PKMODE_MOD_ADD | OP_ALG_PKMODE_OUT_A);
@@ -254,21 +252,20 @@ int dlc_fp_make_g(struct program *prg, uint32_t *buff)
 		 * 7. If g = 1 then go to step 5
 		 * Test g != 1 by calculating checking (g-1) != 0
 		 */
-		FIFOLOAD(PKB, IMM(0x01000001), 4, 0);
-		PKHA_OPERATION(OP_ALG_PKMODE_MOD_SUB_BA);
-		ref_found_g =
-		    JUMP(IMM(found_g), LOCAL_JUMP, ANY_FALSE, WITH(PK_0));
+		FIFOLOAD(PKA, IMM(0x01), 1, 0);
+		ref_found_g = PKHA_OPERATION(OP_ALG_PKMODE_MOD_SUB_BA);
+		JUMP(IMM(found_g), LOCAL_JUMP, ANY_FALSE, WITH(PK_0));
 
 		/* H++ */
 		FIFOLOAD(PKB, PTR(dom_g_addr), q_size, 0);
-		FIFOLOAD(PKA, IMM(0x01000001), 4, 0);
-		PKHA_OPERATION(OP_ALG_PKMODE_MOD_ADD);
-		ref_h_loop = JUMP(IMM(h_loop), LOCAL_JUMP, ALL_TRUE, 0);
+		FIFOLOAD(PKA, IMM(0x01), 1, 0);
+		ref_h_loop = PKHA_OPERATION(OP_ALG_PKMODE_MOD_ADD);
+		JUMP(IMM(h_loop), LOCAL_JUMP, ALL_TRUE, 0);
 
 		SET_LABEL(found_g);
 
 		/* Restore g = g+1 */
-		FIFOLOAD(PKA, IMM(0x01000001), 4, 0);
+		FIFOLOAD(PKA, IMM(0x01), 1, 0);
 		PKHA_OPERATION(OP_ALG_PKMODE_MOD_ADD);
 
 		/* 8. Output q, r, g */
@@ -296,6 +293,11 @@ int main(int argc, char **argv)
 	int size;
 
 	rta_set_sec_era(RTA_SEC_ERA_1);
+
+	memset(&gen_dlc_fp_desc, 0, sizeof(gen_dlc_fp_desc));
+	memset(&make_x_desc, 0, sizeof(make_x_desc));
+	memset(&make_q_desc, 0, sizeof(make_q_desc));
+	memset(&make_g_desc, 0, sizeof(make_g_desc));
 
 	printf("Generate DLC FP domain parameters\n");
 	size = generate_dlc_fp_params(&gen_dlc_fp_prgm, gen_dlc_fp_desc);

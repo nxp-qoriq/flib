@@ -3,6 +3,7 @@
 #include "test_common.h"
 
 enum rta_sec_era rta_sec_era;
+int shdesc_len = 5;
 
 int pointer_size_1(uint32_t *buff)
 {
@@ -11,7 +12,7 @@ int pointer_size_1(uint32_t *buff)
 	int size;
 
 	PROGRAM_CNTXT_INIT(buff, 0);
-	JOB_HDR(SHR_NEVER, 200, WITH(SHR));
+	JOB_HDR(SHR_NEVER, shdesc_len, 200, WITH(SHR));
 	{
 		FIFOLOAD(PKN, PTR(0x4), 4, 0);
 		PKHA_OPERATION(OP_ALG_PKMODE_MOD_EXPO);
@@ -29,7 +30,7 @@ int pointer_size_2(uint32_t *buff)
 	PROGRAM_CNTXT_INIT(buff, 0);
 	PROGRAM_SET_36BIT_ADDR();
 
-	JOB_HDR(SHR_NEVER, 200, WITH(SHR));
+	JOB_HDR(SHR_NEVER, shdesc_len, 200, WITH(SHR));
 	{
 		FIFOLOAD(PKN, PTR(0x4), 4, 0);
 		PKHA_OPERATION(OP_ALG_PKMODE_MOD_EXPO);

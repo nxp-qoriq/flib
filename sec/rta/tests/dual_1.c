@@ -26,7 +26,7 @@ int dual_1(uint32_t *buff)
 	PROGRAM_CNTXT_INIT(buff, 0);
 	PROGRAM_SET_36BIT_ADDR();
 
-	JOB_HDR(SHR_NEVER, 0, 0);
+	JOB_HDR(SHR_NEVER, 0, 0, 0);
 	{
 		LOAD(PTR(ctx), CONTEXT1, 0, ctx_size, 0);
 		KEY(KEY1, 0, PTR(cipher_key), cipher_key_size, 0);
@@ -53,7 +53,7 @@ int main(int argc, char **argv)
 	int size;
 
 	printf("DUAL_1 example program\n");
-	rta_set_sec_era(RTA_SEC_ERA_1);
+	rta_set_sec_era(RTA_SEC_ERA_2);
 	size = dual_1((uint32_t *) prg_buff);
 	printf("size = %d\n", size);
 	print_prog((uint32_t *) prg_buff, size);

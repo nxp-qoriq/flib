@@ -58,26 +58,26 @@ int jump_cmd_desc1(struct program *prg, uint32_t *buff, int buffpos)
 		SET_LABEL(bbb);
 		bbb = 7;
 
-		MOVE(CONTEXT2, 0, CONTEXT1, 0, IMM(4), 0);
-		pjump1 = JUMP(IMM(aaa), LOCAL_JUMP, ALL_TRUE, 0);
-		pjump2 = JUMP(IMM(bbb), LOCAL_JUMP, ALL_TRUE, 0);
-		ref1_jump_fff = JUMP(IMM(fff), LOCAL_JUMP, ALL_TRUE, 0);
-		ref1_jump_ggg = JUMP(IMM(ggg), LOCAL_JUMP, ALL_TRUE, 0);
-		ref1_jump_zzz = JUMP(IMM(zzz), LOCAL_JUMP, ALL_TRUE, 0);
+		pjump1 = MOVE(CONTEXT2, 0, CONTEXT1, 0, IMM(4), 0);
+		pjump2 = JUMP(IMM(aaa), LOCAL_JUMP, ALL_TRUE, 0);
+		ref1_jump_fff = JUMP(IMM(bbb), LOCAL_JUMP, ALL_TRUE, 0);
+		ref1_jump_ggg = JUMP(IMM(fff), LOCAL_JUMP, ALL_TRUE, 0);
+		ref1_jump_zzz = JUMP(IMM(ggg), LOCAL_JUMP, ALL_TRUE, 0);
+		JUMP(IMM(zzz), LOCAL_JUMP, ALL_TRUE, 0);
 
-		MOVE(CONTEXT2, 0, CONTEXT1, 0, IMM(24), 0);
+		phdr1 = MOVE(CONTEXT2, 0, CONTEXT1, 0, IMM(24), 0);
 
-		phdr1 = JOB_HDR(SHR_NEVER, aaa, 0);
-		phdr2 = JOB_HDR(SHR_NEVER, bbb, 0);
-		ref1_job_fff = JOB_HDR(SHR_NEVER, fff, 0);
-		ref1_job_ggg = JOB_HDR(SHR_NEVER, ggg, 0);
-		ref1_job_zzz = JOB_HDR(SHR_NEVER, zzz, 0);
+		phdr2 = JOB_HDR(SHR_NEVER, aaa, 0, 0);
+		ref1_job_fff = JOB_HDR(SHR_NEVER, bbb, 0, 0);
+		ref1_job_ggg = JOB_HDR(SHR_NEVER, fff, 0, 0);
+		ref1_job_zzz = JOB_HDR(SHR_NEVER, ggg, 0, 0);
+		phdr3 = JOB_HDR(SHR_NEVER, zzz, 0, 0);
 
-		phdr3 = SHR_HDR(SHR_NEVER, aaa, 0);
-		phdr4 = SHR_HDR(SHR_NEVER, bbb, 0);
-		ref1_shr_fff = SHR_HDR(SHR_NEVER, fff, 0);
-		ref1_shr_ggg = SHR_HDR(SHR_NEVER, ggg, 0);
-		ref1_shr_zzz = SHR_HDR(SHR_NEVER, zzz, 0);
+		phdr4 = SHR_HDR(SHR_NEVER, aaa, 0);
+		ref1_shr_fff = SHR_HDR(SHR_NEVER, bbb, 0);
+		ref1_shr_ggg = SHR_HDR(SHR_NEVER, fff, 0);
+		ref1_shr_zzz = SHR_HDR(SHR_NEVER, ggg, 0);
+		SHR_HDR(SHR_NEVER, zzz, 0);
 
 		SET_LABEL(share1end);
 	}
@@ -104,39 +104,41 @@ int jump_cmd_desc2(struct program *prg, uint32_t *buff, int buffpos)
 	REFERENCE(phdr2);
 	REFERENCE(phdr3);
 	REFERENCE(phdr4);
+	LABEL(imm_offset);
 
 	PROGRAM_CNTXT_INIT(buff, buffpos);
-	JOB_HDR(SHR_NEVER, sharehdr, WITH(SHR));
+	JOB_HDR(SHR_NEVER, buffpos, sharehdr, WITH(SHR));
 	{
 		SET_LABEL(fff);	/* first instruction in job header */
-		MOVE(CONTEXT1, 0, CONTEXT2, 0, IMM(8), 0);
+		ref1_jump_aaa = MOVE(CONTEXT1, 0, CONTEXT2, 0, IMM(8), 0);
 
-		ref1_jump_aaa = JUMP(IMM(aaa), LOCAL_JUMP, ALL_TRUE, 0);
-		ref1_jump_bbb = JUMP(IMM(bbb), LOCAL_JUMP, ALL_TRUE, 0);
-		pjump1 = JUMP(IMM(fff), LOCAL_JUMP, ALL_TRUE, 0);
-		pjump2 = JUMP(IMM(ggg), LOCAL_JUMP, ALL_TRUE, 0);
-		ref1_jump_yyy = JUMP(IMM(yyy), LOCAL_JUMP, ALL_TRUE, 0);
-		ref2_jump_zzz = JUMP(IMM(zzz), LOCAL_JUMP, ALL_TRUE, 0);
+		ref1_jump_bbb = JUMP(IMM(aaa), LOCAL_JUMP, ALL_TRUE, 0);
+		pjump1 = JUMP(IMM(bbb), LOCAL_JUMP, ALL_TRUE, 0);
+		pjump2 = JUMP(IMM(fff), LOCAL_JUMP, ALL_TRUE, 0);
+		ref1_jump_yyy = JUMP(IMM(ggg), LOCAL_JUMP, ALL_TRUE, 0);
+		ref2_jump_zzz = JUMP(IMM(yyy), LOCAL_JUMP, ALL_TRUE, 0);
+		ref1_job_aaa = JUMP(IMM(zzz), LOCAL_JUMP, ALL_TRUE, 0);
 
-		ref1_job_aaa = JOB_HDR(SHR_NEVER, aaa, 0);
-		ref1_job_bbb = JOB_HDR(SHR_NEVER, bbb, 0);
-		phdr1 = JOB_HDR(SHR_NEVER, fff, 0);
-		phdr2 = JOB_HDR(SHR_NEVER, ggg, 0);
-		ref1_job_yyy = JOB_HDR(SHR_NEVER, yyy, 0);
-		ref2_job_zzz = JOB_HDR(SHR_NEVER, zzz, 0);
+		ref1_job_bbb = JOB_HDR(SHR_NEVER, aaa, 0, 0);
+		phdr1 = JOB_HDR(SHR_NEVER, bbb, 0, 0);
+		phdr2 = JOB_HDR(SHR_NEVER, fff, 0, 0);
+		ref1_job_yyy = JOB_HDR(SHR_NEVER, ggg, 0, 0);
+		ref2_job_zzz = JOB_HDR(SHR_NEVER, yyy, 0, 0);
+		ref1_shr_aaa = JOB_HDR(SHR_NEVER, zzz, 0, 0);
 
-		ref1_shr_aaa = SHR_HDR(SHR_NEVER, aaa, 0);
-		ref1_shr_bbb = SHR_HDR(SHR_NEVER, bbb, 0);
-		phdr3 = SHR_HDR(SHR_NEVER, fff, 0);
-		phdr4 = SHR_HDR(SHR_NEVER, ggg, 0);
-		ref1_shr_yyy = SHR_HDR(SHR_NEVER, yyy, 0);
-		ref2_shr_zzz = SHR_HDR(SHR_NEVER, zzz, 0);
+		ref1_shr_bbb = SHR_HDR(SHR_NEVER, aaa, 0);
+		phdr3 = SHR_HDR(SHR_NEVER, bbb, 0);
+		phdr4 = SHR_HDR(SHR_NEVER, fff, 0);
+		ref1_shr_yyy = SHR_HDR(SHR_NEVER, ggg, 0);
+		ref2_shr_zzz = SHR_HDR(SHR_NEVER, yyy, 0);
+		SHR_HDR(SHR_NEVER, zzz, 0);
 
 		JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, 0);
 
 		SET_LABEL(ggg);
 		MOVE(MATH0, 0, CONTEXT2, 0, IMM(4), 0);
-		JUMP(IMM(40), LOCAL_JUMP, ALL_TRUE, 0);
+		SET_LABEL(imm_offset);
+		JUMP(IMM(10 - imm_offset), LOCAL_JUMP, ALL_TRUE, 0);
 		JUMP(IMM(-2), LOCAL_JUMP, ALL_TRUE, 0);
 	}
 	PATCH_JUMP(program, pjump1, fff);
@@ -164,14 +166,15 @@ int jump_cmd_desc3(struct program *prg, uint32_t *buff, int buffpos)
 		SET_LABEL(yyy);
 		yyy = 63;	/* last word in descbuf [63] */
 
-		ref2_jump_aaa = JUMP(IMM(aaa), LOCAL_JUMP, ALL_TRUE, 0);
-		ref2_jump_bbb = JUMP(IMM(bbb), LOCAL_JUMP, ALL_TRUE, 0);
-		pjump1 = JUMP(IMM(yyy), LOCAL_JUMP, ALL_TRUE, 0);
-		ref3_jump_zzz = JUMP(IMM(zzz), LOCAL_JUMP, ALL_TRUE, 0);
+		ref2_jump_aaa = 0;
+		ref2_jump_bbb = JUMP(IMM(aaa), LOCAL_JUMP, ALL_TRUE, 0);
+		pjump1 = JUMP(IMM(bbb), LOCAL_JUMP, ALL_TRUE, 0);
+		ref3_jump_zzz = JUMP(IMM(yyy), LOCAL_JUMP, ALL_TRUE, 0);
+		ref2_job_aaa = JUMP(IMM(zzz), LOCAL_JUMP, ALL_TRUE, 0);
 
-		ref2_job_aaa = JOB_HDR(SHR_NEVER, aaa, 0);
-		phdr2 = JOB_HDR(SHR_NEVER, yyy, 0);
-		phdr1 = JOB_HDR(SHR_NEVER, zzz, 0);
+		phdr2 = JOB_HDR(SHR_NEVER, aaa, 0, 0);
+		phdr1 = JOB_HDR(SHR_NEVER, yyy, 0, 0);
+		JOB_HDR(SHR_NEVER, zzz, 0, 0);
 
 		JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, 0);
 
@@ -193,7 +196,7 @@ int jump_cmd_desc4(struct program *prg, uint32_t *buff, int buffpos)
 
 	PROGRAM_CNTXT_INIT(buff, buffpos);
 	{
-		JUMP(IMM(28), LOCAL_JUMP, ALL_TRUE, 0);
+		JUMP(IMM(7 - buffpos), LOCAL_JUMP, ALL_TRUE, 0);
 	}
 
 	size = PROGRAM_FINALIZE();
@@ -210,13 +213,14 @@ int jump_cmd_desc5(struct program *prg, uint32_t *buff, int buffpos)
 		/* class done tests */
 		JUMP(PTR(0x500), FAR_JUMP, ALL_TRUE,
 				WITH(CLASS1 | PK_0 | MATH_N));
-		JUMP(PTR(0x500), FAR_JUMP, ANY_FALSE,
+		JUMP(PTR(0x500), FAR_JUMP, ALL_FALSE,
 				WITH(CLASS1 | MATH_Z | MATH_N));
 		JUMP(PTR(0x500), FAR_JUMP, ALL_TRUE, WITH(BOTH | NOP));
 		JUMP(PTR(0x500), FAR_JUMP, ALL_TRUE, WITH(CLASS2 | NOP));
+		JUMP(PTR(0x500), FAR_JUMP, ALL_TRUE, WITH(CLASS2 | NOP));
 
-		JUMP(PTR(0), HALT, ANY_TRUE, WITH(CALM | NOP | SHRD));
-		JUMP(PTR(0x42), HALT_STATUS, ALL_FALSE, WITH(PK_0 | MATH_Z));
+		JUMP(PTR(0), HALT, ALL_TRUE, WITH(CALM | NOP | SHRD));
+		JUMP(PTR(0x42), HALT_STATUS, ANY_FALSE, WITH(PK_0 | MATH_Z));
 		JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, WITH(CLASS1 | CLASS2));
 	}
 	size = PROGRAM_FINALIZE();
@@ -229,11 +233,26 @@ int jump_cmd_desc6(struct program *prg, uint32_t *buff, int buffpos)
 	int size;
 
 	PROGRAM_CNTXT_INIT(buff, buffpos);
-	JOB_HDR(SHR_NEVER, 0, 0);
+	JOB_HDR(SHR_NEVER, 0, 0, 0);
 	{
 		JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, WITH(NIFP));
 		JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, WITH(NIFP | NIP));
 		JUMP(IMM(-1), LOCAL_JUMP, ALL_TRUE, 0);
+		JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, WITH(NIFP));
+		JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, WITH(NIFP | NIP));
+		JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, WITH(NIFP | SHRD));
+		JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, WITH(NIFP | SHRD));
+		JUMP(IMM(1), LOCAL_JUMP, ANY_FALSE, WITH(NIFP | SHRD));
+		JUMP(IMM(1), LOCAL_JUMP, ANY_FALSE, WITH(NIFP | SHRD));
+		JUMP(IMM(1), LOCAL_JUMP, ANY_FALSE, WITH(NIFP | SHRD));
+		JUMP(IMM(1), LOCAL_JUMP, ALL_FALSE,
+		     WITH(CLASS1 | PK_PRIME | MATH_N));
+		JUMP(IMM(1), LOCAL_JUMP, ALL_FALSE,
+		     WITH(CLASS1 | PK_PRIME | MATH_N));
+		JUMP(IMM(2), LOCAL_JUMP, ANY_FALSE, WITH(CLASS1 | JQP));
+		JUMP(IMM(2), LOCAL_JUMP, ANY_TRUE, WITH(MATH_Z | MATH_N));
+		JUMP(IMM(2), LOCAL_JUMP, ANY_FALSE, WITH(MATH_Z | MATH_N));
+		JUMP(IMM(2), LOCAL_JUMP, ANY_FALSE, WITH(MATH_Z | MATH_N));
 	}
 
 	size = PROGRAM_FINALIZE();
@@ -270,7 +289,7 @@ int main(int argc, char **argv)
 	buf3len = jump_cmd_desc3(&desc3_prgm, desc3, 55);
 
 	memset(desc4, 0x00, sizeof(desc4));
-	buf4len = jump_cmd_desc4(&desc4_prgm, desc4, 44);
+	buf4len = jump_cmd_desc4(&desc4_prgm, desc4, 55);
 
 	memset(desc5, 0x00, sizeof(desc5));
 	buf5len = jump_cmd_desc5(&desc5_prgm, desc5, 0);
@@ -310,21 +329,27 @@ int main(int argc, char **argv)
 	PATCH_JUMP(&desc2_prgm, ref1_jump_yyy, yyy);
 
 	printf("JUMP commands program\n");
+	printf("Jump desc #1\n");
 	printf("size = %d\n", buf1len);
 	print_prog((uint32_t *) desc1, buf1len);
 
+	printf("Jump desc #2\n");
 	printf("size = %d\n", buf2len);
 	print_prog((uint32_t *) desc2, buf2len);
 
+	printf("Jump desc #3\n");
 	printf("size = %d\n", buf3len);
 	print_prog((uint32_t *) desc3, buf3len);
 
+	printf("Jump desc #4\n");
 	printf("size = %d\n", buf4len);
 	print_prog((uint32_t *) desc4, buf4len);
 
+	printf("Jump desc #5\n");
 	printf("size = %d\n", buf5len);
 	print_prog((uint32_t *) desc5, buf5len);
 
+	printf("Jump desc #6\n");
 	printf("size = %d\n", buf6len);
 	print_prog((uint32_t *) desc6, buf6len);
 
