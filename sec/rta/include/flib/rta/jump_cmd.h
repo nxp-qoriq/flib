@@ -24,22 +24,14 @@ static const uint32_t jump_test_cond[][2] = {
 	{ BOTH,     JUMP_CLASS_BOTH }
 };
 
-/* Allowed jump types for each SEC Era */
-static const uint32_t jump_type_allowed[] = {
-	LOCAL_JUMP | HALT | HALT_STATUS | FAR_JUMP,
-	LOCAL_JUMP | HALT | HALT_STATUS | FAR_JUMP,
-	LOCAL_JUMP | HALT | HALT_STATUS | FAR_JUMP,
-	LOCAL_JUMP | HALT | HALT_STATUS | FAR_JUMP | GOSUB | RETURN,
-	LOCAL_JUMP | HALT | HALT_STATUS | FAR_JUMP | GOSUB | RETURN
-};
-
 static inline uint32_t jump(struct program *program, int64_t address,
 		     uint32_t address_type, uint32_t jump_type,
 		     uint32_t test_type, uint32_t test_condition)
 {
 	uint32_t opcode = CMD_JUMP;
 
-	if (jump_type & ~jump_type_allowed[rta_sec_era]) {
+	if (((jump_type == GOSUB) || (jump_type == RETURN)) &&
+	    (rta_sec_era < RTA_SEC_ERA_4)) {
 		pr_debug("JUMP: Jump type not supported by SEC Era %d\n",
 			 USER_SEC_ERA(rta_sec_era));
 		goto err;
