@@ -149,7 +149,7 @@ static inline uint32_t fifo_load(struct program *program, uint32_t src,
 				*tmp++ = ((uint8_t *) loc)[i];
 			program->current_pc += ((length + 3) / 4);
 		}
-	} else if (is_seq_cmd) {
+	} else if (!is_seq_cmd) {
 		if (program->ps == 1) {
 			program->buffer[program->current_pc] = high_32b(loc);
 			program->current_pc++;
