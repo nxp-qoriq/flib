@@ -36,6 +36,41 @@ struct macsec_decap_pdb {
 	/* end DECO writeback region */
 };
 
+/**
+ * IEEE 802.16 WiMAX Protocol Data Block
+ */
+#define WIMAX_PDBOPTS_FCS       0x01    /**< Options Byte with FCS enabled */
+#define WIMAX_PDBOPTS_AR        0x40    /**< Options Byte with AR enabled */
+#define WIMAX_PDB_B0            0x19    /**< Initial Block B0 Flags */
+#define WIMAX_PDB_CTR           0x01    /**< Counter Block Flags */
+
+struct wimax_encap_pdb {
+	uint8_t rsvd[3];                /**< Reserved Bits */
+	uint8_t options;                /**< Options Byte */
+	uint32_t nonce;                 /**< Nonce Constant */
+	uint8_t b0_flags;               /**< Initial Block B0 */
+	uint8_t ctr_flags;              /**< Counter Block Flags */
+	uint16_t ctr_init_count;
+	/** begin DECO writeback region */
+	uint32_t pn;                    /**< Packet Number */
+	/** end DECO writeback region */
+};
+
+struct wimax_decap_pdb {
+	uint8_t rsvd[3];                /**< Reserved Bits */
+	uint8_t options;                /**< Options Byte */
+	uint32_t nonce;                 /**< Nonce Constant */
+	uint8_t iv_flags;               /**< Initialization Vector Flags */
+	uint8_t ctr_flags;              /**< Counter Block Flags */
+	uint16_t ctr_init_count;
+	/** begin DECO writeback region */
+	uint32_t pn;                    /**< Packet Number */
+	uint8_t rsvd1[2];               /**< Reserved Bits */
+	uint16_t antireplay_len;
+	uint32_t antireplay_scorecard_hi;
+	uint32_t antireplay_scorecard_lo;
+	/** end DECO writeback region */
+};
 
 /*
  * General IPSec encap/decap PDB definitions

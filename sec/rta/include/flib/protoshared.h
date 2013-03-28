@@ -528,6 +528,262 @@ static inline void cnstr_shdsc_ipsec_decap(uint32_t *descbuf,
 }
 
 
+/** * @details             WiMAX(802.16) encapsulation
+ *
+ * @warning             Descriptor valid on platforms
+ *                      with support for SEC ERA 4.
+ *
+ * @param[in] descbuf   Pointer to descriptor-under-construction buffer.
+ * @param[in] bufsize   Points to size to be updated at completion.
+ * @param[in] pdb_opts  PDB Options Byte.
+ * @param[in] pn        PDB Packet Number.
+ * @param[in] cipherkey Key data to inline.
+ * @param[in] keylen    Key size in bytes.
+ * @param[in] protinfo  Protocol information: OP_PCL_WIMAX_OFDM/OFDMA.
+ */
+void cnstr_shdsc_wimax_encap(uint32_t *descbuf, unsigned *bufsize,
+			     uint8_t pdb_opts, uint32_t pn, uint16_t protinfo,
+			     uint8_t *cipherkey, uint32_t keylen)
+{
+	struct wimax_encap_pdb pdb;
+	struct program prg;
+	struct program *program = &prg;
+	uint32_t startidx;
+
+	LABEL(seq_ptr);
+	LABEL(crc8);
+	REFERENCE(pseq_in_ptr);
+	REFERENCE(pseq_out_ptr);
+	REFERENCE(pcrc8);
+
+	memset(&pdb, 0x00, sizeof(struct wimax_encap_pdb));
+	pdb.options = pdb_opts;
+	pdb.pn = pn;
+	pdb.b0_flags = WIMAX_PDB_B0;
+	pdb.ctr_flags = WIMAX_PDB_CTR;
+
+	startidx = sizeof(struct wimax_encap_pdb) >> 2;
+
+	PROGRAM_CNTXT_INIT(descbuf, 0);
+	SHR_HDR(SHR_WAIT, ++startidx, WITH(0));
+	{
+		ENDIAN_DATA((uint8_t *)&pdb, sizeof(struct wimax_encap_pdb));
+		SEQLOAD(MATH0, 0, 8, WITH(0));
+		SET_LABEL(seq_ptr);
+		JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, WITH(CALM));
+
+		/* Set Encryption Control bit */
+		MATHB(MATH0, OR, IMM(0x4000000000000000), MATH0, SIZE(8), 0);
+
+		/* Update Length field */
+		MATHB(MATH0, ADD, IMM(0x00000c0000000000), MATH0, SIZE(8), 0);
+		MOVE(DESCBUF, 1 * 4, MATH1, 0, IMM(4), WITH(WAITCOMP));
+		MATHB(MATH1, SUB, ONE, MATH1, SIZE(8), 0);
+
+		/* Update Length field if FCS bit is enabled */
+		pcrc8 = JUMP(IMM(crc8), LOCAL_JUMP, ALL_TRUE, WITH(MATH_N));
+		MATHB(MATH0, ADD, IMM(0x0000040000000000), MATH0, SIZE(8), 0);
+
+		/*
+		 * Compute the CRC-8-ATM value for the first five bytes
+		 * of the header and insert the result into the sixth
+		 * MATH0 byte field.
+		 */
+		SET_LABEL(crc8);
+		KEY(KEY2, 0, IMM(0x07000000), 2, WITH(IMMED));
+		ALG_OPERATION(OP_ALG_ALGSEL_CRC,
+			      OP_ALG_AAI_CUST_POLY | OP_ALG_AAI_DIS,
+			      OP_ALG_AS_UPDATE, ICV_CHECK_DISABLE,
+			      OP_ALG_ENCRYPT);
+		MOVE(MATH0, 0, IFIFOAB2, 0, IMM(5), WITH(LAST1));
+		MOVE(CONTEXT2, 0, MATH1, 0, IMM(4), WITH(WAITCOMP));
+		JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, WITH(CLASS2));
+		MOVE(MATH1, 0, MATH0, 5, IMM(1), WITH(WAITCOMP));
+
+		/*
+		 * Rewrite encapsulation input frame with the updated
+		 * Generic Mac Header from MATH0. SEC workflow is as follows:
+		 *     1. Copy JD's Output Length, SEQINPTR, Input Pointer and
+		 *        Input Length in MATH1, MATH2, MATH3 registers.
+		 *     2. Transform SEQINPTR in SEQOUTPTR.
+		 *     3. Load in MATH3 a local conditional JUMP with offset
+		 *        targetting the SEQSTORE command.
+		 *     4. Copy MATH1, MATH2, MATH3 contents at the first word
+		 *        after PDB offset.
+		 *     5. JUMP to SEQOUTPTR offset, run SEQOUTPTR,
+		 *        Input Pointer, Input Length and then JUMP
+		 *        to SEQSTORE.
+		 *     6. Save encapsulation Generic Mac Header.
+		 */
+		MOVE(DESCBUF, 55 * 4, MATH1, 0, IMM(20), WITH(WAITCOMP));
+		MATHB(MATH1, OR, IMM(0x08000000), MATH1, SIZE(8), IFB);
+		LOAD(IMM(0xa0000017), MATH3, 4, 4, WITH(0));
+		MOVE(MATH1, 0, DESCBUF, 5 * 4, IMM(24), WITH(WAITCOMP));
+		pseq_in_ptr = JUMP(IMM(seq_ptr), LOCAL_JUMP, ALL_TRUE, WITH(0));
+		SEQSTORE(MATH0, 0, 8, WITH(0));
+
+		SEQINPTR(NULL, 8, WITH(RTO));
+		JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, WITH(CALM));
+
+		/*
+		 * Restore Output Sequence. SEC workflow is as follows:
+		 *     1. Copy JD's Shared Descriptor Pointer, SEQOUTPTR,
+		 *        Output Pointer and Output Length in MATH0, MATH1,
+		 *        MATH2 registers.
+		 *     2. Load in MATH2 a local conditional JUMP with offset
+		 *        targetting the KEY command.
+		 *     3. Copy MATH0, MATH1, MATH2 contents at the first word
+		 *        after PDB offset.
+		 *     4. JUMP to SEQOUTPTR offset, run SEQOUTPTR,
+		 *        Output Pointer, Output Length and then JUMP
+		 *        to KEY command.
+		 */
+		MOVE(DESCBUF, 51 * 4, MATH0, 0, IMM(20), WITH(WAITCOMP));
+		LOAD(IMM(0xa000001f), MATH2, 4, 4, WITH(0));
+		MOVE(MATH0, 0, DESCBUF, 5 * 4, IMM(24), WITH(WAITCOMP));
+		pseq_out_ptr = JUMP(IMM(seq_ptr), LOCAL_JUMP, ALL_TRUE,
+				    WITH(0));
+
+		KEY(KEY1, 0, PTR((uintptr_t)cipherkey), keylen, WITH(IMMED));
+		LOAD(IMM(LDST_SRCDST_WORD_CLRW |
+			 CLRW_CLR_C1MODE |
+			 CLRW_CLR_C2MODE |
+			 CLRW_CLR_C2DATAS |
+			 CLRW_CLR_C2CTX |
+			 CLRW_CLR_C2KEY |
+			 CLRW_RESET_CLS2_CHA |
+			 CLRW_RESET_CLS1_CHA),
+		     CLRW, 0, 4, WITH(0));
+		PROTOCOL(OP_TYPE_ENCAP_PROTOCOL, OP_PCLID_WIMAX, protinfo);
+	}
+	PATCH_JUMP(pcrc8, crc8);
+	PATCH_JUMP(pseq_in_ptr, seq_ptr);
+	PATCH_JUMP(pseq_out_ptr, seq_ptr);
+	*bufsize = PROGRAM_FINALIZE();
+}
+
+/**
+ * @details             WiMAX(802.16) decapsulation
+ *
+ * @warning             Descriptor valid on platforms
+ *                      with support for SEC ERA 4.
+ *
+ * @param[in] descbuf   Pointer to descriptor-under-construction buffer.
+ * @param[in] bufsize   Points to size to be updated at completion.
+ * @param[in] pdb_opts  PDB Options Byte.
+ * @param[in] pn        PDB Packet Number.
+ * @param[in] cipherkey Key data to inline.
+ * @param[in] keylen    Key size in bytes.
+ * @param[in] protinfo  Protocol information: OP_PCL_WIMAX_OFDM/OFDMA.
+ */
+void cnstr_shdsc_wimax_decap(uint32_t *descbuf, unsigned *bufsize,
+			     uint8_t pdb_opts, uint32_t pn, uint16_t ar_len,
+			     uint16_t protinfo, uint8_t *cipherkey,
+			     uint32_t keylen)
+{
+	struct wimax_decap_pdb pdb;
+	struct program prg;
+	struct program *program = &prg;
+	uint32_t startidx;
+
+	LABEL(seq_ptr);
+	LABEL(crc8);
+	REFERENCE(pseq_out_ptr);
+	REFERENCE(pcrc8);
+
+	memset(&pdb, 0x00, sizeof(struct wimax_decap_pdb));
+	pdb.options = pdb_opts;
+	pdb.pn = pn;
+	pdb.antireplay_len = ar_len;
+	pdb.iv_flags = WIMAX_PDB_B0;
+	pdb.ctr_flags = WIMAX_PDB_CTR;
+
+	startidx = sizeof(struct wimax_decap_pdb) >> 2;
+
+	PROGRAM_CNTXT_INIT(descbuf, 0);
+	SHR_HDR(SHR_WAIT, ++startidx, WITH(0));
+	{
+		ENDIAN_DATA((uint8_t *)&pdb, sizeof(struct wimax_decap_pdb));
+		SET_LABEL(seq_ptr);
+
+		/* Label first word after KEY opcode */
+		seq_ptr++;
+
+		KEY(KEY1, 0, PTR((uintptr_t)cipherkey), keylen, WITH(IMMED));
+		PROTOCOL(OP_TYPE_DECAP_PROTOCOL, OP_PCLID_WIMAX, protinfo);
+		SEQOUTPTR(NULL, 8, WITH(RTO));
+
+		/*
+		 * Make Input Sequence point to decapsulation Output Frame
+		 * in order to load and update Generic Mac Header.
+		 * SEC workflow is as follows:
+		 *     1. Copy Shared Descriptor Pointer, SEQOUTPTR,
+		 *        Output Pointer, Output Length in MATH0, MATH1, MATH2
+		 *        registers.
+		 *     2. Transform SEQOUTPTR in SEQINPTR.
+		 *     3. Load in MATH2 a local conditional JUMP with offset
+		 *        targetting the SEQLOAD command.
+		 *     4. Copy MATH0, MATH1, MATH2 contents at the first word
+		 *        after PDB offset.
+		 *     5. JUMP to SEQINPTR offset, run SEQINPTR,
+		 *        Output Pointer, Output Length and then JUMP
+		 *        to SEQLOAD.
+		 */
+		MOVE(DESCBUF, 49 * 4, MATH0, 0, IMM(20), WITH(WAITCOMP));
+		MATHB(MATH0, AND, IMM(0xfffffffff7ffffff), MATH0, SIZE(8), 0);
+		LOAD(IMM(0xa000000a), MATH2, 4, 4, WITH(0));
+		MOVE(MATH0, 0, DESCBUF, 8 * 4, IMM(24), WITH(WAITCOMP));
+		pseq_out_ptr = JUMP(IMM(seq_ptr), LOCAL_JUMP, ALL_TRUE,
+				    WITH(0));
+
+		SEQLOAD(MATH0, 0, 8, WITH(0));
+		JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, WITH(CALM));
+
+		/* Set Encryption Control bit. */
+		MATHB(MATH0, AND, IMM(0xbfffffffffffffff), MATH0, SIZE(8), 0);
+
+		/* Update Length field. */
+		MATHB(MATH0, SUB, IMM(0x00000c0000000000), MATH0, SIZE(8), 0);
+		MOVE(DESCBUF, 1 * 4, MATH1, 0, IMM(4), WITH(WAITCOMP));
+		MATHB(MATH1, SUB, ONE, MATH1, SIZE(8), 0);
+
+		/* Update Length field if FCS is enabled */
+		pcrc8 = JUMP(IMM(crc8), LOCAL_JUMP, ALL_TRUE, WITH(MATH_N));
+		MATHB(MATH0, SUB, IMM(0x0000040000000000), MATH0, SIZE(8), 0);
+
+		/*
+		 * Compute the CRC-8-ATM value for the first five bytes
+		 * of the header and insert the result into the sixth
+		 * MATH0 byte field.
+		 */
+		SET_LABEL(crc8);
+		LOAD(IMM(LDST_SRCDST_WORD_CLRW |
+			 CLRW_CLR_C1MODE |
+			 CLRW_CLR_C2MODE |
+			 CLRW_CLR_C2DATAS |
+			 CLRW_CLR_C2CTX |
+			 CLRW_CLR_C2KEY |
+			 CLRW_RESET_CLS2_CHA |
+			 CLRW_RESET_CLS1_CHA),
+		     CLRW, 0, 4, WITH(0));
+		KEY(KEY2, 0, IMM(0x07000000), 2, WITH(IMMED));
+		ALG_OPERATION(OP_ALG_ALGSEL_CRC,
+			      OP_ALG_AAI_CUST_POLY | OP_ALG_AAI_DIS,
+			      OP_ALG_AS_UPDATE, ICV_CHECK_DISABLE,
+			      OP_ALG_ENCRYPT);
+		MOVE(MATH0, 0, IFIFOAB2, 0, IMM(5), WITH(LAST1));
+		MOVE(CONTEXT2, 0, MATH1, 0, IMM(4), WITH(WAITCOMP));
+		JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, WITH(CLASS2));
+		MOVE(MATH1, 0, MATH0, 5, IMM(1), WITH(WAITCOMP));
+
+		/* Rewrite decapsulation Generic Mac Header. */
+		SEQSTORE(MATH0, 0, 8, WITH(0));
+	}
+	PATCH_JUMP(pseq_out_ptr, seq_ptr);
+	PATCH_JUMP(pcrc8, crc8);
+	*bufsize = PROGRAM_FINALIZE();
+}
+
 /** @} end of sharedesc_group */
 
 #endif /* __RTA_PROTOSHARED_H__ */
