@@ -42,7 +42,7 @@ static inline void cnstr_shdsc_snow_f8(uint32_t *descbuf, uint16_t *bufsize,
 	PROGRAM_CNTXT_INIT(descbuf, 0);
 	SHR_HDR(SHR_ALWAYS, 1, 0);
 	{
-		KEY(KEY1, 0, IMM((uintptr_t)cipherkey), keylen, 0);
+		KEY(KEY1, 0, PTR((uintptr_t)cipherkey), keylen, IMMED);
 		MATHB(SEQINSZ, SUB, MATH2, VSEQINSZ, SIZE(4), 0);
 		MATHB(SEQINSZ, SUB, MATH2, VSEQOUTSZ, SIZE(4), 0);
 		ALG_OPERATION(OP_ALG_ALGSEL_SNOW_F8, OP_ALG_AAI_F8,
@@ -86,7 +86,7 @@ static inline void cnstr_shdsc_snow_f9(uint32_t *descbuf, uint16_t *bufsize,
 	PROGRAM_CNTXT_INIT(descbuf, 0);
 	SHR_HDR(SHR_ALWAYS, 1, 0);
 	{
-		KEY(KEY2, 0, IMM((uintptr_t)cipherkey), keylen, 0);
+		KEY(KEY2, 0, PTR((uintptr_t)cipherkey), keylen, IMMED);
 		MATHB(SEQINSZ, SUB, MATH2, VSEQINSZ, SIZE(4), 0);
 		ALG_OPERATION(OP_ALG_ALGSEL_SNOW_F9, OP_ALG_AAI_F9,
 			      OP_ALG_AS_INITFINAL, 0, dir);
@@ -122,7 +122,7 @@ static inline void cnstr_shdsc_cbc_blkcipher(uint32_t *descbuf, uint16_t *bufsiz
 	SHR_HDR(SHR_ALWAYS, 1, SC);
 	{
 		/* Insert Key */
-		KEY(KEY1, 0, IMM((uintptr_t)cipherkey), keylen, 0);
+		KEY(KEY1, 0, PTR((uintptr_t)cipherkey), keylen, IMMED);
 		MATHB(SEQINSZ, SUB, MATH2, VSEQINSZ, SIZE(4), 0);
 		MATHB(SEQINSZ, SUB, MATH2, VSEQOUTSZ, SIZE(4), 0);
 		ALG_OPERATION(cipher, OP_ALG_AAI_CBC, OP_ALG_AS_INIT, 0, dir);
@@ -182,7 +182,7 @@ static inline void cnstr_shdsc_hmac(uint32_t *descbuf, uint16_t *bufsize,
 	PROGRAM_CNTXT_INIT(descbuf, 0);
 	SHR_HDR(SHR_ALWAYS, 1, SC);
 	{
-		KEY(KEY2, 0, IMM((uintptr_t)md_key), storelen, 0);
+		KEY(KEY2, 0, PTR((uintptr_t)md_key), storelen, IMMED);
 		/* compute sequences */
 		MATHB(SEQINSZ, SUB, MATH2, VSEQINSZ, SIZE(4), 0);
 		MATHB(SEQINSZ, SUB, MATH2, VSEQOUTSZ, SIZE(4), 0);
@@ -224,7 +224,7 @@ static inline void cnstr_shdsc_kasumi_f8(uint32_t *descbuf, uint16_t *bufsize,
 	PROGRAM_CNTXT_INIT(descbuf, 0);
 	SHR_HDR(SHR_ALWAYS, 1, 0);
 	{
-		KEY(KEY1, 0, IMM((uintptr_t)cipherkey), keylen, 0);
+		KEY(KEY1, 0, PTR((uintptr_t)cipherkey), keylen, IMMED);
 		MATHB(SEQINSZ, SUB, MATH2, VSEQINSZ, SIZE(4), 0);
 		MATHB(SEQINSZ, SUB, MATH2, VSEQOUTSZ, SIZE(4), 0);
 		ALG_OPERATION(OP_ALG_ALGSEL_KASUMI, OP_ALG_AAI_F8,
@@ -270,7 +270,7 @@ static inline void cnstr_shdsc_kasumi_f9(uint32_t *descbuf, uint16_t *bufsize,
 	PROGRAM_CNTXT_INIT(descbuf, 0);
 	SHR_HDR(SHR_ALWAYS, 1, 0);
 	{
-		KEY(KEY1, 0, IMM((uintptr_t)cipherkey), keylen, 0);
+		KEY(KEY1, 0, PTR((uintptr_t)cipherkey), keylen, IMMED);
 		MATHB(SEQINSZ, SUB, MATH2, VSEQINSZ, SIZE(4), 0);
 		ALG_OPERATION(OP_ALG_ALGSEL_KASUMI, OP_ALG_AAI_F9,
 			      OP_ALG_AS_INITFINAL, 0, dir);
