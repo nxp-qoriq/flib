@@ -111,18 +111,18 @@ int build_shdesc_raid_xor_opt(struct program *prg, uint32_t *buff, int buffpos)
 		phdr4 = SHR_HDR(SHR_NEVER, c, 0);
 	}
 
-	PATCH_MOVE(program, pmove1, new_source);
-	PATCH_MOVE(program, pmove2, new_source);
-	PATCH_MOVE(program, pmove3, new_source);
-	PATCH_HDR(program, phdr1, label_2);
-	PATCH_HDR(program, phdr2, label_2);
-	PATCH_HDR(program, phdr3, label_2);
-	PATCH_HDR(program, phdr4, c);
-	PATCH_JUMP(program, pjump1, label_2);
-	PATCH_JUMP(program, pjump2, return_point);
-	PATCH_JUMP(program, pjump3, return_point);
-	PATCH_JUMP(program, pjump4, return_point);
-	PATCH_JUMP(program, pjump5, store_here);
+	PATCH_MOVE(pmove1, new_source);
+	PATCH_MOVE(pmove2, new_source);
+	PATCH_MOVE(pmove3, new_source);
+	PATCH_HDR(phdr1, label_2);
+	PATCH_HDR(phdr2, label_2);
+	PATCH_HDR(phdr3, label_2);
+	PATCH_HDR(phdr4, c);
+	PATCH_JUMP(pjump1, label_2);
+	PATCH_JUMP(pjump2, return_point);
+	PATCH_JUMP(pjump3, return_point);
+	PATCH_JUMP(pjump4, return_point);
+	PATCH_JUMP(pjump5, store_here);
 
 	size = PROGRAM_FINALIZE();
 	return size;
@@ -177,8 +177,7 @@ int build_more_cmds_raid_xor_opt(struct program *prg, uint32_t *buff,
 					MOVE(CONTEXT1, (16 * (i + 1)), DESCBUF,
 					     new_source, IMM(16), 0);
 				JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, 0);
-				PATCH_MOVE(program, ref1_move_new_source,
-					   new_source);
+				PATCH_MOVE(ref1_move_new_source, new_source);
 			} else {
 				SEQINPTR(load_data_addr[i], data_size,
 					 WITH(EXT));
@@ -186,8 +185,7 @@ int build_more_cmds_raid_xor_opt(struct program *prg, uint32_t *buff,
 					MOVE(CONTEXT2, (16 * (i + 1)), DESCBUF,
 					     new_source, IMM(16), 0);
 				JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, 0);
-				PATCH_MOVE(program, ref2_move_new_source,
-					   new_source);
+				PATCH_MOVE(ref2_move_new_source, new_source);
 			}
 
 		SEQINPTR(load_data_addr[i], data_size, WITH(EXT));
@@ -195,8 +193,8 @@ int build_more_cmds_raid_xor_opt(struct program *prg, uint32_t *buff,
 		JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, 0);
 	}
 
-	PATCH_HDR(program, ref1_shr_first, first);
-	PATCH_HDR(program, ref1_shr_last, last);
+	PATCH_HDR(ref1_shr_first, first);
+	PATCH_HDR(ref1_shr_last, last);
 
 	size = PROGRAM_FINALIZE();
 	return size;

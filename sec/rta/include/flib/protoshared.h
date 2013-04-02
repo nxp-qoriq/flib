@@ -353,7 +353,7 @@ static inline void cnstr_shdsc_macsec_encap(uint32_t *descbuf,
 		PROTOCOL(OP_TYPE_ENCAP_PROTOCOL, OP_PCLID_MACSEC,
 			 WITH(OP_PCL_MACSEC));
 	}
-	PATCH_JUMP(program, pkeyjump, keyjump);
+	PATCH_JUMP(pkeyjump, keyjump);
 	*bufsize = PROGRAM_FINALIZE();
 }
 
@@ -398,7 +398,7 @@ static inline void cnstr_shdsc_macsec_decap(uint32_t *descbuf,
 		PROTOCOL(OP_TYPE_DECAP_PROTOCOL, OP_PCLID_MACSEC,
 			 WITH(OP_PCL_MACSEC));
 	}
-	PATCH_JUMP(program, pkeyjump, keyjump);
+	PATCH_JUMP(pkeyjump, keyjump);
 	*bufsize = PROGRAM_FINALIZE();
 }
 

@@ -119,11 +119,11 @@ int build_shdesc_kasumi_dcrc_encap(struct program *prg, uint32_t *buff,
 
 	}
 
-	PATCH_JUMP(program, pjump1, do_dcrc);
-	PATCH_JUMP(program, pjump3, process_pdu);
-	PATCH_JUMP(program, pjump4, build_move);
-	PATCH_MOVE(program, pmove1, foo);
-	PATCH_MOVE(program, pmove4, get_data);
+	PATCH_JUMP(pjump1, do_dcrc);
+	PATCH_JUMP(pjump3, process_pdu);
+	PATCH_JUMP(pjump4, build_move);
+	PATCH_MOVE(pmove1, foo);
+	PATCH_MOVE(pmove4, get_data);
 
 	size = PROGRAM_FINALIZE();
 	return size;
@@ -172,9 +172,9 @@ int main(int argc, char **argv)
 	    build_jbdesc_kasumi_dcrc_encap(&job_desc_prgm, job_desc,
 					   lte_desc_size);
 
-	PATCH_JUMP(&lte_desc_prgm, ref_all_done, all_done);
-	PATCH_MOVE(&lte_desc_prgm, ref_job_seqout, encap_job_seqout);
-	PATCH_MOVE(&lte_desc_prgm, ref_job_seqin, encap_job_seqin);
+	PATCH_JUMP_NON_LOCAL(&lte_desc_prgm, ref_all_done, all_done);
+	PATCH_MOVE_NON_LOCAL(&lte_desc_prgm, ref_job_seqout, encap_job_seqout);
+	PATCH_MOVE_NON_LOCAL(&lte_desc_prgm, ref_job_seqin, encap_job_seqin);
 
 	pr_debug("KASUMI DCRC Decryption program\n");
 	pr_debug("size = %d\n", lte_desc_size);

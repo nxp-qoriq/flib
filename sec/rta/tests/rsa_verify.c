@@ -31,7 +31,7 @@ int build_rsa_verify_desc(uint32_t *buff, uint32_t n_len, uint32_t e_len,
 		}
 		PROTOCOL(OP_TYPE_UNI_PROTOCOL, OP_PCLID_RSAENCRYPT, 0);
 	}
-	PATCH_HDR(program, 0, pdb_end);
+	PATCH_HDR(0, pdb_end);
 	size = PROGRAM_FINALIZE();
 	return size;
 }

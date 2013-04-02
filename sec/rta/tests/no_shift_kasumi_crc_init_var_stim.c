@@ -203,19 +203,19 @@ int generate_lte_code(struct program *prg, uint32_t *buff, int mdatalen,
 	}
 
 	/* Patch section */
-	PATCH_JUMP(program, pjump1, encap_share_end);
-	PATCH_JUMP(program, pjump2, last_info);
-	PATCH_JUMP(program, pjump3, after_info);
+	PATCH_JUMP(pjump1, encap_share_end);
+	PATCH_JUMP(pjump2, last_info);
+	PATCH_JUMP(pjump3, after_info);
 
-	PATCH_MOVE(program, pmove1, encap_share_end);
-	PATCH_MOVE(program, pmove2, datasz_len);
-	PATCH_MOVE(program, pmove3, datasz_len);
-	PATCH_MOVE(program, pmove4, datasz1_len);
-	PATCH_MOVE(program, pmove5, datasz1_len);
-	PATCH_MOVE(program, pmove6, info_len);
-	PATCH_MOVE(program, pmove7, info_len);
-	PATCH_MOVE(program, pmove8, last_info);
-	PATCH_MOVE(program, pmove9, last_info);
+	PATCH_MOVE(pmove1, encap_share_end);
+	PATCH_MOVE(pmove2, datasz_len);
+	PATCH_MOVE(pmove3, datasz_len);
+	PATCH_MOVE(pmove4, datasz1_len);
+	PATCH_MOVE(pmove5, datasz1_len);
+	PATCH_MOVE(pmove6, info_len);
+	PATCH_MOVE(pmove7, info_len);
+	PATCH_MOVE(pmove8, last_info);
+	PATCH_MOVE(pmove9, last_info);
 
 	size = PROGRAM_FINALIZE();
 	return size;
@@ -433,24 +433,27 @@ int main(int argc, char *argv[])
 						 even_more_extra_desc_size));
 
 	/* Patch section start */
-	PATCH_MOVE(&more_extra_prgm, encap_share_end_ref3, encap_share_end);
+	PATCH_MOVE_NON_LOCAL(&more_extra_prgm, encap_share_end_ref3,
+			     encap_share_end);
 
-	PATCH_JUMP(&more_extra_prgm, encap_share_end_ref4, encap_share_end);
+	PATCH_JUMP_NON_LOCAL(&more_extra_prgm, encap_share_end_ref4,
+			     encap_share_end);
 
-	PATCH_MOVE(&even_more_extra_prgm, encap_share_end_ref5,
-		   encap_share_end);
+	PATCH_MOVE_NON_LOCAL(&even_more_extra_prgm, encap_share_end_ref5,
+			     encap_share_end);
 
-	PATCH_JUMP(&even_more_extra_prgm, encap_share_end_ref6,
-		   encap_share_end);
+	PATCH_JUMP_NON_LOCAL(&even_more_extra_prgm, encap_share_end_ref6,
+			     encap_share_end);
 
-	PATCH_MOVE(&yet_more_extra_prgm, encap_share_end_ref7, encap_share_end);
+	PATCH_MOVE_NON_LOCAL(&yet_more_extra_prgm, encap_share_end_ref7,
+			     encap_share_end);
 
-	PATCH_JUMP(&still_more_extra_prgm, back_from_extras_ref1,
-		   back_from_extras);
+	PATCH_JUMP_NON_LOCAL(&still_more_extra_prgm, back_from_extras_ref1,
+			     back_from_extras);
 
-	PATCH_MOVE(&even_more_extra_prgm, yet_more_ref1, yet_more);
+	PATCH_MOVE_NON_LOCAL(&even_more_extra_prgm, yet_more_ref1, yet_more);
 
-	PATCH_JUMP(&extra_prgm, loop_start_ref1, loop_start);
+	PATCH_JUMP_NON_LOCAL(&extra_prgm, loop_start_ref1, loop_start);
 	/* Patch section end */
 
 	pr_debug("#title LTE Commands\n");

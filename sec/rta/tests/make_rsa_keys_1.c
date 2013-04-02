@@ -100,11 +100,11 @@ int jdesc_pkha_make_rsa_p_q(struct program *prg, uint32_t *buff, int buffpos)
 		STORE(MATH1, 4, PTR(pq_count), 4, 0);
 		JUMP(PTR(pkha_make_rsa_check_pq_phys), FAR_JUMP, ALL_TRUE, 0);
 	}
-	PATCH_JUMP(program, pjump1, retry);
-	PATCH_JUMP(program, pjump2, short_key);
-	PATCH_JUMP(program, pjump3, store_q);
-	PATCH_JUMP(program, pjump4, now_do_q);
-	PATCH_JUMP(program, pjump5, retry);
+	PATCH_JUMP(pjump1, retry);
+	PATCH_JUMP(pjump2, short_key);
+	PATCH_JUMP(pjump3, store_q);
+	PATCH_JUMP(pjump4, now_do_q);
+	PATCH_JUMP(pjump5, retry);
 
 	size = PROGRAM_FINALIZE();
 	return size;
@@ -174,12 +174,12 @@ int jdesc_pkha_make_rsa_check_pq(struct program *prg, uint32_t *buff,
 		FIFOLOAD(PKN, PTR(prv_key_q), pq_size, 0);
 		JUMP(PTR(pkha_make_rsa_d_n_phys), FAR_JUMP, ALL_TRUE, 0);
 	}
-	PATCH_JUMP(program, pjump1, check_2);
-	PATCH_JUMP(program, pjump2, do_over);
-	PATCH_JUMP(program, pjump3, do_over);
-	PATCH_JUMP(program, pjump4, pq_ok);
-	PATCH_JUMP(program, pjump5, pq_ok);
-	PATCH_JUMP(program, pjump6, pq_ok);
+	PATCH_JUMP(pjump1, check_2);
+	PATCH_JUMP(pjump2, do_over);
+	PATCH_JUMP(pjump3, do_over);
+	PATCH_JUMP(pjump4, pq_ok);
+	PATCH_JUMP(pjump5, pq_ok);
+	PATCH_JUMP(pjump6, pq_ok);
 
 	size = PROGRAM_FINALIZE();
 	return size;
@@ -249,7 +249,7 @@ int jdesc_pkha_make_rsa_d_n(struct program *prg, uint32_t *buff, int buffpos)
 		PKHA_OPERATION(OP_ALG_PKMODE_MOD_MULT);
 		FIFOSTORE(PKB, 0, pub_key_n, n_size, 0);
 	}
-	PATCH_JUMP(program, pjump1, phi_e_relatively_prime);
+	PATCH_JUMP(pjump1, phi_e_relatively_prime);
 
 	size = PROGRAM_FINALIZE();
 	return size;

@@ -101,7 +101,7 @@ int test_store_jd1(uint32_t *buff, uint32_t buffpos)
 	SET_LABEL(mod_loc1);
 	MOVE(CONTEXT1, 0, CONTEXT2, 0, IMM(1), 0);
 
-	PATCH_STORE(program, pstore, mod_loc1);
+	PATCH_STORE(pstore, mod_loc1);
 
 	size = PROGRAM_FINALIZE();
 
@@ -125,7 +125,7 @@ int test_store_sd(struct program *share_desc, uint32_t *buff, uint32_t buffpos)
 	MATHB(ZERO, ADD, ONE, MATH1, SIZE(1), 0);
 	pstore2 = STORE(JOBDESCBUF, mod_loc2, IMM(0), 4 * word_size, 0);
 
-	PATCH_STORE(program, pstore, shr_loc);
+	PATCH_STORE(pstore, shr_loc);
 
 	size = PROGRAM_FINALIZE();
 
@@ -167,9 +167,9 @@ int main(int argc, char **argv)
 	sd_size = test_store_sd(&share_desc, sd_buff, 0);
 	jd2_size = test_store_jd2(&job_desc, jd2_buff, sd_size);
 
-	PATCH_STORE(&share_desc, pstore2, mod_loc2);
-	PATCH_STORE(&job_desc, pstore3, mod_loc2);
-	PATCH_STORE(&job_desc, pstore4, shr_loc);
+	PATCH_STORE_NON_LOCAL(&share_desc, pstore2, mod_loc2);
+	PATCH_STORE_NON_LOCAL(&job_desc, pstore3, mod_loc2);
+	PATCH_STORE_NON_LOCAL(&job_desc, pstore4, shr_loc);
 
 	pr_debug("STORE commands\n");
 	pr_debug("size = %d\n", cmd_size);

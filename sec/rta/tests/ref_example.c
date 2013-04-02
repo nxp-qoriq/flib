@@ -45,7 +45,8 @@ int main(int argc, char **argv)
 
 	sd_size = generate_capwap_code(&capwap_program, capwap_buf);
 	jd_size = generate_job_desc(&job_desc_snippet, job_buf);
-	PATCH_JUMP(&capwap_program, label_different_ref, label_different_desc);
+	PATCH_JUMP_NON_LOCAL(&capwap_program, label_different_ref,
+			     label_different_desc);
 
 	pr_debug("Shared desc\n");
 	pr_debug("size = %d\n", sd_size);

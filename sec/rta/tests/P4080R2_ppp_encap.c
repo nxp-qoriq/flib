@@ -133,16 +133,16 @@ int build_shr_desc_ppp_encap(struct program *prg, uint32_t *buff, int buffpos)
 		SET_LABEL(endshare);
 	}
 
-	PATCH_HDR(program, pjump1, start);
-	PATCH_JUMP(program, pjumpb, b);
-	PATCH_JUMP(program, pjumpd, d);
-	PATCH_MOVE(program, pmove1, do_nfifo);
-	PATCH_JUMP(program, pjumpe, e);
-	PATCH_JUMP(program, pjump2, aprm);
-	PATCH_JUMP(program, pjumpp, p);
-	PATCH_JUMP(program, pjumpr, r);
-	PATCH_HDR(program, pjumps, s);
-	PATCH_MOVE(program, pmoves, s);
+	PATCH_HDR(pjump1, start);
+	PATCH_JUMP(pjumpb, b);
+	PATCH_JUMP(pjumpd, d);
+	PATCH_MOVE(pmove1, do_nfifo);
+	PATCH_JUMP(pjumpe, e);
+	PATCH_JUMP(pjump2, aprm);
+	PATCH_JUMP(pjumpp, p);
+	PATCH_JUMP(pjumpr, r);
+	PATCH_HDR(pjumps, s);
+	PATCH_MOVE(pmoves, s);
 
 	size = PROGRAM_FINALIZE();
 	return size;
@@ -187,7 +187,7 @@ int build_extra_cmds(struct program *prg, uint32_t *buff, int buffpos)
 				  WITH(WAITCOMP));
 		ref_jumpc = SHR_HDR(SHR_NEVER, c, 0);
 	}
-	PATCH_JUMP(program, pjumpk, k);
+	PATCH_JUMP(pjumpk, k);
 
 	size = PROGRAM_FINALIZE();
 	return size;
@@ -226,7 +226,7 @@ int build_more_cmds(struct program *prg, uint32_t *buff, int buffpos)
 		ref_jumpa = JUMP(IMM(a), LOCAL_JUMP, ANY_FALSE, WITH(MATH_Z));
 		ref_jumph = SHR_HDR(SHR_NEVER, h, 0);
 	}
-	PATCH_JUMP(program, pjumpg, g);
+	PATCH_JUMP(pjumpg, g);
 
 	size = PROGRAM_FINALIZE();
 	return size;
@@ -283,14 +283,14 @@ int main(int argc, char **argv)
 	memset(job, 0x00, sizeof(job));
 	job_size = build_jbdesc_ppp_encap(&job_desc_prgm, job, shr_size);
 
-	PATCH_MOVE(&extra_cmds_prgm, ref1_moves, s);
-	PATCH_MOVE(&more_cmds_prgm, ref2_moves, s);
-	PATCH_JUMP(&more_cmds_prgm, ref_jumpa, a);
-	PATCH_HDR(&extra_cmds_prgm, ref_jumpc, c);
-	PATCH_HDR(&more_cmds_prgm, ref_jumph, h);
-	PATCH_JUMP(&shr_desc_prgm, ref_jumpk, k);
-	PATCH_JUMP(&extra_cmds_prgm, ref_jumpl, l);
-	PATCH_HDR(&more_cmds_prgm, refq_hdr, q);
+	PATCH_MOVE_NON_LOCAL(&extra_cmds_prgm, ref1_moves, s);
+	PATCH_MOVE_NON_LOCAL(&more_cmds_prgm, ref2_moves, s);
+	PATCH_JUMP_NON_LOCAL(&more_cmds_prgm, ref_jumpa, a);
+	PATCH_HDR_NON_LOCAL(&extra_cmds_prgm, ref_jumpc, c);
+	PATCH_HDR_NON_LOCAL(&more_cmds_prgm, ref_jumph, h);
+	PATCH_JUMP_NON_LOCAL(&shr_desc_prgm, ref_jumpk, k);
+	PATCH_JUMP_NON_LOCAL(&extra_cmds_prgm, ref_jumpl, l);
+	PATCH_HDR_NON_LOCAL(&more_cmds_prgm, refq_hdr, q);
 
 	pr_debug("PPP decap program shared desc\n");
 	pr_debug("size = %d\n", shr_size);

@@ -103,10 +103,10 @@ int build_shdesc_kasumi_dcrc_decap(struct program *prg, uint32_t *buff,
 
 	}
 
-	PATCH_JUMP(program, pjump1, handle_kasumi);
-	PATCH_JUMP(program, pjump2, process_pdu);
-	PATCH_MOVE(program, pmove1, foo);
-	PATCH_MOVE(program, pmove2, foo);
+	PATCH_JUMP(pjump1, handle_kasumi);
+	PATCH_JUMP(pjump2, process_pdu);
+	PATCH_MOVE(pmove1, foo);
+	PATCH_MOVE(pmove2, foo);
 
 	size = PROGRAM_FINALIZE();
 	return size;
@@ -153,7 +153,7 @@ int main(int argc, char **argv)
 	    build_jbdesc_kasumi_dcrc_decap(&job_desc_prgm, job_desc,
 					   lte_desc_size);
 
-	PATCH_HDR(&lte_desc_prgm, ref_decap_job, decap_job_seqoutptr);
+	PATCH_HDR_NON_LOCAL(&lte_desc_prgm, ref_decap_job, decap_job_seqoutptr);
 
 	pr_debug("KASUMI DCRC Decryption program\n");
 	pr_debug("size = %d\n", lte_desc_size);

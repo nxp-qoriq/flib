@@ -60,7 +60,7 @@ int make_prime_test(uint32_t *buff)
 		pjump1 = JUMP(IMM(gen), LOCAL_JUMP, ANY_FALSE, WITH(PK_PRIME));
 		FIFOSTORE(PKN, 0, prime, prime_size, 0);
 	}
-	PATCH_JUMP(program, pjump1, gen);
+	PATCH_JUMP(pjump1, gen);
 
 	size = PROGRAM_FINALIZE();
 	return size;

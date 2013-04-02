@@ -84,9 +84,9 @@ int dlc_keygen(uint32_t *buff)
 
 		FIFOSTORE(PKB, 0, public_key, field_size, 0);
 	}
-	PATCH_JUMP(program, p1_retry, retry);
-	PATCH_JUMP(program, p2_retry, retry);
-	PATCH_JUMP(program, p3_retry, retry);
+	PATCH_JUMP(p1_retry, retry);
+	PATCH_JUMP(p2_retry, retry);
+	PATCH_JUMP(p3_retry, retry);
 
 	size = PROGRAM_FINALIZE();
 

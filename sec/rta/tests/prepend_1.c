@@ -59,7 +59,7 @@ int prepend(uint32_t *buff)
 			 WITH(OP_PCL_IPSEC_AES_CBC |
 			      OP_PCL_IPSEC_HMAC_SHA1_160));
 	}
-	PATCH_JUMP(program, pjump1, skip_key_load);
+	PATCH_JUMP(pjump1, skip_key_load);
 	size = PROGRAM_FINALIZE();
 
 	return size;

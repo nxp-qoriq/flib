@@ -43,7 +43,7 @@ int build_rsa_decrypt_desc(uint32_t *buff, uint32_t n_len, uint32_t p_len,
 			      OP_PCL_RSAPROT_FMT_PKCSV15));
 		STORE(MATH0, 4, PTR(msglen), 4, 0);
 	}
-	PATCH_HDR(program, 0, pdb_end);
+	PATCH_HDR(0, pdb_end);
 	size = PROGRAM_FINALIZE();
 	return size;
 }
