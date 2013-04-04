@@ -102,6 +102,7 @@ int test_move_op(uint32_t *buff)
 	MOVE(DESCBUF, 2, MATH1, 0, IMM(3), 0);
 	MOVE(DESCBUF, 3, MATH2, 0, IMM(3), 0);
 	MOVE(DESCBUF, 1, MATH3, 0, IMM(3), 0);
+	MOVE(DESCBUF, 5, MATH3, 0, IMM(8), 0);
 	MOVE(DESCBUF, 11, IFIFOAB1, 0, IMM(len), 0);
 	MOVE(DESCBUF, 13, IFIFOAB1, 0, IMM(len), 0);
 	MOVE(DESCBUF, 14, IFIFOAB1, 0, IMM(len), WITH(FLUSH1));
@@ -293,10 +294,10 @@ int main(int argc, char **argv)
 {
 	int size;
 
-	printf("MOVE program\n");
+	pr_debug("MOVE program\n");
 	rta_set_sec_era(RTA_SEC_ERA_4);
 	size = test_move_op((uint32_t *) prg_buff);
-	printf("size = %d\n", size);
+	pr_debug("size = %d\n", size);
 	print_prog((uint32_t *) prg_buff, size);
 
 	return 0;

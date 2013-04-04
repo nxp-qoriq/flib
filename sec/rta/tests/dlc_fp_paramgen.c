@@ -299,24 +299,24 @@ int main(int argc, char **argv)
 	memset(&make_q_desc, 0, sizeof(make_q_desc));
 	memset(&make_g_desc, 0, sizeof(make_g_desc));
 
-	printf("Generate DLC FP domain parameters\n");
+	pr_debug("Generate DLC FP domain parameters\n");
 	size = generate_dlc_fp_params(&gen_dlc_fp_prgm, gen_dlc_fp_desc);
-	printf("size = %d\n", size);
+	pr_debug("size = %d\n", size);
 	print_prog(gen_dlc_fp_desc, size);
 
-	printf("Make X\n");
+	pr_debug("Make X\n");
 	size = dlc_fp_make_x(&make_x_prgm, make_x_desc);
-	printf("size = %d\n", size);
+	pr_debug("size = %d\n", size);
 	print_prog(make_x_desc, size);
 
-	printf("Make q\n");
+	pr_debug("Make q\n");
 	size = dlc_fp_make_q(&make_q_prgm, make_q_desc);
-	printf("size = %d\n", size);
+	pr_debug("size = %d\n", size);
 	print_prog(make_q_desc, size);
 
-	printf("Make g\n");
+	pr_debug("Make g\n");
 	size = dlc_fp_make_g(&make_g_prgm, make_g_desc);
-	printf("size = %d\n", size);
+	pr_debug("size = %d\n", size);
 	print_prog(make_g_desc, size);
 
 	return 0;

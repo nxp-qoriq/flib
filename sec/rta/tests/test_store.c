@@ -171,20 +171,20 @@ int main(int argc, char **argv)
 	PATCH_STORE(&job_desc, pstore3, mod_loc2);
 	PATCH_STORE(&job_desc, pstore4, shr_loc);
 
-	printf("STORE commands\n");
-	printf("size = %d\n", cmd_size);
+	pr_debug("STORE commands\n");
+	pr_debug("size = %d\n", cmd_size);
 	print_prog(prg_buff, cmd_size);
 
-	printf("STORE Job Desc #1\n");
-	printf("size = %d\n", jd1_size);
+	pr_debug("STORE Job Desc #1\n");
+	pr_debug("size = %d\n", jd1_size);
 	print_prog(jd1_buff, jd1_size);
 
-	printf("STORE Shared Desc\n");
-	printf("size = %d\n", sd_size);
+	pr_debug("STORE Shared Desc\n");
+	pr_debug("size = %d\n", sd_size);
 	print_prog(sd_buff, sd_size);
 
-	printf("STORE Job Desc #2\n");
-	printf("size = %d\n", jd2_size);
+	pr_debug("STORE Job Desc #2\n");
+	pr_debug("size = %d\n", jd2_size);
 	print_prog(jd2_buff, jd2_size);
 
 	return 0;

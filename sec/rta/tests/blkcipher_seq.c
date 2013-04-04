@@ -43,10 +43,10 @@ int main(int argc, char **argv)
 {
 	int size;
 
-	printf("BLKCIPHER SEQ program\n");
+	pr_debug("BLKCIPHER SEQ program\n");
 	rta_set_sec_era(RTA_SEC_ERA_3);
 	size = test_blkcipher_seq((uint32_t *) prg_buff);
-	printf("size = %d\n", size);
+	pr_debug("size = %d\n", size);
 	print_prog((uint32_t *) prg_buff, size);
 
 	return 0;

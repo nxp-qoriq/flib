@@ -188,19 +188,19 @@ int main(int argc, char **argv)
 
 	rta_set_sec_era(RTA_SEC_ERA_1);
 
-	printf("HMAC_By_Hand #1 JD program\n");
+	pr_debug("HMAC_By_Hand #1 JD program\n");
 	size = build_hmacprecomp((uint32_t *) prg_buff);
-	printf("size = %d\n", size);
+	pr_debug("size = %d\n", size);
 	print_prog((uint32_t *) prg_buff, size);
 
-	printf("HMAC_By_Hand #2 JD program\n");
+	pr_debug("HMAC_By_Hand #2 JD program\n");
 	size = build_hmacprecomp_opad((uint32_t *) prg_buff);
-	printf("size = %d\n", size);
+	pr_debug("size = %d\n", size);
 	print_prog((uint32_t *) prg_buff, size);
 
-	printf("HMAC_By_Hand #3 JD program\n");
+	pr_debug("HMAC_By_Hand #3 JD program\n");
 	size = build_hmac_from_pre((uint32_t *) prg_buff);
-	printf("size = %d\n", size);
+	pr_debug("size = %d\n", size);
 	print_prog((uint32_t *) prg_buff, size);
 
 	return 0;

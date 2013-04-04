@@ -46,12 +46,12 @@ int main(int argc, char **argv)
 	jd_size = generate_job_desc(&job_desc_snippet, job_buf);
 	PATCH_JUMP(&capwap_program, label_different_ref, label_different_desc);
 
-	printf("Shared desc\n");
-	printf("size = %d\n", sd_size);
+	pr_debug("Shared desc\n");
+	pr_debug("size = %d\n", sd_size);
 	print_prog(capwap_buf, sd_size);
 
-	printf("Job desc\n");
-	printf("size = %d\n", jd_size);
+	pr_debug("Job desc\n");
+	pr_debug("size = %d\n", jd_size);
 	print_prog(job_buf, jd_size);
 
 	return 0;

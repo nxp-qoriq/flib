@@ -69,7 +69,11 @@ int build_shdesc_kasumi_dcrc_encap(struct program *prg, uint32_t *buff,
 
 		/* Build a MOVE command to process input data */
 		SET_LABEL(build_move);
-		MATHB(MATH0, ADD, ZERO, MATH0, 4, WITH(NFU));
+		/*
+		 * RTA does not support generating MATH commands with LEN = 8
+		 * and no immediate inlined in the command, thus use WORD().
+		 */
+		WORD(0xaa004004);
 		MOVE(IFIFOABD, 0, OFIFO, 0, IMM(0), 0);
 
 		MATHB(ZERO, ADD, MATH0, VSEQINSZ, 2, WITH(NFU));
@@ -169,11 +173,11 @@ int main(int argc, char **argv)
 	PATCH_MOVE(&lte_desc_prgm, ref_job_seqout, encap_job_seqout);
 	PATCH_MOVE(&lte_desc_prgm, ref_job_seqin, encap_job_seqin);
 
-	printf("KASUMI DCRC Decryption program\n");
-	printf("size = %d\n", lte_desc_size);
+	pr_debug("KASUMI DCRC Decryption program\n");
+	pr_debug("size = %d\n", lte_desc_size);
 	print_prog((uint32_t *) lte_desc, lte_desc_size);
 
-	printf("size = %d\n", job_desc_size);
+	pr_debug("size = %d\n", job_desc_size);
 	print_prog((uint32_t *) job_desc, job_desc_size);
 
 	return 0;

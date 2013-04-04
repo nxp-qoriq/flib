@@ -98,10 +98,10 @@ int main(int argc, char **argv)
 {
 	int size;
 
-	printf("Perf example program\n");
+	pr_debug("Perf example program\n");
 	rta_set_sec_era(RTA_SEC_ERA_4);
 	size = test_perf((uint32_t *) prg_buff);
-	printf("size = %d\n", size);
+	pr_debug("size = %d\n", size);
 	print_prog((uint32_t *) prg_buff, size);
 
 	return 0;

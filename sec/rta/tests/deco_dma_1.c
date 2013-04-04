@@ -60,8 +60,12 @@ int deco_dma(uint32_t *buff)
 		/* Put MOVE length (chunk size) into Math 1 */
 		MATHB(ZERO, ADD, IMM(move_size), MATH1, 4, 0);
 
-		/* Put the last MOVE and HALT commands into Math 3 */
-		MATHB(ZERO, ADD, ONE, MATH3, 8, 0);
+		/*
+		 * Put the last MOVE and HALT commands into Math 3
+		 * RTA does not support generating MATH commands with LEN = 8
+		 * and no immediate inlined in the command, thus use WORD().
+		 */
+		WORD(0xa80c4308);
 		MOVE(IFIFOAB1, 0, OFIFO, 0, IMM(0), WITH(VLF));
 		JUMP(IMM(0), HALT_STATUS, ALL_TRUE, 0);
 
@@ -98,10 +102,10 @@ int main(int argc, char **argv)
 {
 	int size;
 
-	printf("DECO DMA example program\n");
+	pr_debug("DECO DMA example program\n");
 	rta_set_sec_era(RTA_SEC_ERA_3);
 	size = deco_dma((uint32_t *) prg_buff);
-	printf("size = %d\n", size);
+	pr_debug("size = %d\n", size);
 	print_prog((uint32_t *) prg_buff, size);
 
 	return 0;

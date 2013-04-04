@@ -227,16 +227,16 @@ int main(int argc, char **argv)
 	memset(context_buf, 0xFF, sizeof(context_buf));
 	ctx_size = build_more_cmds_raid_xor_opt(&ctx_buf_prgm, context_buf, 7);
 
-	printf("raid xor program shared desc\n");
-	printf("size = %d\n", shr_size);
+	pr_debug("raid xor program shared desc\n");
+	pr_debug("size = %d\n", shr_size);
 	print_prog((uint32_t *) sharedesc, shr_size);
 
-	printf("raid xor program job desc\n");
-	printf("size = %d\n", job_size);
+	pr_debug("raid xor program job desc\n");
+	pr_debug("size = %d\n", job_size);
 	print_prog((uint32_t *) jobdesc, job_size);
 
-	printf("raid xor program job context\n");
-	printf("size = %d\n", ctx_size);
+	pr_debug("raid xor program job context\n");
+	pr_debug("size = %d\n", ctx_size);
 	print_prog((uint32_t *) context_buf, ctx_size);
 
 	return 0;

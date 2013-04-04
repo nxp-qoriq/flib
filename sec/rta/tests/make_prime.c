@@ -19,7 +19,7 @@ int make_prime_test(uint32_t *buff)
 	JOB_HDR(SHR_NEVER, 0, 0, 0);
 	{
 		/* Acquire the PKHA */
-		FIFOLOAD(PKA, IMM(0), 0, 0);
+		FIFOLOAD(PKA, PTR(0), 0, WITH(IMMED));
 		/* Write the PKHA N size, getting it ready to load */
 		LOAD(IMM(prime_size), PKNSZ, 0, 4, 0);
 		/* Write the PKHA A size, getting it ready to load */
@@ -72,10 +72,10 @@ int main(int argc, char **argv)
 {
 	int size;
 
-	printf("Make prime example program\n");
+	pr_debug("Make prime example program\n");
 	rta_set_sec_era(RTA_SEC_ERA_3);
 	size = make_prime_test((uint32_t *) prg_buff);
-	printf("size = %d\n", size);
+	pr_debug("size = %d\n", size);
 	print_prog((uint32_t *) prg_buff, size);
 
 	return 0;

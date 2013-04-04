@@ -30,6 +30,7 @@ int build_dtls_sharedesc(uint32_t *buff, uint32_t seqnum,
 	struct program prg;
 	struct program *program = &prg;
 	int size;
+	int word_size = sizeof(uint32_t);
 
 	LABEL(encap_iv);
 	LABEL(previous_iv);
@@ -82,7 +83,7 @@ int build_dtls_sharedesc(uint32_t *buff, uint32_t seqnum,
 		pjump1 = SEQFIFOSTORE(MSG, 0, mdatalen, 0);
 		/* s3: Skip key commands when sharing permits */
 		JUMP(IMM(skip_keyloading), LOCAL_JUMP, ALL_TRUE, WITH(SHRD));
-		KEY(MDHA_SPLIT_KEY, ENC, PTR((intptr_t) hmac_key), 48,
+		KEY(MDHA_SPLIT_KEY, ENC, PTR((intptr_t) hmac_key), 40,
 		    WITH(IMMED));
 
 		/* load DTLS HMAC authentication key */
@@ -131,7 +132,7 @@ int build_dtls_sharedesc(uint32_t *buff, uint32_t seqnum,
 		MOVE(MATH0, 0, DESCBUF, encap_iv, IMM(32), 0);
 		/* Store back both IVs to the shared descriptor in system
 		 * memory */
-		STORE(SHAREDESCBUF, 4, NONE, 8, 0);
+		STORE(SHAREDESCBUF, 4 * word_size, NONE, 8 * word_size, 0);
 		/*
 		 * Get past JOB HEADER and init ptr (needs to be 12 for 64-bit
 		 * pointers). (There could be 'magic labels' for use by Shared
@@ -161,11 +162,11 @@ int main(int argc, char **argv)
 	uint32_t seqnum = 0x179;
 	int size;
 
-	printf("DTLS example program\n");
+	pr_debug("DTLS example program\n");
 	rta_set_sec_era(RTA_SEC_ERA_3);
 	size = build_dtls_sharedesc((uint32_t *) prg_buff, seqnum, key1, key2,
 				    46, 0xff80);
-	printf("size = %d\n", size);
+	pr_debug("size = %d\n", size);
 	print_prog((uint32_t *) prg_buff, size);
 
 	return 0;

@@ -328,29 +328,29 @@ int main(int argc, char **argv)
 	PATCH_HDR(&desc2_prgm, ref1_shr_yyy, yyy);
 	PATCH_JUMP(&desc2_prgm, ref1_jump_yyy, yyy);
 
-	printf("JUMP commands program\n");
-	printf("Jump desc #1\n");
-	printf("size = %d\n", buf1len);
+	pr_debug("JUMP commands program\n");
+	pr_debug("Jump desc #1\n");
+	pr_debug("size = %d\n", buf1len);
 	print_prog((uint32_t *) desc1, buf1len);
 
-	printf("Jump desc #2\n");
-	printf("size = %d\n", buf2len);
+	pr_debug("Jump desc #2\n");
+	pr_debug("size = %d\n", buf2len);
 	print_prog((uint32_t *) desc2, buf2len);
 
-	printf("Jump desc #3\n");
-	printf("size = %d\n", buf3len);
+	pr_debug("Jump desc #3\n");
+	pr_debug("size = %d\n", buf3len);
 	print_prog((uint32_t *) desc3, buf3len);
 
-	printf("Jump desc #4\n");
-	printf("size = %d\n", buf4len);
+	pr_debug("Jump desc #4\n");
+	pr_debug("size = %d\n", buf4len);
 	print_prog((uint32_t *) desc4, buf4len);
 
-	printf("Jump desc #5\n");
-	printf("size = %d\n", buf5len);
+	pr_debug("Jump desc #5\n");
+	pr_debug("size = %d\n", buf5len);
 	print_prog((uint32_t *) desc5, buf5len);
 
-	printf("Jump desc #6\n");
-	printf("size = %d\n", buf6len);
+	pr_debug("Jump desc #6\n");
+	pr_debug("size = %d\n", buf6len);
 	print_prog((uint32_t *) desc6, buf6len);
 
 	return 0;

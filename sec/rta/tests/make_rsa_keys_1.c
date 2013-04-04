@@ -196,7 +196,7 @@ int jdesc_pkha_make_rsa_keys(struct program *prg, uint32_t *buff, int buffpos)
 		MATHB(ZERO, ADD, IMM(0x1000000000004000), MATH0, 8, 0);
 		MATHB(ZERO, ADD, IMM(10), VSEQINSZ, 4, 0);
 		MATHB(ZERO, ADD, IMM(pq_size), SEQOUTSZ, 4, 0);
-		FIFOLOAD(PKA, IMM(0), 0, 0);	/* Acquire the PKHA */
+		FIFOLOAD(PKA, PTR(0), 0, WITH(IMMED));	/* Acquire the PKHA */
 		LOAD(IMM(0), DCTRL, LDOFF_DISABLE_AUTO_NFIFO, 0, 0);
 		JUMP(PTR(pkha_make_rsa_p_q_phys), FAR_JUMP, ALL_TRUE, 0);
 	}
@@ -288,17 +288,17 @@ int main(int argc, char **argv)
 	    jdesc_pkha_make_rsa_d_n(&rsa_d_n_prgm, make_rsa_d_n,
 				    rsa_check_pq_size);
 
-	printf("Make RSA KEYS program\n");
-	printf("size = %d\n", rsa_keys_size);
+	pr_debug("Make RSA KEYS program\n");
+	pr_debug("size = %d\n", rsa_keys_size);
 	print_prog((uint32_t *) make_rsa_keys, rsa_keys_size);
 
-	printf("size = %d\n", rsa_p_q_size);
+	pr_debug("size = %d\n", rsa_p_q_size);
 	print_prog((uint32_t *) make_rsa_p_q, rsa_p_q_size);
 
-	printf("size = %d\n", rsa_check_pq_size);
+	pr_debug("size = %d\n", rsa_check_pq_size);
 	print_prog((uint32_t *) make_rsa_check_pq, rsa_check_pq_size);
 
-	printf("size = %d\n", rsa_d_n_size);
+	pr_debug("size = %d\n", rsa_d_n_size);
 	print_prog((uint32_t *) make_rsa_d_n, rsa_d_n_size);
 
 	return 0;

@@ -59,7 +59,11 @@ int build_shr_desc_ppp_encap(struct program *prg, uint32_t *buff, int buffpos)
 		SET_LABEL(b);
 		pjumpd = MATHB(SEQINSZ, SUB, IMM(64), MATH0, 8, WITH(IFB));
 		JUMP(IMM(d), LOCAL_JUMP, ANY_FALSE, WITH(MATH_N));
-		MATHB(ZERO, SUB, MATH0, MATH1, 8, WITH(NFU));
+		/*
+		 * RTA does not support generating MATH commands with LEN = 8
+		 * and no immediate inlined in the command, thus use WORD().
+		 */
+		WORD(0xaa240108);
 		pmove1 = NFIFOADD(PAD, MSG1, 0, WITH(PAD_ZERO | LAST1));
 		MOVE(MATH1, 0, DESCBUF, do_nfifo, IMM(8), WITH(WAITCOMP));
 		MATHB(VSEQINSZ, ADD, MATH0, VSEQINSZ, 4, WITH(NFU));
@@ -113,7 +117,11 @@ int build_shr_desc_ppp_encap(struct program *prg, uint32_t *buff, int buffpos)
 		JUMP(IMM(k), LOCAL_JUMP, ALL_TRUE, WITH(MATH_Z));
 
 		MOVE(CONTEXT2, 4, IFIFOAB1, 0, IMM(1), 0);
-		MATHB(MATH0, XOR, ONE, MATH0, 8, 0);
+		/*
+		 * RTA does not support generating MATH commands with LEN = 8
+		 * and no immediate inlined in the command, thus use WORD().
+		 */
+		WORD(0xa8604008);
 
 		SET_LABEL(s);
 		LOAD(PTR(c1_ctx_addr), CONTEXT1, 0, 64, 0);
@@ -283,20 +291,20 @@ int main(int argc, char **argv)
 	PATCH_JUMP(&extra_cmds_prgm, ref_jumpl, l);
 	PATCH_HDR(&more_cmds_prgm, refq_hdr, q);
 
-	printf("PPP decap program shared desc\n");
-	printf("size = %d\n", shr_size);
+	pr_debug("PPP decap program shared desc\n");
+	pr_debug("size = %d\n", shr_size);
 	print_prog((uint32_t *) shr, shr_size);
 
-	printf("context1\n");
-	printf("size = %d\n", c1_ctx_size);
+	pr_debug("context1\n");
+	pr_debug("size = %d\n", c1_ctx_size);
 	print_prog((uint32_t *) c1_ctx, c1_ctx_size);
 
-	printf("context2\n");
-	printf("size = %d\n", c2_ctx_size);
+	pr_debug("context2\n");
+	pr_debug("size = %d\n", c2_ctx_size);
 	print_prog((uint32_t *) c2_ctx, c2_ctx_size);
 
-	printf("PPP decap program job desc\n");
-	printf("size = %d\n", job_size);
+	pr_debug("PPP decap program job desc\n");
+	pr_debug("size = %d\n", job_size);
 	print_prog((uint32_t *) job, job_size);
 
 	return 0;

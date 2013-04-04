@@ -47,14 +47,14 @@ int main(int argc, char **argv)
 
 	rta_set_sec_era(RTA_SEC_ERA_1);
 
-	printf("POINTER_SIZE_1 example program\n");
+	pr_debug("POINTER_SIZE_1 example program\n");
 	size = pointer_size_1((uint32_t *) prg_buff);
-	printf("size = %d\n", size);
+	pr_debug("size = %d\n", size);
 	print_prog((uint32_t *) prg_buff, size);
 
-	printf("POINTER_SIZE_2 example program\n");
+	pr_debug("POINTER_SIZE_2 example program\n");
 	size = pointer_size_2((uint32_t *) prg_buff);
-	printf("size = %d\n", size);
+	pr_debug("size = %d\n", size);
 	print_prog((uint32_t *) prg_buff, size);
 
 	return 0;

@@ -2,6 +2,7 @@ CC=$(CROSS_COMPILE)gcc
 INCLUDES=-I../include
 CFLAGS=-Wall -Wshadow -O3 -g $(INCLUDES)
 CPPFLAGS=-DDEBUG
+check: CPPFLAGS=
 
 ALL_SRCS=$(wildcard *.c)
 LIB_SRCS=test_common.c
@@ -12,6 +13,10 @@ TEST_OBJS=$(TEST_SRCS:.c=.o)
 TESTS=$(TEST_SRCS:.c=)
 DEPENDS=$(ALL_SRCS:.c=.d)
 LOGS=$(ALL_SRCS:.c=.desc)
+
+# List tests that do not have a golden pattern yet
+NO_CHECK_TESTS=capwap no_shift_kasumi_crc_init_var_stim perf_test ref_example test_jump test_key test_seq_ptr
+CHECK_TESTS=$(filter-out $(NO_CHECK_TESTS), $(TESTS))
 
 .PHONY: all check clean
 
@@ -35,14 +40,28 @@ else
 endif
 endif
 
-# Run all tests and save the logs in *.desc files.
-# Further, these files can be diff-ed against DXLT output.
-check: $(TESTS)
-	@echo Running tests...
-	@for test in $^ ; do \
-		./$$test > $$test.desc ; \
-	done
-	@echo Done! Output logged in \*.desc files.
+# Check tests against DXLT golden patterns (dxlt/*.desc).
+# Save the logs in *.desc files for tests that fail.
+check: $(CHECK_TESTS)
+	@echo Checking tests...
+	@total=0; \
+	passed=0; \
+	failed=0; \
+	for test in $^; do \
+		let total++; \
+		./$$test > $$test.desc; \
+		if diff $$test.desc dxlt/$$test.desc > /dev/null 2>&1; then \
+			rm $$test.desc; \
+			let passed++; \
+		else \
+			echo "$$test failed"; \
+			let failed++; \
+		fi; \
+	done; \
+	echo "Done!"; \
+	echo "Total  = $$total"; \
+	echo "Passed = $$passed"; \
+	echo "Failed = $$failed"
 
 $(TESTS): % : %.o $(LIB_OBJS)
 	$(CC) -o $@ $^

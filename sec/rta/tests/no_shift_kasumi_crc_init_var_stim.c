@@ -453,22 +453,22 @@ int main(int argc, char *argv[])
 	PATCH_JUMP(&extra_prgm, loop_start_ref1, loop_start);
 	/* Patch section end */
 
-	printf("#title LTE Commands\n");
+	pr_debug("#title LTE Commands\n");
 	print_prog(lte_desc, lte_desc_size);
 
-	printf("#title Extra Descriptor Commands\n");
+	pr_debug("#title Extra Descriptor Commands\n");
 	print_prog(extra_desc, extra_desc_size);
 
-	printf("#title More Extra Descriptor Commands\n");
+	pr_debug("#title More Extra Descriptor Commands\n");
 	print_prog(more_extra_desc, more_extra_desc_size);
 
-	printf("#title Even More Extra Descriptor Commands\n");
+	pr_debug("#title Even More Extra Descriptor Commands\n");
 	print_prog(even_more_extra_desc, even_more_extra_desc_size);
 
-	printf("#title Yet More Extra Descriptor Commands\n");
+	pr_debug("#title Yet More Extra Descriptor Commands\n");
 	print_prog(yet_more_extra_desc, yet_more_extra_desc_size);
 
-	printf("#title Still More Extra Descriptor Commands\n");
+	pr_debug("#title Still More Extra Descriptor Commands\n");
 	print_prog(still_more_extra_desc, still_more_extra_desc_size);
 
 	return 0;

@@ -13350,9 +13350,9 @@ int main(int argc, char **argv)
 
 	rta_set_sec_era(RTA_SEC_ERA_4);
 
-	printf("#MATH test #1\n");
+	pr_debug("#MATH test #1\n");
 	size = math_test(prg_buff);
-	printf("#size %d\n", size);
+	pr_debug("#size %d\n", size);
 	print_prog(prg_buff, size);
 
 	return 0;

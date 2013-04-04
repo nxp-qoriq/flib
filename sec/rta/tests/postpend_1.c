@@ -52,7 +52,7 @@ int postpend(uint32_t *buff)
 		PROTOCOL(OP_TYPE_ENCAP_PROTOCOL, OP_PCLID_IPSEC,
 			 WITH(OP_PCL_IPSEC_AES_CBC |
 			      OP_PCL_IPSEC_HMAC_SHA1_160));
-		SEQSTORE(IMM((intptr_t) &data_in), 0, 15, 0);
+		SEQSTORE(PTR((intptr_t) &data_in), 0, 14, WITH(IMMED));
 	}
 	PATCH_JUMP(program, pjump1, skip_key_load);
 	size = PROGRAM_FINALIZE();
@@ -66,10 +66,10 @@ int main(int argc, char **argv)
 {
 	int size;
 
-	printf("POSTPEND_1 example program\n");
+	pr_debug("POSTPEND_1 example program\n");
 	rta_set_sec_era(RTA_SEC_ERA_4);
 	size = postpend((uint32_t *) prg_buff);
-	printf("size = %d\n", size);
+	pr_debug("size = %d\n", size);
 	print_prog((uint32_t *) prg_buff, size);
 
 	return 0;

@@ -44,7 +44,7 @@ int test_fifo_load_op(uint32_t *buff)
 	if (rta_sec_era >= RTA_SEC_ERA_3)
 		FIFOLOAD(IFIFO, PTR(auth_ptr), 12, 0);
 	SEQFIFOLOAD(SKIP, 0, WITH(VLF));
-	FIFOLOAD(PKA, IMM(0), 0, 0);
+	FIFOLOAD(PKA, PTR(0), 0, WITH(IMMED));
 	SEQFIFOLOAD(PKN, 0, 0);
 
 	FIFOLOAD(PKA, IMM(0x07), 1, 0);
@@ -66,10 +66,10 @@ int main(int argc, char **argv)
 {
 	int size;
 
-	printf("FIFOLOAD program\n");
+	pr_debug("FIFOLOAD program\n");
 	rta_set_sec_era(RTA_SEC_ERA_3);
 	size = test_fifo_load_op((uint32_t *) prg_buff);
-	printf("size = %d\n", size);
+	pr_debug("size = %d\n", size);
 	print_prog((uint32_t *) prg_buff, size);
 
 	return 0;
