@@ -56,8 +56,8 @@ int make_prime_test(uint32_t *buff)
 			 WITH(PAD_RANDOM | FLUSH1 | EXT));
 		/* Miller-Rabin iteration count (either-endian) */
 		FIFOLOAD(PKB, IMM(0x07), 1, 0);
-		pjump1 = PKHA_OPERATION(OP_ALG_PKMODE_MOD_PRIMALITY);
-		JUMP(IMM(gen), LOCAL_JUMP, ANY_FALSE, WITH(PK_PRIME));
+		PKHA_OPERATION(OP_ALG_PKMODE_MOD_PRIMALITY);
+		pjump1 = JUMP(IMM(gen), LOCAL_JUMP, ANY_FALSE, WITH(PK_PRIME));
 		FIFOSTORE(PKN, 0, prime, prime_size, 0);
 	}
 	PATCH_JUMP(program, pjump1, gen);

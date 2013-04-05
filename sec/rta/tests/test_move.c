@@ -285,8 +285,9 @@ int test_move_op(uint32_t *buff)
 	MOVE(CONTEXT1, 9, CONTEXT1, 0, MATH1, 0);
 	MOVE(CONTEXT1, 47, CONTEXT1, 0, MATH2, 0);
 
-	size = MOVE(AB2, 0, OFIFO, 0, MATH3, 0);
+	MOVE(AB2, 0, OFIFO, 0, MATH3, 0);
 
+	size = PROGRAM_FINALIZE();
 	return size;
 }
 

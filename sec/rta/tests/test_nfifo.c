@@ -74,8 +74,9 @@ int test_nfifo_op(uint32_t *buff)
 	/* Boundary padding */
 	NFIFOADD(IFIFO, ICV1, 45, WITH(BP | PAD_ZERO));
 	NFIFOADD(IFIFO, ICV1, 45, WITH(BP | PAD_INCREMENT));
-	size = NFIFOADD(PAD, AB1, 16, WITH(BP | PAD_NONZERO_N));
+	NFIFOADD(PAD, AB1, 16, WITH(BP | PAD_NONZERO_N));
 
+	size = PROGRAM_FINALIZE();
 	return size;
 }
 

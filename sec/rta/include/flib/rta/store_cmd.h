@@ -55,6 +55,7 @@ static inline unsigned store(struct program *program, uint64_t src,
 	uint32_t opcode = 0, val;
 	uint8_t i;
 	int8_t ret;
+	unsigned start_pc = program->current_pc;
 
 	if (flags & SEQ)
 		opcode = CMD_SEQ_STORE;
@@ -122,7 +123,7 @@ static inline unsigned store(struct program *program, uint64_t src,
 
 	if ((src == _JOBDESCBUF) || (src == _SHAREDESCBUF) ||
 	    (src == _JOBDESCBUF_EFF) || (src == _SHAREDESCBUF_EFF))
-		return program->current_pc;
+		return start_pc;
 
 	/* for STORE, a pointer to where the data will be stored is needed */
 	if (!(flags & SEQ)) {
@@ -155,11 +156,12 @@ static inline unsigned store(struct program *program, uint64_t src,
 		}
 	}
 
-	return program->current_pc;
+	return start_pc;
+
  err:
-	program->first_error_pc = program->current_pc;
+	program->first_error_pc = start_pc;
 	program->current_instraction++;
-	return program->current_pc;
+	return start_pc;
 }
 
 #endif /* __RTA_STORE_CMD_H__ */

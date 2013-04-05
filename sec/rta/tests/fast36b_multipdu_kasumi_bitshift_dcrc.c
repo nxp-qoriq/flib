@@ -33,20 +33,20 @@ int build_shdesc_kasumi_bitshift_dcrc(struct program *prg, uint32_t *buff,
 		{
 			/* PDB: 3G RLC ENCAP PDB */
 			SET_LABEL(pdb1);
-			WORD(0x00000000);	   /*[01] 00000000  opt_word  */
-			WORD(0x00000000);	   /*[02] 00000000  HFN       */
-			WORD(0x00000000);	   /*[03] 00000000  Bearer,Dir*/
-			WORD(0x44444444);	   /*[04] 44444444  THRESHOLD */
-			pjump1 = WORD(0x55555555); /*[05] 55555555  0x55555555*/
+			WORD(0x00000000); /*[01] 00000000  opt_word  */
+			WORD(0x00000000); /*[02] 00000000  HFN       */
+			WORD(0x00000000); /*[03] 00000000  Bearer,Dir*/
+			WORD(0x44444444); /*[04] 44444444  THRESHOLD */
+			WORD(0x55555555); /*[05] 55555555  0x55555555*/
 		}
 		/* [06] A000082E         jump:  jsl0 all-match[math-n]
 		 *                              offset=46 local->[52] */
-		JUMP(IMM(do_dcrc), LOCAL_JUMP, ALL_TRUE, WITH(MATH_N));
+		pjump1 = JUMP(IMM(do_dcrc), LOCAL_JUMP, ALL_TRUE, WITH(MATH_N));
 		/* [07] 1C200040        seqld: ccb2-ctx len=64 offs=0 */
-		pmove2 = SEQLOAD(CONTEXT2, 0, 64, 0);
+		SEQLOAD(CONTEXT2, 0, 64, 0);
 		/* [08] 7813040C         move:  class2-ctx->descbuf, len=12,
 		 *                              dstoffs=4(w1), srcoffs=0(0) */
-		MOVE(CONTEXT2, 0, DESCBUF, pdb1, IMM(12), 0);
+		pmove2 = MOVE(CONTEXT2, 0, DESCBUF, pdb1, IMM(12), 0);
 		/* [09] 78142020         move:  class2-ctx->math0, len=32,
 		 *                              srcoffs=32 */
 		MOVE(CONTEXT2, 32, MATH0, 0, IMM(32), 0);
@@ -92,10 +92,10 @@ int build_shdesc_kasumi_bitshift_dcrc(struct program *prg, uint32_t *buff,
 		MATHB(ZERO, ADD, MATH0, VSEQOUTSZ, 2, WITH(NFU));
 		/* [27] AA900008         math: (<math0> shld math0)->math0
 		 *                             len=8 nfu */
-		pmove1 = MATHB(MATH0, SHLD, MATH0, MATH0, 8, WITH(NFU));
+		MATHB(MATH0, SHLD, MATH0, MATH0, 8, WITH(NFU));
 		/* [28] 79438404         move:  math0->descbuf, len=4,
 		 *                              dstoffs=132(w33) wait */
-		MOVE(MATH0, 0, DESCBUF, lab33, IMM(4), WITH(WAITCOMP));
+		pmove1 = MOVE(MATH0, 0, DESCBUF, lab33, IMM(4), WITH(WAITCOMP));
 		/* [29] 16860800           ld: deco-deco-ctrl len=0 offs=8
 		 *                             imm -auto-nfifo-entries */
 		LOAD(IMM(0), DCTRL, LDOFF_DISABLE_AUTO_NFIFO, 0, 0);
@@ -108,10 +108,11 @@ int build_shdesc_kasumi_bitshift_dcrc(struct program *prg, uint32_t *buff,
 		LOAD(IMM(0), DCTRL, LDOFF_ENABLE_AUTO_NFIFO, 0, 0);
 		SET_LABEL(lab33);
 		/* [33] 78820000         move:  deco-algnblk->ofifo, len=0 */
-		ref_jump_reload = MOVE(IFIFOABD, 0, OFIFO, 0, IMM(0), 0);
+		MOVE(IFIFOABD, 0, OFIFO, 0, IMM(0), 0);
 		/* [34] A0000816         jump:  jsl0 all-match[math-n]
 		 *                              offset=22 local->[56] */
-		JUMP(IMM(reload), LOCAL_JUMP, ALL_TRUE, WITH(MATH_N));
+		ref_jump_reload = JUMP(IMM(reload), LOCAL_JUMP, ALL_TRUE,
+				       WITH(MATH_N));
 		SET_LABEL(lab35);
 		/* [35] A80C3804         math: (0 + math3)->seqin len=4 */
 		MATHB(ZERO, ADD, MATH3, SEQINSZ, 4, 0);
@@ -135,10 +136,10 @@ int build_shdesc_kasumi_bitshift_dcrc(struct program *prg, uint32_t *buff,
 		MATHB(MATH1, SUB, ONE, MATH1, 8, 0);
 		/* [43] 78512808         move:  math1->class2-ctx, len=8,
 		 *                              dstoffs=40 */
-		pjump3 = MOVE(MATH1, 0, CONTEXT2, 40, IMM(8), 0);
+		MOVE(MATH1, 0, CONTEXT2, 40, IMM(8), 0);
 		/* [44] A00104F7         jump:  jsl0 all-mismatch[math-z]
 		 *                              offset=-9 local->[35] */
-		JUMP(IMM(lab35), LOCAL_JUMP, ANY_FALSE, WITH(MATH_Z));
+		pjump3 = JUMP(IMM(lab35), LOCAL_JUMP, ANY_FALSE, WITH(MATH_Z));
 		/* [45] AC704008         math: (math0 << imm1)->math0 len=8
 		 *                             ifb */
 		/* [46] 00000030               imm1=48 */
@@ -151,10 +152,10 @@ int build_shdesc_kasumi_bitshift_dcrc(struct program *prg, uint32_t *buff,
 		/* [49] AA0C2804         math: (0 + math2)->seqin len=4 nfu */
 		MATHB(ZERO, ADD, MATH2, SEQINSZ, 4, WITH(NFU));
 		/* [50] AA0C2004         math: (0 + math2)->math0 len=4 nfu */
-		pjump2 = MATHB(ZERO, ADD, MATH2, MATH0, 4, WITH(NFU));
+		MATHB(ZERO, ADD, MATH2, MATH0, 4, WITH(NFU));
 		/* [51] A00000E4         jump:  all-match[] always-jump
 		 *                              offset=-28 local->[23] */
-		JUMP(IMM(lab23), LOCAL_JUMP, ALL_TRUE, 0);
+		pjump2 = JUMP(IMM(lab23), LOCAL_JUMP, ALL_TRUE, 0);
 		SET_LABEL(do_dcrc);
 		/* [52] 87310710    operation: encap 3g_dcrc pclinfo=0x0710
 		 *                             crc7 */

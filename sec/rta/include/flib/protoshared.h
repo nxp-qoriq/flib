@@ -346,9 +346,8 @@ static inline void cnstr_shdsc_macsec_encap(uint32_t *descbuf,
 	SHR_HDR(SHR_SERIAL, ++startidx, WITH(SC));
 	{
 		ENDIAN_DATA((uint8_t *)&pdb, sizeof(struct macsec_encap_pdb));
-		pkeyjump = program->current_pc;
-		JUMP(IMM(keyjump), LOCAL_JUMP, ALL_TRUE,
-		     WITH(SHRD | SELF | BOTH));
+		pkeyjump = JUMP(IMM(keyjump), LOCAL_JUMP, ALL_TRUE,
+				WITH(SHRD | SELF | BOTH));
 		KEY(KEY1, 0, PTR((uintptr_t) cipherkey), keylen, WITH(IMMED));
 		SET_LABEL(keyjump);
 		PROTOCOL(OP_TYPE_ENCAP_PROTOCOL, OP_PCLID_MACSEC,
@@ -392,9 +391,8 @@ static inline void cnstr_shdsc_macsec_decap(uint32_t *descbuf,
 	SHR_HDR(SHR_SERIAL, ++startidx, WITH(SC));
 	{
 		ENDIAN_DATA((uint8_t *)&pdb, sizeof(struct macsec_decap_pdb));
-		pkeyjump = program->current_pc;
-		JUMP(IMM(keyjump), LOCAL_JUMP, ALL_TRUE,
-		     WITH(SHRD | SELF | BOTH));
+		pkeyjump = JUMP(IMM(keyjump), LOCAL_JUMP, ALL_TRUE,
+				WITH(SHRD | SELF | BOTH));
 		KEY(KEY1, 0, PTR((uintptr_t) cipherkey), keylen, WITH(IMMED));
 		SET_LABEL(keyjump);
 		PROTOCOL(OP_TYPE_DECAP_PROTOCOL, OP_PCLID_MACSEC,

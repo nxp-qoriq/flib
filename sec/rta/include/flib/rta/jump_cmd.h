@@ -29,6 +29,7 @@ static inline unsigned jump(struct program *program, int64_t address,
 			    uint32_t test_type, uint32_t test_condition)
 {
 	uint32_t opcode = CMD_JUMP;
+	unsigned start_pc = program->current_pc;
 
 	if (((jump_type == GOSUB) || (jump_type == RETURN)) &&
 	    (rta_sec_era < RTA_SEC_ERA_4)) {
@@ -107,11 +108,12 @@ static inline unsigned jump(struct program *program, int64_t address,
 		program->current_pc++;
 	}
 
-	return program->current_pc;
+	return start_pc;
+
  err:
-	program->first_error_pc = program->current_pc;
+	program->first_error_pc = start_pc;
 	program->current_instraction++;
-	return program->current_pc;
+	return start_pc;
 }
 
 #endif /* __RTA_JUMP_CMD_H__ */

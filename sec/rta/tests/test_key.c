@@ -15,8 +15,9 @@ int test_key_op(uint32_t *buff)
 	PROGRAM_CNTXT_INIT(buff, 0);
 	KEY(MDHA_SPLIT_KEY, WITH(ENC), IMM(addr), 4, 0);
 	KEY(MDHA_SPLIT_KEY, WITH(ENC), PTR(addr), 4, 0);
-	size = KEY(KEY1, WITH(EKT), IMM(addr), 4, 0);
+	KEY(KEY1, WITH(EKT), IMM(addr), 4, 0);
 
+	size = PROGRAM_FINALIZE();
 	return size;
 }
 

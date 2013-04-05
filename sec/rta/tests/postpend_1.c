@@ -43,9 +43,10 @@ int postpend(uint32_t *buff)
 			WORD(20); /* optIPHdrLen */
 			DWORD(0xe1a6001458335cb7);
 			DWORD(0x55c809f8b44767bb);
-			pjump1 = WORD(0x79890a98); /* OptIPHdr */
+			WORD(0x79890a98); /* OptIPHdr */
 		}
-		JUMP(IMM(skip_key_load), LOCAL_JUMP, ALL_TRUE, WITH(SHRD));
+		pjump1 = JUMP(IMM(skip_key_load), LOCAL_JUMP, ALL_TRUE,
+			      WITH(SHRD));
 		KEY(MDHA_SPLIT_KEY, 0, PTR((intptr_t) &key_1), 40, WITH(IMMED));
 		KEY(KEY1, 0, PTR((intptr_t) &key_2), 16, WITH(IMMED));
 		SET_LABEL(skip_key_load);

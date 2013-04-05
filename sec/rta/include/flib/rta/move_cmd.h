@@ -72,6 +72,7 @@ static inline unsigned move(struct program *program, uint64_t src, int type_src,
 	uint16_t offset = 0, opt = 0;
 	uint32_t val = 0;
 	int ret = 0;
+	unsigned start_pc = program->current_pc;
 
 	/* write command type */
 	if (type_length == REG_TYPE) {
@@ -172,11 +173,12 @@ static inline unsigned move(struct program *program, uint64_t src, int type_src,
 	program->current_pc++;
 	program->current_instraction++;
 
-	return program->current_pc;
+	return start_pc;
+
  err:
-	program->first_error_pc = program->current_pc;
+	program->first_error_pc = start_pc;
 	program->current_instraction++;
-	return program->current_pc;
+	return start_pc;
 }
 
 static inline int set_move_offset(struct program *program, uint64_t src,

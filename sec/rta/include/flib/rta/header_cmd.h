@@ -25,6 +25,7 @@ static inline unsigned shr_header(struct program *program, uint32_t share,
 				  uint32_t start_idx, uint32_t flags)
 {
 	uint32_t opcode = CMD_SHARED_DESC_HDR;
+	unsigned start_pc = program->current_pc;
 
 	if (flags & ~shr_header_flags[rta_sec_era]) {
 		pr_debug("SHR_DESC: Flag(s) not supported by SEC Era %d\n",
@@ -72,11 +73,12 @@ static inline unsigned shr_header(struct program *program, uint32_t share,
 	if (program->current_instraction == 1)
 		program->shrhdr = program->buffer;
 
-	return program->current_pc;
+	return start_pc;
+
  err:
-	program->first_error_pc = program->current_pc;
+	program->first_error_pc = start_pc;
 	program->current_instraction++;
-	return program->current_pc;
+	return start_pc;
 }
 
 static inline unsigned job_header(struct program *program, uint32_t share,
@@ -84,6 +86,7 @@ static inline unsigned job_header(struct program *program, uint32_t share,
 				  uint32_t flags)
 {
 	uint32_t opcode = CMD_DESC_HDR;
+	unsigned start_pc = program->current_pc;
 
 	if (flags & ~job_header_flags[rta_sec_era]) {
 		pr_debug("JOB_DESC: Flag(s) not supported by SEC Era %d\n",
@@ -157,11 +160,12 @@ static inline unsigned job_header(struct program *program, uint32_t share,
 	}
 
 	/* Note: descriptor length is set in program_finalize routine */
-	return program->current_pc;
+	return start_pc;
+
  err:
-	program->first_error_pc = program->current_pc;
+	program->first_error_pc = start_pc;
 	program->current_instraction++;
-	return program->current_pc;
+	return start_pc;
 }
 
 #endif /* __RTA_HEADER_CMD_H__ */

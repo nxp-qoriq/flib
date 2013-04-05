@@ -49,9 +49,10 @@ int test_signature_op(uint32_t *buff)
 		DWORD(0x123454320002222);
 		DWORD(0x123454320002222);
 		DWORD(0x123454320002222);
-		size = DWORD(0x123454320002222);
+		DWORD(0x123454320002222);
 	}
 
+	size = PROGRAM_FINALIZE();
 	return size;
 }
 

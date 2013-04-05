@@ -91,6 +91,7 @@ static inline unsigned nfifo_load(struct program *program, uint32_t src,
 	int32_t ret = 0;
 	uint32_t load_cmd = CMD_LOAD | LDST_IMM | LDST_CLASS_IND_CCB \
 				     | LDST_SRCDST_WORD_INFO_FIFO;
+	unsigned start_pc = program->current_pc;
 
 	/* write source field */
 	ret = map_opcode(src, nfifo_src, nfifo_src_sz[rta_sec_era], &val);
@@ -141,12 +142,12 @@ static inline unsigned nfifo_load(struct program *program, uint32_t src,
 	}
 	program->current_instraction++;
 
-	return program->current_pc;
+	return start_pc;
 
  err:
-	program->first_error_pc = program->current_pc;
+	program->first_error_pc = start_pc;
 	program->current_instraction++;
-	return program->current_pc;
+	return start_pc;
 }
 
 #endif /* __RTA_NFIFO_CMD_H__ */

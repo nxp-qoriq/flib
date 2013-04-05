@@ -48,8 +48,9 @@ int prepend(uint32_t *buff)
 			WORD(0x79890a98);	/* Opt IP Hdr */
 		}
 
-		pjump1 = SEQSTORE(PTR((intptr_t) &data_in), 0, 14, WITH(IMMED));
-		JUMP(IMM(skip_key_load), LOCAL_JUMP, ALL_TRUE, WITH(SHRD));
+		SEQSTORE(PTR((intptr_t) &data_in), 0, 14, WITH(IMMED));
+		pjump1 = JUMP(IMM(skip_key_load), LOCAL_JUMP, ALL_TRUE,
+			      WITH(SHRD));
 		KEY(MDHA_SPLIT_KEY, 0, PTR((intptr_t) &key_1), 40,
 		    WITH(IMMED));
 		KEY(KEY1, 0, PTR((intptr_t) &key_2), 16, WITH(IMMED));

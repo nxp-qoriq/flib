@@ -74,6 +74,7 @@ static inline unsigned math(struct program *program, uint64_t operand1,
 	uint32_t opcode = CMD_MATH;
 	uint32_t val = 0;
 	int8_t ret = 0;
+	unsigned start_pc = program->current_pc;
 
 	if (((op == BSWAP) && (rta_sec_era < RTA_SEC_ERA_4)) ||
 	    ((op == ZBYTE) && (rta_sec_era < RTA_SEC_ERA_2))) {
@@ -230,11 +231,12 @@ static inline unsigned math(struct program *program, uint64_t operand1,
 		program->current_pc++;
 	}
 
-	return program->current_pc;
+	return start_pc;
+
  err:
-	program->first_error_pc = program->current_pc;
+	program->first_error_pc = start_pc;
 	program->current_instraction++;
-	return program->current_pc;
+	return start_pc;
 }
 
 #endif /* __RTA_MATH_CMD_H__ */

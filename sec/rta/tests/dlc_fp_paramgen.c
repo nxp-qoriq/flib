@@ -69,10 +69,11 @@ int generate_dlc_fp_params(struct program *prg, uint32_t *buff)
 			 WITH(FLUSH1 | PAD_RANDOM | EXT));
 		/* Iteration count */
 		FIFOLOAD(PKB, IMM(0x32), 1, 0);
-		ref_new_r = PKHA_OPERATION(OP_ALG_PKMODE_MOD_PRIMALITY);
+		PKHA_OPERATION(OP_ALG_PKMODE_MOD_PRIMALITY);
 
 		/* If r did not test prime, go try another */
-		JUMP(IMM(new_r), LOCAL_JUMP, ANY_FALSE, WITH(PK_PRIME));
+		ref_new_r = JUMP(IMM(new_r), LOCAL_JUMP, ANY_FALSE,
+				 WITH(PK_PRIME));
 		FIFOSTORE(PKN, 0, dom_r_addr, r_size, 0);
 
 		/* Set up maximum number of tries to compute a q from this r */
@@ -171,9 +172,10 @@ int dlc_fp_make_q(struct program *prg, uint32_t *buff)
 		LOAD(IMM((q_size - 1)), PKASZ, 0, 4, 0);
 		NFIFOADD(PAD, PKA, q_size - 1, WITH(PAD_RANDOM | EXT | FLUSH1));
 		FIFOLOAD(PKB, IMM(0x14), 1, 0);
-		ref_store_q = PKHA_OPERATION(OP_ALG_PKMODE_MOD_PRIMALITY);
+		PKHA_OPERATION(OP_ALG_PKMODE_MOD_PRIMALITY);
 
-		JUMP(IMM(store_q), LOCAL_JUMP, ALL_TRUE, WITH(PK_PRIME));
+		ref_store_q = JUMP(IMM(store_q), LOCAL_JUMP, ALL_TRUE,
+				   WITH(PK_PRIME));
 
 		/* Decrement try-X counter */
 		MATHB(MATH3, SUB, ONE, MATH3, 4, 0);
@@ -253,14 +255,15 @@ int dlc_fp_make_g(struct program *prg, uint32_t *buff)
 		 * Test g != 1 by calculating checking (g-1) != 0
 		 */
 		FIFOLOAD(PKA, IMM(0x01), 1, 0);
-		ref_found_g = PKHA_OPERATION(OP_ALG_PKMODE_MOD_SUB_BA);
-		JUMP(IMM(found_g), LOCAL_JUMP, ANY_FALSE, WITH(PK_0));
+		PKHA_OPERATION(OP_ALG_PKMODE_MOD_SUB_BA);
+		ref_found_g = JUMP(IMM(found_g), LOCAL_JUMP, ANY_FALSE,
+				   WITH(PK_0));
 
 		/* H++ */
 		FIFOLOAD(PKB, PTR(dom_g_addr), q_size, 0);
 		FIFOLOAD(PKA, IMM(0x01), 1, 0);
-		ref_h_loop = PKHA_OPERATION(OP_ALG_PKMODE_MOD_ADD);
-		JUMP(IMM(h_loop), LOCAL_JUMP, ALL_TRUE, 0);
+		PKHA_OPERATION(OP_ALG_PKMODE_MOD_ADD);
+		ref_h_loop = JUMP(IMM(h_loop), LOCAL_JUMP, ALL_TRUE, 0);
 
 		SET_LABEL(found_g);
 

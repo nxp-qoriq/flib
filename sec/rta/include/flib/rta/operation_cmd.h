@@ -210,6 +210,7 @@ static inline unsigned operation(struct program *program, uint32_t cipher_algo,
 {
 	uint32_t opcode = CMD_OPERATION;
 	uint32_t i, found = 0;
+	unsigned start_pc = program->current_pc;
 
 	for (i = 0; i < alg_table_sz[rta_sec_era]; i++) {
 		if (alg_table[i].chipher_algo == cipher_algo) {
@@ -278,10 +279,11 @@ static inline unsigned operation(struct program *program, uint32_t cipher_algo,
 	program->buffer[program->current_pc] = opcode;
 	program->current_pc++;
 	program->current_instraction++;
-	return program->current_pc;
+	return start_pc;
+
  err:
-	program->first_error_pc = program->current_pc;
-	return program->current_pc;
+	program->first_error_pc = start_pc;
+	return start_pc;
 }
 
 /*
@@ -459,7 +461,7 @@ static inline unsigned pkha_operation(struct program *program, uint32_t op_pkha)
 {
 	uint32_t opcode = CMD_OPERATION | OP_TYPE_PK | OP_ALG_PK;
 	uint32_t pkha_func;
-
+	unsigned start_pc = program->current_pc;
 
 	pkha_func = op_pkha & OP_ALG_PK_FUN_MASK;
 
@@ -509,12 +511,12 @@ static inline unsigned pkha_operation(struct program *program, uint32_t op_pkha)
 	program->buffer[program->current_pc] = opcode;
 	program->current_pc++;
 	program->current_instraction++;
-	return program->current_pc;
+	return start_pc;
 
  err:
-	program->first_error_pc = program->current_pc;
+	program->first_error_pc = start_pc;
 	program->current_instraction++;
-	return program->current_pc;
+	return start_pc;
 }
 
 #endif /* __RTA_OPERATION_CMD_H__ */

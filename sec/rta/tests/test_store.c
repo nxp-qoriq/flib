@@ -96,8 +96,8 @@ int test_store_jd1(uint32_t *buff, uint32_t buffpos)
 
 	PROGRAM_CNTXT_INIT(buff, 0);
 
-	pstore = JOB_HDR(SHR_NEVER, buffpos, 0, 0);
-	STORE(JOBDESCBUF, mod_loc1, IMM(0), 4 * word_size, 0);
+	JOB_HDR(SHR_NEVER, buffpos, 0, 0);
+	pstore = STORE(JOBDESCBUF, mod_loc1, IMM(0), 4 * word_size, 0);
 	SET_LABEL(mod_loc1);
 	MOVE(CONTEXT1, 0, CONTEXT2, 0, IMM(1), 0);
 
@@ -116,14 +116,14 @@ int test_store_sd(struct program *share_desc, uint32_t *buff, uint32_t buffpos)
 
 	PROGRAM_CNTXT_INIT(buff, 0);
 
-	pstore = SHR_HDR(SHR_NEVER, buffpos, 0);
-	STORE(SHAREDESCBUF, shr_loc, IMM(0), 4 * word_size, 0);
+	SHR_HDR(SHR_NEVER, buffpos, 0);
+	pstore = STORE(SHAREDESCBUF, shr_loc, IMM(0), 4 * word_size, 0);
 	SET_LABEL(shr_loc);
 	MOVE(CONTEXT1, 0, CONTEXT2, 0, IMM(1), 0);
 	MATHB(ZERO, ADD, ONE, MATH1, SIZE(1), 0);
 	MATHB(ZERO, ADD, ONE, MATH1, SIZE(1), 0);
-	pstore2 = MATHB(ZERO, ADD, ONE, MATH1, SIZE(1), 0);
-	STORE(JOBDESCBUF, mod_loc2, IMM(0), 4 * word_size, 0);
+	MATHB(ZERO, ADD, ONE, MATH1, SIZE(1), 0);
+	pstore2 = STORE(JOBDESCBUF, mod_loc2, IMM(0), 4 * word_size, 0);
 
 	PATCH_STORE(program, pstore, shr_loc);
 
@@ -146,9 +146,9 @@ int test_store_jd2(struct program *job_desc, uint32_t *buff, uint32_t buffpos)
 	MOVE(CONTEXT1, 0, CONTEXT2, 0, IMM(1), 0);
 	STORE(DESCBUF, mod_loc2 * word_size, PTR(descwords), 4 * word_size, 0);
 	MATHB(ZERO, ADD, ONE, MATH1, SIZE(1), 0);
-	pstore3 = MATHB(ZERO, ADD, ONE, MATH1, SIZE(1), 0);
-	pstore4 = STORE(JOBDESCBUF, mod_loc2, IMM(0), 4 * word_size, 0);
-	STORE(SHAREDESCBUF, shr_loc, IMM(0), 4 * word_size, 0);
+	MATHB(ZERO, ADD, ONE, MATH1, SIZE(1), 0);
+	pstore3 = STORE(JOBDESCBUF, mod_loc2, IMM(0), 4 * word_size, 0);
+	pstore4 = STORE(SHAREDESCBUF, shr_loc, IMM(0), 4 * word_size, 0);
 
 	size = PROGRAM_FINALIZE();
 

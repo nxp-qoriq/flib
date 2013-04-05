@@ -18,9 +18,10 @@ int generate_capwap_code(struct program *program, uint32_t *buff)
 	int size;
 
 	PROGRAM_CNTXT_INIT(buff, 0);
-	label_different_ref = SHR_HDR(SHR_ALWAYS, 0, 0);
+	SHR_HDR(SHR_ALWAYS, 0, 0);
 
-	JUMP(IMM(label_different_desc), LOCAL_JUMP, ALL_TRUE, 0);
+	label_different_ref = JUMP(IMM(label_different_desc), LOCAL_JUMP,
+				   ALL_TRUE, 0);
 	size = PROGRAM_FINALIZE();
 	return size;
 }

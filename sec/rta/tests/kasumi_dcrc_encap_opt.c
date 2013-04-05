@@ -43,28 +43,29 @@ int build_shdesc_kasumi_dcrc_encap(struct program *prg, uint32_t *buff,
 			WORD(0);
 			WORD(0);
 			WORD(0x44444444);
-			pjump1 = WORD(0x55555555);
+			WORD(0x55555555);
 		}
-		JUMP(IMM(do_dcrc), LOCAL_JUMP, ALL_TRUE, WITH(MATH_N));
+		pjump1 = JUMP(IMM(do_dcrc), LOCAL_JUMP, ALL_TRUE, WITH(MATH_N));
 
 		/* Start bringing in Preamble */
 		LOAD(IMM(0), DCTRL, LDOFF_DISABLE_AUTO_NFIFO, 0, 0);
 		SEQFIFOLOAD(PKA0, 60, 0);
-		pmove1 = LOAD(IMM(0), DCTRL, LDOFF_ENABLE_AUTO_NFIFO, 0, 0);
-		MOVE(IFIFOABD, 0, DESCBUF, 4 * foo, IMM(12), 0);
+		LOAD(IMM(0), DCTRL, LDOFF_ENABLE_AUTO_NFIFO, 0, 0);
+		pmove1 = MOVE(IFIFOABD, 0, DESCBUF, 4 * foo, IMM(12), 0);
 		MOVE(IFIFOABD, 0, KEY1, 0, IMM(key_size), 0);
 		MOVE(IFIFOABD, 0, CONTEXT2, 32, IMM(32), 0);
 		LOAD(IMM(key_size), KEY1SZ, 0, 4, 0);
-		ref_job_seqout = MOVE(CONTEXT2, 32, MATH0, 0, IMM(32), 0);
+		MOVE(CONTEXT2, 32, MATH0, 0, IMM(32), 0);
 		/* Get SEQ IN PTR command from Job Descriptor */
-		MOVE(DESCBUF, 4 * encap_job_seqout, MATH2, 0, IMM(12),
-		     WITH(WAITCOMP));
+		ref_job_seqout = MOVE(DESCBUF, 4 * encap_job_seqout, MATH2, 0,
+				      IMM(12), WITH(WAITCOMP));
 		/* Mask out the bit so SOP becomes SIP; maintain ptr value */
 		MATHB(MATH2, AND, IMM(0xf7ffffffffffffff), MATH2, 8, 0);
 		MATHB(SEQINSZ, ADD, MATH3, MATH3, 8, WITH(NFU));
 		/* swap words */
-		ref_job_seqin = MATHB(MATH0, SHLD, MATH3, MATH3, 8, 0);
-		MOVE(MATH2, 0, DESCBUF, encap_job_seqin, IMM(12), 0);
+		MATHB(MATH0, SHLD, MATH3, MATH3, 8, 0);
+		ref_job_seqin = MOVE(MATH2, 0, DESCBUF, encap_job_seqin,
+				     IMM(12), 0);
 		MOVE(CONTEXT2, 48, MATH2, 0, IMM(16), WITH(WAITCOMP));
 
 		/* Build a MOVE command to process input data */
@@ -78,16 +79,18 @@ int build_shdesc_kasumi_dcrc_encap(struct program *prg, uint32_t *buff,
 
 		MATHB(ZERO, ADD, MATH0, VSEQINSZ, 2, WITH(NFU));
 		MATHB(ZERO, ADD, MATH0, VSEQOUTSZ, 2, WITH(NFU));
-		pmove4 = MATHB(MATH0, SHLD, MATH0, MATH0, 8, WITH(NFU));
-		MOVE(MATH0, 0, DESCBUF, get_data, IMM(4), WITH(WAITCOMP));
+		MATHB(MATH0, SHLD, MATH0, MATH0, 8, WITH(NFU));
+		pmove4 = MOVE(MATH0, 0, DESCBUF, get_data, IMM(4),
+			      WITH(WAITCOMP));
 		LOAD(IMM(0), DCTRL, LDOFF_DISABLE_AUTO_NFIFO, 0, 0);
 		SEQFIFOLOAD(PKA0, 0, WITH(VLF));
 		SEQFIFOSTORE(MSG, 0, 0, WITH(VLF));
 		LOAD(IMM(0), DCTRL, LDOFF_ENABLE_AUTO_NFIFO, 0, 0);
 
 		SET_LABEL(get_data);
-		ref_all_done = WORD(0);
-		JUMP(IMM(all_done), LOCAL_JUMP, ALL_TRUE, WITH(MATH_N));
+		WORD(0);
+		ref_all_done = JUMP(IMM(all_done), LOCAL_JUMP, ALL_TRUE,
+				    WITH(MATH_N));
 
 		SET_LABEL(process_pdu);
 		MATHB(ZERO, ADD, MATH1, SEQINSZ, 4, 0);
@@ -99,15 +102,15 @@ int build_shdesc_kasumi_dcrc_encap(struct program *prg, uint32_t *buff,
 		LOAD(IMM(CCTRL_RESET_CHA_KFHA), CCTRL, 0, 4, 0);
 		MOVE(CONTEXT2, 32, MATH0, 0, IMM(32), WITH(WAITCOMP));
 		MATHB(MATH3, SUB, ONE, MATH3, 8, 0);
-		pjump3 = MOVE(MATH3, 0, CONTEXT2, 56, IMM(8), 0);
-		JUMP(IMM(process_pdu), LOCAL_JUMP, ANY_FALSE
-				, WITH(MATH_Z));
+		MOVE(MATH3, 0, CONTEXT2, 56, IMM(8), 0);
+		pjump3 = JUMP(IMM(process_pdu), LOCAL_JUMP, ANY_FALSE,
+			      WITH(MATH_Z));
 		MATHB(MATH0, LSHIFT, IMM(48), MATH0, 8, WITH(IFB));
 		MOVE(MATH0, 0, DESCBUF, 4, IMM(4), 0);
 		MATHB(ZERO, SUB, ONE, NONE, 4, 0);
 		MATHB(ZERO, ADD, MATH2, SEQINSZ, 4, WITH(NFU));
-		pjump4 = MATHB(ZERO, ADD, MATH2, MATH0, 4, WITH(NFU));
-		JUMP(IMM(build_move), LOCAL_JUMP, ALL_TRUE, 0);
+		MATHB(ZERO, ADD, MATH2, MATH0, 4, WITH(NFU));
+		pjump4 = JUMP(IMM(build_move), LOCAL_JUMP, ALL_TRUE, 0);
 
 		SET_LABEL(do_dcrc);
 		PROTOCOL(OP_TYPE_ENCAP_PROTOCOL, OP_PCLID_3G_DCRC,

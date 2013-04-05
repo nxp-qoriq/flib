@@ -4,6 +4,7 @@
 static inline unsigned signature(struct program *program, uint32_t sign_type)
 {
 	uint32_t opcode = CMD_SIGNATURE;
+	unsigned start_pc = program->current_pc;
 
 	switch (sign_type) {
 	case (SIGN_TYPE_FINAL):
@@ -22,11 +23,12 @@ static inline unsigned signature(struct program *program, uint32_t sign_type)
 	program->current_pc++;
 	program->current_instraction++;
 
-	return program->current_pc;
+	return start_pc;
+
  err:
-	program->first_error_pc = program->current_pc;
+	program->first_error_pc = start_pc;
 	program->current_instraction++;
-	return program->current_pc;
+	return start_pc;
 }
 
 #endif /* __RTA_SIGNATURE_CMD_H__ */

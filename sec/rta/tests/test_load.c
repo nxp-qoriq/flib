@@ -91,8 +91,9 @@ int test_load_op(uint32_t *buff)
 	LOAD(IMM(0x0200000000000003), SZL, 0, 8, 0);
 	LOAD(IMM(0x42f2000000000003), SZL, 0, 8, 0);
 	LOAD(IMM(0x02000000), SZM, 0, 3, 0);
-	size = LOAD(IMM(0x82f60000), SZM, 0, 3, 0);
+	LOAD(IMM(0x82f60000), SZM, 0, 3, 0);
 
+	size = PROGRAM_FINALIZE();
 	return size;
 }
 

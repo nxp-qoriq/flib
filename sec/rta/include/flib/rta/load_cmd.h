@@ -201,6 +201,7 @@ static inline unsigned load(struct program *program, uint64_t src,
 {
 	uint32_t opcode = 0, i;
 	int8_t pos = -1;
+	unsigned start_pc = program->current_pc;
 
 	if (flags & SEQ)
 		opcode = CMD_SEQ_LOAD;
@@ -305,11 +306,12 @@ static inline unsigned load(struct program *program, uint64_t src,
 		program->current_pc++;
 	}
 
-	return program->current_pc;
+	return start_pc;
+
  err:
-	program->first_error_pc = program->current_pc;
+	program->first_error_pc = start_pc;
 	program->current_instraction++;
-	return program->current_pc;
+	return start_pc;
 }
 
 #endif /* __RTA_LOAD_CMD_H__*/

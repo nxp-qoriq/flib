@@ -34,9 +34,10 @@ int build_shdesc_kasumi_dcrc_decap(struct program *prg, uint32_t *buff,
 			WORD(0);
 			WORD(0);
 			WORD(0x44444444);
-			pjump1 = WORD(0x55555555);
+			WORD(0x55555555);
 		}
-		JUMP(IMM(handle_kasumi), LOCAL_JUMP, ALL_TRUE, WITH(MATH_N));
+		pjump1 = JUMP(IMM(handle_kasumi), LOCAL_JUMP, ALL_TRUE,
+			      WITH(MATH_N));
 		/*
 		 * bring in all the "extra" stuff with an extra word to make
 		 * things space out correctly
@@ -51,17 +52,17 @@ int build_shdesc_kasumi_dcrc_decap(struct program *prg, uint32_t *buff,
 		LOAD(IMM(key_size), KEY1SZ, 0, 4, 0);
 		MOVE(CONTEXT1, 36, MATH0, 0, IMM(4), WITH(WAITCOMP));
 		/* get PDU len in left 2 bytes */
-		pmove1 = MATHB(MATH0, LSHIFT, IMM(16), MATH0, 8, WITH(IFB));
-		MOVE(MATH0, 0, DESCBUF, foo, IMM(4), 0);
+		MATHB(MATH0, LSHIFT, IMM(16), MATH0, 8, WITH(IFB));
+		pmove1 = MOVE(MATH0, 0, DESCBUF, foo, IMM(4), 0);
 		PROTOCOL(OP_TYPE_DECAP_PROTOCOL, OP_PCLID_3G_DCRC,
 			 WITH(OP_PCL_3G_DCRC_CRC7));
-		ref_decap_job = MATHB(ZERO, SUB, ONE, NONE, 4, 0);
+		MATHB(ZERO, SUB, ONE, NONE, 4, 0);
 		/* re-execute Job Descriptor */
-		SHR_HDR(SHR_NEVER, decap_job_seqoutptr, 0);
+		ref_decap_job = SHR_HDR(SHR_NEVER, decap_job_seqoutptr, 0);
 
 		SET_LABEL(handle_kasumi);
-		pmove2 = MOVE(CONTEXT1, 32, MATH0, 0, IMM(32), 0);
-		MOVE(CONTEXT1, 0, DESCBUF, foo, IMM(12), 0);
+		MOVE(CONTEXT1, 32, MATH0, 0, IMM(32), 0);
+		pmove2 = MOVE(CONTEXT1, 0, DESCBUF, foo, IMM(12), 0);
 		/* skip over the preamble and the DCRC header */
 		MATHB(MATH0, ADD, IMM(60), VSEQINSZ, 4, 0);
 		SEQFIFOLOAD(SKIP, 0, WITH(VLF));
@@ -88,8 +89,9 @@ int build_shdesc_kasumi_dcrc_decap(struct program *prg, uint32_t *buff,
 		LOAD(IMM(CCTRL_RESET_CHA_KFHA), CCTRL, 0, 4, 0);
 		MOVE(CONTEXT2, 0, MATH0, 0, IMM(16), WITH(WAITCOMP));
 		MATHB(MATH0, SUB, ONE, MATH0, 8, 0);
-		pjump2 = MOVE(MATH0, 0, CONTEXT2, 0, IMM(8), 0);
-		JUMP(IMM(process_pdu), LOCAL_JUMP, ANY_FALSE, WITH(MATH_Z));
+		MOVE(MATH0, 0, CONTEXT2, 0, IMM(8), 0);
+		pjump2 = JUMP(IMM(process_pdu), LOCAL_JUMP, ANY_FALSE,
+			      WITH(MATH_Z));
 		/*
 		 * For ERA < 5: WORKAROUND FOR INPUT FIFO NIBBLE SHIFT
 		 * REGISTER BUG

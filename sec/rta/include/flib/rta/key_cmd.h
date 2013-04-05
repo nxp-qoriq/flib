@@ -19,6 +19,7 @@ static inline unsigned key(struct program *program, uint32_t key_dst,
 {
 	uint32_t opcode = 0, is_seq_cmd = 0;
 	uint8_t i;
+	unsigned start_pc = program->current_pc;
 
 	if (encrypt_flags & ~key_enc_flags[rta_sec_era]) {
 		pr_debug("KEY: Flag(s) not supported by SEC Era %d\n",
@@ -144,11 +145,12 @@ static inline unsigned key(struct program *program, uint32_t key_dst,
 		program->current_pc++;
 	}
 
-	return program->current_pc;
+	return start_pc;
+
  err:
-	program->first_error_pc = program->current_pc;
+	program->first_error_pc = start_pc;
 	program->current_instraction++;
-	return program->current_pc;
+	return start_pc;
 }
 
 #endif /* __RTA_KEY_CMD_H__ */

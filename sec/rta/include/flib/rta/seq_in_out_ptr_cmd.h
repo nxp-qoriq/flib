@@ -7,6 +7,7 @@ static inline unsigned seq_in_ptr(struct program *program, uintptr_t src,
 				  uint32_t length, uint32_t flags)
 {
 	uint32_t opcode = CMD_SEQ_IN_PTR;
+	unsigned start_pc = program->current_pc;
 
 	/* Parameters checking */
 	if ((flags & RTO) && (flags & PRE)) {
@@ -59,18 +60,20 @@ static inline unsigned seq_in_ptr(struct program *program, uintptr_t src,
 		program->buffer[program->current_pc] = length;
 		program->current_pc++;
 	}
-	return program->current_pc;
+
+	return start_pc;
 
  err:
-	program->first_error_pc = program->current_pc;
+	program->first_error_pc = start_pc;
 	program->current_instraction++;
-	return program->current_pc;
+	return start_pc;
 }
 
 static inline unsigned seq_out_ptr(struct program *program, uintptr_t dst,
 				   uint32_t length, uint32_t flags)
 {
 	uint32_t opcode = CMD_SEQ_OUT_PTR;
+	unsigned start_pc = program->current_pc;
 
 	/* Parameters checking */
 	if ((rta_sec_era == RTA_SEC_ERA_1) && (flags & RTO)) {
@@ -112,12 +115,13 @@ static inline unsigned seq_out_ptr(struct program *program, uintptr_t dst,
 		program->buffer[program->current_pc] = length;
 		program->current_pc++;
 	}
-	return program->current_pc;
+
+	return start_pc;
 
  err:
-	program->first_error_pc = program->current_pc;
+	program->first_error_pc = start_pc;
 	program->current_instraction++;
-	return program->current_pc;
+	return start_pc;
 }
 
 #endif /* __RTA_SEQ_IN_OUT_PTR_CMD_H__ */

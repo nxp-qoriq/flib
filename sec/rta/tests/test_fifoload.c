@@ -57,8 +57,9 @@ int test_fifo_load_op(uint32_t *buff)
 	FIFOLOAD(PKB1, IMM(0x03), 1, 0);
 	FIFOLOAD(PKB2, IMM(0x04), 1, 0);
 	FIFOLOAD(PKB3, IMM(0x12131415), 4, 0);
-	size = FIFOLOAD(PKN, PTR(mod), 12, 0);
+	FIFOLOAD(PKN, PTR(mod), 12, 0);
 
+	size = PROGRAM_FINALIZE();
 	return size;
 }
 

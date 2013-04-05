@@ -55,8 +55,9 @@ int f2m_calc_c_test(uint32_t *buff)
 
 		SET_LABEL(bit_search_top);
 		MATHB(MATH0, ADD, ONE, MATH0, 2, 0);	/* m = m + 1 */
-		pjump1 = MATHB(MATH1, RSHIFT, ONE, MATH1, 2, 0); /* byte >> 1 */
-		JUMP(IMM(bit_search_top), LOCAL_JUMP, ANY_FALSE, WITH(MATH_Z));
+		MATHB(MATH1, RSHIFT, ONE, MATH1, 2, 0); /* byte >> 1 */
+		pjump1 = JUMP(IMM(bit_search_top), LOCAL_JUMP, ANY_FALSE,
+			      WITH(MATH_Z));
 
 		MATHB(MATH0, SUB, IMM(3), MATH0, 2, 0);	/* m-2 */
 		LOAD(IMM(0), DCTRL, LDOFF_DISABLE_AUTO_NFIFO, 0, 0);

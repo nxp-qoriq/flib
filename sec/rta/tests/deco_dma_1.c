@@ -70,14 +70,14 @@ int deco_dma(uint32_t *buff)
 		JUMP(IMM(0), HALT_STATUS, ALL_TRUE, 0);
 
 		SET_LABEL(loop);	/* size each full transfer */
-		pjump2 = MATHB(VSEQINSZ, SUB, MATH1, NONE, 4, 0);
-		JUMP(IMM(done_full), LOCAL_JUMP, ANY_TRUE,
-		     WITH(MATH_N | MATH_Z));
+		MATHB(VSEQINSZ, SUB, MATH1, NONE, 4, 0);
+		pjump2 = JUMP(IMM(done_full), LOCAL_JUMP, ANY_TRUE,
+			      WITH(MATH_N | MATH_Z));
 
 		/* Move a 'full chunk' */
 		MOVE(IFIFOAB1, 0, OFIFO, 0, IMM(move_size), WITH(VLF));
-		pjump1 = MATHB(VSEQINSZ, SUB, MATH1, VSEQINSZ, 4, 0);
-		JUMP(IMM(loop), LOCAL_JUMP, ALL_TRUE, 0);
+		MATHB(VSEQINSZ, SUB, MATH1, VSEQINSZ, 4, 0);
+		pjump1 = JUMP(IMM(loop), LOCAL_JUMP, ALL_TRUE, 0);
 
 		SET_LABEL(done_full);	/* Only last partial xfer remaining */
 		/*

@@ -17,8 +17,9 @@ int test_seq_ptr_op(uint32_t *buff)
 	SEQINPTR(data_in, data_size, 0);
 	SEQOUTPTR(data_out, data_size, 0);
 	SEQINPTR(0, 0, WITH(RTO));
-	size = SEQOUTPTR(0, 0, WITH(RTO));
+	SEQOUTPTR(0, 0, WITH(RTO));
 
+	size = PROGRAM_FINALIZE();
 	return size;
 }
 

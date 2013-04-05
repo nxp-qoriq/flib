@@ -504,6 +504,7 @@ static inline unsigned proto_operation(struct program *program, uint32_t optype,
 	uint32_t opcode = CMD_OPERATION;
 	uint8_t i, found = 0;
 	uint32_t optype_tmp = optype;
+	unsigned start_pc = program->current_pc;
 
 	for (i = 0; i < proto_table_sz[rta_sec_era]; i++) {
 		/* clear last bit in optype to match also decap proto */
@@ -538,11 +539,12 @@ static inline unsigned proto_operation(struct program *program, uint32_t optype,
 						      | protoinfo;
 	program->current_instraction++;
 	program->current_pc++;
-	return program->current_pc;
+	return start_pc;
+
  err:
-	program->first_error_pc = program->current_pc;
+	program->first_error_pc = start_pc;
 	program->current_instraction++;
-	return program->current_pc;
+	return start_pc;
 }
 
 #endif /* __RTA_PROTOCOL_CMD_H__ */

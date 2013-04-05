@@ -103,6 +103,8 @@
  *
  * @param[in] val      Input value to be written in descriptor buffer
  *                     (@c uint32_t).
+ * @return             Descriptor buffer offset where this command is inserted
+ *                     (@c unsigned).
  */
 #define WORD(val) word(program, val)
 
@@ -113,6 +115,8 @@
  *
  * @param[in] val      Input value to be written in descriptor buffer
  *                     (@c uint64_t).
+ * @return             Descriptor buffer offset where this command is inserted
+ *                     (@c unsigned).
  */
 #define DWORD(val) dword(program, val)
 
@@ -124,6 +128,8 @@
  * @param[in] data     Input data to be written in descriptor buffer
  *                     (@c uint8_t *).
  * @param[in] len      Length of input data (@c int).
+ * @return             Descriptor buffer offset where this command is inserted
+ *                     (@c unsigned).
  */
 #define ENDIAN_DATA(data, len) endian_data(program, (data), (len))
 
@@ -183,7 +189,8 @@ static inline unsigned rta_get_sec_era()
  * @param[in] start_idx Index in descriptor buffer where the execution of the
  *                     Shared Descriptor should start (@c uint32_t).
  * @param[in] flags    Operational flags:@n @li <em>RIF, DNR, CIF, SC, PD</em>.
- * @return             @li Updated descriptor size on success (@c unsigned).
+ * @return             @li On success, descriptor buffer offset where this
+ *                     command is inserted (@c unsigned).
  *                     @li First error program counter will be incremented on
  *                     error; in debug mode, a log message will be shown at
  *                     output.
@@ -205,7 +212,8 @@ static inline unsigned rta_get_sec_era()
  *                     set (@c uint64_t).
  * @param[in] flags    Operational flags:@n @li <em>RSMS, DNR, TD, MTD, REO,
  *                     SHR</em>.
- * @return             @li Updated descriptor size on success (@c unsigned).
+ * @return             @li On success, descriptor buffer offset where this
+ *                     command is inserted (@c unsigned).
  *                     @li First error program counter will be incremented on
  *                     error; in debug mode, a log message will be shown at
  *                     output.
@@ -231,7 +239,8 @@ static inline unsigned rta_get_sec_era()
  *                     should be specified using @e MATH0-MATH3.
  * @param[in] opt      Operational flags:@n @li <em>WAITCOMP, FLUSH1, FLUSH2,
  *                     LAST1, LAST2</em>.
- * @return             @li Updated descriptor size on success (@c unsigned).
+ * @return             @li On success, descriptor buffer offset where this
+ *                     command is inserted (@c unsigned).
  *                     @li First error program counter will be incremented on error;
  *                     In debug mode, a log message will be shown at output.
  */
@@ -252,7 +261,8 @@ static inline unsigned rta_get_sec_era()
  * @param[in] length   Number of bytes to load (@c uint32_t).
  * @param[in] flags    Operational flags:@n @li <em>SGF, IMMED, EXT, CLASS1,
  *                     CLASS2, BOTH, FLUSH1, LAST1, LAST2</em>.
- * @return             @li Updated descriptor size on success (@c unsigned).
+ * @return             @li On success, descriptor buffer offset where this
+ *                     command is inserted (@c unsigned).
  *                     @li First error program counter will be incremented on
  *                     error; in debug mode, a log message will be shown at
  *                     output.
@@ -273,7 +283,8 @@ static inline unsigned rta_get_sec_era()
  *                     w/ @e VLF set (@c uint32_t).
  * @param[in] flags    Operational flags:@n @li <em>VLF, CLASS1, CLASS2, BOTH,
  *                     FLUSH1, LAST1, LAST2</em>.
- * @return             @li Updated descriptor size on success (@c unsigned).
+ * @return             @li On success, descriptor buffer offset where this
+ *                     command is inserted (@c unsigned).
  *                     @li First error program counter will be incremented on
  *                     error; in debug mode, a log message will be shown at
  *                     output.
@@ -295,7 +306,8 @@ static inline unsigned rta_get_sec_era()
  * @param[in] length   Number of bytes to load (@c uint32_t).
  * @param[in] flags    Operational flags:@n @li <em>SGF, CONT, EXT, CLASS1,
  *                     CLASS2, BOTH</em>.
- * @return             @li Updated descriptor size on success (@c unsigned).
+ * @return             @li On success, descriptor buffer offset where this
+ *                     ommand is inserted (@c unsigned).
  *                     @li First error program counter will be incremented on
  *                     error; in debug mode, a log message will be shown at
  *                     output.
@@ -317,7 +329,8 @@ static inline unsigned rta_get_sec_era()
  *                     w/ @e VLF set (@c uint32_t).
  * @param[in] flags    Operational flags:@n @li <em>VLF, CONT, EXT, CLASS1,
  *                     CLASS2, BOTH</em>.
- * @return             @li Updated descriptor size on success (@c unsigned).
+ * @return             @li On success, descriptor buffer offset where this
+ *                     command is inserted (@c unsigned).
  *                     @li First error program counter will be incremented on
  *                     error; in debug mode, a log message will be shown at
  *                     output.
@@ -337,7 +350,8 @@ static inline unsigned rta_get_sec_era()
  *                     (@c uint64_t).
  * @param[in] length   Number of bytes to load (@c uint32_t).
  * @param[in] flags    Operational flags:@n @li <em>SGF, IMMED, SEQ</em>.
- * @return             @li Updated descriptor size on success (@c unsigned).
+ * @return             @li On success, descriptor buffer offset where this
+ *                     command is inserted (@c unsigned).
  *                     @li First error program counter will be incremented on
  *                     error; in debug mode, a log message will be shown at
  *                     output.
@@ -355,7 +369,8 @@ static inline unsigned rta_get_sec_era()
  * @param[in] flags    Operational flags:@n @li <em>RBS, INL, SGF, PRE, EXT,
  *                     RTO, RJD</em> (when @e PRE or @e RTO are set, @e src
  *                     parameter must be 0).
- * @return             @li Updated descriptor size on success (@c unsigned).
+ * @return             @li On success, descriptor buffer offset where this
+ *                     command is inserted (@c unsigned).
  *                     @li First error program counter will be incremented on
  *                     error; in debug mode, a log message will be shown at
  *                     output.
@@ -372,7 +387,8 @@ static inline unsigned rta_get_sec_era()
  * @param[in] flags    Operational flags:@n @li <em>SGF, PRE, EXT, RTO</em>.
  *                     (when @e PRE or @e RTO are set, @e dst parameter must
  *                     be 0).
- * @return             @li Updated descriptor size on success (@c unsigned).
+ * @return             @li On success, descriptor buffer offset where this
+ *                     command is inserted (@c unsigned).
  *                     @li First error program counter will be incremented on
  *                     error; in debug mode, a log message will be shown at
  *                     output.
@@ -395,7 +411,8 @@ static inline unsigned rta_get_sec_era()
  *                       <em>ICV_CHECK_ENABLE, ICV_CHECK_DISABLE</em>.
  * @param[in] enc        Selects between encryption and decryption:@n @li
  *                       <em>OP_ALG_ENCRYPT, OP_ALG_DECRYPT</em>.
- * @return               @li Updated descriptor size on success (@c unsigned).
+ * @return               @li On success, descriptor buffer offset where this
+ *                       command is inserted (@c unsigned).
  *                       @li First error program counter will be incremented on
  *                       error; in debug mode, a log message will be shown at
  *                       output.
@@ -413,7 +430,8 @@ static inline unsigned rta_get_sec_era()
  *                     specific values).
  * @param[in] protoinfo  Protocol dependent value (check desc.h file for
  *                     specific values).
- * @return             @li Updated descriptor size on success (@c unsigned).
+ * @return             @li On success, descriptor buffer offset where this
+ *                     command is inserted (@c unsigned).
  *                     @li First error program counter will be incremented on
  *                     error; in debug mode, a log message will be shown at
  *                     output.
@@ -428,7 +446,8 @@ static inline unsigned rta_get_sec_era()
  * @param[in] op_pkha  PKHA operation; indicates the modular arithmetic
  *                     function to execute (check desc.h file for specific
  *                     values).
- * @return             @li Updated descriptor size on success (@c unsigned).
+ * @return             @li On success, descriptor buffer offset where this
+ *                     command is inserted (@c unsigned).
  *                     @li First error program counter will be incremented on
  *                     error; in debug mode, a log message will be shown at
  *                     output.
@@ -452,7 +471,8 @@ static inline unsigned rta_get_sec_era()
  *                     <em>NIFP, NIP, NOP, NCP, CALM, SELF, SHARED, JQP</em>.
  *                     @li Math and PKHA status conditions (@e JSL = 0):
  *                     <em>Z, N, NV, C, PK0, PK1, PKP</em>.
- * @return             @li Updated descriptor size on success (@c unsigned).
+ * @return             @li On success, descriptor buffer offset where this
+ *                     command is inserted (@c unsigned).
  *                     @li First error program counter will be incremented on
  *                     error; in debug mode, a log message will be shown at
  *                     output.
@@ -472,7 +492,8 @@ static inline unsigned rta_get_sec_era()
  *                     (@c uint32_t).
  * @param[in] length   Number of bytes to load (@c uint32_t).
  * @param[in] flags    Operational flags: @e VLF.
- * @return             @li Updated descriptor size on success (@c unsigned).
+ * @return             @li On success, descriptor buffer offset where this
+ *                     command is inserted (@c unsigned).
  *                     @li First error program counter will be incremented on
  *                     error; in debug mode, a log message will be shown at
  *                     output.
@@ -490,7 +511,8 @@ static inline unsigned rta_get_sec_era()
  *                     (@c uint32_t).
  * @param[in] length   Number of bytes to load (@c uint32_t).
  * @param[in] flags    Operational flags: @e SGF.
- * @return             @li Updated descriptor size on success (@c unsigned).
+ * @return             @li On success, descriptor buffer offset where this
+ *                     command is inserted (@c unsigned).
  *                     @li First error program counter will be incremented on
  *                     error; in debug mode, a log message will be shown at
  *                     output.
@@ -516,7 +538,8 @@ static inline unsigned rta_get_sec_era()
  *                     indicate pointer value (@c uint64_t).
  * @param[in] length   Number of bytes to store (@c uint32_t).
  * @param[in] flags    Operational flags:@n @li <em>VLF, IMM</em>.
- * @return             @li Updated descriptor size on success (@c unsigned).
+ * @return             @li On success, descriptor buffer offset where this
+ *                     command is inserted (@c unsigned).
  *                     @li First error program counter will be incremented on
  *                     error; in debug mode, a log message will be shown at
  *                     output.
@@ -540,7 +563,8 @@ static inline unsigned rta_get_sec_era()
  *                     (@c uint16_t).
  * @param[in] length   Number of bytes to store (@c uint32_t).
  * @param[in] flags    Operational flags: @e SGF.
- * @return             @li Updated descriptor size on success (@c unsigned).
+ * @return             @li On success, descriptor buffer offset where this
+ *                     command is inserted (@c unsigned).
  *                     @li First error program counter will be incremented on
  *                     error; in debug mode, a log message will be shown at
  *                     output.
@@ -569,7 +593,8 @@ static inline unsigned rta_get_sec_era()
  * @param[in] length   Length in bytes of the operation and the immediate
  *                     value, if there is one (@c int).
  * @param[in] opt      Operational flags: @e SGF.
- * @return             @li Updated descriptor size on success (@c unsigned).
+ * @return             @li On success, descriptor buffer offset where this
+ *                     command is inserted (@c unsigned).
  *                     @li First error program counter will be incremented on
  *                     error; in debug mode, a log message will be shown at
  *                     output.
@@ -593,7 +618,8 @@ static inline unsigned rta_get_sec_era()
  * @param[in] length   Length in bytes of the operation and the immediate
  *                     value, if there is one (@c int).
  * @param[in] opt      Operational flags: @e SGF.
- * @return             @li Updated descriptor size on success (@c unsigned).
+ * @return             @li On success, descriptor buffer offset where this
+ *                     command is inserted (@c unsigned).
  *                     @li First error program counter will be incremented on
  *                     error; in debug mode, a log message will be shown at
  *                     output.
@@ -611,7 +637,8 @@ static inline unsigned rta_get_sec_era()
  *                     @n After @b SIGNATURE command, @b DWORD or
  *                     @b WORD must be used to insert signature in descriptor
  *                     buffer.
- * @return             @li Updated descriptor size on success (@c unsigned).
+ * @return             @li On success, descriptor buffer offset where this
+ *                     command is inserted (@c unsigned).
  *                     @li First error program counter will be incremented on
  *                     error; in debug mode, a log message will be shown at
  *                     output.
@@ -637,7 +664,8 @@ static inline unsigned rta_get_sec_era()
  *		       @li padding type: <em>PAD_ZERO, PAD_NONZERO,
  *		       PAD_INCREMENT, PAD_RANDOM, PAD_ZERO_N1, PAD_NONZERO_0,
  *		       PAD_N1, PAD_NONZERO_N</em>.
- * @return             @li Updated descriptor size on success (@c unsigned).
+ * @return             @li On success, descriptor buffer offset where this
+ *                     command is inserted (@c unsigned).
  *                     @li First error program counter will be incremented on
  *                     error; in debug mode, a log message will be shown at
  *                     output.

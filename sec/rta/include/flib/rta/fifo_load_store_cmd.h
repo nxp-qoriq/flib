@@ -44,6 +44,7 @@ static inline unsigned fifo_load(struct program *program, uint32_t src,
 	uint32_t opcode = 0;
 	uint32_t is_seq_cmd = 0, ext_length = 0, val = 0;
 	int8_t ret = 0, i;
+	unsigned start_pc = program->current_pc;
 
 	/* write command type field */
 	if (flags & SEQ) {
@@ -164,12 +165,13 @@ static inline unsigned fifo_load(struct program *program, uint32_t src,
 		program->buffer[program->current_pc] = ext_length;
 		program->current_pc++;
 	}
-	return program->current_pc;
+
+	return start_pc;
 
  err:
-	program->first_error_pc = program->current_pc;
+	program->first_error_pc = start_pc;
 	program->current_instraction++;
-	return program->current_pc;
+	return start_pc;
 }
 
 static const uint32_t fifo_store_table[][2] = {
@@ -211,6 +213,7 @@ static inline unsigned fifo_store(struct program *program, uint32_t src,
 	uint32_t opcode = 0;
 	uint32_t is_seq_cmd = 0, val = 0;
 	int8_t ret = 0;
+	unsigned start_pc = program->current_pc;
 
 	/* write command type field */
 	if (flags & SEQ) {
@@ -303,12 +306,13 @@ static inline unsigned fifo_store(struct program *program, uint32_t src,
 		program->buffer[program->current_pc] = length;
 		program->current_pc++;
 	}
-	return program->current_pc;
+
+	return start_pc;
 
  err:
-	program->first_error_pc = program->current_pc;
+	program->first_error_pc = start_pc;
 	program->current_instraction++;
-	return program->current_pc;
+	return start_pc;
 }
 
 #endif /* __RTA_FIFO_LOAD_STORE_CMD_H__ */

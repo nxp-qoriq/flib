@@ -539,35 +539,39 @@ static inline unsigned program_set_36bit_addr(struct program *program)
 
 static inline unsigned word(struct program *program, uint32_t val)
 {
+	unsigned start_pc = program->current_pc;
+
 	program->buffer[program->current_pc] = val;
 	program->current_pc++;
 
-	return program->current_pc;
+	return start_pc;
 }
 
 static inline unsigned dword(struct program *program, uint64_t val)
 {
+	unsigned start_pc = program->current_pc;
+
 	program->buffer[program->current_pc] = high_32b(val);
 	program->current_pc++;
 
 	program->buffer[program->current_pc] = low_32b(val);
 	program->current_pc++;
 
-	return program->current_pc;
+	return start_pc;
 }
 
 static inline unsigned endian_data(struct program *program, uint8_t *data,
 				   int length)
 {
 	int i;
-
-	uint32_t pc = program->current_pc;
+	unsigned start_pc = program->current_pc;
 	char *tmp = (char *)&program->buffer[program->current_pc];
 
 	for (i = 0; i < length; i++)
 		*tmp++ = data[i];
 	program->current_pc += (length + 3) / 4;
-	return pc;
+
+	return start_pc;
 }
 
 static inline unsigned set_label(struct program *program)
