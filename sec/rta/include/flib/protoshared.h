@@ -27,7 +27,7 @@
  * @param [in] direction UEA2 direction (1 bit).
  *
  */
-static inline void cnstr_shdsc_snow_f8(uint32_t *descbuf, uint16_t *bufsize,
+static inline void cnstr_shdsc_snow_f8(uint32_t *descbuf, unsigned *bufsize,
 			 uint8_t *cipherkey, uint32_t keylen,
 			 uint8_t dir, uint32_t count,
 			 uint8_t bearer, uint8_t direction)
@@ -67,7 +67,7 @@ static inline void cnstr_shdsc_snow_f8(uint32_t *descbuf, uint16_t *bufsize,
  * @param[in] direction UEA2 direction (1 bit).
  * @param[in] datalen   Size of data.
  */
-static inline void cnstr_shdsc_snow_f9(uint32_t *descbuf, uint16_t *bufsize,
+static inline void cnstr_shdsc_snow_f9(uint32_t *descbuf, unsigned *bufsize,
 			 uint8_t *cipherkey, uint32_t keylen,
 			 uint8_t dir, uint32_t count,
 			 uint32_t fresh, uint8_t direction,
@@ -110,9 +110,9 @@ static inline void cnstr_shdsc_snow_f9(uint32_t *descbuf, uint16_t *bufsize,
  * @param[in] dir       DIR_ENCRYPT/DIR_DECRYPT.
  * @param[in] cipher    OP_ALG_ALGSEL_AES/DES/3DES.
  */
-static inline void cnstr_shdsc_cbc_blkcipher(uint32_t *descbuf, uint16_t *bufsize,
-			       uint8_t *cipherkey, uint32_t keylen,
-			       uint8_t *iv, uint32_t ivlen,
+static inline void cnstr_shdsc_cbc_blkcipher(uint32_t *descbuf,
+			       unsigned *bufsize, uint8_t *cipherkey,
+			       uint32_t keylen, uint8_t *iv, uint32_t ivlen,
 			       uint8_t dir, uint32_t cipher)
 {
 	struct program prg;
@@ -145,7 +145,7 @@ static inline void cnstr_shdsc_cbc_blkcipher(uint32_t *descbuf, uint16_t *bufsiz
  * @param[in] md_algo  Message digest algorithm: OP_ALG_ALGSEL_MD5/SHA1-512.
  * @param[in] icv      HMAC comparison for ICV, NULL if no check desired.
  */
-static inline void cnstr_shdsc_hmac(uint32_t *descbuf, uint16_t *bufsize,
+static inline void cnstr_shdsc_hmac(uint32_t *descbuf, unsigned *bufsize,
 		      uint8_t *md_key, uint32_t md_algo, uint8_t *icv)
 {
 	struct program prg;
@@ -209,7 +209,7 @@ static inline void cnstr_shdsc_hmac(uint32_t *descbuf, uint16_t *bufsize,
  * @param[in] bearer    Bearer ID (5 bits).
  * @param[in] direction Direction (1 bit).
  */
-static inline void cnstr_shdsc_kasumi_f8(uint32_t *descbuf, uint16_t *bufsize,
+static inline void cnstr_shdsc_kasumi_f8(uint32_t *descbuf, unsigned *bufsize,
 			   uint8_t *cipherkey, uint32_t keylen,
 			   uint8_t dir, uint32_t count,
 			   uint8_t bearer, uint8_t direction)
@@ -250,7 +250,7 @@ static inline void cnstr_shdsc_kasumi_f8(uint32_t *descbuf, uint16_t *bufsize,
  * @param[in] direction Direction (1 bit).
  * @param[in] datalen   Size of data.
  */
-static inline void cnstr_shdsc_kasumi_f9(uint32_t *descbuf, uint16_t *bufsize,
+static inline void cnstr_shdsc_kasumi_f9(uint32_t *descbuf, unsigned *bufsize,
 			   uint8_t *cipherkey, uint32_t keylen,
 			   uint8_t dir, uint32_t count,
 			   uint32_t fresh, uint8_t direction,
@@ -288,7 +288,7 @@ static inline void cnstr_shdsc_kasumi_f9(uint32_t *descbuf, uint16_t *bufsize,
  * @param[in] descbuf  Pointer to descriptor-under-construction buffer.
  * @param[in] bufsize  Limit of descriptor buffer size.
  */
-static inline void cnstr_shdsc_crc(uint32_t *descbuf, uint16_t *bufsize)
+static inline void cnstr_shdsc_crc(uint32_t *descbuf, unsigned *bufsize)
 {
 	struct program prg;
 	struct program *program = &prg;
@@ -320,11 +320,10 @@ static inline void cnstr_shdsc_crc(uint32_t *descbuf, uint16_t *bufsize)
  * @param[in] pn        PDB Packet Number.
  **/
 static inline void cnstr_shdsc_macsec_encap(uint32_t *descbuf,
-					    uint16_t *bufsize,
-					    uint8_t *cipherkey,
-					    uint32_t keylen, uint64_t sci,
-					    uint16_t ethertype, uint8_t tci_an,
-					    uint32_t pn)
+					    unsigned *bufsize,
+					    uint8_t *cipherkey, uint32_t keylen,
+					    uint64_t sci, uint16_t ethertype,
+					    uint8_t tci_an, uint32_t pn)
 {
 	struct program prg;
 	struct program *program = &prg;
@@ -370,10 +369,9 @@ static inline void cnstr_shdsc_macsec_encap(uint32_t *descbuf,
  * @param[in] pn        PDB Packet Number.
  **/
 static inline void cnstr_shdsc_macsec_decap(uint32_t *descbuf,
-					    uint16_t *bufsize,
-					    uint8_t *cipherkey,
-					    uint32_t keylen, uint64_t sci,
-					    uint32_t pn)
+					    unsigned *bufsize,
+					    uint8_t *cipherkey, uint32_t keylen,
+					    uint64_t sci, uint32_t pn)
 {
 	struct program prg;
 	struct program *program = &prg;

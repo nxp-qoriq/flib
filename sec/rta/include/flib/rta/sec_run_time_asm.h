@@ -485,17 +485,17 @@ enum rta_sec_era {
  * @details   Descriptor buffer management structure
  */
 struct program {
-	int current_pc;		/**< Current offset in descriptor */
-	int current_instraction;/**< Current instruction in descriptor */
-	int first_error_pc;     /**< Offset of the first error in descriptor */
-	int start_pc;		/**< Start offset in descriptor buffer */
-	uint32_t *buffer;	/**< Buffer carrying descriptor */
-	uint32_t *shrhdr;	/**< Shared Descriptor Header */
-	uint32_t *jobhdr;       /**< Job Descriptor Header */
-	uint8_t ps;		/**< Pointer fields size; if ps is set to 1,
-				   pointers will be 36bits in length; if ps
-				   is set to 0, pointers will be 32bits in
-				   length. */
+	unsigned current_pc;	 /**< Current offset in descriptor */
+	unsigned current_instraction;/**< Current instruction in descriptor */
+	unsigned first_error_pc; /**< Offset of the first error in descriptor */
+	unsigned start_pc;	 /**< Start offset in descriptor buffer */
+	uint32_t *buffer;	 /**< Buffer carrying descriptor */
+	uint32_t *shrhdr;	 /**< Shared Descriptor Header */
+	uint32_t *jobhdr;	 /**< Job Descriptor Header */
+	uint8_t ps;		 /**< Pointer fields size; if ps is set to 1,
+				    pointers will be 36bits in length; if ps
+				    is set to 0, pointers will be 32bits in
+				    length. */
 };
 
 static inline void program_cntxt_init(struct program *program, uint32_t *buffer,
@@ -511,7 +511,7 @@ static inline void program_cntxt_init(struct program *program, uint32_t *buffer,
 	program->ps = 0;
 }
 
-static inline uint32_t program_finalize(struct program *program)
+static inline unsigned program_finalize(struct program *program)
 {
 	/* Descriptor is not allowed to go beyond 64 words size */
 	if (program->current_pc > 0x40)
@@ -531,13 +531,13 @@ static inline uint32_t program_finalize(struct program *program)
 	return program->current_pc;
 }
 
-static inline uint32_t program_set_36bit_addr(struct program *program)
+static inline unsigned program_set_36bit_addr(struct program *program)
 {
 	program->ps = 1;
 	return program->current_pc;
 }
 
-static inline uint32_t word(struct program *program, uint32_t val)
+static inline unsigned word(struct program *program, uint32_t val)
 {
 	program->buffer[program->current_pc] = val;
 	program->current_pc++;
@@ -545,7 +545,7 @@ static inline uint32_t word(struct program *program, uint32_t val)
 	return program->current_pc;
 }
 
-static inline uint32_t dword(struct program *program, uint64_t val)
+static inline unsigned dword(struct program *program, uint64_t val)
 {
 	program->buffer[program->current_pc] = high_32b(val);
 	program->current_pc++;
@@ -556,7 +556,8 @@ static inline uint32_t dword(struct program *program, uint64_t val)
 	return program->current_pc;
 }
 
-static inline uint32_t endian_data(struct program *program, uint8_t *data, int length)
+static inline unsigned endian_data(struct program *program, uint8_t *data,
+				   int length)
 {
 	int i;
 
@@ -569,7 +570,7 @@ static inline uint32_t endian_data(struct program *program, uint8_t *data, int l
 	return pc;
 }
 
-static inline uint32_t set_label(struct program *program)
+static inline unsigned set_label(struct program *program)
 {
 	return program->current_pc + program->start_pc;
 }
@@ -589,7 +590,8 @@ static inline uint32_t set_label(struct program *program)
 #define BSWAP    (0x0B << MATH_FUN_SHIFT)
 
 
-static inline void patch_move(struct program *program, uint32_t line, uint32_t new_ref)
+static inline void patch_move(struct program *program, unsigned line,
+			      unsigned new_ref)
 {
 	uint32_t opcode = program->buffer[line];
 	opcode &= ~MOVE_OFFSET_MASK;
@@ -597,7 +599,8 @@ static inline void patch_move(struct program *program, uint32_t line, uint32_t n
 	program->buffer[line] = opcode;
 }
 
-static inline void patch_jmp(struct program *program, uint32_t line, uint32_t new_ref)
+static inline void patch_jmp(struct program *program, unsigned line,
+			     unsigned new_ref)
 {
 	uint32_t opcode = program->buffer[line];
 	opcode &= ~JUMP_OFFSET_MASK;
@@ -605,8 +608,8 @@ static inline void patch_jmp(struct program *program, uint32_t line, uint32_t ne
 	program->buffer[line] = opcode;
 }
 
-static inline void patch_header(struct program *program, uint32_t line,
-			 uint32_t new_ref)
+static inline void patch_header(struct program *program, unsigned line,
+				unsigned new_ref)
 {
 	uint32_t opcode = program->buffer[line];
 	opcode &= ~HDR_START_IDX_MASK;
@@ -614,7 +617,8 @@ static inline void patch_header(struct program *program, uint32_t line,
 	program->buffer[line] = opcode;
 }
 
-static inline void patch_load(struct program *program, uint32_t line, uint32_t new_ref)
+static inline void patch_load(struct program *program, unsigned line,
+			      unsigned new_ref)
 {
 	uint32_t opcode = program->buffer[line];
 
@@ -628,7 +632,8 @@ static inline void patch_load(struct program *program, uint32_t line, uint32_t n
 	program->buffer[line] = opcode;
 }
 
-static inline void patch_store(struct program *program, uint32_t line, uint32_t new_ref)
+static inline void patch_store(struct program *program, unsigned line,
+			       unsigned new_ref)
 {
 	uint32_t opcode = program->buffer[line];
 

@@ -204,8 +204,9 @@ static const struct alg_aai_map alg_table[] = {
  */
 static const uint8_t alg_table_sz[] = {14, 15, 15, 15, 17};
 
-static inline uint32_t operation(struct program *program, uint32_t cipher_algo,
-	  uint16_t aai, uint8_t algo_state, uint8_t icv_checking, uint8_t enc)
+static inline unsigned operation(struct program *program, uint32_t cipher_algo,
+				 uint16_t aai, uint8_t algo_state,
+				 uint8_t icv_checking, uint8_t enc)
 {
 	uint32_t opcode = CMD_OPERATION;
 	uint32_t i, found = 0;
@@ -454,7 +455,7 @@ static inline int32_t pkha_copymem(uint32_t pkha_op)
 	return -1;
 }
 
-static inline uint32_t pkha_operation(struct program *program, uint32_t op_pkha)
+static inline unsigned pkha_operation(struct program *program, uint32_t op_pkha)
 {
 	uint32_t opcode = CMD_OPERATION | OP_TYPE_PK | OP_ALG_PK;
 	uint32_t pkha_func;

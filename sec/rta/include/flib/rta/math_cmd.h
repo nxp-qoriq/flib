@@ -66,9 +66,10 @@ static const uint32_t math_result[][2] = {
  */
 static const uint32_t math_result_sz[] = {9, 9, 10, 10, 10};
 
-static inline uint32_t math(struct program *program, uint64_t operand1,
-		int type_op1, uint32_t op, uint64_t operand2, int type_op2,
-		uint32_t result, int type_res, int length, uint32_t options)
+static inline unsigned math(struct program *program, uint64_t operand1,
+			    int type_op1, uint32_t op, uint64_t operand2,
+			    int type_op2, uint32_t result, int type_res,
+			    int length, uint32_t options)
 {
 	uint32_t opcode = CMD_MATH;
 	uint32_t val = 0;

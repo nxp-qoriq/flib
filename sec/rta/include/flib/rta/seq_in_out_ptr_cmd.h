@@ -3,7 +3,7 @@
 
 extern enum rta_sec_era rta_sec_era;
 
-static inline uint32_t seq_in_ptr(struct program *program, uintptr_t src,
+static inline unsigned seq_in_ptr(struct program *program, uintptr_t src,
 				  uint32_t length, uint32_t flags)
 {
 	uint32_t opcode = CMD_SEQ_IN_PTR;
@@ -67,7 +67,7 @@ static inline uint32_t seq_in_ptr(struct program *program, uintptr_t src,
 	return program->current_pc;
 }
 
-static inline uint32_t seq_out_ptr(struct program *program, uintptr_t dst,
+static inline unsigned seq_out_ptr(struct program *program, uintptr_t dst,
 				   uint32_t length, uint32_t flags)
 {
 	uint32_t opcode = CMD_SEQ_OUT_PTR;

@@ -498,7 +498,7 @@ static const struct proto_map proto_table[] = {
  */
 static const uint8_t proto_table_sz[] = {21, 29, 29, 29, 29};
 
-static inline uint32_t proto_operation(struct program *program, uint32_t optype,
+static inline unsigned proto_operation(struct program *program, uint32_t optype,
 				       uint32_t protid, uint16_t protoinfo)
 {
 	uint32_t opcode = CMD_OPERATION;

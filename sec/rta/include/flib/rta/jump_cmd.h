@@ -24,9 +24,9 @@ static const uint32_t jump_test_cond[][2] = {
 	{ BOTH,     JUMP_CLASS_BOTH }
 };
 
-static inline uint32_t jump(struct program *program, int64_t address,
-		     uint32_t address_type, uint32_t jump_type,
-		     uint32_t test_type, uint32_t test_condition)
+static inline unsigned jump(struct program *program, int64_t address,
+			    uint32_t address_type, uint32_t jump_type,
+			    uint32_t test_type, uint32_t test_condition)
 {
 	uint32_t opcode = CMD_JUMP;
 

@@ -48,7 +48,7 @@ static const uint32_t store_src_table[][2] = {
  */
 static const uint32_t store_src_table_sz[] = {29, 31, 33, 33, 33};
 
-static inline uint32_t store(struct program *program, uint64_t src,
+static inline unsigned store(struct program *program, uint64_t src,
 			     int type_src, uint16_t offset, uint64_t dst,
 			     int type_dst, uint32_t length, uint32_t flags)
 {

@@ -195,9 +195,9 @@ err:
 	return -1;
 }
 
-static inline uint32_t load(struct program *program, uint64_t src,
-		uint32_t src_type, uint64_t dst, uint32_t dst_type,
-		uint32_t offset, uint32_t length, uint32_t flags)
+static inline unsigned load(struct program *program, uint64_t src,
+			    uint32_t src_type, uint64_t dst, uint32_t dst_type,
+			    uint32_t offset, uint32_t length, uint32_t flags)
 {
 	uint32_t opcode = 0, i;
 	int8_t pos = -1;

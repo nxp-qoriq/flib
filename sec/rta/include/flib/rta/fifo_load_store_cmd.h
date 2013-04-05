@@ -36,7 +36,7 @@ static const uint32_t fifo_load_table[][2] = {
  */
 static const uint32_t fifo_load_table_sz[] = {22, 22, 23, 23, 23};
 
-static inline uint32_t fifo_load(struct program *program, uint32_t src,
+static inline unsigned fifo_load(struct program *program, uint32_t src,
 				 uint32_t type_src, uint64_t loc,
 				 uint32_t type_loc, uint32_t length,
 				 uint32_t flags)
@@ -204,7 +204,7 @@ static const uint32_t fifo_store_table[][2] = {
  */
 static const uint32_t fifo_store_table_sz[] = {21, 21, 21, 21, 22};
 
-static inline uint32_t fifo_store(struct program *program, uint32_t src,
+static inline unsigned fifo_store(struct program *program, uint32_t src,
 				  uint32_t type_src, uint32_t encrypt_flags,
 				  uint64_t dst, uint32_t length, uint32_t flags)
 {

@@ -83,7 +83,7 @@ static const uint32_t nfifo_pad_flags[][2] = {
  */
 static const uint8_t nfifo_pad_flags_sz[] = {2, 2, 2, 2, 3};
 
-static inline uint32_t nfifo_load(struct program *program, uint32_t src,
+static inline unsigned nfifo_load(struct program *program, uint32_t src,
 				  int type_src, uint32_t data, int type_data,
 				  uint32_t length, uint32_t flags)
 {

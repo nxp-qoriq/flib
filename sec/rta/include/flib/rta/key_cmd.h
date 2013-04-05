@@ -12,10 +12,10 @@ static const uint32_t key_enc_flags[] = {
 	ENC | NWB | EKT | TK,
 };
 
-static inline uint32_t key(struct program *program, uint32_t key_dst,
-		uint32_t key_type, uint32_t encrypt_flags,
-		uint64_t dst, uint32_t dst_type, uint32_t length,
-		uint32_t flags)
+static inline unsigned key(struct program *program, uint32_t key_dst,
+			   uint32_t key_type, uint32_t encrypt_flags,
+			   uint64_t dst, uint32_t dst_type, uint32_t length,
+			   uint32_t flags)
 {
 	uint32_t opcode = 0, is_seq_cmd = 0;
 	uint8_t i;

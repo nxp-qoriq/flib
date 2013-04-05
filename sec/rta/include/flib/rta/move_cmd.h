@@ -63,7 +63,7 @@ static inline int set_move_offset(struct program *program, uint64_t src,
 				  uint16_t *opt);
 
 
-static inline uint32_t move(struct program *program, uint64_t src, int type_src,
+static inline unsigned move(struct program *program, uint64_t src, int type_src,
 			    uint16_t src_offset, uint64_t dst, int type_dst,
 			    uint16_t dst_offset, uint32_t length,
 			    int type_length, uint32_t flags)
