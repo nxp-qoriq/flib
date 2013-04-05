@@ -2400,4 +2400,8 @@
 #define PDBOPTS_ESPCBC_TUNNEL	0x01   /* tunnel mode next-header byte	    */
 #define PDBOPTS_ESPCBC_CKSUM	0x80   /* enable checksum update by SEC	    */
 
+/* IPSec ESP HMO Encap Field */
+#define PDBHMO_DFC              0x40   /* DF copy                           */
+#define PDBHMO_DTTL             0x20   /* Decrement TTL                     */
+
 #endif /* DESC_H */

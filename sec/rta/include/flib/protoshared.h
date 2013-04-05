@@ -402,6 +402,132 @@ static inline void cnstr_shdsc_macsec_decap(uint32_t *descbuf,
 	*bufsize = PROGRAM_FINALIZE();
 }
 
-/** @} */ /* end of sharedesc_group */
+
+/**
+ * @struct    alginfo protoshared.h
+ * @details   Container for IPsec algorithm details
+ */
+struct alginfo {
+	uint16_t algtype;  /**< Algorithm selector. One of OP_PCL_IPSEC_* */
+	uint8_t *key;      /**< Pointer to algorithm key */
+	uint32_t keylen;   /**< Length of the provided key, in bytes */
+};
+
+
+/**
+ *  @details IPSec ESP encapsulation protocol-level shared descriptor.
+ *           Requires an MDHA splitkey.
+ *
+ * @param[out] descbuf    Pointer to buffer used for descriptor construction
+ * @param[out] bufsize    Pointer to descriptor size to be written back upon
+ *      completion
+ * @param[in] pdb         Pointer to the PDB to be used with this descriptor.
+ *      This structure will be copied inline to the descriptor under
+ *      construction. No error checking will be made. Refer to the
+ *      block guide for a details of the encapsulation PDB.
+ * @param[in] ip_hdr      Optional header to be prepended to an encapsulated
+ *      frame. Size of the optional header is defined in pdb.ip_hdr_len.
+ * @param[in] cipherdata  Pointer to blockcipher transform definitions.
+ * @param[in] authdata    Pointer to authentication transform definitions. Note
+ *      that since a split key is to be used, the size of the split key itself
+ *      is specified
+ **/
+static inline void cnstr_shdsc_ipsec_encap(uint32_t *descbuf,
+					   unsigned *bufsize,
+					   struct ipsec_encap_pdb *pdb,
+					   uint8_t *ip_hdr,
+					   struct alginfo *cipherdata,
+					   struct alginfo *authdata)
+{
+	struct program prg;
+	struct program *program = &prg;
+
+	LABEL(keyjmp);
+	REFERENCE(pkeyjmp);
+	LABEL(hdr);
+	REFERENCE(phdr);
+
+	PROGRAM_CNTXT_INIT(descbuf, 0);
+	phdr = SHR_HDR(SHR_SERIAL, hdr, 0);
+	ENDIAN_DATA((uint8_t *)pdb, sizeof(struct ipsec_encap_pdb));
+	if (pdb->ip_hdr_len)
+		ENDIAN_DATA(ip_hdr, pdb->ip_hdr_len);
+	SET_LABEL(hdr);
+	pkeyjmp = JUMP(IMM(keyjmp), LOCAL_JUMP, ALL_TRUE, BOTH|SHRD);
+	KEY(MDHA_SPLIT_KEY,
+	    ENC,
+	    PTR((uintptr_t)authdata->key),
+	    authdata->keylen,
+	    IMMED);
+	KEY(KEY1,
+	    0,
+	    PTR((uintptr_t)cipherdata->key),
+	    cipherdata->keylen,
+	    IMMED);
+	SET_LABEL(keyjmp);
+	PROTOCOL(OP_TYPE_ENCAP_PROTOCOL,
+		 OP_PCLID_IPSEC,
+		 cipherdata->algtype | authdata->algtype);
+	PATCH_JUMP(pkeyjmp, keyjmp);
+	PATCH_HDR(phdr, hdr);
+	*bufsize = PROGRAM_FINALIZE();
+}
+
+/**
+ * @details IPSec ESP decapsulation protocol-level sharedesc
+ *          Requires an MDHA splitkey.
+ *
+ * @param[out] descbuf    Pointer to buffer used for descriptor construction
+ * @param[out] bufsize    Pointer to descriptor size to be written back upon
+ *      completion
+ * @param[in] pdb         Pointer to the PDB to be used with this descriptor.
+ *      This structure will be copied inline to the descriptor under
+ *      construction. No error checking will be made. Refer to the
+ *      block guide for details about the decapsulation PDB.
+ * @param[in] cipherdata  Pointer to blockcipher transform definitions.
+ * @param[in] authdata    Pointer to authentication transform definitions. Note
+ *      that since a split key is to be used, the size of the split key itself
+ *      is specified
+ **/
+static inline void cnstr_shdsc_ipsec_decap(uint32_t *descbuf,
+					   unsigned *bufsize,
+					   struct ipsec_decap_pdb *pdb,
+					   struct alginfo *cipherdata,
+					   struct alginfo *authdata)
+{
+	struct program prg;
+	struct program *program = &prg;
+
+	LABEL(keyjmp);
+	REFERENCE(pkeyjmp);
+	LABEL(hdr);
+	REFERENCE(phdr);
+
+	PROGRAM_CNTXT_INIT(descbuf, 0);
+	phdr = SHR_HDR(SHR_SERIAL, hdr, 0);
+	ENDIAN_DATA((uint8_t *)pdb, sizeof(struct ipsec_decap_pdb));
+	SET_LABEL(hdr);
+	pkeyjmp = JUMP(IMM(keyjmp), LOCAL_JUMP, ALL_TRUE, BOTH|SHRD);
+	KEY(MDHA_SPLIT_KEY,
+	    ENC,
+	    PTR((uintptr_t)authdata->key),
+	    authdata->keylen,
+	    IMMED);
+	KEY(KEY1,
+	    0,
+	    PTR((uintptr_t)cipherdata->key),
+	    cipherdata->keylen,
+	    IMMED);
+	SET_LABEL(keyjmp);
+	PROTOCOL(OP_TYPE_DECAP_PROTOCOL,
+		 OP_PCLID_IPSEC,
+		 cipherdata->algtype | authdata->algtype);
+	PATCH_JUMP(pkeyjmp, keyjmp);
+	PATCH_HDR(phdr, hdr);
+	*bufsize = PROGRAM_FINALIZE();
+}
+
+
+/** @} end of sharedesc_group */
 
 #endif /* __RTA_PROTOSHARED_H__ */
