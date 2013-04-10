@@ -34,8 +34,8 @@ int build_shr_desc_ppp_decap(struct program *prg, uint32_t *buff, int buffpos)
 	uint32_t c2_ctx_addr = 0x09CB4780ul;
 
 	LABEL(b);
-	REFERENCE(pjumpb1)
-	REFERENCE(pjumpb2)
+	REFERENCE(pjumpb1);
+	REFERENCE(pjumpb2);
 	LABEL(d);
 	REFERENCE(pjumpd);
 	LABEL(do_nfifo);

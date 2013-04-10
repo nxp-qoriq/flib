@@ -658,7 +658,7 @@ static inline uint rta_get_sec_era()
  *                     is required with a value that will be known latter in
  *                     the program flow.
  */
-#define REFERENCE(ref)    uint32_t ref = 0xFFFFFFFF;
+#define REFERENCE(ref)    uint32_t ref = 0xFFFFFFFF
 
 /**
  * @def                LABEL
@@ -668,7 +668,7 @@ static inline uint rta_get_sec_era()
  * @param[in] label    Label stores the value with what should be updated the
  *                     REFERENCE line in the descriptor buffer.
  */
-#define LABEL(label)      uint32_t label = 0;
+#define LABEL(label)      uint32_t label = 0
 
 /**
  * @def                SET_LABEL

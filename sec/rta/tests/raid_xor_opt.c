@@ -25,7 +25,7 @@ int build_shdesc_raid_xor_opt(struct program *prg, uint32_t *buff, int buffpos)
 	uint32_t chunk_size = 128;
 	uint32_t fetch_limit = 64;
 
-	LABEL(label_2)
+	LABEL(label_2);
 	REFERENCE(pmove1);
 	REFERENCE(pmove2);
 	REFERENCE(pmove3);
