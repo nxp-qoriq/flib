@@ -80,7 +80,7 @@ static inline unsigned math(struct program *program, uint64_t operand1,
 	    ((op == ZBYTE) && (rta_sec_era < RTA_SEC_ERA_2))) {
 		pr_debug("MATH: operation not supported by SEC Era %d. "
 			 "SEC PC: %d; Instr: %d\n", USER_SEC_ERA(rta_sec_era),
-			 program->current_pc, program->current_instraction);
+			 program->current_pc, program->current_instruction);
 		goto err;
 	}
 
@@ -92,7 +92,7 @@ static inline unsigned math(struct program *program, uint64_t operand1,
 	if ((op != SHLD) && ((operand1 == _NONE) || (operand2 == _SEQINSZ))) {
 		pr_debug("MATH: Invalid operand. SEC PC: %d; "
 				"Instr: %d\n", program->current_pc,
-				program->current_instraction);
+				program->current_instruction);
 		goto err;
 	}
 
@@ -103,7 +103,7 @@ static inline unsigned math(struct program *program, uint64_t operand1,
 	if (((op == ZBYTE) || (op == BSWAP)) && (operand2 != _NONE)) {
 		pr_debug("MATH: Invalid operand2. SEC PC: %d; "
 				"Instr: %d\n", program->current_pc,
-				program->current_instraction);
+				program->current_instruction);
 		goto err;
 	}
 
@@ -116,7 +116,7 @@ static inline unsigned math(struct program *program, uint64_t operand1,
 		if (ret == -1) {
 			pr_debug("MATH: operand1 not supported. SEC PC: %d; "
 					"Instr: %d\n", program->current_pc,
-					program->current_instraction);
+					program->current_instruction);
 			goto err;
 		}
 		opcode |= val;
@@ -131,7 +131,7 @@ static inline unsigned math(struct program *program, uint64_t operand1,
 		if (ret == -1) {
 			pr_debug("MATH: operand2 not supported. SEC PC: %d; "
 					"Instr: %d\n", program->current_pc,
-					program->current_instraction);
+					program->current_instruction);
 			goto err;
 		}
 		opcode |= val;
@@ -143,7 +143,7 @@ static inline unsigned math(struct program *program, uint64_t operand1,
 	if (ret == -1) {
 		pr_debug("MATH: result not supported. SEC PC: %d; "
 				"Instr: %d\n", program->current_pc,
-				program->current_instraction);
+				program->current_instruction);
 		goto err;
 	}
 	opcode |= val;
@@ -172,7 +172,7 @@ static inline unsigned math(struct program *program, uint64_t operand1,
 	default:
 		pr_debug("MATH: operator is not supported. SEC PC: %d; "
 				"Instr: %d\n", program->current_pc,
-				program->current_instraction);
+				program->current_instruction);
 		goto err;
 	}
 
@@ -195,13 +195,13 @@ static inline unsigned math(struct program *program, uint64_t operand1,
 	default:
 		pr_debug("MATH: length is not supported. SEC PC: %d; "
 				"Instr: %d\n", program->current_pc,
-		     program->current_instraction);
+		     program->current_instruction);
 		goto err;
 	}
 
 	program->buffer[program->current_pc] = opcode;
 	program->current_pc++;
-	program->current_instraction++;
+	program->current_instruction++;
 
 	/* Write immediate value */
 	if ((type_op1 == IMM_DATA) && (type_op2 != IMM_DATA)) {
@@ -235,7 +235,7 @@ static inline unsigned math(struct program *program, uint64_t operand1,
 
  err:
 	program->first_error_pc = start_pc;
-	program->current_instraction++;
+	program->current_instruction++;
 	return start_pc;
 }
 

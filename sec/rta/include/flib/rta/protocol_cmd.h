@@ -537,13 +537,13 @@ static inline unsigned proto_operation(struct program *program, uint32_t optype,
 
 	program->buffer[program->current_pc] = opcode | optype | protid
 						      | protoinfo;
-	program->current_instraction++;
+	program->current_instruction++;
 	program->current_pc++;
 	return start_pc;
 
  err:
 	program->first_error_pc = start_pc;
-	program->current_instraction++;
+	program->current_instruction++;
 	return start_pc;
 }
 

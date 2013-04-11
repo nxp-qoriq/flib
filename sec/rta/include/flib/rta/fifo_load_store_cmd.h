@@ -130,7 +130,7 @@ static inline unsigned fifo_load(struct program *program, uint32_t src,
 
 	program->buffer[program->current_pc] = opcode;
 	program->current_pc++;
-	program->current_instraction++;
+	program->current_instruction++;
 
 	/* write pointer or immediate data field */
 	if (flags & IMMED) {
@@ -170,7 +170,7 @@ static inline unsigned fifo_load(struct program *program, uint32_t src,
 
  err:
 	program->first_error_pc = start_pc;
-	program->current_instraction++;
+	program->current_instruction++;
 	return start_pc;
 }
 
@@ -288,7 +288,7 @@ static inline unsigned fifo_store(struct program *program, uint32_t src,
 
 	program->buffer[program->current_pc] = opcode;
 	program->current_pc++;
-	program->current_instraction++;
+	program->current_instruction++;
 
 	/* write pointer field */
 	if ((!is_seq_cmd) && (dst)) {
@@ -311,7 +311,7 @@ static inline unsigned fifo_store(struct program *program, uint32_t src,
 
  err:
 	program->first_error_pc = start_pc;
-	program->current_instraction++;
+	program->current_instruction++;
 	return start_pc;
 }
 

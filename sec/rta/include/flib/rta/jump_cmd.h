@@ -94,7 +94,7 @@ static inline unsigned jump(struct program *program, int64_t address,
 
 	program->buffer[program->current_pc] = opcode;
 	program->current_pc++;
-	program->current_instraction++;
+	program->current_instruction++;
 
 	if (jump_type == FAR_JUMP) {
 		if (program->ps == 1) {
@@ -112,7 +112,7 @@ static inline unsigned jump(struct program *program, int64_t address,
 
  err:
 	program->first_error_pc = start_pc;
-	program->current_instraction++;
+	program->current_instruction++;
 	return start_pc;
 }
 

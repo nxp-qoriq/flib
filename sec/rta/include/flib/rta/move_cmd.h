@@ -80,7 +80,7 @@ static inline unsigned move(struct program *program, uint64_t src, int type_src,
 			pr_debug("MOVE: MOVE_LEN not supported by SEC Era %d. "
 				 "SEC PC: %d; Instr: %d\n",
 				 USER_SEC_ERA(rta_sec_era), program->current_pc,
-				 program->current_instraction);
+				 program->current_instruction);
 			goto err;
 		}
 
@@ -88,7 +88,7 @@ static inline unsigned move(struct program *program, uint64_t src, int type_src,
 		    (length != _MATH2) && (length != _MATH3)) {
 			pr_debug("MOVE: MOVE_LEN length must be MATH[0-3]. "
 				 "SEC PC: %d; Instr: %d\n", program->current_pc,
-				 program->current_instraction);
+				 program->current_instruction);
 			goto err;
 		}
 
@@ -122,7 +122,7 @@ static inline unsigned move(struct program *program, uint64_t src, int type_src,
 	if (ret == -1) {
 		pr_debug("MOVE: Invalid SRC. SEC PC: %d; Instr: %d\n",
 				program->current_pc,
-				program->current_instraction);
+				program->current_instruction);
 		goto err;
 	}
 	opcode |= val;
@@ -133,7 +133,7 @@ static inline unsigned move(struct program *program, uint64_t src, int type_src,
 	if (ret == -1) {
 		pr_debug("MOVE: Invalid DST. SEC PC: %d; Instr: %d\n",
 				program->current_pc,
-				program->current_instraction);
+				program->current_instruction);
 		goto err;
 	}
 	opcode |= val;
@@ -171,13 +171,13 @@ static inline unsigned move(struct program *program, uint64_t src, int type_src,
 	}
 	program->buffer[program->current_pc] = opcode;
 	program->current_pc++;
-	program->current_instraction++;
+	program->current_instruction++;
 
 	return start_pc;
 
  err:
 	program->first_error_pc = start_pc;
-	program->current_instraction++;
+	program->current_instruction++;
 	return start_pc;
 }
 
@@ -197,7 +197,7 @@ static inline int set_move_offset(struct program *program, uint64_t src,
 				pr_debug("MOVE: Bad offset. SEC PC: %d; "
 						"Instr: %d\n",
 						program->current_pc,
-						program->current_instraction);
+						program->current_instruction);
 				goto err;
 			}
 			if (dst_offset) {
@@ -211,7 +211,7 @@ static inline int set_move_offset(struct program *program, uint64_t src,
 				pr_debug("MOVE: Bad offset alignment. "
 					"SEC PC: %d; Instr: %d\n",
 					program->current_pc,
-					program->current_instraction);
+					program->current_instruction);
 				goto err;
 			}
 			*offset = src_offset;
@@ -222,7 +222,7 @@ static inline int set_move_offset(struct program *program, uint64_t src,
 		if (dst == _OFIFO) {
 			pr_debug("MOVE: Invalid DST. SEC PC: %d; Instr: %d\n",
 					program->current_pc,
-					program->current_instraction);
+					program->current_instruction);
 			goto err;
 		}
 		if (((dst == _IFIFOAB1) || (dst == _IFIFOAB2) || (dst == _IFIFO)
@@ -230,7 +230,7 @@ static inline int set_move_offset(struct program *program, uint64_t src,
 		    && (src_offset || dst_offset)) {
 			pr_debug("MOVE: Offset should be zero. SEC PC: %d; "
 					"Instr: %d\n", program->current_pc,
-					program->current_instraction);
+					program->current_instruction);
 			goto err;
 		}
 		*offset = dst_offset;
@@ -244,14 +244,14 @@ static inline int set_move_offset(struct program *program, uint64_t src,
 		if (dst == _DESCBUF) {
 			pr_debug("MOVE: Invalid DST. SEC PC: %d; Instr: %d\n",
 					program->current_pc,
-					program->current_instraction);
+					program->current_instruction);
 			goto err;
 		}
 		if (((dst == _OFIFO) || (dst == _ALTSOURCE))
 		    && (src_offset % 4)) {
 			pr_debug("MOVE: Invalid offset alignment. SEC PC: %d; "
 					"Instr %d\n", program->current_pc,
-					program->current_instraction);
+					program->current_instruction);
 			goto err;
 		}
 		*offset = src_offset;
@@ -266,7 +266,7 @@ static inline int set_move_offset(struct program *program, uint64_t src,
 				pr_debug("MOVE: Bad offset alignment. "
 						"SEC PC: %d; Instr: %d\n",
 						program->current_pc,
-						program->current_instraction);
+						program->current_instruction);
 				goto err;
 			}
 			*offset = src_offset;
@@ -287,7 +287,7 @@ static inline int set_move_offset(struct program *program, uint64_t src,
 		    || (dst == _PKA) || (dst == _ALTSOURCE)) {
 			pr_debug("MOVE: Bad DST. SEC PC: %d; Instr: %d\n",
 					program->current_pc,
-					program->current_instraction);
+					program->current_instruction);
 			goto err;
 		} else if (dst == _OFIFO)
 			*opt = MOVE_SET_LEN_16b;
@@ -296,7 +296,7 @@ static inline int set_move_offset(struct program *program, uint64_t src,
 				pr_debug("MOVE: Bad offset alignment. "
 						"SEC PC: %d; Instr: %d\n",
 						program->current_pc,
-						program->current_instraction);
+						program->current_instruction);
 				goto err;
 			}
 			*offset = dst_offset;

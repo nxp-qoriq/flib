@@ -21,13 +21,13 @@ static inline unsigned signature(struct program *program, uint32_t sign_type)
 	}
 	program->buffer[program->current_pc] = opcode;
 	program->current_pc++;
-	program->current_instraction++;
+	program->current_instruction++;
 
 	return start_pc;
 
  err:
 	program->first_error_pc = start_pc;
-	program->current_instraction++;
+	program->current_instruction++;
 	return start_pc;
 }
 

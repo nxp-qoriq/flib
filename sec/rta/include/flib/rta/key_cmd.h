@@ -40,22 +40,22 @@ static inline unsigned key(struct program *program, uint32_t key_dst,
 	/* check parameters */
 	if ((flags & IMMED) && (is_seq_cmd)) {
 		pr_debug("KEY: Invalid flag. SEC PC: %d; Instr: %d\n",
-		     program->current_pc, program->current_instraction);
+		     program->current_pc, program->current_instruction);
 		goto err;
 	}
 	if ((flags & SGF) && ((flags & IMMED) || (is_seq_cmd))) {
 		pr_debug("KEY: Invalid flag. SEC PC: %d; Instr: %d\n",
-		     program->current_pc, program->current_instraction);
+		     program->current_pc, program->current_instruction);
 		goto err;
 	}
 	if ((key_dst == _AFHA_SBOX) && (flags & IMMED)) {
 		pr_debug("KEY: Invalid flag. SEC PC: %d; Instr: %d\n",
-		     program->current_pc, program->current_instraction);
+		     program->current_pc, program->current_instruction);
 		goto err;
 	}
 	if ((key_dst == _AFHA_SBOX) && (length != 258)) {
 		pr_debug("KEY: Invalid flag. SEC PC: %d; Instr: %d\n",
-		     program->current_pc, program->current_instraction);
+		     program->current_pc, program->current_instruction);
 		goto err;
 	}
 
@@ -78,7 +78,7 @@ static inline unsigned key(struct program *program, uint32_t key_dst,
 		break;
 	default:
 		pr_debug("KEY: Invalid destination. SEC PC: %d; Instr: %d\n",
-		     program->current_pc, program->current_instraction);
+		     program->current_pc, program->current_instruction);
 		goto err;
 		break;
 	}
@@ -116,7 +116,7 @@ static inline unsigned key(struct program *program, uint32_t key_dst,
 
 	program->buffer[program->current_pc] = opcode;
 	program->current_pc++;
-	program->current_instraction++;
+	program->current_instruction++;
 
 	if (flags & IMMED) {
 		if (dst_type == IMM_DATA) {
@@ -149,7 +149,7 @@ static inline unsigned key(struct program *program, uint32_t key_dst,
 
  err:
 	program->first_error_pc = start_pc;
-	program->current_instraction++;
+	program->current_instruction++;
 	return start_pc;
 }
 

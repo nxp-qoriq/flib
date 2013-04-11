@@ -48,7 +48,7 @@ static inline unsigned seq_in_ptr(struct program *program, uint64_t src,
 
 	program->buffer[program->current_pc] = opcode;
 	program->current_pc++;
-	program->current_instraction++;
+	program->current_instruction++;
 
 	/* write pointer or immidiate data field */
 	if (!(opcode & (SQIN_PRE | SQIN_RTO))) {
@@ -70,7 +70,7 @@ static inline unsigned seq_in_ptr(struct program *program, uint64_t src,
 
  err:
 	program->first_error_pc = start_pc;
-	program->current_instraction++;
+	program->current_instruction++;
 	return start_pc;
 }
 
@@ -107,7 +107,7 @@ static inline unsigned seq_out_ptr(struct program *program, uint64_t dst,
 
 	program->buffer[program->current_pc] = opcode;
 	program->current_pc++;
-	program->current_instraction++;
+	program->current_instruction++;
 
 	/* write pointer or immidiate data field */
 	if (!(opcode & (SQOUT_PRE | SQOUT_RTO))) {
@@ -130,7 +130,7 @@ static inline unsigned seq_out_ptr(struct program *program, uint64_t dst,
 
  err:
 	program->first_error_pc = start_pc;
-	program->current_instraction++;
+	program->current_instruction++;
 	return start_pc;
 }
 

@@ -98,7 +98,7 @@ static inline unsigned nfifo_load(struct program *program, uint32_t src,
 	if (ret == -1) {
 		pr_debug("NFIFO: Invalid SRC. SEC PC: %d; Instr: %d\n",
 				program->current_pc,
-				program->current_instraction);
+				program->current_instruction);
 		goto err;
 	}
 	opcode |= val;
@@ -108,7 +108,7 @@ static inline unsigned nfifo_load(struct program *program, uint32_t src,
 	if (ret == -1) {
 		pr_debug("NFIFO: Invalid data. SEC PC: %d; Instr: %d\n",
 				program->current_pc,
-				program->current_instraction);
+				program->current_instruction);
 		goto err;
 	}
 	opcode |= val;
@@ -140,13 +140,13 @@ static inline unsigned nfifo_load(struct program *program, uint32_t src,
 		    length & NFIFOENTRY_DLEN_MASK;
 		program->current_pc++;
 	}
-	program->current_instraction++;
+	program->current_instruction++;
 
 	return start_pc;
 
  err:
 	program->first_error_pc = start_pc;
-	program->current_instraction++;
+	program->current_instruction++;
 	return start_pc;
 }
 

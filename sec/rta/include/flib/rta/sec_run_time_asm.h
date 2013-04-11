@@ -486,7 +486,7 @@ enum rta_sec_era {
  */
 struct program {
 	unsigned current_pc;	 /**< Current offset in descriptor */
-	unsigned current_instraction;/**< Current instruction in descriptor */
+	unsigned current_instruction;/**< Current instruction in descriptor */
 	unsigned first_error_pc; /**< Offset of the first error in descriptor */
 	unsigned start_pc;	 /**< Start offset in descriptor buffer */
 	uint32_t *buffer;	 /**< Buffer carrying descriptor */
@@ -502,7 +502,7 @@ static inline void program_cntxt_init(struct program *program, uint32_t *buffer,
 				      int offset)
 {
 	program->current_pc = 0;
-	program->current_instraction = 0;
+	program->current_instruction = 0;
 	program->first_error_pc = 0;
 	program->start_pc = offset;
 	program->buffer = buffer;

@@ -68,19 +68,19 @@ static inline unsigned store(struct program *program, uint64_t src,
 	/* parameters check */
 	if ((flags & IMMED) && (flags & SGF)) {
 		pr_debug("STORE: Invalid flag. SEC PC: %d; Instr: %d\n",
-			program->current_pc, program->current_instraction);
+			program->current_pc, program->current_instruction);
 		goto err;
 	}
 	if ((flags & IMMED) && (offset != 0)) {
 		pr_debug("STORE: Invalid flag. SEC PC: %d; Instr: %d\n",
-			program->current_pc, program->current_instraction);
+			program->current_pc, program->current_instruction);
 		goto err;
 	}
 
 	if ((flags & SEQ) && ((src == _JOBDESCBUF) || (src == _SHAREDESCBUF) ||
 	    (src == _JOBDESCBUF_EFF) || (src == _SHAREDESCBUF_EFF))) {
 		pr_debug("STORE: Invalid SRC type. SEC PC: %d; Instr: %d\n",
-			program->current_pc, program->current_instraction);
+			program->current_pc, program->current_instruction);
 		goto err;
 	}
 
@@ -101,7 +101,7 @@ static inline unsigned store(struct program *program, uint64_t src,
 		if (ret == -1) {
 			pr_debug("STORE: Invalid source. SEC PC: %d; "
 					"Instr: %d\n", program->current_pc,
-					program->current_instraction);
+					program->current_instruction);
 			goto err;
 		}
 		opcode |= val;
@@ -119,7 +119,7 @@ static inline unsigned store(struct program *program, uint64_t src,
 
 	program->buffer[program->current_pc] = opcode;
 	program->current_pc++;
-	program->current_instraction++;
+	program->current_instruction++;
 
 	if ((src == _JOBDESCBUF) || (src == _SHAREDESCBUF) ||
 	    (src == _JOBDESCBUF_EFF) || (src == _SHAREDESCBUF_EFF))
@@ -160,7 +160,7 @@ static inline unsigned store(struct program *program, uint64_t src,
 
  err:
 	program->first_error_pc = start_pc;
-	program->current_instraction++;
+	program->current_instruction++;
 	return start_pc;
 }
 

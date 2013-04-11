@@ -67,17 +67,17 @@ static inline unsigned shr_header(struct program *program, uint32_t share,
 		opcode |= HDR_RIF;
 
 	program->buffer[program->current_pc] = opcode;
-	program->current_instraction++;
+	program->current_instruction++;
 	program->current_pc++;
 
-	if (program->current_instraction == 1)
+	if (program->current_instruction == 1)
 		program->shrhdr = program->buffer;
 
 	return start_pc;
 
  err:
 	program->first_error_pc = start_pc;
-	program->current_instraction++;
+	program->current_instruction++;
 	return start_pc;
 }
 
@@ -141,9 +141,9 @@ static inline unsigned job_header(struct program *program, uint32_t share,
 
 	program->buffer[program->current_pc] = opcode;
 	program->current_pc++;
-	program->current_instraction++;
+	program->current_instruction++;
 
-	if (program->current_instraction == 1) {
+	if (program->current_instruction == 1) {
 		program->jobhdr = program->buffer;
 
 		if (opcode & HDR_SHARED) {
@@ -164,7 +164,7 @@ static inline unsigned job_header(struct program *program, uint32_t share,
 
  err:
 	program->first_error_pc = start_pc;
-	program->current_instraction++;
+	program->current_instruction++;
 	return start_pc;
 }
 

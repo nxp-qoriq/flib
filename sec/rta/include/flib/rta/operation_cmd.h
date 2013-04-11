@@ -278,7 +278,7 @@ static inline unsigned operation(struct program *program, uint32_t cipher_algo,
 
 	program->buffer[program->current_pc] = opcode;
 	program->current_pc++;
-	program->current_instraction++;
+	program->current_instruction++;
 	return start_pc;
 
  err:
@@ -510,12 +510,12 @@ static inline unsigned pkha_operation(struct program *program, uint32_t op_pkha)
 
 	program->buffer[program->current_pc] = opcode;
 	program->current_pc++;
-	program->current_instraction++;
+	program->current_instruction++;
 	return start_pc;
 
  err:
 	program->first_error_pc = start_pc;
-	program->current_instraction++;
+	program->current_instruction++;
 	return start_pc;
 }
 
