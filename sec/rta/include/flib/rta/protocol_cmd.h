@@ -445,6 +445,9 @@ static inline int32_t _3g_rlc_proto(uint16_t protoinfo)
 static inline int32_t lte_pdcp_proto(uint16_t protoinfo)
 {
 	switch (protoinfo) {
+	case OP_PCL_LTE_ZUC:
+		if (rta_sec_era < RTA_SEC_ERA_5)
+			break;
 	case OP_PCL_LTE_NULL:
 	case OP_PCL_LTE_SNOW:
 	case OP_PCL_LTE_AES:

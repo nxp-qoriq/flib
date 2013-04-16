@@ -1249,6 +1249,7 @@
 #define OP_PCL_LTE_NULL                          0x0000
 #define OP_PCL_LTE_SNOW                          0x0001
 #define OP_PCL_LTE_AES                           0x0002
+#define OP_PCL_LTE_ZUC                           0x0003
 
 /* PKI unidirectional protocol protinfo bits */
 #define OP_PCL_PKPROT_DSA_MSG                    0x400
