@@ -196,5 +196,45 @@ struct ipsec_decap_pdb {
 	uint32_t end_index[0];
 };
 
+/*
+ * PDCP Control Plane Protocol Data Blocks
+ */
+
+#define PDCP_C_PLANE_PDB_HFN_SHIFT		5
+#define PDCP_C_PLANE_PDB_BEARER_SHIFT		27
+#define PDCP_C_PLANE_PDB_DIR_SHIFT		26
+#define PDCP_C_PLANE_PDB_HFN_THR_SHIFT		5
+
+#define PDCP_U_PLANE_PDB_OPT_SHORT_SN		0x2
+#define PDCP_U_PLANE_PDB_SHORT_SN_HFN_SHIFT	7
+#define PDCP_U_PLANE_PDB_LONG_SN_HFN_SHIFT	12
+#define PDCP_U_PLANE_PDB_BEARER_SHIFT		27
+#define PDCP_U_PLANE_PDB_DIR_SHIFT		26
+#define PDCP_U_PLANE_PDB_SHORT_SN_HFN_THR_SHIFT	7
+#define PDCP_U_PLANE_PDB_LONG_SN_HFN_THR_SHIFT	12
+
+/**
+ * @struct    pdcp_pdb pdb.h
+ * @details   Container for PDCP Control Plane and User Plane PDB
+ */
+struct pdcp_pdb {
+	union {
+		uint32_t opt;
+		uint32_t rsvd;
+	}opt_res;
+	uint32_t hfn_res;
+	uint32_t bearer_dir_res;
+	uint32_t hfn_thr_res;
+};
+
+/*
+ * PDCP internal PDB types
+ */
+enum pdb_type_e {
+	PDCP_PDB_TYPE_NO_PDB,
+	PDCP_PDB_TYPE_FULL_PDB,
+	PDCP_PDB_TYPE_REDUCED_PDB,
+	PDCP_PDB_TYPE_INVALID
+};
 
 #endif /* __RTA_PDB_H__ */
