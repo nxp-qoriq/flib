@@ -363,7 +363,7 @@ static inline unsigned rta_get_sec_era()
  * @def                SEQINPTR
  * @details            Configures SEC <b>SEQ IN PTR</b> command.
  *
- * @param[in] src      Starting address for Input Sequence (@c uintptr_t).
+ * @param[in] src      Starting address for Input Sequence (@c uint64_t).
  * @param[in] length   Number of bytes in (or to be added to) Input Sequence
  *                     (@c uint32_t).
  * @param[in] flags    Operational flags:@n @li <em>RBS, INL, SGF, PRE, EXT,
@@ -381,7 +381,7 @@ static inline unsigned rta_get_sec_era()
  * @def                SEQOUTPTR
  * @details            Configures SEC <b>SEQ OUT PTR</b> command.
  *
- * @param[in] dst      Starting address for Output Sequence (@c uintptr_t).
+ * @param[in] dst      Starting address for Output Sequence (@c uint64_t).
  * @param[in] length   Number of bytes in (or to be added to) Output Sequence
  *                     (@c uint32_t).
  * @param[in] flags    Operational flags:@n @li <em>SGF, PRE, EXT, RTO</em>.
