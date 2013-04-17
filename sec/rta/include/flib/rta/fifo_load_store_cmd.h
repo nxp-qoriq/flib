@@ -147,7 +147,7 @@ static inline unsigned fifo_load(struct program *program, uint32_t src,
 			uint8_t *tmp = (uint8_t *) &program->buffer[program->current_pc];
 
 			for (i = 0; i < length; i++)
-				*tmp++ = ((uint8_t *) loc)[i];
+				*tmp++ = ((uint8_t *)(uintptr_t)loc)[i];
 			program->current_pc += ((length + 3) / 4);
 		}
 	} else if (!is_seq_cmd) {

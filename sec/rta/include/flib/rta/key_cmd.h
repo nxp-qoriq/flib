@@ -132,7 +132,7 @@ static inline unsigned key(struct program *program, uint32_t key_dst,
 			uint8_t *tmp = (uint8_t *) &program->buffer[program->current_pc];
 
 			for (i = 0; i < length; i++)
-				*tmp++ = ((uint8_t *) dst)[i];
+				*tmp++ = ((uint8_t *)(uintptr_t)dst)[i];
 			program->current_pc += ((length + 3) / 4);
 		}
 	} else {

@@ -290,7 +290,7 @@ static inline unsigned load(struct program *program, uint64_t src,
 			(uint8_t *) &program->buffer[program->current_pc];
 
 		for (i = 0; i < length; i++)
-			*tmp++ = ((uint8_t *) src)[i];
+			*tmp++ = ((uint8_t *)(uintptr_t)src)[i];
 		program->current_pc += ((length + 3) / 4);
 
 		return program->current_pc;
