@@ -38,7 +38,7 @@ unsigned generate_capwap_code(uint32_t *buff, unsigned mdatalen)
 	/* Location of the extra, custom part of PDB */
 	previous_iv = 16;
 	/* All of the IV, both next and previous */
-	ENDIAN_DATA(((uint8_t[]){ 00, 00}), 2);
+	COPY_DATA(((uint8_t[]){ 00, 00}), 2);
 
 	ref1 = MOVE(DESCBUF, 0, MATH0, 0, IMM(16), WITH(WAITCOMP));
 	MATHB(MATH0, XOR, IMM(0x0840010000000000), MATH0, SIZE(8), 0);

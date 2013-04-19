@@ -132,8 +132,8 @@
 #define DWORD(val) rta_dword(program, val)
 
 /**
- * @def                ENDIAN_DATA
- * @details            @b ENDIAN_DATA must be called to insert in descriptor buffer
+ * @def                COPY_DATA
+ * @details            @b COPY_DATA must be called to insert in descriptor buffer
  *                     data larger than 64bits.
  *
  * @param[in] data     Input data to be written in descriptor buffer
@@ -142,7 +142,7 @@
  * @return             Descriptor buffer offset where this command is inserted
  *                     (@c unsigned).
  */
-#define ENDIAN_DATA(data, len) rta_endian_data(program, (data), (len))
+#define COPY_DATA(data, len) rta_copy_data(program, (data), (len))
 
 /**
  * @def                SHR_DESC_LEN
