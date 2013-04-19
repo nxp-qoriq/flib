@@ -789,7 +789,7 @@ static inline void cnstr_shdsc_macsec_encap(uint32_t *descbuf,
 	PROGRAM_CNTXT_INIT(descbuf, 0);
 	SHR_HDR(SHR_SERIAL, ++startidx, WITH(SC));
 	{
-		ENDIAN_DATA((uint8_t *)&pdb, sizeof(struct macsec_encap_pdb));
+		COPY_DATA((uint8_t *)&pdb, sizeof(struct macsec_encap_pdb));
 		pkeyjump = JUMP(IMM(keyjump), LOCAL_JUMP, ALL_TRUE,
 				WITH(SHRD | SELF | BOTH));
 		KEY(KEY1, cipherdata->key_enc_flags, PTR(cipherdata->key),
@@ -839,7 +839,7 @@ static inline void cnstr_shdsc_macsec_decap(uint32_t *descbuf,
 	PROGRAM_CNTXT_INIT(descbuf, 0);
 	SHR_HDR(SHR_SERIAL, ++startidx, WITH(SC));
 	{
-		ENDIAN_DATA((uint8_t *)&pdb, sizeof(struct macsec_decap_pdb));
+		COPY_DATA((uint8_t *)&pdb, sizeof(struct macsec_decap_pdb));
 		pkeyjump = JUMP(IMM(keyjump), LOCAL_JUMP, ALL_TRUE,
 				WITH(SHRD | SELF | BOTH));
 		KEY(KEY1, cipherdata->key_enc_flags, PTR(cipherdata->key),
@@ -891,8 +891,8 @@ static inline void cnstr_shdsc_ipsec_encap(uint32_t *descbuf,
 	if (ps)
 		PROGRAM_SET_36BIT_ADDR();
 	phdr = SHR_HDR(SHR_SERIAL, hdr, 0);
-	ENDIAN_DATA((uint8_t *)pdb,
-		    sizeof(struct ipsec_encap_pdb) + pdb->ip_hdr_len);
+	COPY_DATA((uint8_t *)pdb,
+		  sizeof(struct ipsec_encap_pdb) + pdb->ip_hdr_len);
 	SET_LABEL(hdr);
 	pkeyjmp = JUMP(IMM(keyjmp), LOCAL_JUMP, ALL_TRUE, BOTH|SHRD);
 	KEY(MDHA_SPLIT_KEY, authdata->key_enc_flags, PTR(authdata->key),
@@ -947,7 +947,7 @@ static inline void cnstr_shdsc_ipsec_decap(uint32_t *descbuf,
 	if (ps)
 		PROGRAM_SET_36BIT_ADDR();
 	phdr = SHR_HDR(SHR_SERIAL, hdr, 0);
-	ENDIAN_DATA((uint8_t *)pdb, sizeof(struct ipsec_decap_pdb));
+	COPY_DATA((uint8_t *)pdb, sizeof(struct ipsec_decap_pdb));
 	SET_LABEL(hdr);
 	pkeyjmp = JUMP(IMM(keyjmp), LOCAL_JUMP, ALL_TRUE, BOTH|SHRD);
 	KEY(MDHA_SPLIT_KEY, authdata->key_enc_flags, PTR(authdata->key),
@@ -1016,8 +1016,8 @@ static inline void cnstr_shdsc_ipsec_encap_des_aes_xcbc(uint32_t *descbuf,
 
 	PROGRAM_CNTXT_INIT(descbuf, 0);
 	phdr = SHR_HDR(SHR_SERIAL, hdr, 0);
-	ENDIAN_DATA((uint8_t *)pdb,
-		    sizeof(struct ipsec_encap_pdb) + pdb->ip_hdr_len);
+	COPY_DATA((uint8_t *)pdb,
+		  sizeof(struct ipsec_encap_pdb) + pdb->ip_hdr_len);
 	SET_LABEL(hdr);
 	pkeyjump = JUMP(IMM(keyjump), LOCAL_JUMP, ALL_TRUE, SHRD | SELF);
 	/*
@@ -1155,7 +1155,7 @@ static inline void cnstr_shdsc_ipsec_decap_des_aes_xcbc(uint32_t *descbuf,
 
 	PROGRAM_CNTXT_INIT(descbuf, 0);
 	phdr = SHR_HDR(SHR_SERIAL, hdr, 0);
-	ENDIAN_DATA((uint8_t *)pdb, sizeof(struct ipsec_decap_pdb));
+	COPY_DATA((uint8_t *)pdb, sizeof(struct ipsec_decap_pdb));
 	SET_LABEL(hdr);
 	pkeyjump = JUMP(IMM(keyjump), LOCAL_JUMP, ALL_TRUE, SHRD | SELF);
 	/*
@@ -1515,19 +1515,19 @@ static inline void cnstr_shdsc_ipsec_new_encap(uint32_t *descbuf,
 
 	switch (pdb->options & PDBOPTS_ESP_OIHI_MASK) {
 	case PDBOPTS_ESP_OIHI_PDB_INL:
-		ENDIAN_DATA((uint8_t *)pdb,
-			    sizeof(struct ipsec_encap_pdb) + pdb->ip_hdr_len);
+		COPY_DATA((uint8_t *)pdb,
+			  sizeof(struct ipsec_encap_pdb) + pdb->ip_hdr_len);
 		break;
 	case PDBOPTS_ESP_OIHI_PDB_REF:
 		if (ps)
-			ENDIAN_DATA((uint8_t *)pdb,
-				    sizeof(struct ipsec_encap_pdb) + BYTES_8);
+			COPY_DATA((uint8_t *)pdb,
+				  sizeof(struct ipsec_encap_pdb) + BYTES_8);
 		else
-			ENDIAN_DATA((uint8_t *)pdb,
-				    sizeof(struct ipsec_encap_pdb) + BYTES_4);
+			COPY_DATA((uint8_t *)pdb,
+				  sizeof(struct ipsec_encap_pdb) + BYTES_4);
 		break;
 	default:
-		ENDIAN_DATA((uint8_t *)pdb, sizeof(struct ipsec_encap_pdb));
+		COPY_DATA((uint8_t *)pdb, sizeof(struct ipsec_encap_pdb));
 		break;
 	}
 	SET_LABEL(hdr);
@@ -1596,7 +1596,7 @@ static inline void cnstr_shdsc_ipsec_new_decap(uint32_t *descbuf,
 	if (ps)
 		PROGRAM_SET_36BIT_ADDR();
 	phdr = SHR_HDR(SHR_SERIAL, hdr, 0);
-	ENDIAN_DATA((uint8_t *)pdb, sizeof(struct ipsec_decap_pdb));
+	COPY_DATA((uint8_t *)pdb, sizeof(struct ipsec_decap_pdb));
 	SET_LABEL(hdr);
 	pkeyjmp = JUMP(IMM(keyjmp), LOCAL_JUMP, ALL_TRUE, SHRD);
 	if (authdata->keylen)
@@ -1666,7 +1666,7 @@ static inline void cnstr_shdsc_wimax_encap(uint32_t *descbuf, unsigned *bufsize,
 	PROGRAM_CNTXT_INIT(descbuf, 0);
 	phdr = SHR_HDR(SHR_SERIAL, hdr, WITH(0));
 	{
-		ENDIAN_DATA((uint8_t *)&pdb, sizeof(struct wimax_encap_pdb));
+		COPY_DATA((uint8_t *)&pdb, sizeof(struct wimax_encap_pdb));
 		SET_LABEL(hdr);
 		/* Save SEQOUTPTR, Output Pointer and Output Length. */
 		move_seqout_ptr = MOVE(DESCBUF, 0, OFIFO, 0, IMM(16),
@@ -1830,7 +1830,7 @@ static inline void cnstr_shdsc_wimax_decap(uint32_t *descbuf, unsigned *bufsize,
 	PROGRAM_CNTXT_INIT(descbuf, 0);
 	phdr = SHR_HDR(SHR_SERIAL, hdr, WITH(0));
 	{
-		ENDIAN_DATA((uint8_t *)&pdb, sizeof(struct wimax_decap_pdb));
+		COPY_DATA((uint8_t *)&pdb, sizeof(struct wimax_decap_pdb));
 		SET_LABEL(hdr);
 		load_gmh = SEQLOAD(DESCBUF, 0, 8, WITH(0));
 		LOAD(IMM(LDST_SRCDST_WORD_CLRW |
@@ -3437,7 +3437,7 @@ static inline enum pdb_type_e cnstr_pdcp_c_plane_pdb(struct program *program,
 			hfn_threshold << PDCP_C_PLANE_PDB_HFN_THR_SHIFT;
 
 		/* copy PDB in descriptor*/
-		ENDIAN_DATA((uint8_t *)&pdb, sizeof(struct pdcp_pdb));
+		COPY_DATA((uint8_t *)&pdb, sizeof(struct pdcp_pdb));
 
 		break;
 
@@ -3862,7 +3862,7 @@ static inline void cnstr_shdsc_pdcp_u_plane_encap(uint32_t *descbuf,
 				 (direction << PDCP_U_PLANE_PDB_DIR_SHIFT));
 
 	/* copy PDB in descriptor*/
-	ENDIAN_DATA((uint8_t *)&pdb, sizeof(struct pdcp_pdb));
+	COPY_DATA((uint8_t *)&pdb, sizeof(struct pdcp_pdb));
 
 	SET_LABEL(pdb_end);
 
@@ -4034,7 +4034,7 @@ static inline void cnstr_shdsc_pdcp_u_plane_decap(uint32_t *descbuf,
 				 (direction << PDCP_U_PLANE_PDB_DIR_SHIFT));
 
 	/* copy PDB in descriptor*/
-	ENDIAN_DATA((uint8_t *)&pdb, sizeof(struct pdcp_pdb));
+	COPY_DATA((uint8_t *)&pdb, sizeof(struct pdcp_pdb));
 
 	SET_LABEL(pdb_end);
 
@@ -4352,7 +4352,7 @@ static inline void cnstr_shdsc_srtp_encap(uint32_t *descbuf,
 
 	PROGRAM_CNTXT_INIT(descbuf, 0);
 	SHR_HDR(SHR_SERIAL, ++startidx, 0);
-	ENDIAN_DATA((uint8_t *)&pdb, sizeof(struct srtp_encap_pdb));
+	COPY_DATA((uint8_t *)&pdb, sizeof(struct srtp_encap_pdb));
 	pkeyjmp = JUMP(IMM(keyjmp), LOCAL_JUMP, ALL_TRUE, BOTH|SHRD);
 	KEY(MDHA_SPLIT_KEY, authdata->key_enc_flags, PTR(authdata->key),
 	    authdata->keylen, IMMED);
@@ -4408,7 +4408,7 @@ static inline void cnstr_shdsc_srtp_decap(uint32_t *descbuf,
 	PROGRAM_CNTXT_INIT(descbuf, 0);
 	SHR_HDR(SHR_SERIAL, ++startidx, 0);
 	{
-		ENDIAN_DATA((uint8_t *)&pdb, sizeof(struct srtp_decap_pdb));
+		COPY_DATA((uint8_t *)&pdb, sizeof(struct srtp_decap_pdb));
 		pkeyjmp = JUMP(IMM(keyjmp), LOCAL_JUMP, ALL_TRUE, BOTH|SHRD);
 		KEY(MDHA_SPLIT_KEY, authdata->key_enc_flags, PTR(authdata->key),
 		    authdata->keylen, IMMED);
@@ -4470,7 +4470,7 @@ static inline void cnstr_shdsc_wifi_encap(uint32_t *descbuf, unsigned *bufsize,
 	if (ps)
 		PROGRAM_SET_36BIT_ADDR();
 	phdr = SHR_HDR(SHR_SERIAL, pdbend, SC);
-	ENDIAN_DATA((uint8_t *)&pdb, sizeof(struct wifi_encap_pdb));
+	COPY_DATA((uint8_t *)&pdb, sizeof(struct wifi_encap_pdb));
 	SET_LABEL(pdbend);
 	pkeyjump = JUMP(IMM(keyjump), LOCAL_JUMP, ALL_TRUE, WITH(SHRD | SELF));
 	KEY(KEY1, cipherdata->key_enc_flags, PTR(cipherdata->key),
@@ -4594,7 +4594,7 @@ static inline void cnstr_shdsc_wifi_decap(uint32_t *descbuf, unsigned *bufsize,
 	if (ps)
 		PROGRAM_SET_36BIT_ADDR();
 	phdr = SHR_HDR(SHR_SERIAL, pdbend, SC);
-	ENDIAN_DATA((uint8_t *)&pdb, sizeof(struct wifi_decap_pdb));
+	COPY_DATA((uint8_t *)&pdb, sizeof(struct wifi_decap_pdb));
 	SET_LABEL(pdbend);
 	pkeyjump = JUMP(IMM(keyjump), LOCAL_JUMP, ALL_TRUE, WITH(SHRD | SELF));
 	KEY(KEY1, cipherdata->key_enc_flags, PTR(cipherdata->key),
@@ -4640,7 +4640,7 @@ static inline void cnstr_shdsc_rsa(uint32_t *descbuf, unsigned *bufsize,
 	if (ps)
 		PROGRAM_SET_36BIT_ADDR();
 	phdr = SHR_HDR(SHR_SERIAL, pdbend, WITH(0));
-	ENDIAN_DATA(pdb, pdb_len);
+	COPY_DATA(pdb, pdb_len);
 	SET_LABEL(pdbend);
 	PROTOCOL(protcmd->optype, protcmd->protid, protcmd->protinfo);
 	PATCH_HDR(phdr, pdbend);
@@ -4687,7 +4687,7 @@ static inline void cnstr_shdsc_tls(uint32_t *descbuf, unsigned *bufsize,
 	if (ps)
 		PROGRAM_SET_36BIT_ADDR();
 	SHR_HDR(SHR_SERIAL, ++startidx, 0);
-	ENDIAN_DATA(pdb, pdb_len);
+	COPY_DATA(pdb, pdb_len);
 	pkeyjmp = JUMP(IMM(keyjmp), LOCAL_JUMP, ALL_TRUE, BOTH|SHRD|SELF);
 	/*
 	 * SSL3.0 uses SSL-MAC (SMAC) instead of HMAC, thus MDHA Split Key
@@ -4736,7 +4736,7 @@ static inline void cnstr_shdsc_mbms_type0(uint32_t *descbuf,
 	if (ps)
 		PROGRAM_SET_36BIT_ADDR();
 	phdr = SHR_HDR(SHR_SERIAL, 0, 0);
-	ENDIAN_DATA((uint8_t *)&pdb, sizeof(pdb));
+	COPY_DATA((uint8_t *)&pdb, sizeof(pdb));
 	SET_LABEL(pdb_end);
 
 	/*
@@ -4943,7 +4943,7 @@ static inline unsigned cnstr_shdsc_mbms_type1_3(uint32_t *descbuf,
 		PROGRAM_SET_36BIT_ADDR();
 
 	phdr = SHR_HDR(SHR_SERIAL, 0, 0);
-	ENDIAN_DATA((uint8_t *)&pdb, sizeof(pdb));
+	COPY_DATA((uint8_t *)&pdb, sizeof(pdb));
 	SET_LABEL(pdb_end);
 
 	/*

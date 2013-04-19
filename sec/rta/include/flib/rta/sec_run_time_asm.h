@@ -623,8 +623,8 @@ static inline unsigned rta_dword(struct program *program, uint64_t val)
 	return start_pc;
 }
 
-static inline unsigned rta_endian_data(struct program *program, uint8_t *data,
-				       unsigned length)
+static inline unsigned rta_copy_data(struct program *program, uint8_t *data,
+				     unsigned length)
 {
 	unsigned i;
 	unsigned start_pc = program->current_pc;
