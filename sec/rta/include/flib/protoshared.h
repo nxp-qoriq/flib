@@ -906,6 +906,7 @@ void cnstr_shdsc_wimax_decap(uint32_t *descbuf, unsigned *bufsize,
 	}
 	PATCH_JUMP(pseq_out_ptr, seq_ptr);
 	PATCH_JUMP(pcrc8, crc8);
+	*bufsize = PROGRAM_FINALIZE();
 }
 
 /**
