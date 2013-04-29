@@ -25,8 +25,13 @@
 /**
  * ARRAY_SIZE(x) - Returns the number of elements in an array
  */
+#ifndef ARRAY_SIZE
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
+#endif
+
+#ifndef ALIGN
 #define ALIGN(x, a) (((x) + ((typeof(x))(a) - 1)) & ~((typeof(x))(a) - 1))
+#endif
 
 /**
  * @enum rta_sec_era
