@@ -88,8 +88,10 @@
  * @details   Container for IPsec algorithm details
  */
 struct alginfo {
-	uint16_t algtype;  /**< Algorithm selector. One of OP_PCL_IPSEC_* */
-	uint8_t *key;      /**< Pointer to algorithm key */
+	uint32_t algtype;  /**< Algorithm selector. For valid values, see
+				documentation of the functions where it is
+				used */
+	uint64_t key;      /**< Address where algorithm key resides */
 	uint32_t keylen;   /**< Length of the provided key, in bytes */
 };
 
@@ -156,8 +158,7 @@ enum pdcp_sn_size {
  *
  * @param [in] descbuf   Pointer to descriptor-under-construction buffer.
  * @param [in] bufsize   Points to size to be updated at completion.
- * @param [in] cipherkey Cipher key.
- * @param [in] keylen    Size of key in bits.
+ * @param [in] cipherdata Pointer to blockcipher transform definitions.
  * @param [in] dir       Cipher direction (DIR_ENCRYPT/DIR_DECRYPT).
  * @param [in] count     UEA2 count value (32 bits).
  * @param [in] bearer    UEA2 bearer ID (5 bits).
@@ -165,9 +166,8 @@ enum pdcp_sn_size {
  *
  */
 static inline void cnstr_shdsc_snow_f8(uint32_t *descbuf, unsigned *bufsize,
-			 uint8_t *cipherkey, uint32_t keylen,
-			 uint8_t dir, uint32_t count,
-			 uint8_t bearer, uint8_t direction)
+			 struct alginfo *cipherdata, uint8_t dir,
+			 uint32_t count, uint8_t bearer, uint8_t direction)
 {
 	struct program prg;
 	struct program *program = &prg;
@@ -179,7 +179,7 @@ static inline void cnstr_shdsc_snow_f8(uint32_t *descbuf, unsigned *bufsize,
 	PROGRAM_CNTXT_INIT(descbuf, 0);
 	SHR_HDR(SHR_ALWAYS, 1, 0);
 	{
-		KEY(KEY1, 0, PTR((uintptr_t)cipherkey), keylen, IMMED);
+		KEY(KEY1, 0, PTR(cipherdata->key), cipherdata->keylen, IMMED);
 		MATHB(SEQINSZ, SUB, MATH2, VSEQINSZ, SIZE(4), 0);
 		MATHB(SEQINSZ, SUB, MATH2, VSEQOUTSZ, SIZE(4), 0);
 		ALG_OPERATION(OP_ALG_ALGSEL_SNOW_F8, OP_ALG_AAI_F8,
@@ -196,8 +196,7 @@ static inline void cnstr_shdsc_snow_f8(uint32_t *descbuf, unsigned *bufsize,
  *
  * @param[in] descbuf   Pointer to descriptor-under-construction buffer.
  * @param[in] bufsize   Points to size to be updated at completion.
- * @param[in] cipherkey Cipher key.
- * @param[in] keylen    Size of key.
+ * @param[in] authdata  Pointer to authentication transform definitions.
  * @param[in] dir       Cipher direction (DIR_ENCRYPT/DIR_DECRYPT).
  * @param[in] count     UEA2 count value (32 bits).
  * @param[in] fresh     UEA2 fresh value ID (32 bits).
@@ -205,10 +204,8 @@ static inline void cnstr_shdsc_snow_f8(uint32_t *descbuf, unsigned *bufsize,
  * @param[in] datalen   Size of data.
  */
 static inline void cnstr_shdsc_snow_f9(uint32_t *descbuf, unsigned *bufsize,
-			 uint8_t *cipherkey, uint32_t keylen,
-			 uint8_t dir, uint32_t count,
-			 uint32_t fresh, uint8_t direction,
-			 uint32_t datalen)
+			 struct alginfo *authdata, uint8_t dir, uint32_t count,
+			 uint32_t fresh, uint8_t direction, uint32_t datalen)
 {
 	struct program prg;
 	struct program *program = &prg;
@@ -223,7 +220,7 @@ static inline void cnstr_shdsc_snow_f9(uint32_t *descbuf, unsigned *bufsize,
 	PROGRAM_CNTXT_INIT(descbuf, 0);
 	SHR_HDR(SHR_ALWAYS, 1, 0);
 	{
-		KEY(KEY2, 0, PTR((uintptr_t)cipherkey), keylen, IMMED);
+		KEY(KEY2, 0, PTR(authdata->key), authdata->keylen, IMMED);
 		MATHB(SEQINSZ, SUB, MATH2, VSEQINSZ, SIZE(4), 0);
 		ALG_OPERATION(OP_ALG_ALGSEL_SNOW_F9, OP_ALG_AAI_F9,
 			      OP_ALG_AS_INITFINAL, 0, dir);
@@ -240,17 +237,16 @@ static inline void cnstr_shdsc_snow_f9(uint32_t *descbuf, unsigned *bufsize,
  *
  * @param[in] descbuf   Pointer to descriptor-under-construction buffer.
  * @param[in] bufsize   Limit/returned descriptor buffer size.
- * @param[in] cipherkey Key data to inline.
- * @param[in] keylen    Key length.
+ * @param[in] cipherdata Pointer to blockcipher transform definitions.
  * @param[in] iv        IV data.
  * @param[in] ivlen     IV length.
  * @param[in] dir       DIR_ENCRYPT/DIR_DECRYPT.
  * @param[in] cipher    OP_ALG_ALGSEL_AES/DES/3DES.
  */
 static inline void cnstr_shdsc_cbc_blkcipher(uint32_t *descbuf,
-			       unsigned *bufsize, uint8_t *cipherkey,
-			       uint32_t keylen, uint8_t *iv, uint32_t ivlen,
-			       uint8_t dir, uint32_t cipher)
+			       unsigned *bufsize, struct alginfo *cipherdata,
+			       uint8_t *iv, uint32_t ivlen, uint8_t dir,
+			       uint32_t cipher)
 {
 	struct program prg;
 	struct program *program = &prg;
@@ -259,7 +255,7 @@ static inline void cnstr_shdsc_cbc_blkcipher(uint32_t *descbuf,
 	SHR_HDR(SHR_ALWAYS, 1, SC);
 	{
 		/* Insert Key */
-		KEY(KEY1, 0, PTR((uintptr_t)cipherkey), keylen, IMMED);
+		KEY(KEY1, 0, PTR(cipherdata->key), cipherdata->keylen, IMMED);
 		MATHB(SEQINSZ, SUB, MATH2, VSEQINSZ, SIZE(4), 0);
 		MATHB(SEQINSZ, SUB, MATH2, VSEQOUTSZ, SIZE(4), 0);
 		ALG_OPERATION(cipher, OP_ALG_AAI_CBC, OP_ALG_AS_INIT, 0, dir);
@@ -277,13 +273,12 @@ static inline void cnstr_shdsc_cbc_blkcipher(uint32_t *descbuf,
  *
  * @param[in] descbuf  Pointer to descriptor-under-construction buffer.
  * @param[in] bufsize  Limit/returned descriptor buffer size.
- * @param[in] md_key   Key data to inline (length based on message digest
- *                     algorithm).
- * @param[in] md_algo  Message digest algorithm: OP_ALG_ALGSEL_MD5/SHA1-512.
+ * @param[in] authdata  Pointer to authentication transform definitions.
+ *                     Message digest algorithm: OP_ALG_ALGSEL_MD5/SHA1-512.
  * @param[in] icv      HMAC comparison for ICV, NULL if no check desired.
  */
 static inline void cnstr_shdsc_hmac(uint32_t *descbuf, unsigned *bufsize,
-		      uint8_t *md_key, uint32_t md_algo, uint8_t *icv)
+		      struct alginfo *authdata, uint8_t *icv)
 {
 	struct program prg;
 	struct program *program = &prg;
@@ -291,7 +286,7 @@ static inline void cnstr_shdsc_hmac(uint32_t *descbuf, unsigned *bufsize,
 	uint8_t opicv;
 
 	/* Compute fixed-size store based on alg selection */
-	switch (md_algo) {
+	switch (authdata->algtype) {
 	case OP_ALG_ALGSEL_MD5:
 		storelen = 16;
 		break;
@@ -319,13 +314,13 @@ static inline void cnstr_shdsc_hmac(uint32_t *descbuf, unsigned *bufsize,
 	PROGRAM_CNTXT_INIT(descbuf, 0);
 	SHR_HDR(SHR_ALWAYS, 1, SC);
 	{
-		KEY(KEY2, 0, PTR((uintptr_t)md_key), storelen, IMMED);
+		KEY(KEY2, 0, PTR(authdata->key), storelen, IMMED);
 		/* compute sequences */
 		MATHB(SEQINSZ, SUB, MATH2, VSEQINSZ, SIZE(4), 0);
 		MATHB(SEQINSZ, SUB, MATH2, VSEQOUTSZ, SIZE(4), 0);
 		/* Do operation */
-		ALG_OPERATION(md_algo, OP_ALG_AAI_HMAC, OP_ALG_AS_INITFINAL,
-			      opicv, DIR_ENC);
+		ALG_OPERATION(authdata->algtype, OP_ALG_AAI_HMAC,
+			      OP_ALG_AS_INITFINAL, opicv, DIR_ENC);
 		/* Do load (variable length) */
 		SEQFIFOLOAD(MSG2, SIZE(32), WITH(VLF | LAST1 | LAST2));
 		SEQSTORE(CONTEXT2, 0, storelen, 0);
@@ -339,17 +334,15 @@ static inline void cnstr_shdsc_hmac(uint32_t *descbuf, unsigned *bufsize,
  *
  * @param[in] descbuf   Pointer to descriptor-under-construction buffer.
  * @param[in] bufsize   Points to size to be updated at completion.
- * @param[in] cipherkey Cipher key.
- * @param[in] keylen    Size of key.
+ * @param[in] cipherdata Pointer to blockcipher transform definitions.
  * @param[in] dir       Cipher direction (DIR_ENCRYPT/DIR_DECRYPT).
  * @param[in] count     Count value (32 bits).
  * @param[in] bearer    Bearer ID (5 bits).
  * @param[in] direction Direction (1 bit).
  */
 static inline void cnstr_shdsc_kasumi_f8(uint32_t *descbuf, unsigned *bufsize,
-			   uint8_t *cipherkey, uint32_t keylen,
-			   uint8_t dir, uint32_t count,
-			   uint8_t bearer, uint8_t direction)
+			   struct alginfo *cipherdata, uint8_t dir,
+			   uint32_t count, uint8_t bearer, uint8_t direction)
 {
 	struct program prg;
 	struct program *program = &prg;
@@ -361,7 +354,7 @@ static inline void cnstr_shdsc_kasumi_f8(uint32_t *descbuf, unsigned *bufsize,
 	PROGRAM_CNTXT_INIT(descbuf, 0);
 	SHR_HDR(SHR_ALWAYS, 1, 0);
 	{
-		KEY(KEY1, 0, PTR((uintptr_t)cipherkey), keylen, IMMED);
+		KEY(KEY1, 0, PTR(cipherdata->key), cipherdata->keylen, IMMED);
 		MATHB(SEQINSZ, SUB, MATH2, VSEQINSZ, SIZE(4), 0);
 		MATHB(SEQINSZ, SUB, MATH2, VSEQOUTSZ, SIZE(4), 0);
 		ALG_OPERATION(OP_ALG_ALGSEL_KASUMI, OP_ALG_AAI_F8,
@@ -379,8 +372,7 @@ static inline void cnstr_shdsc_kasumi_f8(uint32_t *descbuf, unsigned *bufsize,
  *
  * @param[in] descbuf   Pointer to descriptor-under-construction buffer.
  * @param[in] bufsize   Points to size to be updated at completion.
- * @param[in] cipherkey Cipher key.
- * @param[in] keylen    Size of key.
+ * @param[in] authdata  Pointer to authentication transform definitions.
  * @param[in] dir       Cipher direction (DIR_ENCRYPT/DIR_DECRYPT).
  * @param[in] count     Count value (32 bits).
  * @param[in] fresh     Fresh value ID (32 bits).
@@ -388,9 +380,8 @@ static inline void cnstr_shdsc_kasumi_f8(uint32_t *descbuf, unsigned *bufsize,
  * @param[in] datalen   Size of data.
  */
 static inline void cnstr_shdsc_kasumi_f9(uint32_t *descbuf, unsigned *bufsize,
-			   uint8_t *cipherkey, uint32_t keylen,
-			   uint8_t dir, uint32_t count,
-			   uint32_t fresh, uint8_t direction,
+			   struct alginfo *authdata, uint8_t dir,
+			   uint32_t count, uint32_t fresh, uint8_t direction,
 			   uint32_t datalen)
 {
 	struct program prg;
@@ -407,7 +398,7 @@ static inline void cnstr_shdsc_kasumi_f9(uint32_t *descbuf, unsigned *bufsize,
 	PROGRAM_CNTXT_INIT(descbuf, 0);
 	SHR_HDR(SHR_ALWAYS, 1, 0);
 	{
-		KEY(KEY1, 0, PTR((uintptr_t)cipherkey), keylen, IMMED);
+		KEY(KEY1, 0, PTR(authdata->key), authdata->keylen, IMMED);
 		MATHB(SEQINSZ, SUB, MATH2, VSEQINSZ, SIZE(4), 0);
 		ALG_OPERATION(OP_ALG_ALGSEL_KASUMI, OP_ALG_AAI_F9,
 			      OP_ALG_AS_INITFINAL, 0, dir);
@@ -448,8 +439,7 @@ static inline void cnstr_shdsc_crc(uint32_t *descbuf, unsigned *bufsize)
  *
  * @param[in] descbuf   Pointer to descriptor-under-construction buffer.
  * @param[in] bufsize   Points to size to be updated at completion.
- * @param[in] cipherkey Key data to inline.
- * @param[in] keylen    Key size in bytes.
+ * @param[in] cipherdata Pointer to blockcipher transform definitions.
  * @param[in] sci       PDB Secure Channel Identifier.
  * @param[in] ethertype PDB EtherType.
  * @param[in] tci_an    TAG Control Information and Association Number
@@ -458,7 +448,7 @@ static inline void cnstr_shdsc_crc(uint32_t *descbuf, unsigned *bufsize)
  **/
 static inline void cnstr_shdsc_macsec_encap(uint32_t *descbuf,
 					    unsigned *bufsize,
-					    uint8_t *cipherkey, uint32_t keylen,
+					    struct alginfo *cipherdata,
 					    uint64_t sci, uint16_t ethertype,
 					    uint8_t tci_an, uint32_t pn)
 {
@@ -485,7 +475,8 @@ static inline void cnstr_shdsc_macsec_encap(uint32_t *descbuf,
 		ENDIAN_DATA((uint8_t *)&pdb, sizeof(struct macsec_encap_pdb));
 		pkeyjump = JUMP(IMM(keyjump), LOCAL_JUMP, ALL_TRUE,
 				WITH(SHRD | SELF | BOTH));
-		KEY(KEY1, 0, PTR((uintptr_t) cipherkey), keylen, WITH(IMMED));
+		KEY(KEY1, 0, PTR(cipherdata->key), cipherdata->keylen,
+		    WITH(IMMED));
 		SET_LABEL(keyjump);
 		PROTOCOL(OP_TYPE_ENCAP_PROTOCOL, OP_PCLID_MACSEC,
 			 WITH(OP_PCL_MACSEC));
@@ -499,14 +490,13 @@ static inline void cnstr_shdsc_macsec_encap(uint32_t *descbuf,
  *
  * @param[in] descbuf   Pointer to descriptor-under-construction buffer.
  * @param[in] bufsize   Points to size to be updated at completion.
- * @param[in] cipherkey Key data to inline.
- * @param[in] keylen    Key size in bytes.
+ * @param[in] cipherdata Pointer to blockcipher transform definitions.
  * @param[in] sci       PDB Secure Channel Identifier.
  * @param[in] pn        PDB Packet Number.
  **/
 static inline void cnstr_shdsc_macsec_decap(uint32_t *descbuf,
 					    unsigned *bufsize,
-					    uint8_t *cipherkey, uint32_t keylen,
+					    struct alginfo *cipherdata,
 					    uint64_t sci, uint32_t pn)
 {
 	struct program prg;
@@ -530,7 +520,8 @@ static inline void cnstr_shdsc_macsec_decap(uint32_t *descbuf,
 		ENDIAN_DATA((uint8_t *)&pdb, sizeof(struct macsec_decap_pdb));
 		pkeyjump = JUMP(IMM(keyjump), LOCAL_JUMP, ALL_TRUE,
 				WITH(SHRD | SELF | BOTH));
-		KEY(KEY1, 0, PTR((uintptr_t) cipherkey), keylen, WITH(IMMED));
+		KEY(KEY1, 0, PTR(cipherdata->key), cipherdata->keylen,
+		    WITH(IMMED));
 		SET_LABEL(keyjump);
 		PROTOCOL(OP_TYPE_DECAP_PROTOCOL, OP_PCLID_MACSEC,
 			 WITH(OP_PCL_MACSEC));
@@ -552,10 +543,11 @@ static inline void cnstr_shdsc_macsec_decap(uint32_t *descbuf,
  *      block guide for a details of the encapsulation PDB.
  * @param[in] ip_hdr      Optional header to be prepended to an encapsulated
  *      frame. Size of the optional header is defined in pdb.ip_hdr_len.
- * @param[in] cipherdata  Pointer to blockcipher transform definitions.
+ * @param[in] cipherdata  Pointer to blockcipher transform definitions. Valid
+ *      algorithm values: one of OP_PCL_IPSEC_*
  * @param[in] authdata    Pointer to authentication transform definitions. Note
  *      that since a split key is to be used, the size of the split key itself
- *      is specified
+ *      is specified. Valid algorithm values: one of OP_PCL_IPSEC_*
  **/
 static inline void cnstr_shdsc_ipsec_encap(uint32_t *descbuf,
 					   unsigned *bufsize,
@@ -579,16 +571,8 @@ static inline void cnstr_shdsc_ipsec_encap(uint32_t *descbuf,
 		ENDIAN_DATA(ip_hdr, pdb->ip_hdr_len);
 	SET_LABEL(hdr);
 	pkeyjmp = JUMP(IMM(keyjmp), LOCAL_JUMP, ALL_TRUE, BOTH|SHRD);
-	KEY(MDHA_SPLIT_KEY,
-	    ENC,
-	    PTR((uintptr_t)authdata->key),
-	    authdata->keylen,
-	    IMMED);
-	KEY(KEY1,
-	    0,
-	    PTR((uintptr_t)cipherdata->key),
-	    cipherdata->keylen,
-	    IMMED);
+	KEY(MDHA_SPLIT_KEY, ENC, PTR(authdata->key), authdata->keylen, IMMED);
+	KEY(KEY1, 0, PTR(cipherdata->key), cipherdata->keylen, IMMED);
 	SET_LABEL(keyjmp);
 	PROTOCOL(OP_TYPE_ENCAP_PROTOCOL,
 		 OP_PCLID_IPSEC,
@@ -609,10 +593,11 @@ static inline void cnstr_shdsc_ipsec_encap(uint32_t *descbuf,
  *      This structure will be copied inline to the descriptor under
  *      construction. No error checking will be made. Refer to the
  *      block guide for details about the decapsulation PDB.
- * @param[in] cipherdata  Pointer to blockcipher transform definitions.
+ * @param[in] cipherdata  Pointer to blockcipher transform definitions. Valid
+ *      algorithm values: one of OP_PCL_IPSEC_*
  * @param[in] authdata    Pointer to authentication transform definitions. Note
  *      that since a split key is to be used, the size of the split key itself
- *      is specified
+ *      is specified. Valid algorithm values: one of OP_PCL_IPSEC_*
  **/
 static inline void cnstr_shdsc_ipsec_decap(uint32_t *descbuf,
 					   unsigned *bufsize,
@@ -633,16 +618,8 @@ static inline void cnstr_shdsc_ipsec_decap(uint32_t *descbuf,
 	ENDIAN_DATA((uint8_t *)pdb, sizeof(struct ipsec_decap_pdb));
 	SET_LABEL(hdr);
 	pkeyjmp = JUMP(IMM(keyjmp), LOCAL_JUMP, ALL_TRUE, BOTH|SHRD);
-	KEY(MDHA_SPLIT_KEY,
-	    ENC,
-	    PTR((uintptr_t)authdata->key),
-	    authdata->keylen,
-	    IMMED);
-	KEY(KEY1,
-	    0,
-	    PTR((uintptr_t)cipherdata->key),
-	    cipherdata->keylen,
-	    IMMED);
+	KEY(MDHA_SPLIT_KEY, ENC, PTR(authdata->key), authdata->keylen, IMMED);
+	KEY(KEY1, 0, PTR(cipherdata->key), cipherdata->keylen, IMMED);
 	SET_LABEL(keyjmp);
 	PROTOCOL(OP_TYPE_DECAP_PROTOCOL,
 		 OP_PCLID_IPSEC,
@@ -662,13 +639,12 @@ static inline void cnstr_shdsc_ipsec_decap(uint32_t *descbuf,
  * @param[in] bufsize   Points to size to be updated at completion.
  * @param[in] pdb_opts  PDB Options Byte.
  * @param[in] pn        PDB Packet Number.
- * @param[in] cipherkey Key data to inline.
- * @param[in] keylen    Key size in bytes.
+ * @param[in] cipherdata Pointer to blockcipher transform definitions.
  * @param[in] protinfo  Protocol information: OP_PCL_WIMAX_OFDM/OFDMA.
  */
 void cnstr_shdsc_wimax_encap(uint32_t *descbuf, unsigned *bufsize,
 			     uint8_t pdb_opts, uint32_t pn, uint16_t protinfo,
-			     uint8_t *cipherkey, uint32_t keylen)
+			     struct alginfo *cipherdata)
 {
 	struct wimax_encap_pdb pdb;
 	struct program prg;
@@ -769,7 +745,8 @@ void cnstr_shdsc_wimax_encap(uint32_t *descbuf, unsigned *bufsize,
 		pseq_out_ptr = JUMP(IMM(seq_ptr), LOCAL_JUMP, ALL_TRUE,
 				    WITH(0));
 
-		KEY(KEY1, 0, PTR((uintptr_t)cipherkey), keylen, WITH(IMMED));
+		KEY(KEY1, 0, PTR(cipherdata->key), cipherdata->keylen,
+		    WITH(IMMED));
 		LOAD(IMM(LDST_SRCDST_WORD_CLRW |
 			 CLRW_CLR_C1MODE |
 			 CLRW_CLR_C2MODE |
@@ -797,14 +774,12 @@ void cnstr_shdsc_wimax_encap(uint32_t *descbuf, unsigned *bufsize,
  * @param[in] bufsize   Points to size to be updated at completion.
  * @param[in] pdb_opts  PDB Options Byte.
  * @param[in] pn        PDB Packet Number.
- * @param[in] cipherkey Key data to inline.
- * @param[in] keylen    Key size in bytes.
+ * @param[in] cipherdata Pointer to blockcipher transform definitions.
  * @param[in] protinfo  Protocol information: OP_PCL_WIMAX_OFDM/OFDMA.
  */
 void cnstr_shdsc_wimax_decap(uint32_t *descbuf, unsigned *bufsize,
 			     uint8_t pdb_opts, uint32_t pn, uint16_t ar_len,
-			     uint16_t protinfo, uint8_t *cipherkey,
-			     uint32_t keylen)
+			     uint16_t protinfo, struct alginfo *cipherdata)
 {
 	struct wimax_decap_pdb pdb;
 	struct program prg;
@@ -834,7 +809,8 @@ void cnstr_shdsc_wimax_decap(uint32_t *descbuf, unsigned *bufsize,
 		/* Label first word after KEY opcode */
 		seq_ptr++;
 
-		KEY(KEY1, 0, PTR((uintptr_t)cipherkey), keylen, WITH(IMMED));
+		KEY(KEY1, 0, PTR(cipherdata->key), cipherdata->keylen,
+		    WITH(IMMED));
 		PROTOCOL(OP_TYPE_DECAP_PROTOCOL, OP_PCLID_WIMAX, protinfo);
 		SEQOUTPTR(NULL, 8, WITH(RTO));
 
@@ -1082,7 +1058,7 @@ static inline int pdcp_insert_cplane_int_only_op(struct program *program,
 	switch (authdata->algtype) {
 	case PDCP_AUTH_TYPE_SNOW:
 		/* Insert Auth Key */
-		KEY(KEY2, 0, PTR((uintptr_t)authdata->key), authdata->keylen,
+		KEY(KEY2, 0, PTR(authdata->key), authdata->keylen,
 		    0);
 		SEQLOAD(MATH0, 7, 1, WITH(0));
 		JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, WITH(CALM));
@@ -1185,8 +1161,7 @@ static inline int pdcp_insert_cplane_int_only_op(struct program *program,
 
 	case PDCP_AUTH_TYPE_AES:
 		/* Insert Auth Key */
-		KEY(KEY1, 0, PTR((uint64_t)authdata->key), authdata->keylen,
-		    WITH(0));
+		KEY(KEY1, 0, PTR(authdata->key), authdata->keylen, WITH(0));
 		SEQLOAD(MATH0, 7, 1, WITH(0));
 		JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, WITH(CALM));
 		if (rta_sec_era > RTA_SEC_ERA_2 ||
@@ -1286,7 +1261,7 @@ static inline int pdcp_insert_cplane_int_only_op(struct program *program,
 			return -1;
 		}
 		/* Insert Auth Key */
-		KEY(KEY2, 0, PTR((uint64_t)authdata->key), authdata->keylen,
+		KEY(KEY2, 0, PTR(authdata->key), authdata->keylen,
 		    WITH(0));
 		SEQLOAD(MATH0, 7, 1, WITH(0));
 		JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, WITH(CALM));
@@ -1344,8 +1319,7 @@ static inline int pdcp_insert_cplane_enc_only_op(struct program *program,
 		unsigned char era_2_sw_hfn_override)
 {
 	/* Insert Cipher Key */
-	KEY(KEY1, 0, PTR((uint64_t)cipherdata->key), cipherdata->keylen,
-	    WITH(0));
+	KEY(KEY1, 0, PTR(cipherdata->key), cipherdata->keylen, WITH(0));
 	SEQLOAD(MATH0, 7, 1, WITH(0));
 	JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, WITH(CALM));
 	MATHB(MATH0, AND, IMM(PDCP_SN_MASK), MATH1, SIZE(8), WITH(IFB));
@@ -1466,11 +1440,10 @@ static inline int pdcp_insert_cplane_acc_op(struct program *program,
 		unsigned char era_2_hfn_override)
 {
 	/* Insert Auth Key */
-	KEY(KEY2, 0, PTR((uintptr_t)authdata->key), authdata->keylen, WITH(0));
+	KEY(KEY2, 0, PTR(authdata->key), authdata->keylen, WITH(0));
 
 	/* Insert Cipher Key */
-	KEY(KEY1, 0, PTR((uintptr_t)cipherdata->key), cipherdata->keylen,
-	    WITH(0));
+	KEY(KEY1, 0, PTR(cipherdata->key), cipherdata->keylen, WITH(0));
 	PROTOCOL(dir, OP_PCLID_LTE_PDCP_CTRL, cipherdata->algtype);
 
 	return 0;
@@ -1509,8 +1482,7 @@ static inline int pdcp_insert_cplane_snow_aes_op(struct program *program,
 			SEQINPTR(0, 5, WITH(RTO));
 			SEQFIFOLOAD(SKIP, 4, WITH(0));
 		}
-		KEY(KEY1, 0, PTR((uint64_t)authdata->key), authdata->keylen,
-		    WITH(0));
+		KEY(KEY1, 0, PTR(authdata->key), authdata->keylen, WITH(0));
 		MOVE(MATH2, 0, IFIFOAB1, 0, IMM(0x08), WITH(0));
 
 		if (rta_sec_era > RTA_SEC_ERA_2) {
@@ -1584,8 +1556,7 @@ static inline int pdcp_insert_cplane_snow_aes_op(struct program *program,
 		if (rta_sec_era <= RTA_SEC_ERA_3)
 			LOAD(IMM(CCTRL_RESET_CHA_ALL), CCTRL, 0, 4, WITH(0));
 
-		KEY(KEY1, 0, PTR((uint64_t)cipherdata->key),
-		    cipherdata->keylen, WITH(0));
+		KEY(KEY1, 0, PTR(cipherdata->key), cipherdata->keylen, WITH(0));
 		SET_LABEL(local_offset);
 		MOVE(MATH2, 0, CONTEXT1, 0, IMM(8), WITH(0));
 		SEQINPTR(0, 0, WITH(RTO));
@@ -1665,8 +1636,7 @@ static inline int pdcp_insert_cplane_snow_aes_op(struct program *program,
 		else
 			MOVE(MATH1, 0, DESCBUF, 0, IMM(20), WITH(0));
 
-		KEY(KEY1, 0, PTR((uint64_t)cipherdata->key),
-		    cipherdata->keylen, WITH(0));
+		KEY(KEY1, 0, PTR(cipherdata->key), cipherdata->keylen, WITH(0));
 
 		if (rta_sec_era >= RTA_SEC_ERA_5)
 			MOVE(CONTEXT1, 0, CONTEXT2, 0, IMM(8), WITH(0));
@@ -1703,8 +1673,7 @@ static inline int pdcp_insert_cplane_snow_aes_op(struct program *program,
 				 CLRW_CLR_C1MODE),
 			     CLRW, 0, 4, WITH(0));
 
-		KEY(KEY1, 0, PTR((uint64_t)authdata->key), authdata->keylen,
-		    WITH(0));
+		KEY(KEY1, 0, PTR(authdata->key), authdata->keylen, WITH(0));
 		/*
 		 * Placeholder for jump in SD for executing the new SEQ IN PTR
 		 * command (which is actually the old SEQ OUT PTR command
@@ -1780,9 +1749,8 @@ static inline int pdcp_insert_cplane_aes_snow_op(struct program *program,
 	REFERENCE(read_load_nfifo);
 	REFERENCE(write_load_nfifo);
 
-	KEY(KEY1, 0, PTR((uint64_t)cipherdata->key), cipherdata->keylen,
-	    WITH(0));
-	KEY(KEY2, 0, PTR((uint64_t)authdata->key), authdata->keylen, WITH(0));
+	KEY(KEY1, 0, PTR(cipherdata->key), cipherdata->keylen, WITH(0));
+	KEY(KEY2, 0, PTR(authdata->key), authdata->keylen, WITH(0));
 
 	if (rta_sec_era <= RTA_SEC_ERA_2)
 		MATHB(SEQINSZ, SUB, ONE, VSEQINSZ, SIZE(4), WITH(0));
@@ -2103,8 +2071,12 @@ static inline enum pdb_type_e cnstr_pdcp_c_plane_pdb(struct program *program,
  *                            earliest convenience.
  *
  * @param [in] cipherdata     Pointer to blockcipher transform definitions.
+ *                            Valid algorithm values are those from
+ *                            cipher_type_pdcp enum.
  *
  * @param [in] authdata       Pointer to authentication transform definitions.
+ *                            Valid algorithm values are those from
+ *                            auth_type_pdcp enum.
  *
  * @param [in] era_2_sw_hfn_override    If software HFN override mechanism is
  *                                      desired for this descriptor.
@@ -2251,8 +2223,12 @@ static inline void cnstr_shdsc_pdcp_c_plane_encap(uint32_t *descbuf,
  *                            earliest convenience.
  *
  * @param [in] cipherdata     Pointer to blockcipher transform definitions.
+ *                            Valid algorithm values are those from
+ *                            cipher_type_pdcp enum.
  *
  * @param [in] authdata       Pointer to authentication transform definitions.
+ *                            Valid algorithm values are those from
+ *                            auth_type_pdcp enum.
  *
  * @param [in] era_2_sw_hfn_override    If software HFN override mechanism is
  *                                      desired for this descriptor.
@@ -2401,6 +2377,8 @@ static inline void cnstr_shdsc_pdcp_c_plane_decap(uint32_t *descbuf,
  *                            earliest convenience.
  *
  * @param [in] cipherdata     Pointer to blockcipher transform definitions.
+ *                            Valid algorithm values are those from
+ *                            cipher_type_pdcp enum.
  *
  * @param [in] era_2_sw_hfn_override    If software HFN override mechanism is
  *                                      desired for this descriptor.
@@ -2532,6 +2510,8 @@ static inline void cnstr_shdsc_pdcp_u_plane_encap(uint32_t *descbuf,
  *                            earliest convenience.
  *
  * @param [in] cipherdata     Pointer to blockcipher transform definitions.
+ *                            Valid algorithm values are those from
+ *                            cipher_type_pdcp enum.
  *
  * @param [in] era_2_sw_hfn_override    If software HFN override mechanism is
  *                                      desired for this descriptor.
@@ -2613,8 +2593,7 @@ static inline void cnstr_shdsc_pdcp_u_plane_decap(uint32_t *descbuf,
 	case PDCP_CIPHER_TYPE_AES:
 	case PDCP_CIPHER_TYPE_SNOW:
 		/* Insert Cipher Key */
-		KEY(KEY1, 0, PTR((uint64_t)cipherdata->key),
-		    cipherdata->keylen, WITH(0));
+		KEY(KEY1, 0, PTR(cipherdata->key), cipherdata->keylen, WITH(0));
 		PROTOCOL(OP_TYPE_DECAP_PROTOCOL,
 			 OP_PCLID_LTE_PDCP_USER,
 			 cipherdata->algtype);
@@ -2648,7 +2627,9 @@ static inline void cnstr_shdsc_pdcp_u_plane_decap(uint32_t *descbuf,
  * @param [in] ps             If 36/40bit addressing is desired, this parameter
  *                            must be non-zero.
  *
- * @param [in] authdata     Pointer to authentication transform definitions.
+ * @param [in] authdata       Pointer to authentication transform definitions.
+ *                            Valid algorithm values are those from
+ *                            auth_type_pdcp enum.
  *
  * @param [in] era_2_sw_hfn_override    If software HFN override mechanism is
  *                                      desired for this descriptor.
@@ -2739,8 +2720,7 @@ static inline void cnstr_shdsc_pdcp_short_mac(uint32_t *descbuf,
 		iv[1] = 0x04000000;
 		iv[2] = 0xF8000000;
 
-		KEY(KEY2, 0, PTR((uint64_t)authdata->key), authdata->keylen,
-		    WITH(0));
+		KEY(KEY2, 0, PTR(authdata->key), authdata->keylen, WITH(0));
 		LOAD(PTR((uintptr_t)&iv), CONTEXT2, 0, SIZE(12), IMMED);
 		ALG_OPERATION(OP_ALG_ALGSEL_SNOW_F9,
 			      OP_ALG_AAI_F9,
@@ -2777,8 +2757,7 @@ static inline void cnstr_shdsc_pdcp_short_mac(uint32_t *descbuf,
 		iv[1] = 0xFC000000;
 		iv[2] = 0x00000000; /* unused */
 
-		KEY(KEY1, 0, PTR((uint64_t)authdata->key), authdata->keylen,
-		    WITH(0));
+		KEY(KEY1, 0, PTR(authdata->key), authdata->keylen, WITH(0));
 		LOAD(PTR((uintptr_t)&iv), MATH0, 0, 8, IMMED);
 		MOVE(MATH0, 0, IFIFOAB1, 0, IMM(8), WITH(0));
 		ALG_OPERATION(OP_ALG_ALGSEL_AES,
@@ -2819,8 +2798,7 @@ static inline void cnstr_shdsc_pdcp_short_mac(uint32_t *descbuf,
 		iv[1] = 0xFC000000;
 		iv[2] = 0x00000000; /* unused */
 
-		KEY(KEY2, 0, PTR((uint64_t)authdata->key), authdata->keylen,
-		    WITH(0));
+		KEY(KEY2, 0, PTR(authdata->key), authdata->keylen, WITH(0));
 		LOAD(PTR((uintptr_t)&iv), CONTEXT2, 0, 12, IMMED);
 		ALG_OPERATION(OP_ALG_ALGSEL_ZUCA,
 			      OP_ALG_AAI_F9,
