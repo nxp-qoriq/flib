@@ -723,7 +723,7 @@ void cnstr_shdsc_wimax_encap(uint32_t *descbuf, unsigned *bufsize,
 		pseq_in_ptr = JUMP(IMM(seq_ptr), LOCAL_JUMP, ALL_TRUE, WITH(0));
 		SEQSTORE(MATH0, 0, 8, WITH(0));
 
-		SEQINPTR(NULL, 8, WITH(RTO));
+		SEQINPTR(0, 8, WITH(RTO));
 		JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, WITH(CALM));
 
 		/*
@@ -812,7 +812,7 @@ void cnstr_shdsc_wimax_decap(uint32_t *descbuf, unsigned *bufsize,
 		KEY(KEY1, 0, PTR(cipherdata->key), cipherdata->keylen,
 		    WITH(IMMED));
 		PROTOCOL(OP_TYPE_DECAP_PROTOCOL, OP_PCLID_WIMAX, protinfo);
-		SEQOUTPTR(NULL, 8, WITH(RTO));
+		SEQOUTPTR(0, 8, WITH(RTO));
 
 		/*
 		 * Make Input Sequence point to decapsulation Output Frame
