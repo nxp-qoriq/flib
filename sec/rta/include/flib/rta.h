@@ -168,7 +168,7 @@ static inline void rta_set_sec_era(enum rta_sec_era era)
  *
  * @return             SEC Era (@c unsigned).
  */
-static inline unsigned rta_get_sec_era()
+static inline unsigned rta_get_sec_era(void)
 {
 	 return rta_sec_era;
 }
