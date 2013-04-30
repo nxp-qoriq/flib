@@ -24,9 +24,9 @@ static const uint32_t jump_test_cond[][2] = {
 	{ BOTH,     JUMP_CLASS_BOTH }
 };
 
-static inline unsigned jump(struct program *program, int64_t address,
-			    uint32_t address_type, uint32_t jump_type,
-			    uint32_t test_type, uint32_t test_condition)
+static inline unsigned rta_jump(struct program *program, int64_t address,
+				uint32_t address_type, uint32_t jump_type,
+				uint32_t test_type, uint32_t test_condition)
 {
 	uint32_t opcode = CMD_JUMP;
 	unsigned start_pc = program->current_pc;
@@ -84,8 +84,8 @@ static inline unsigned jump(struct program *program, int64_t address,
 	}
 
 	/* write test condition field */
-	map_flags(test_condition, jump_test_cond, ARRAY_SIZE(jump_test_cond),
-		  &opcode);
+	__rta_map_flags(test_condition, jump_test_cond,
+			ARRAY_SIZE(jump_test_cond), &opcode);
 
 	/* write local offset field for local jumps and user-defined halt */
 	if ((jump_type == LOCAL_JUMP) || (jump_type == GOSUB) ||

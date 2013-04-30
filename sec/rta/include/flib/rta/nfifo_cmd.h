@@ -83,9 +83,10 @@ static const uint32_t nfifo_pad_flags[][2] = {
  */
 static const uint8_t nfifo_pad_flags_sz[] = {2, 2, 2, 2, 3};
 
-static inline unsigned nfifo_load(struct program *program, uint32_t src,
-				  int type_src, uint32_t data, int type_data,
-				  uint32_t length, uint32_t flags)
+static inline unsigned rta_nfifo_load(struct program *program, uint32_t src,
+				      int type_src, uint32_t data,
+				      int type_data, uint32_t length,
+				      uint32_t flags)
 {
 	uint32_t opcode = 0, val;
 	int32_t ret = 0;
@@ -94,7 +95,7 @@ static inline unsigned nfifo_load(struct program *program, uint32_t src,
 	unsigned start_pc = program->current_pc;
 
 	/* write source field */
-	ret = map_opcode(src, nfifo_src, nfifo_src_sz[rta_sec_era], &val);
+	ret = __rta_map_opcode(src, nfifo_src, nfifo_src_sz[rta_sec_era], &val);
 	if (ret == -1) {
 		pr_debug("NFIFO: Invalid SRC. SEC PC: %d; Instr: %d\n",
 				program->current_pc,
@@ -104,7 +105,7 @@ static inline unsigned nfifo_load(struct program *program, uint32_t src,
 	opcode |= val;
 
 	/* write type field */
-	ret = map_opcode(data, nfifo_data, ARRAY_SIZE(nfifo_data), &val);
+	ret = __rta_map_opcode(data, nfifo_data, ARRAY_SIZE(nfifo_data), &val);
 	if (ret == -1) {
 		pr_debug("NFIFO: Invalid data. SEC PC: %d; Instr: %d\n",
 				program->current_pc,
@@ -122,12 +123,13 @@ static inline unsigned nfifo_load(struct program *program, uint32_t src,
 	}
 
 	/* write flags */
-	map_flags(flags, nfifo_flags, nfifo_flags_sz[rta_sec_era], &opcode);
+	__rta_map_flags(flags, nfifo_flags, nfifo_flags_sz[rta_sec_era],
+			&opcode);
 
 	/* in case of padding, check the destination */
 	if (src == _PAD)
-		map_flags(flags, nfifo_pad_flags,
-			  nfifo_pad_flags_sz[rta_sec_era], &opcode);
+		__rta_map_flags(flags, nfifo_pad_flags,
+				nfifo_pad_flags_sz[rta_sec_era], &opcode);
 
 	/* write LOAD command first */
 	program->buffer[program->current_pc] = load_cmd;

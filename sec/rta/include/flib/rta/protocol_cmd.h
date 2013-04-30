@@ -3,7 +3,7 @@
 
 extern enum rta_sec_era rta_sec_era;
 
-static inline int32_t ssl_proto(uint16_t protoinfo)
+static inline int32_t __rta_ssl_proto(uint16_t protoinfo)
 {
 	switch (protoinfo) {
 	case OP_PCL_SSL30_RC4_40_MD5_2:
@@ -181,7 +181,7 @@ static inline int32_t ssl_proto(uint16_t protoinfo)
 	return -1;
 }
 
-static inline int32_t ike_proto(uint16_t protoinfo)
+static inline int32_t __rta_ike_proto(uint16_t protoinfo)
 {
 	switch (protoinfo) {
 	case OP_PCL_IKE_HMAC_MD5:
@@ -197,7 +197,7 @@ static inline int32_t ike_proto(uint16_t protoinfo)
 	return -1;
 }
 
-static inline int32_t ipsec_proto(uint16_t protoinfo)
+static inline int32_t __rta_ipsec_proto(uint16_t protoinfo)
 {
 	uint16_t proto_cls1 = protoinfo & OP_PCL_IPSEC_CIPHER_MASK;
 	uint16_t proto_cls2 = protoinfo & OP_PCL_IPSEC_AUTH_MASK;
@@ -241,7 +241,7 @@ static inline int32_t ipsec_proto(uint16_t protoinfo)
 	return -1;
 }
 
-static inline int32_t srtp_proto(uint16_t protoinfo)
+static inline int32_t __rta_srtp_proto(uint16_t protoinfo)
 {
 	uint16_t proto_cls1 = protoinfo & OP_PCL_SRTP_CIPHER_MASK;
 	uint16_t proto_cls2 = protoinfo & OP_PCL_SRTP_AUTH_MASK;
@@ -258,7 +258,7 @@ static inline int32_t srtp_proto(uint16_t protoinfo)
 	return -1;
 }
 
-static inline int32_t macsec_proto(uint16_t protoinfo)
+static inline int32_t __rta_macsec_proto(uint16_t protoinfo)
 {
 	switch (protoinfo) {
 	case OP_PCL_MACSEC:
@@ -268,7 +268,7 @@ static inline int32_t macsec_proto(uint16_t protoinfo)
 	return -1;
 }
 
-static inline int32_t wifi_proto(uint16_t protoinfo)
+static inline int32_t __rta_wifi_proto(uint16_t protoinfo)
 {
 	switch (protoinfo) {
 	case OP_PCL_WIFI:
@@ -278,7 +278,7 @@ static inline int32_t wifi_proto(uint16_t protoinfo)
 	return -1;
 }
 
-static inline int32_t wimax_proto(uint16_t protoinfo)
+static inline int32_t __rta_wimax_proto(uint16_t protoinfo)
 {
 	switch (protoinfo) {
 	case OP_PCL_WIMAX_OFDM:
@@ -302,7 +302,7 @@ static const uint32_t proto_blob_flags[] = {
 		OP_PCL_BLOB_EKT | OP_PCL_BLOB_REG_MASK | OP_PCL_BLOB_SEC_MEM
 };
 
-static inline int32_t blob_proto(uint16_t protoinfo)
+static inline int32_t __rta_blob_proto(uint16_t protoinfo)
 {
 	if (protoinfo & ~proto_blob_flags[rta_sec_era])
 		return -1;
@@ -332,7 +332,7 @@ static inline int32_t blob_proto(uint16_t protoinfo)
 	return -1;
 }
 
-static inline int32_t dlc_proto(uint16_t protoinfo)
+static inline int32_t __rta_dlc_proto(uint16_t protoinfo)
 {
 	if ((rta_sec_era < RTA_SEC_ERA_2) &&
 	    (protoinfo & (OP_PCL_PKPROT_DSA_MSG | OP_PCL_PKPROT_HASH_MASK |
@@ -355,7 +355,7 @@ static inline int32_t dlc_proto(uint16_t protoinfo)
 	return 0;
 }
 
-static inline int32_t rsa_enc_proto(uint16_t protoinfo)
+static inline int32_t __rta_rsa_enc_proto(uint16_t protoinfo)
 {
 	switch (protoinfo & OP_PCL_RSAPROT_OP_MASK) {
 	case OP_PCL_RSAPROT_OP_ENC_F_IN:
@@ -382,7 +382,7 @@ static inline int32_t rsa_enc_proto(uint16_t protoinfo)
 	return 0;
 }
 
-static inline int32_t rsa_dec_proto(uint16_t protoinfo)
+static inline int32_t __rta_rsa_dec_proto(uint16_t protoinfo)
 {
 	switch (protoinfo & OP_PCL_RSAPROT_OP_MASK) {
 	case OP_PCL_RSAPROT_OP_DEC_ND:
@@ -419,7 +419,7 @@ static inline int32_t rsa_dec_proto(uint16_t protoinfo)
 	return 0;
 }
 
-static inline int32_t _3g_dcrc_proto(uint16_t protoinfo)
+static inline int32_t __rta_3g_dcrc_proto(uint16_t protoinfo)
 {
 	switch (protoinfo) {
 	case OP_PCL_3G_DCRC_CRC7:
@@ -430,7 +430,7 @@ static inline int32_t _3g_dcrc_proto(uint16_t protoinfo)
 	return -1;
 }
 
-static inline int32_t _3g_rlc_proto(uint16_t protoinfo)
+static inline int32_t __rta_3g_rlc_proto(uint16_t protoinfo)
 {
 	switch (protoinfo) {
 	case OP_PCL_3G_RLC_NULL:
@@ -442,7 +442,7 @@ static inline int32_t _3g_rlc_proto(uint16_t protoinfo)
 	return -1;
 }
 
-static inline int32_t lte_pdcp_proto(uint16_t protoinfo)
+static inline int32_t __rta_lte_pdcp_proto(uint16_t protoinfo)
 {
 	switch (protoinfo) {
 	case OP_PCL_LTE_ZUC:
@@ -464,35 +464,35 @@ struct proto_map {
 };
 
 static const struct proto_map proto_table[] = {
-/*1*/	{ OP_TYPE_UNI_PROTOCOL,   OP_PCLID_SSL30_PRF,	  ssl_proto },
-	{ OP_TYPE_UNI_PROTOCOL,   OP_PCLID_TLS10_PRF,	  ssl_proto },
-	{ OP_TYPE_UNI_PROTOCOL,   OP_PCLID_TLS11_PRF,	  ssl_proto },
-	{ OP_TYPE_UNI_PROTOCOL,   OP_PCLID_TLS12_PRF,	  ssl_proto },
-	{ OP_TYPE_UNI_PROTOCOL,   OP_PCLID_DTLS10_PRF,	  ssl_proto },
-	{ OP_TYPE_UNI_PROTOCOL,   OP_PCLID_IKEV1_PRF,	  ike_proto },
-	{ OP_TYPE_UNI_PROTOCOL,   OP_PCLID_IKEV2_PRF,	  ike_proto },
-	{ OP_TYPE_UNI_PROTOCOL,   OP_PCLID_PUBLICKEYPAIR, dlc_proto },
-	{ OP_TYPE_UNI_PROTOCOL,   OP_PCLID_DSASIGN,	  dlc_proto },
-	{ OP_TYPE_UNI_PROTOCOL,   OP_PCLID_DSAVERIFY,	  dlc_proto },
-	{ OP_TYPE_DECAP_PROTOCOL, OP_PCLID_IPSEC,         ipsec_proto },
-	{ OP_TYPE_DECAP_PROTOCOL, OP_PCLID_SRTP,	  srtp_proto },
-	{ OP_TYPE_DECAP_PROTOCOL, OP_PCLID_SSL30,	  ssl_proto },
-	{ OP_TYPE_DECAP_PROTOCOL, OP_PCLID_TLS10,	  ssl_proto },
-	{ OP_TYPE_DECAP_PROTOCOL, OP_PCLID_TLS11,	  ssl_proto },
-	{ OP_TYPE_DECAP_PROTOCOL, OP_PCLID_TLS12,	  ssl_proto },
-	{ OP_TYPE_DECAP_PROTOCOL, OP_PCLID_DTLS10,	  ssl_proto },
-	{ OP_TYPE_DECAP_PROTOCOL, OP_PCLID_MACSEC,        macsec_proto },
-	{ OP_TYPE_DECAP_PROTOCOL, OP_PCLID_WIFI,          wifi_proto },
-	{ OP_TYPE_DECAP_PROTOCOL, OP_PCLID_WIMAX,         wimax_proto },
-/*21*/	{ OP_TYPE_DECAP_PROTOCOL, OP_PCLID_BLOB,          blob_proto },
-	{ OP_TYPE_UNI_PROTOCOL,   OP_PCLID_DIFFIEHELLMAN, dlc_proto },
-	{ OP_TYPE_UNI_PROTOCOL,   OP_PCLID_RSAENCRYPT,	  rsa_enc_proto },
-	{ OP_TYPE_UNI_PROTOCOL,   OP_PCLID_RSADECRYPT,	  rsa_dec_proto },
-	{ OP_TYPE_DECAP_PROTOCOL, OP_PCLID_3G_DCRC,       _3g_dcrc_proto },
-	{ OP_TYPE_DECAP_PROTOCOL, OP_PCLID_3G_RLC_PDU,    _3g_rlc_proto },
-	{ OP_TYPE_DECAP_PROTOCOL, OP_PCLID_3G_RLC_SDU,    _3g_rlc_proto },
-	{ OP_TYPE_DECAP_PROTOCOL, OP_PCLID_LTE_PDCP_USER, lte_pdcp_proto },
-/*29*/	{ OP_TYPE_DECAP_PROTOCOL, OP_PCLID_LTE_PDCP_CTRL, lte_pdcp_proto }
+/*1*/	{OP_TYPE_UNI_PROTOCOL,   OP_PCLID_SSL30_PRF,	 __rta_ssl_proto},
+	{OP_TYPE_UNI_PROTOCOL,   OP_PCLID_TLS10_PRF,	 __rta_ssl_proto},
+	{OP_TYPE_UNI_PROTOCOL,   OP_PCLID_TLS11_PRF,	 __rta_ssl_proto},
+	{OP_TYPE_UNI_PROTOCOL,   OP_PCLID_TLS12_PRF,	 __rta_ssl_proto},
+	{OP_TYPE_UNI_PROTOCOL,   OP_PCLID_DTLS10_PRF,	 __rta_ssl_proto},
+	{OP_TYPE_UNI_PROTOCOL,   OP_PCLID_IKEV1_PRF,	 __rta_ike_proto},
+	{OP_TYPE_UNI_PROTOCOL,   OP_PCLID_IKEV2_PRF,	 __rta_ike_proto},
+	{OP_TYPE_UNI_PROTOCOL,   OP_PCLID_PUBLICKEYPAIR, __rta_dlc_proto},
+	{OP_TYPE_UNI_PROTOCOL,   OP_PCLID_DSASIGN,	 __rta_dlc_proto},
+	{OP_TYPE_UNI_PROTOCOL,   OP_PCLID_DSAVERIFY,	 __rta_dlc_proto},
+	{OP_TYPE_DECAP_PROTOCOL, OP_PCLID_IPSEC,         __rta_ipsec_proto},
+	{OP_TYPE_DECAP_PROTOCOL, OP_PCLID_SRTP,	         __rta_srtp_proto},
+	{OP_TYPE_DECAP_PROTOCOL, OP_PCLID_SSL30,	 __rta_ssl_proto},
+	{OP_TYPE_DECAP_PROTOCOL, OP_PCLID_TLS10,	 __rta_ssl_proto},
+	{OP_TYPE_DECAP_PROTOCOL, OP_PCLID_TLS11,	 __rta_ssl_proto},
+	{OP_TYPE_DECAP_PROTOCOL, OP_PCLID_TLS12,	 __rta_ssl_proto},
+	{OP_TYPE_DECAP_PROTOCOL, OP_PCLID_DTLS10,	 __rta_ssl_proto},
+	{OP_TYPE_DECAP_PROTOCOL, OP_PCLID_MACSEC,        __rta_macsec_proto},
+	{OP_TYPE_DECAP_PROTOCOL, OP_PCLID_WIFI,          __rta_wifi_proto},
+	{OP_TYPE_DECAP_PROTOCOL, OP_PCLID_WIMAX,         __rta_wimax_proto},
+/*21*/	{OP_TYPE_DECAP_PROTOCOL, OP_PCLID_BLOB,          __rta_blob_proto},
+	{OP_TYPE_UNI_PROTOCOL,   OP_PCLID_DIFFIEHELLMAN, __rta_dlc_proto},
+	{OP_TYPE_UNI_PROTOCOL,   OP_PCLID_RSAENCRYPT,	 __rta_rsa_enc_proto},
+	{OP_TYPE_UNI_PROTOCOL,   OP_PCLID_RSADECRYPT,	 __rta_rsa_dec_proto},
+	{OP_TYPE_DECAP_PROTOCOL, OP_PCLID_3G_DCRC,       __rta_3g_dcrc_proto},
+	{OP_TYPE_DECAP_PROTOCOL, OP_PCLID_3G_RLC_PDU,    __rta_3g_rlc_proto},
+	{OP_TYPE_DECAP_PROTOCOL, OP_PCLID_3G_RLC_SDU,    __rta_3g_rlc_proto},
+	{OP_TYPE_DECAP_PROTOCOL, OP_PCLID_LTE_PDCP_USER, __rta_lte_pdcp_proto},
+/*29*/	{OP_TYPE_DECAP_PROTOCOL, OP_PCLID_LTE_PDCP_CTRL, __rta_lte_pdcp_proto}
 };
 
 /*
@@ -501,8 +501,9 @@ static const struct proto_map proto_table[] = {
  */
 static const uint8_t proto_table_sz[] = {21, 29, 29, 29, 29};
 
-static inline unsigned proto_operation(struct program *program, uint32_t optype,
-				       uint32_t protid, uint16_t protoinfo)
+static inline unsigned rta_proto_operation(struct program *program,
+					   uint32_t optype, uint32_t protid,
+					   uint16_t protoinfo)
 {
 	uint32_t opcode = CMD_OPERATION;
 	uint8_t i, found = 0;

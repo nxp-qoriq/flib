@@ -36,10 +36,10 @@ static const uint32_t fifo_load_table[][2] = {
  */
 static const uint32_t fifo_load_table_sz[] = {22, 22, 23, 23, 23};
 
-static inline unsigned fifo_load(struct program *program, uint32_t src,
-				 uint32_t type_src, uint64_t loc,
-				 uint32_t type_loc, uint32_t length,
-				 uint32_t flags)
+static inline unsigned rta_fifo_load(struct program *program, uint32_t src,
+				     uint32_t type_src, uint64_t loc,
+				     uint32_t type_loc, uint32_t length,
+				     uint32_t flags)
 {
 	uint32_t opcode = 0;
 	uint32_t is_seq_cmd = 0, ext_length = 0, val = 0;
@@ -82,8 +82,8 @@ static inline unsigned fifo_load(struct program *program, uint32_t src,
 	}
 
 	/* write input data type field */
-	ret = map_opcode(src, fifo_load_table, fifo_load_table_sz[rta_sec_era],
-			 &val);
+	ret = __rta_map_opcode(src, fifo_load_table,
+			       fifo_load_table_sz[rta_sec_era], &val);
 	if (ret == -1) {
 		pr_debug("FIFO LOAD: Source value is not supported. "
 				"SEC Program Line: %d\n", program->current_pc);
@@ -206,9 +206,10 @@ static const uint32_t fifo_store_table[][2] = {
  */
 static const uint32_t fifo_store_table_sz[] = {21, 21, 21, 21, 22};
 
-static inline unsigned fifo_store(struct program *program, uint32_t src,
-				  uint32_t type_src, uint32_t encrypt_flags,
-				  uint64_t dst, uint32_t length, uint32_t flags)
+static inline unsigned rta_fifo_store(struct program *program, uint32_t src,
+				      uint32_t type_src, uint32_t encrypt_flags,
+				      uint64_t dst, uint32_t length,
+				      uint32_t flags)
 {
 	uint32_t opcode = 0;
 	uint32_t is_seq_cmd = 0, val = 0;
@@ -245,8 +246,8 @@ static inline unsigned fifo_store(struct program *program, uint32_t src,
 	}
 
 	/* write output data type field */
-	ret = map_opcode(src, fifo_store_table,
-			 fifo_store_table_sz[rta_sec_era], &val);
+	ret = __rta_map_opcode(src, fifo_store_table,
+			       fifo_store_table_sz[rta_sec_era], &val);
 	if (ret == -1) {
 		pr_debug("FIFO STORE: Source type not supported. "
 				"SEC Program Line: %d\n", program->current_pc);

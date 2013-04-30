@@ -503,8 +503,8 @@ struct program {
 				    length. */
 };
 
-static inline void program_cntxt_init(struct program *program, uint32_t *buffer,
-				      int offset)
+static inline void rta_program_cntxt_init(struct program *program,
+					 uint32_t *buffer, int offset)
 {
 	program->current_pc = 0;
 	program->current_instruction = 0;
@@ -516,7 +516,7 @@ static inline void program_cntxt_init(struct program *program, uint32_t *buffer,
 	program->ps = 0;
 }
 
-static inline unsigned program_finalize(struct program *program)
+static inline unsigned rta_program_finalize(struct program *program)
 {
 	/* Descriptor is not allowed to go beyond 64 words size */
 	if (program->current_pc > 0x40)
@@ -536,13 +536,13 @@ static inline unsigned program_finalize(struct program *program)
 	return program->current_pc;
 }
 
-static inline unsigned program_set_36bit_addr(struct program *program)
+static inline unsigned rta_program_set_36bit_addr(struct program *program)
 {
 	program->ps = 1;
 	return program->current_pc;
 }
 
-static inline unsigned word(struct program *program, uint32_t val)
+static inline unsigned rta_word(struct program *program, uint32_t val)
 {
 	unsigned start_pc = program->current_pc;
 
@@ -552,7 +552,7 @@ static inline unsigned word(struct program *program, uint32_t val)
 	return start_pc;
 }
 
-static inline unsigned dword(struct program *program, uint64_t val)
+static inline unsigned rta_dword(struct program *program, uint64_t val)
 {
 	unsigned start_pc = program->current_pc;
 
@@ -565,8 +565,8 @@ static inline unsigned dword(struct program *program, uint64_t val)
 	return start_pc;
 }
 
-static inline unsigned endian_data(struct program *program, uint8_t *data,
-				   int length)
+static inline unsigned rta_endian_data(struct program *program, uint8_t *data,
+				       int length)
 {
 	int i;
 	unsigned start_pc = program->current_pc;
@@ -579,7 +579,7 @@ static inline unsigned endian_data(struct program *program, uint8_t *data,
 	return start_pc;
 }
 
-static inline unsigned set_label(struct program *program)
+static inline unsigned rta_set_label(struct program *program)
 {
 	return program->current_pc + program->start_pc;
 }
@@ -599,8 +599,8 @@ static inline unsigned set_label(struct program *program)
 #define BSWAP    (0x0B << MATH_FUN_SHIFT)
 
 
-static inline void patch_move(struct program *program, unsigned line,
-			      unsigned new_ref)
+static inline void rta_patch_move(struct program *program, unsigned line,
+				  unsigned new_ref)
 {
 	uint32_t opcode = program->buffer[line];
 	opcode &= ~MOVE_OFFSET_MASK;
@@ -608,8 +608,8 @@ static inline void patch_move(struct program *program, unsigned line,
 	program->buffer[line] = opcode;
 }
 
-static inline void patch_jmp(struct program *program, unsigned line,
-			     unsigned new_ref)
+static inline void rta_patch_jmp(struct program *program, unsigned line,
+				 unsigned new_ref)
 {
 	uint32_t opcode = program->buffer[line];
 	opcode &= ~JUMP_OFFSET_MASK;
@@ -617,8 +617,8 @@ static inline void patch_jmp(struct program *program, unsigned line,
 	program->buffer[line] = opcode;
 }
 
-static inline void patch_header(struct program *program, unsigned line,
-				unsigned new_ref)
+static inline void rta_patch_header(struct program *program, unsigned line,
+				    unsigned new_ref)
 {
 	uint32_t opcode = program->buffer[line];
 	opcode &= ~HDR_START_IDX_MASK;
@@ -626,8 +626,8 @@ static inline void patch_header(struct program *program, unsigned line,
 	program->buffer[line] = opcode;
 }
 
-static inline void patch_load(struct program *program, unsigned line,
-			      unsigned new_ref)
+static inline void rta_patch_load(struct program *program, unsigned line,
+				  unsigned new_ref)
 {
 	uint32_t opcode = program->buffer[line];
 
@@ -641,8 +641,8 @@ static inline void patch_load(struct program *program, unsigned line,
 	program->buffer[line] = opcode;
 }
 
-static inline void patch_store(struct program *program, unsigned line,
-			       unsigned new_ref)
+static inline void rta_patch_store(struct program *program, unsigned line,
+				   unsigned new_ref)
 {
 	uint32_t opcode = program->buffer[line];
 
@@ -663,8 +663,9 @@ static inline void patch_store(struct program *program, unsigned line,
 	program->buffer[line] = opcode;
 }
 
-static inline int8_t map_opcode(uint32_t name, const uint32_t (*map_table)[2],
-		uint8_t num_of_entries, uint32_t *val)
+static inline int8_t __rta_map_opcode(uint32_t name,
+				      const uint32_t (*map_table)[2],
+				      uint8_t num_of_entries, uint32_t *val)
 {
 	uint8_t i;
 	for (i = 0; i < num_of_entries; i++)
@@ -675,8 +676,9 @@ static inline int8_t map_opcode(uint32_t name, const uint32_t (*map_table)[2],
 	return -1;
 }
 
-static inline void map_flags(uint32_t flags, const uint32_t (*flags_table)[2],
-		uint8_t num_of_entries, uint32_t *opcode)
+static inline void __rta_map_flags(uint32_t flags,
+				   const uint32_t (*flags_table)[2],
+				   uint8_t num_of_entries, uint32_t *opcode)
 {
 	uint8_t i;
 	for (i = 0; i < num_of_entries; i++) {

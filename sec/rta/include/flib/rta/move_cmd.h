@@ -63,10 +63,11 @@ static inline int set_move_offset(struct program *program, uint64_t src,
 				  uint16_t *opt);
 
 
-static inline unsigned move(struct program *program, uint64_t src, int type_src,
-			    uint16_t src_offset, uint64_t dst, int type_dst,
-			    uint16_t dst_offset, uint32_t length,
-			    int type_length, uint32_t flags)
+static inline unsigned rta_move(struct program *program, uint64_t src,
+				int type_src, uint16_t src_offset, uint64_t dst,
+				int type_dst, uint16_t dst_offset,
+				uint32_t length, int type_length,
+				uint32_t flags)
 {
 	uint32_t opcode = 0, is_move_len_cmd = 0;
 	uint16_t offset = 0, opt = 0;
@@ -117,8 +118,8 @@ static inline unsigned move(struct program *program, uint64_t src, int type_src,
 		opcode |= MOVE_AUX_LS;
 
 	/* write source field */
-	ret = map_opcode(src, move_src_table, move_src_table_sz[rta_sec_era],
-			 &val);
+	ret = __rta_map_opcode(src, move_src_table,
+			       move_src_table_sz[rta_sec_era], &val);
 	if (ret == -1) {
 		pr_debug("MOVE: Invalid SRC. SEC PC: %d; Instr: %d\n",
 				program->current_pc,
@@ -128,8 +129,8 @@ static inline unsigned move(struct program *program, uint64_t src, int type_src,
 	opcode |= val;
 
 	/* write destination field */
-	ret = map_opcode(dst, move_dst_table, move_dst_table_sz[rta_sec_era],
-			 &val);
+	ret = __rta_map_opcode(dst, move_dst_table,
+			       move_dst_table_sz[rta_sec_era], &val);
 	if (ret == -1) {
 		pr_debug("MOVE: Invalid DST. SEC PC: %d; Instr: %d\n",
 				program->current_pc,

@@ -66,10 +66,10 @@ static const uint32_t math_result[][2] = {
  */
 static const uint32_t math_result_sz[] = {9, 9, 10, 10, 10};
 
-static inline unsigned math(struct program *program, uint64_t operand1,
-			    int type_op1, uint32_t op, uint64_t operand2,
-			    int type_op2, uint32_t result, int type_res,
-			    int length, uint32_t options)
+static inline unsigned rta_math(struct program *program, uint64_t operand1,
+				int type_op1, uint32_t op, uint64_t operand2,
+				int type_op2, uint32_t result, int type_res,
+				int length, uint32_t options)
 {
 	uint32_t opcode = CMD_MATH;
 	uint32_t val = 0;
@@ -111,8 +111,8 @@ static inline unsigned math(struct program *program, uint64_t operand1,
 	if (type_op1 == IMM_DATA)
 		opcode |= MATH_SRC0_IMM;
 	else {
-		ret = map_opcode(operand1, math_op1, math_op1_sz[rta_sec_era],
-				 &val);
+		ret = __rta_map_opcode(operand1, math_op1,
+				       math_op1_sz[rta_sec_era], &val);
 		if (ret == -1) {
 			pr_debug("MATH: operand1 not supported. SEC PC: %d; "
 					"Instr: %d\n", program->current_pc,
@@ -126,8 +126,8 @@ static inline unsigned math(struct program *program, uint64_t operand1,
 	if (type_op2 == IMM_DATA)
 		opcode |= MATH_SRC1_IMM;
 	else {
-		ret = map_opcode(operand2, math_op2, math_op2_sz[rta_sec_era],
-				 &val);
+		ret = __rta_map_opcode(operand2, math_op2,
+				       math_op2_sz[rta_sec_era], &val);
 		if (ret == -1) {
 			pr_debug("MATH: operand2 not supported. SEC PC: %d; "
 					"Instr: %d\n", program->current_pc,
@@ -138,8 +138,8 @@ static inline unsigned math(struct program *program, uint64_t operand1,
 	}
 
 	/* Write result field */
-	ret = map_opcode(result, math_result, math_result_sz[rta_sec_era],
-			 &val);
+	ret = __rta_map_opcode(result, math_result, math_result_sz[rta_sec_era],
+			       &val);
 	if (ret == -1) {
 		pr_debug("MATH: result not supported. SEC PC: %d; "
 				"Instr: %d\n", program->current_pc,

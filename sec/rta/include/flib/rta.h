@@ -78,7 +78,7 @@
  *                     written (@c int).
  */
 #define PROGRAM_CNTXT_INIT(buffer, offset) \
-	program_cntxt_init(program, buffer, offset)
+	rta_program_cntxt_init(program, buffer, offset)
 
 /**
  * @def                PROGRAM_FINALIZE
@@ -86,7 +86,7 @@
  *                     of @b RTA call.
  * @return             Total size of the descriptor in words (@c unsigned).
  */
-#define PROGRAM_FINALIZE() program_finalize(program)
+#define PROGRAM_FINALIZE() rta_program_finalize(program)
 
 /**
  * @def                PROGRAM_SET_36BIT_ADDR
@@ -94,7 +94,7 @@
  *                     size to 36 bits.
  * @return             Current size of the descriptor in words (@c unsigned).
  */
-#define PROGRAM_SET_36BIT_ADDR() program_set_36bit_addr(program)
+#define PROGRAM_SET_36BIT_ADDR() rta_program_set_36bit_addr(program)
 
 /**
  * @def                WORD
@@ -106,7 +106,7 @@
  * @return             Descriptor buffer offset where this command is inserted
  *                     (@c unsigned).
  */
-#define WORD(val) word(program, val)
+#define WORD(val) rta_word(program, val)
 
 /**
  * @def                DWORD
@@ -118,7 +118,7 @@
  * @return             Descriptor buffer offset where this command is inserted
  *                     (@c unsigned).
  */
-#define DWORD(val) dword(program, val)
+#define DWORD(val) rta_dword(program, val)
 
 /**
  * @def                ENDIAN_DATA
@@ -131,7 +131,7 @@
  * @return             Descriptor buffer offset where this command is inserted
  *                     (@c unsigned).
  */
-#define ENDIAN_DATA(data, len) endian_data(program, (data), (len))
+#define ENDIAN_DATA(data, len) rta_endian_data(program, (data), (len))
 
 /**
  * @brief              SEC HW block revision.
@@ -196,7 +196,7 @@ static inline unsigned rta_get_sec_era(void)
  *                     output.
  */
 #define SHR_HDR(share, start_idx, flags) \
-	shr_header(program, share, start_idx, flags)
+	rta_shr_header(program, share, start_idx, flags)
 
 /**
  * @def                JOB_HDR
@@ -219,7 +219,7 @@ static inline unsigned rta_get_sec_era(void)
  *                     output.
  */
 #define JOB_HDR(share, start_idx, share_desc, flags) \
-	job_header(program, share, start_idx, share_desc, flags)
+	rta_job_header(program, share, start_idx, share_desc, flags)
 
 /**
  * @def                MOVE
@@ -245,7 +245,7 @@ static inline unsigned rta_get_sec_era(void)
  *                     In debug mode, a log message will be shown at output.
  */
 #define MOVE(src, src_offset, dst, dst_offset, length, opt) \
-	move(program, src, src_offset, dst, dst_offset, length, opt)
+	rta_move(program, src, src_offset, dst, dst_offset, length, opt)
 
 /**
  * @def                FIFOLOAD
@@ -268,7 +268,7 @@ static inline unsigned rta_get_sec_era(void)
  *                     output.
  */
 #define FIFOLOAD(data, src, length, flags) \
-	fifo_load(program, data, src, length, flags)
+	rta_fifo_load(program, data, src, length, flags)
 
 /**
  * @def                SEQFIFOLOAD
@@ -290,7 +290,7 @@ static inline unsigned rta_get_sec_era(void)
  *                     output.
  */
 #define SEQFIFOLOAD(data, length, flags) \
-	fifo_load(program, data, NONE, length, WITH(flags|SEQ))
+	rta_fifo_load(program, data, NONE, length, WITH(flags|SEQ))
 
 /**
  * @def                FIFOSTORE
@@ -313,7 +313,7 @@ static inline unsigned rta_get_sec_era(void)
  *                     output.
  */
 #define FIFOSTORE(data, encrypt_flags, dst, length, flags) \
-	fifo_store(program, data, encrypt_flags, dst, length, flags)
+	rta_fifo_store(program, data, encrypt_flags, dst, length, flags)
 
 /**
  * @def                SEQFIFOSTORE
@@ -336,7 +336,7 @@ static inline unsigned rta_get_sec_era(void)
  *                     output.
  */
 #define SEQFIFOSTORE(data, encrypt_flags, length, flags) \
-	fifo_store(program, data, encrypt_flags, 0, length, WITH(flags|SEQ))
+	rta_fifo_store(program, data, encrypt_flags, 0, length, WITH(flags|SEQ))
 
 /**
  * @def                KEY
@@ -357,7 +357,7 @@ static inline unsigned rta_get_sec_era(void)
  *                     output.
  */
 #define KEY(key_dst, encrypt_flags, src, length, flags) \
-	key(program, key_dst, encrypt_flags, src, length, flags)
+	rta_key(program, key_dst, encrypt_flags, src, length, flags)
 
 /**
  * @def                SEQINPTR
@@ -375,7 +375,8 @@ static inline unsigned rta_get_sec_era(void)
  *                     error; in debug mode, a log message will be shown at
  *                     output.
  */
-#define SEQINPTR(src, length, flags)   seq_in_ptr(program, src, length, flags)
+#define SEQINPTR(src, length, flags) \
+	rta_seq_in_ptr(program, src, length, flags)
 
 /**
  * @def                SEQOUTPTR
@@ -393,7 +394,8 @@ static inline unsigned rta_get_sec_era(void)
  *                     error; in debug mode, a log message will be shown at
  *                     output.
  */
-#define SEQOUTPTR(dst, length, flags)  seq_out_ptr(program, dst, length, flags)
+#define SEQOUTPTR(dst, length, flags) \
+	rta_seq_out_ptr(program, dst, length, flags)
 
 /**
  * @def                  ALG_OPERATION
@@ -418,7 +420,7 @@ static inline unsigned rta_get_sec_era(void)
  *                       output.
  */
 #define ALG_OPERATION(cipher_alg, aai, algo_state, icv_check, enc) \
-	operation(program, cipher_alg, aai, algo_state, icv_check, enc)
+	rta_operation(program, cipher_alg, aai, algo_state, icv_check, enc)
 
 /**
  * @def                PROTOCOL
@@ -437,7 +439,7 @@ static inline unsigned rta_get_sec_era(void)
  *                     output.
  */
 #define PROTOCOL(optype, protid, protoinfo) \
-	proto_operation(program, optype, protid, protoinfo)
+	rta_proto_operation(program, optype, protid, protoinfo)
 
 /**
  * @def                PKHA_OPERATION
@@ -452,7 +454,7 @@ static inline unsigned rta_get_sec_era(void)
  *                     error; in debug mode, a log message will be shown at
  *                     output.
  */
-#define PKHA_OPERATION(op_pkha)   pkha_operation(program, op_pkha)
+#define PKHA_OPERATION(op_pkha)   rta_pkha_operation(program, op_pkha)
 
 /**
  * @def                JUMP
@@ -478,7 +480,7 @@ static inline unsigned rta_get_sec_era(void)
  *                     output.
  */
 #define JUMP(addr, jump_type, test_type, cond) \
-	jump(program, addr, jump_type, test_type, cond)
+	rta_jump(program, addr, jump_type, test_type, cond)
 
 /**
  * @def                LOAD
@@ -499,7 +501,7 @@ static inline unsigned rta_get_sec_era(void)
  *                     output.
  */
 #define LOAD(addr, dst, offset, length, flags) \
-	load(program, addr, dst, offset, length, flags)
+	rta_load(program, addr, dst, offset, length, flags)
 
 /**
  * @def                SEQLOAD
@@ -518,7 +520,7 @@ static inline unsigned rta_get_sec_era(void)
  *                     output.
  */
 #define SEQLOAD(dst, offset, length, flags) \
-	load(program, NONE, dst, offset, length, WITH(flags|SEQ))
+	rta_load(program, NONE, dst, offset, length, WITH(flags|SEQ))
 
 /**
  * @def                STORE
@@ -545,7 +547,7 @@ static inline unsigned rta_get_sec_era(void)
  *                     output.
  */
 #define STORE(src, offset, dst, length, flags) \
-	store(program, src, offset, dst, length, flags)
+	rta_store(program, src, offset, dst, length, flags)
 
 /**
  * @def                SEQSTORE
@@ -570,7 +572,7 @@ static inline unsigned rta_get_sec_era(void)
  *                     output.
  */
 #define SEQSTORE(src, offset, length, flags) \
-	store(program, src, offset, NONE, length, WITH(flags|SEQ))
+	rta_store(program, src, offset, NONE, length, WITH(flags|SEQ))
 
 /**
  * @def                MATHB
@@ -600,7 +602,7 @@ static inline unsigned rta_get_sec_era(void)
  *                     output.
  */
 #define MATHB(operand1, operator, operand2, result, length, opt) \
-	math(program, operand1, operator, operand2, result, length, opt)
+	rta_math(program, operand1, operator, operand2, result, length, opt)
 
 /**
  * @def                MATHU
@@ -625,7 +627,7 @@ static inline unsigned rta_get_sec_era(void)
  *                     output.
  */
 #define MATHU(operand1, operator, result, length, opt) \
-	math(program, operand1, operator, _NONE, 0, result, length, opt)
+	rta_math(program, operand1, operator, _NONE, 0, result, length, opt)
 
 /**
  * @def                SIGNATURE
@@ -643,7 +645,7 @@ static inline unsigned rta_get_sec_era(void)
  *                     error; in debug mode, a log message will be shown at
  *                     output.
  */
-#define SIGNATURE(sign_type)   signature(program, sign_type)
+#define SIGNATURE(sign_type)   rta_signature(program, sign_type)
 
 /**
  * @def                NFIFOADD
@@ -671,7 +673,7 @@ static inline unsigned rta_get_sec_era(void)
  *                     output.
  */
 #define NFIFOADD(src, data, length, flags) \
-	nfifo_load(program, src, data, length, flags)
+	rta_nfifo_load(program, src, data, length, flags)
 
 /** @} */ /* end of cmd_group */
 
@@ -707,7 +709,7 @@ static inline unsigned rta_get_sec_era(void)
  * @param[in] label    Value that will be inserted in a line previously written
  *                     in the descriptor buffer.
  */
-#define SET_LABEL(label)  label = set_label(program)
+#define SET_LABEL(label)  label = rta_set_label(program)
 
 /**
  * @def                PATCH_JUMP
@@ -724,7 +726,7 @@ static inline unsigned rta_get_sec_era(void)
  *                     For @b JUMP command, the value represents the offset
  *                     field (in words).
  */
-#define PATCH_JUMP(line, new_ref) patch_jmp(program, line, new_ref)
+#define PATCH_JUMP(line, new_ref) rta_patch_jmp(program, line, new_ref)
 
 /**
  * @def                PATCH_JUMP_NON_LOCAL
@@ -744,7 +746,7 @@ static inline unsigned rta_get_sec_era(void)
  *                     field (in words).
  */
 #define PATCH_JUMP_NON_LOCAL(src_program, line, new_ref) \
-	patch_jmp(src_program, line, new_ref)
+	rta_patch_jmp(src_program, line, new_ref)
 
 /**
  * @def                PATCH_MOVE
@@ -761,7 +763,7 @@ static inline unsigned rta_get_sec_era(void)
  *                     For @b MOVE command, the value represents the offset
  *                     field (in words).
  */
-#define PATCH_MOVE(line, new_ref) patch_move(program, line, new_ref)
+#define PATCH_MOVE(line, new_ref) rta_patch_move(program, line, new_ref)
 
 /**
  * @def                PATCH_MOVE_NON_LOCAL
@@ -781,7 +783,7 @@ static inline unsigned rta_get_sec_era(void)
  *                     field (in words).
  */
 #define PATCH_MOVE_NON_LOCAL(src_program, line, new_ref) \
-	patch_move(src_program, line, new_ref)
+	rta_patch_move(src_program, line, new_ref)
 
 /**
  * @def                PATCH_LOAD
@@ -798,7 +800,7 @@ static inline unsigned rta_get_sec_era(void)
  *                     For @b LOAD command, the value represents the offset
  *                     field (in words).
  */
-#define PATCH_LOAD(line, new_ref) patch_load(program, line, new_ref)
+#define PATCH_LOAD(line, new_ref) rta_patch_load(program, line, new_ref)
 
 /**
  * @def                PATCH_STORE
@@ -815,7 +817,7 @@ static inline unsigned rta_get_sec_era(void)
  *                     For @b STORE command, the value represents the offset
  *                     field (in words).
  */
-#define PATCH_STORE(line, new_ref) patch_store(program, line, new_ref)
+#define PATCH_STORE(line, new_ref) rta_patch_store(program, line, new_ref)
 
 /**
  * @def                PATCH_STORE_NON_LOCAL
@@ -835,7 +837,7 @@ static inline unsigned rta_get_sec_era(void)
  *                     field (in words).
  */
 #define PATCH_STORE_NON_LOCAL(src_program, line, new_ref) \
-	patch_store(src_program, line, new_ref)
+	rta_patch_store(src_program, line, new_ref)
 
 /**
  * @def                PATCH_HDR
@@ -852,7 +854,7 @@ static inline unsigned rta_get_sec_era(void)
  *                     For @b HEADER command, the value represents the start
  *                     index field.
  */
-#define PATCH_HDR(line, new_ref) patch_header(program, line, new_ref)
+#define PATCH_HDR(line, new_ref) rta_patch_header(program, line, new_ref)
 
 /**
  * @def                PATCH_HDR_NON_LOCAL
@@ -873,7 +875,7 @@ static inline unsigned rta_get_sec_era(void)
  *
  */
 #define PATCH_HDR_NON_LOCAL(src_program, line, new_ref) \
-	patch_header(src_program, line, new_ref)
+	rta_patch_header(src_program, line, new_ref)
 
 /** @} */ /* end of refcode_group */
 
