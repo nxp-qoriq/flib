@@ -10,7 +10,14 @@
  */
 
 /**
- * @defgroup defines_group Auxiliary defines used throughout descriptors
+ * @defgroup descriptor_lib_group RTA Descriptors Library
+ * @{
+ */
+/** @} end of descriptor_lib_group */
+
+/**
+ * @defgroup defines_group Auxiliary Defines
+ * @ingroup descriptor_lib_group
  * @{
  */
 
@@ -34,7 +41,7 @@
 #define PDCP_MAX_FRAME_LEN_STATUS	0xF1
 
 /**
- * #def PDCP_SN_MASK
+ * @def PDCP_SN_MASK
  * This mask is used in the PDCP descriptors for extracting the sequence
  * number (SN) from the PDCP Control Plane header. For PDCP Control Plane,
  * the SN is constant (5 bits) as opposed to PDCP Data Plane (7/12 bits).
@@ -42,7 +49,7 @@
 #define PDCP_SN_MASK			0x0000001F
 
 /**
- * #def PDCP_BEARER_MASK
+ * @def PDCP_BEARER_MASK
  * This mask is used masking out the bearer for PDCP processing with SNOW f9
  * in LTE. The value on which this mask is applied is formatted as below:
  *
@@ -57,7 +64,7 @@
 #define PDCP_BEARER_MASK		0xFFFFFFFF04000000ull
 
 /**
- * #def PDCP_DIR_MASK
+ * @def PDCP_DIR_MASK
  * This mask is used masking out the direction for PDCP processing with SNOW f9
  * in LTE. The value on which this mask is applied is formatted as below:
  *
@@ -72,14 +79,15 @@
 #define PDCP_DIR_MASK			0xF800000000000000ull
 
 /**
- * #def PDCP_NULL_INT_MAC_I_VAL
+ * @def PDCP_NULL_INT_MAC_I_VAL
  * The value of the PDCP PDU MAC-I in case NULL integrity is used
  */
 
 #define PDCP_NULL_INT_MAC_I_VAL		0x00000000
 /** @} */ /* end of defines_group */
 /**
- * @defgroup typedefs_group Auxiliary data structures needed for descriptors
+ * @defgroup typedefs_group Auxiliary Data Structures
+ * @ingroup descriptor_lib_group
  * @{
  */
 
@@ -150,19 +158,22 @@ enum pdcp_sn_size {
 /** @} */ /* end of typedefs_group */
 /**
  * @defgroup sharedesc_group Shared Descriptor Example Routines
+ * @ingroup descriptor_lib_group
  * @{
  */
+/** @} end of sharedesc_group */
 
 /**
- * @details              SNOW/f8 (UEA2) as a shared descriptor.
+ * @details                  SNOW/f8 (UEA2) as a shared descriptor.
+ * @ingroup                  sharedesc_group
  *
- * @param [in] descbuf   Pointer to descriptor-under-construction buffer.
- * @param [in] bufsize   Points to size to be updated at completion.
- * @param [in] cipherdata Pointer to blockcipher transform definitions.
- * @param [in] dir       Cipher direction (DIR_ENCRYPT/DIR_DECRYPT).
- * @param [in] count     UEA2 count value (32 bits).
- * @param [in] bearer    UEA2 bearer ID (5 bits).
- * @param [in] direction UEA2 direction (1 bit).
+ * @param [in,out] descbuf   Pointer to descriptor-under-construction buffer.
+ * @param [in,out] bufsize   Points to size to be updated at completion.
+ * @param [in] cipherdata    Pointer to blockcipher transform definitions.
+ * @param [in] dir           Cipher direction (DIR_ENCRYPT/DIR_DECRYPT).
+ * @param [in] count         UEA2 count value (32 bits).
+ * @param [in] bearer        UEA2 bearer ID (5 bits).
+ * @param [in] direction     UEA2 direction (1 bit).
  *
  */
 static inline void cnstr_shdsc_snow_f8(uint32_t *descbuf, unsigned *bufsize,
@@ -192,16 +203,17 @@ static inline void cnstr_shdsc_snow_f8(uint32_t *descbuf, unsigned *bufsize,
 }
 
 /**
- * @details             SNOW/f9 (UIA2) as a shared descriptor.
+ * @details                 SNOW/f9 (UIA2) as a shared descriptor.
+ * @ingroup                 sharedesc_group
  *
- * @param[in] descbuf   Pointer to descriptor-under-construction buffer.
- * @param[in] bufsize   Points to size to be updated at completion.
- * @param[in] authdata  Pointer to authentication transform definitions.
- * @param[in] dir       Cipher direction (DIR_ENCRYPT/DIR_DECRYPT).
- * @param[in] count     UEA2 count value (32 bits).
- * @param[in] fresh     UEA2 fresh value ID (32 bits).
- * @param[in] direction UEA2 direction (1 bit).
- * @param[in] datalen   Size of data.
+ * @param[in,out] descbuf   Pointer to descriptor-under-construction buffer.
+ * @param[in,out] bufsize   Points to size to be updated at completion.
+ * @param[in] authdata      Pointer to authentication transform definitions.
+ * @param[in] dir           Cipher direction (DIR_ENCRYPT/DIR_DECRYPT).
+ * @param[in] count         UEA2 count value (32 bits).
+ * @param[in] fresh         UEA2 fresh value ID (32 bits).
+ * @param[in] direction     UEA2 direction (1 bit).
+ * @param[in] datalen       Size of data.
  */
 static inline void cnstr_shdsc_snow_f9(uint32_t *descbuf, unsigned *bufsize,
 			 struct alginfo *authdata, uint8_t dir, uint32_t count,
@@ -233,15 +245,16 @@ static inline void cnstr_shdsc_snow_f9(uint32_t *descbuf, unsigned *bufsize,
 }
 
 /**
- * @details             CBC blockcipher
+ * @details                 CBC blockcipher
+ * @ingroup                 sharedesc_group
  *
- * @param[in] descbuf   Pointer to descriptor-under-construction buffer.
- * @param[in] bufsize   Limit/returned descriptor buffer size.
- * @param[in] cipherdata Pointer to blockcipher transform definitions.
- * @param[in] iv        IV data.
- * @param[in] ivlen     IV length.
- * @param[in] dir       DIR_ENCRYPT/DIR_DECRYPT.
- * @param[in] cipher    OP_ALG_ALGSEL_AES/DES/3DES.
+ * @param[in,out] descbuf   Pointer to descriptor-under-construction buffer.
+ * @param[in,out] bufsize   Limit/returned descriptor buffer size.
+ * @param[in] cipherdata    Pointer to blockcipher transform definitions.
+ * @param[in] iv            IV data.
+ * @param[in] ivlen         IV length.
+ * @param[in] dir           DIR_ENCRYPT/DIR_DECRYPT.
+ * @param[in] cipher        OP_ALG_ALGSEL_AES/DES/3DES.
  */
 static inline void cnstr_shdsc_cbc_blkcipher(uint32_t *descbuf,
 			       unsigned *bufsize, struct alginfo *cipherdata,
@@ -269,13 +282,15 @@ static inline void cnstr_shdsc_cbc_blkcipher(uint32_t *descbuf,
 }
 
 /**
- * @details            HMAC shared
+ * @details                HMAC shared
+ * @ingroup                sharedesc_group
  *
- * @param[in] descbuf  Pointer to descriptor-under-construction buffer.
- * @param[in] bufsize  Limit/returned descriptor buffer size.
- * @param[in] authdata  Pointer to authentication transform definitions.
- *                     Message digest algorithm: OP_ALG_ALGSEL_MD5/SHA1-512.
- * @param[in] icv      HMAC comparison for ICV, NULL if no check desired.
+ * @param[in,out] descbuf  Pointer to descriptor-under-construction buffer.
+ * @param[in,out] bufsize  Limit/returned descriptor buffer size.
+ * @param[in] authdata     Pointer to authentication transform definitions.
+ *                         Message digest algorithm: OP_ALG_ALGSEL_MD5/
+ *                         SHA1-512.
+ * @param[in] icv          HMAC comparison for ICV, NULL if no check desired.
  */
 static inline void cnstr_shdsc_hmac(uint32_t *descbuf, unsigned *bufsize,
 		      struct alginfo *authdata, uint8_t *icv)
@@ -329,16 +344,17 @@ static inline void cnstr_shdsc_hmac(uint32_t *descbuf, unsigned *bufsize,
 }
 
 /**
- * @details            KASUMI F8 (Confidentialy) as a shared descriptor (ETSI
- *                     "Document 1: f8 and f9 specification").
+ * @details                 KASUMI F8 (Confidentialy) as a shared descriptor
+ *                          (ETSI "Document 1: f8 and f9 specification").
+ * @ingroup                 sharedesc_group
  *
- * @param[in] descbuf   Pointer to descriptor-under-construction buffer.
- * @param[in] bufsize   Points to size to be updated at completion.
- * @param[in] cipherdata Pointer to blockcipher transform definitions.
- * @param[in] dir       Cipher direction (DIR_ENCRYPT/DIR_DECRYPT).
- * @param[in] count     Count value (32 bits).
- * @param[in] bearer    Bearer ID (5 bits).
- * @param[in] direction Direction (1 bit).
+ * @param[in,out] descbuf   Pointer to descriptor-under-construction buffer.
+ * @param[in,out] bufsize   Points to size to be updated at completion.
+ * @param[in] cipherdata    Pointer to blockcipher transform definitions.
+ * @param[in] dir           Cipher direction (DIR_ENCRYPT/DIR_DECRYPT).
+ * @param[in] count         Count value (32 bits).
+ * @param[in] bearer        Bearer ID (5 bits).
+ * @param[in] direction     Direction (1 bit).
  */
 static inline void cnstr_shdsc_kasumi_f8(uint32_t *descbuf, unsigned *bufsize,
 			   struct alginfo *cipherdata, uint8_t dir,
@@ -367,17 +383,18 @@ static inline void cnstr_shdsc_kasumi_f8(uint32_t *descbuf, unsigned *bufsize,
 }
 
 /**
- * @details             KASUMI F9 (Integrity) as a shared descriptor (ETSI
- *                      "Document 1: f8 and f9 specification").
+ * @details                 KASUMI F9 (Integrity) as a shared descriptor
+ *                          (ETSI "Document 1: f8 and f9 specification").
+ * @ingroup                 sharedesc_group
  *
- * @param[in] descbuf   Pointer to descriptor-under-construction buffer.
- * @param[in] bufsize   Points to size to be updated at completion.
- * @param[in] authdata  Pointer to authentication transform definitions.
- * @param[in] dir       Cipher direction (DIR_ENCRYPT/DIR_DECRYPT).
- * @param[in] count     Count value (32 bits).
- * @param[in] fresh     Fresh value ID (32 bits).
- * @param[in] direction Direction (1 bit).
- * @param[in] datalen   Size of data.
+ * @param[in,out] descbuf   Pointer to descriptor-under-construction buffer.
+ * @param[in,out] bufsize   Points to size to be updated at completion.
+ * @param[in] authdata      Pointer to authentication transform definitions.
+ * @param[in] dir           Cipher direction (DIR_ENCRYPT/DIR_DECRYPT).
+ * @param[in] count         Count value (32 bits).
+ * @param[in] fresh         Fresh value ID (32 bits).
+ * @param[in] direction     Direction (1 bit).
+ * @param[in] datalen       Size of data.
  */
 static inline void cnstr_shdsc_kasumi_f9(uint32_t *descbuf, unsigned *bufsize,
 			   struct alginfo *authdata, uint8_t dir,
@@ -411,10 +428,11 @@ static inline void cnstr_shdsc_kasumi_f9(uint32_t *descbuf, unsigned *bufsize,
 }
 
 /**
- * @details            CRC32 Accelerator (IEEE 802 CRC32 protocol mode)
+ * @details                CRC32 Accelerator (IEEE 802 CRC32 protocol mode)
+ * @ingroup                sharedesc_group
  *
- * @param[in] descbuf  Pointer to descriptor-under-construction buffer.
- * @param[in] bufsize  Limit of descriptor buffer size.
+ * @param[in,out] descbuf  Pointer to descriptor-under-construction buffer.
+ * @param[in,out] bufsize  Limit of descriptor buffer size.
  */
 static inline void cnstr_shdsc_crc(uint32_t *descbuf, unsigned *bufsize)
 {
@@ -435,16 +453,17 @@ static inline void cnstr_shdsc_crc(uint32_t *descbuf, unsigned *bufsize)
 }
 
 /**
- * @details		MACsec(802.1AE) encapsulation
+ * @details                 MACsec(802.1AE) encapsulation
+ * @ingroup                 sharedesc_group
  *
- * @param[in] descbuf   Pointer to descriptor-under-construction buffer.
- * @param[in] bufsize   Points to size to be updated at completion.
- * @param[in] cipherdata Pointer to blockcipher transform definitions.
- * @param[in] sci       PDB Secure Channel Identifier.
- * @param[in] ethertype PDB EtherType.
- * @param[in] tci_an    TAG Control Information and Association Number
- *                      are treated as a single field of 8 bits in PDB.
- * @param[in] pn        PDB Packet Number.
+ * @param[in,out] descbuf   Pointer to descriptor-under-construction buffer.
+ * @param[in,out] bufsize   Points to size to be updated at completion.
+ * @param[in] cipherdata    Pointer to blockcipher transform definitions.
+ * @param[in] sci           PDB Secure Channel Identifier.
+ * @param[in] ethertype     PDB EtherType.
+ * @param[in] tci_an        TAG Control Information and Association Number
+ *                          are treated as a single field of 8 bits in PDB.
+ * @param[in] pn            PDB Packet Number.
  **/
 static inline void cnstr_shdsc_macsec_encap(uint32_t *descbuf,
 					    unsigned *bufsize,
@@ -486,13 +505,14 @@ static inline void cnstr_shdsc_macsec_encap(uint32_t *descbuf,
 }
 
 /**
- * @details		MACsec(802.1AE) decapsulation
+ * @details                 MACsec(802.1AE) decapsulation
+ * @ingroup                 sharedesc_group
  *
- * @param[in] descbuf   Pointer to descriptor-under-construction buffer.
- * @param[in] bufsize   Points to size to be updated at completion.
- * @param[in] cipherdata Pointer to blockcipher transform definitions.
- * @param[in] sci       PDB Secure Channel Identifier.
- * @param[in] pn        PDB Packet Number.
+ * @param[in,out] descbuf   Pointer to descriptor-under-construction buffer.
+ * @param[in,out] bufsize   Points to size to be updated at completion.
+ * @param[in] cipherdata    Pointer to blockcipher transform definitions.
+ * @param[in] sci           PDB Secure Channel Identifier.
+ * @param[in] pn            PDB Packet Number.
  **/
 static inline void cnstr_shdsc_macsec_decap(uint32_t *descbuf,
 					    unsigned *bufsize,
@@ -531,11 +551,12 @@ static inline void cnstr_shdsc_macsec_decap(uint32_t *descbuf,
 }
 
 /**
- *  @details IPSec ESP encapsulation protocol-level shared descriptor.
+ * @details  IPSec ESP encapsulation protocol-level shared descriptor.
  *           Requires an MDHA splitkey.
+ * @ingroup sharedesc_group
  *
- * @param[out] descbuf    Pointer to buffer used for descriptor construction
- * @param[out] bufsize    Pointer to descriptor size to be written back upon
+ * @param[in,out] descbuf    Pointer to buffer used for descriptor construction
+ * @param[in,out] bufsize    Pointer to descriptor size to be written back upon
  *      completion
  * @param[in] pdb         Pointer to the PDB to be used with this descriptor.
  *      This structure will be copied inline to the descriptor under
@@ -585,9 +606,10 @@ static inline void cnstr_shdsc_ipsec_encap(uint32_t *descbuf,
 /**
  * @details IPSec ESP decapsulation protocol-level sharedesc
  *          Requires an MDHA splitkey.
+ * @ingroup sharedesc_group
  *
- * @param[out] descbuf    Pointer to buffer used for descriptor construction
- * @param[out] bufsize    Pointer to descriptor size to be written back upon
+ * @param[in,out] descbuf    Pointer to buffer used for descriptor construction
+ * @param[in,out] bufsize    Pointer to descriptor size to be written back upon
  *      completion
  * @param[in] pdb         Pointer to the PDB to be used with this descriptor.
  *      This structure will be copied inline to the descriptor under
@@ -630,17 +652,18 @@ static inline void cnstr_shdsc_ipsec_decap(uint32_t *descbuf,
 }
 
 
-/** * @details             WiMAX(802.16) encapsulation
+/**
+ * @details                 WiMAX(802.16) encapsulation
+ * @ingroup                 sharedesc_group
+ * @warning                 Descriptor valid on platforms
+ *                          with support for SEC ERA 4.
  *
- * @warning             Descriptor valid on platforms
- *                      with support for SEC ERA 4.
- *
- * @param[in] descbuf   Pointer to descriptor-under-construction buffer.
- * @param[in] bufsize   Points to size to be updated at completion.
- * @param[in] pdb_opts  PDB Options Byte.
- * @param[in] pn        PDB Packet Number.
- * @param[in] cipherdata Pointer to blockcipher transform definitions.
- * @param[in] protinfo  Protocol information: OP_PCL_WIMAX_OFDM/OFDMA.
+ * @param[in,out] descbuf   Pointer to descriptor-under-construction buffer.
+ * @param[in,out] bufsize   Points to size to be updated at completion.
+ * @param[in] pdb_opts      PDB Options Byte.
+ * @param[in] pn            PDB Packet Number.
+ * @param[in] cipherdata    Pointer to blockcipher transform definitions.
+ * @param[in] protinfo      Protocol information: OP_PCL_WIMAX_OFDM/OFDMA.
  */
 void cnstr_shdsc_wimax_encap(uint32_t *descbuf, unsigned *bufsize,
 			     uint8_t pdb_opts, uint32_t pn, uint16_t protinfo,
@@ -765,17 +788,17 @@ void cnstr_shdsc_wimax_encap(uint32_t *descbuf, unsigned *bufsize,
 }
 
 /**
- * @details             WiMAX(802.16) decapsulation
+ * @details                 WiMAX(802.16) decapsulation
+ * @ingroup                 sharedesc_group
+ * @warning                 Descriptor valid on platforms
+ *                          with support for SEC ERA 4.
  *
- * @warning             Descriptor valid on platforms
- *                      with support for SEC ERA 4.
- *
- * @param[in] descbuf   Pointer to descriptor-under-construction buffer.
- * @param[in] bufsize   Points to size to be updated at completion.
- * @param[in] pdb_opts  PDB Options Byte.
- * @param[in] pn        PDB Packet Number.
- * @param[in] cipherdata Pointer to blockcipher transform definitions.
- * @param[in] protinfo  Protocol information: OP_PCL_WIMAX_OFDM/OFDMA.
+ * @param[in,out] descbuf   Pointer to descriptor-under-construction buffer.
+ * @param[in,out] bufsize   Points to size to be updated at completion.
+ * @param[in] pdb_opts      PDB Options Byte.
+ * @param[in] pn            PDB Packet Number.
+ * @param[in] cipherdata    Pointer to blockcipher transform definitions.
+ * @param[in] protinfo      Protocol information: OP_PCL_WIMAX_OFDM/OFDMA.
  */
 void cnstr_shdsc_wimax_decap(uint32_t *descbuf, unsigned *bufsize,
 			     uint8_t pdb_opts, uint32_t pn, uint16_t ar_len,
@@ -885,7 +908,7 @@ void cnstr_shdsc_wimax_decap(uint32_t *descbuf, unsigned *bufsize,
 	*bufsize = PROGRAM_FINALIZE();
 }
 
-/**
+/*
  * Function for appending the portion of a PDCP Control Plane shared descriptor
  * which performs NULL encryption and integrity (i.e. copies the input frame
  * to the output frame, appending 32 bits of zeros at the end (MAC-I for
@@ -2048,10 +2071,11 @@ static inline enum pdb_type_e cnstr_pdcp_c_plane_pdb(struct program *program,
 /**
  * @details                   Function for creating a PDCP Control Plane
  *                            encapsulation descriptor.
+ * @ingroup                   sharedesc_group
  *
- * @param [in/out] descbuf    Pointer to buffer for descriptor construction.
+ * @param [in,out] descbuf    Pointer to buffer for descriptor construction.
  *
- * @param [in/out] bufsize    Size of descriptor written. Once the function
+ * @param [in,out] bufsize    Size of descriptor written. Once the function
  *                            returns, the value of this parameter can be used
  *                            for reclaiming the space that wasn't used for the
  *                            descriptor.
@@ -2082,9 +2106,9 @@ static inline enum pdb_type_e cnstr_pdcp_c_plane_pdb(struct program *program,
  *                                      desired for this descriptor.
  *                                      @note Can only be used for SEC ERA 2
  *
- * @note: @descbuf must be large enough to contain a full 256 byte long
+ * @note  @b descbuf must be large enough to contain a full 256 byte long
  *        descriptor; after the function returns, by substracting the actual
- *        number of bytes used (using @bufsize), the user can reuse the
+ *        number of bytes used (using @b bufsize), the user can reuse the
  *        remaining buffer space for other purposes.
  *
  */
@@ -2200,10 +2224,11 @@ static inline void cnstr_shdsc_pdcp_c_plane_encap(uint32_t *descbuf,
 /**
  * @details                   Function for creating a PDCP Control Plane
  *                            decapsulation descriptor.
+ * @ingroup                   sharedesc_group
  *
- * @param [in/out] descbuf    Pointer to buffer for descriptor construction.
+ * @param [in,out] descbuf    Pointer to buffer for descriptor construction.
  *
- * @param [in/out] bufsize    Size of descriptor written. Once the function
+ * @param [in,out] bufsize    Size of descriptor written. Once the function
  *                            returns, the value of this parameter can be used
  *                            for reclaiming the space that wasn't used for the
  *                            descriptor.
@@ -2234,9 +2259,9 @@ static inline void cnstr_shdsc_pdcp_c_plane_encap(uint32_t *descbuf,
  *                                      desired for this descriptor.
  *                                      @note Can only be used for SEC ERA 2
  *
- * @note: @descbuf must be large enough to contain a full 256 byte long
+ * @note  @b descbuf must be large enough to contain a full 256 byte long
  *        descriptor; after the function returns, by substracting the actual
- *        number of bytes used (using @bufsize), the user can reuse the
+ *        number of bytes used (using @b bufsize), the user can reuse the
  *        remaining buffer space for other purposes.
  *
  */
@@ -2352,10 +2377,11 @@ static inline void cnstr_shdsc_pdcp_c_plane_decap(uint32_t *descbuf,
 /**
  * @details                   Function for creating a PDCP User Plane
  *                            encapsulation descriptor.
+ * @ingroup                   sharedesc_group
  *
- * @param [in/out] descbuf    Pointer to buffer for descriptor construction.
+ * @param [in,out] descbuf    Pointer to buffer for descriptor construction.
  *
- * @param [in/out] bufsize    Size of descriptor written. Once the function
+ * @param [in,out] bufsize    Size of descriptor written. Once the function
  *                            returns, the value of this parameter can be used
  *                            for reclaiming the space that wasn't used for the
  *                            descriptor.
@@ -2384,9 +2410,9 @@ static inline void cnstr_shdsc_pdcp_c_plane_decap(uint32_t *descbuf,
  *                                      desired for this descriptor.
  *                                      @note Can only be used for SEC ERA 2
  *
- * @note: @descbuf must be large enough to contain a full 256 byte long
+ * @note  @b descbuf must be large enough to contain a full 256 byte long
  *        descriptor; after the function returns, by substracting the actual
- *        number of bytes used (using @bufsize), the user can reuse the
+ *        number of bytes used (using @b bufsize), the user can reuse the
  *        remaining buffer space for other purposes.
  *
  */
@@ -2485,10 +2511,11 @@ static inline void cnstr_shdsc_pdcp_u_plane_encap(uint32_t *descbuf,
 /**
  * @details                   Function for creating a PDCP User Plane
  *                            decapsulation descriptor.
+ * @ingroup                   sharedesc_group
  *
- * @param [in/out] descbuf    Pointer to buffer for descriptor construction.
+ * @param [in,out] descbuf    Pointer to buffer for descriptor construction.
  *
- * @param [in/out] bufsize    Size of descriptor written. Once the function
+ * @param [in,out] bufsize    Size of descriptor written. Once the function
  *                            returns, the value of this parameter can be used
  *                            for reclaiming the space that wasn't used for the
  *                            descriptor.
@@ -2517,9 +2544,9 @@ static inline void cnstr_shdsc_pdcp_u_plane_encap(uint32_t *descbuf,
  *                                      desired for this descriptor.
  *                                      @note Can only be used for SEC ERA 2
  *
- * @note: @descbuf must be large enough to contain a full 256 byte long
+ * @note  @b descbuf must be large enough to contain a full 256 byte long
  *        descriptor; after the function returns, by substracting the actual
- *        number of bytes used (using @bufsize), the user can reuse the
+ *        number of bytes used (using @b bufsize), the user can reuse the
  *        remaining buffer space for other purposes.
  *
  */
@@ -2616,10 +2643,11 @@ static inline void cnstr_shdsc_pdcp_u_plane_decap(uint32_t *descbuf,
 
 /**
  * @details                   Function for creating a PDCP Short MAC descriptor.
+ * @ingroup                   sharedesc_group
  *
- * @param [in/out] descbuf    Pointer to buffer for descriptor construction.
+ * @param [in,out] descbuf    Pointer to buffer for descriptor construction.
  *
- * @param [in/out] bufsize    Size of descriptor written. Once the function
+ * @param [in,out] bufsize    Size of descriptor written. Once the function
  *                            returns, the value of this parameter can be used
  *                            for reclaiming the space that wasn't used for the
  *                            descriptor.
@@ -2635,9 +2663,9 @@ static inline void cnstr_shdsc_pdcp_u_plane_decap(uint32_t *descbuf,
  *                                      desired for this descriptor.
  *                                      @note Can only be used for SEC ERA 2
  *
- * @note: @descbuf must be large enough to contain a full 256 byte long
+ * @note  @b descbuf must be large enough to contain a full 256 byte long
  *        descriptor; after the function returns, by substracting the actual
- *        number of bytes used (using @bufsize), the user can reuse the
+ *        number of bytes used (using @b bufsize), the user can reuse the
  *        remaining buffer space for other purposes.
  *
  */
@@ -2827,7 +2855,5 @@ static inline void cnstr_shdsc_pdcp_short_mac(uint32_t *descbuf,
 
 	*bufsize = PROGRAM_FINALIZE();
 }
-
-/** @} end of sharedesc_group */
 
 #endif /* __RTA_PROTOSHARED_H__ */

@@ -28,8 +28,8 @@
  *
  * @defgroup program_group Descriptor Buffer Management Routines
  * @ingroup rta_api_group
- * Contains details of RTA descriptor buffer management routines
- * and of routines for SEC Era management.
+ * Contains details of RTA descriptor buffer management and SEC Era
+ * management routines.
  *
  * @defgroup cmd_group CAAM Commands Routines
  * @ingroup rta_api_group

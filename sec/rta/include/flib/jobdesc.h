@@ -9,7 +9,8 @@
  */
 
 /**
- * @defgroup jobdesc_group Job Descriptor routines
+ * @defgroup jobdesc_group Job Descriptor Example Routines
+ * @ingroup descriptor_lib_group
  * @{
  */
 

@@ -36,41 +36,66 @@ struct macsec_decap_pdb {
 	/* end DECO writeback region */
 };
 
-/**
+/*
  * IEEE 802.16 WiMAX Protocol Data Block
+ */
+/** @addtogroup defines_group
+ *  @{
  */
 #define WIMAX_PDBOPTS_FCS       0x01    /**< Options Byte with FCS enabled */
 #define WIMAX_PDBOPTS_AR        0x40    /**< Options Byte with AR enabled */
-#define WIMAX_PDB_B0            0x19    /**< Initial Block B0 Flags */
-#define WIMAX_PDB_CTR           0x01    /**< Counter Block Flags */
+/** @}*/
+#define WIMAX_PDB_B0            0x19    /* Initial Block B0 Flags */
+#define WIMAX_PDB_CTR           0x01    /* Counter Block Flags */
 
 struct wimax_encap_pdb {
-	uint8_t rsvd[3];                /**< Reserved Bits */
-	uint8_t options;                /**< Options Byte */
-	uint32_t nonce;                 /**< Nonce Constant */
-	uint8_t b0_flags;               /**< Initial Block B0 */
-	uint8_t ctr_flags;              /**< Counter Block Flags */
+	uint8_t rsvd[3];                /* Reserved Bits */
+	uint8_t options;                /* Options Byte */
+	uint32_t nonce;                 /* Nonce Constant */
+	uint8_t b0_flags;               /* Initial Block B0 */
+	uint8_t ctr_flags;              /* Counter Block Flags */
 	uint16_t ctr_init_count;
-	/** begin DECO writeback region */
-	uint32_t pn;                    /**< Packet Number */
-	/** end DECO writeback region */
+	/* begin DECO writeback region */
+	uint32_t pn;                    /* Packet Number */
+	/* end DECO writeback region */
 };
 
 struct wimax_decap_pdb {
-	uint8_t rsvd[3];                /**< Reserved Bits */
-	uint8_t options;                /**< Options Byte */
-	uint32_t nonce;                 /**< Nonce Constant */
-	uint8_t iv_flags;               /**< Initialization Vector Flags */
-	uint8_t ctr_flags;              /**< Counter Block Flags */
+	uint8_t rsvd[3];                /* Reserved Bits */
+	uint8_t options;                /* Options Byte */
+	uint32_t nonce;                 /* Nonce Constant */
+	uint8_t iv_flags;               /* Initialization Vector Flags */
+	uint8_t ctr_flags;              /* Counter Block Flags */
 	uint16_t ctr_init_count;
-	/** begin DECO writeback region */
-	uint32_t pn;                    /**< Packet Number */
-	uint8_t rsvd1[2];               /**< Reserved Bits */
+	/* begin DECO writeback region */
+	uint32_t pn;                    /* Packet Number */
+	uint8_t rsvd1[2];               /* Reserved Bits */
 	uint16_t antireplay_len;
 	uint32_t antireplay_scorecard_hi;
 	uint32_t antireplay_scorecard_lo;
 	/** end DECO writeback region */
 };
+
+/**
+ * @defgroup pdb_group SEC Protocol Data Block Data Structures
+ * @ingroup descriptor_lib_group
+ * @{
+ */
+/** @} end of pdb_group */
+
+/**
+ * @defgroup ipsec_encap_pdb ipsec_encap_pdb
+ * @ingroup pdb_group
+ * @{
+ */
+/** @} end of ipsec_encap_pdb */
+
+/**
+ * @defgroup ipsec_decap_pdb ipsec_decap_pdb
+ * @ingroup pdb_group
+ * @{
+ */
+/** @} end of ipsec_decap_pdb */
 
 /*
  * General IPSec encap/decap PDB definitions
@@ -78,14 +103,17 @@ struct wimax_decap_pdb {
 
 /**
  * @struct    ipsec_encap_cbc pdb.h
+ * @ingroup   ipsec_encap_pdb
  * @details   IV field for IPsec CBC encapsulation
  */
 struct ipsec_encap_cbc {
 	uint32_t iv[4];
 };
 
+
 /**
  * @struct    ipsec_encap_ctr pdb.h
+ * @ingroup   ipsec_encap_pdb
  * @details   Nonce and IV fields for IPsec CTR encapsulation
  */
 struct ipsec_encap_ctr {
@@ -96,6 +124,7 @@ struct ipsec_encap_ctr {
 
 /**
  * @struct    ipsec_encap_ccm pdb.h
+ * @ingroup   ipsec_encap_pdb
  * @details   Salt and IV fields for IPsec CCM encapsulation
  */
 struct ipsec_encap_ccm {
@@ -107,7 +136,8 @@ struct ipsec_encap_ccm {
 };
 
 /**
- * @struct    ipsec_encap_ccm pdb.h
+ * @struct    ipsec_encap_gcm pdb.h
+ * @ingroup   ipsec_encap_pdb
  * @details   Salt and IV fields for IPsec GCM encapsulation
  */
 struct ipsec_encap_gcm {
@@ -118,6 +148,7 @@ struct ipsec_encap_gcm {
 
 /**
  * @struct    ipsec_encap_pdb pdb.h
+ * @ingroup   ipsec_encap_pdb
  * @details   Container for encapsulation PDB
  */
 struct ipsec_encap_pdb {
@@ -141,6 +172,7 @@ struct ipsec_encap_pdb {
 
 /**
  * @struct    ipsec_decap_cbc pdb.h
+ * @ingroup   ipsec_decap_pdb
  * @details   Placeholder for reserved words
  */
 struct ipsec_decap_cbc {
@@ -149,6 +181,7 @@ struct ipsec_decap_cbc {
 
 /**
  * @struct    ipsec_decap_ctr pdb.h
+ * @ingroup   ipsec_decap_pdb
  * @details   Salt and counter fields for IPsec CTR decapsulation
  */
 struct ipsec_decap_ctr {
@@ -158,6 +191,7 @@ struct ipsec_decap_ctr {
 
 /**
  * @struct    ipsec_decap_ctr pdb.h
+ * @ingroup   ipsec_decap_pdb
  * @details   Salt, counter and flag fields for IPsec CCM decapsulation
  */
 struct ipsec_decap_ccm {
@@ -169,6 +203,7 @@ struct ipsec_decap_ccm {
 
 /**
  * @struct    ipsec_decap_gcm pdb.h
+ * @ingroup   ipsec_decap_pdb
  * @details   Salt field for IPsec GCM decapsulation
  */
 struct ipsec_decap_gcm {
@@ -178,6 +213,7 @@ struct ipsec_decap_gcm {
 
 /**
  * @struct    ipsec_decap_pdb pdb.h
+ * @ingroup   ipsec_decap_pdb
  * @details   Container for decapsulation PDB
  */
 struct ipsec_decap_pdb {
@@ -199,7 +235,6 @@ struct ipsec_decap_pdb {
 /*
  * PDCP Control Plane Protocol Data Blocks
  */
-
 #define PDCP_C_PLANE_PDB_HFN_SHIFT		5
 #define PDCP_C_PLANE_PDB_BEARER_SHIFT		27
 #define PDCP_C_PLANE_PDB_DIR_SHIFT		26
@@ -215,6 +250,7 @@ struct ipsec_decap_pdb {
 
 /**
  * @struct    pdcp_pdb pdb.h
+ * @ingroup   pdb_group
  * @details   Container for PDCP Control Plane and User Plane PDB
  */
 struct pdcp_pdb {
