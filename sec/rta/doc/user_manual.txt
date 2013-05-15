@@ -50,7 +50,7 @@ RTA creates the descriptors and saves them in buffers. It is the user's job
 to allocate memory for these buffers before passing them to RTA program
 initialization call.
 
-A RTA program should start with a call to PROGRAM_CNTXT_INIT and end with
+A RTA program must start with a call to PROGRAM_CNTXT_INIT and end with
 PROGRAM_FINALIZE.
 
 PROGRAM_CNTXT_INIT will initialze the members of 'program' structure with
@@ -58,7 +58,7 @@ user information (pointer to user's buffer, and the SEC subversion).
 The FINALIZE call verifies the descriptor's validity.
 
 The program length is limitted to the size of buffer descriptor which can be
-maximum 64 words (32 bit). However, a JUMP command can cause loading and
+maximum 64 words (256 bytes). However, a JUMP command can cause loading and
 execution of another Job Descriptor; this allows for much larger programs
 to be created.
 
@@ -69,21 +69,23 @@ The content of the package is split mainly in two components:
 - descriptor builder API (rta.h, desc.h)
 - ready to use RTA descriptors (protoshared.h)
 
-From the point of view of the building blocks we can identify:
+These are the main building blocks of descriptors:
 - buffer management: init & finalize
-- sec commands: move, load, fifo-load etc.
-- self referential code: for example routines that update JUMP destinations
+- SEC commands: MOVE, LOAD, FIFO_LOAD etc.
+- descriptor labels (e.g. used as JUMP destinations)
+- utility commands: (e.g. PATCH_* commands that update labels and references)
 
-In some cases, descriptor's fields can't be set on the spot. Such fields will be
-set with correct values by PATCH calls just before PROGRAM_FINALIZE.
-(This procedure can be seen as similar to what the linker does before executing
-a binary file.)
+In some cases, descriptor fields can't all be set when the commands are
+inserted. These fields must be updated in a similar fashion to what the
+linking process does with a binary file. RTA uses PATCH_* commands to get
+relevant information and PROGRAM_FINALIZE to complete the "code relocation".
 
-If there is a need for descriptors larger than 64 bytes, their function can be
-split into several smaller ones. In such a case the smaller descriptors are
-corelated and updated using the PATCH (non-local) command.
-However, these calls must appear after all the descriptors are finalized (not
-before as in a single descriptor case).
+If there is a need for descriptors larger than 64 words, their function can be
+split into several smaller ones. In such case the smaller descriptors are
+correlated and updated using PATCH_*_NON_LOCAL commands. These calls must
+appear after all the descriptors are finalized and not before as in a single
+descriptor case (the reason being that only then references to all descriptors
+are available).
 
 
 Example applications
