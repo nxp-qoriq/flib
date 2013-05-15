@@ -248,19 +248,18 @@ struct ipsec_decap_pdb {
 #define PDCP_U_PLANE_PDB_SHORT_SN_HFN_THR_SHIFT	7
 #define PDCP_U_PLANE_PDB_LONG_SN_HFN_THR_SHIFT	12
 
-/**
- * @struct    pdcp_pdb pdb.h
- * @ingroup   pdb_group
- * @details   Container for PDCP Control Plane and User Plane PDB
- */
 struct pdcp_pdb {
 	union {
 		uint32_t opt;
 		uint32_t rsvd;
 	}opt_res;
-	uint32_t hfn_res;
-	uint32_t bearer_dir_res;
-	uint32_t hfn_thr_res;
+	uint32_t hfn_res;	/* HyperFrame number,(27, 25 or 21 bits),
+				 * left aligned & right-padded with zeros. */
+	uint32_t bearer_dir_res;/* Bearer(5 bits), packet direction (1 bit),
+				 * left aligned & right-padded with zeros. */
+	uint32_t hfn_thr_res;	/* HyperFrame number threshold (27, 25 or 21
+				 * bits), left aligned & right-padded with
+				 * zeros. */
 };
 
 /*

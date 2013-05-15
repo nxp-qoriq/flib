@@ -103,7 +103,7 @@ struct alginfo {
 	uint32_t keylen;   /**< Length of the provided key, in bytes */
 };
 
-/*
+/**
  * @enum      cipher_type_pdcp protoshared.h
  * @details   Type selectors for cipher types in PDCP protocol OP instructions.
  */
@@ -115,7 +115,7 @@ enum cipher_type_pdcp {
 	PDCP_CIPHER_TYPE_INVALID
 };
 
-/*
+/**
  * @enum       auth_type_pdcp protoshared.h
  * @details    Type selectors for integrity types in PDCP protocol OP
  *             instructions.
@@ -128,7 +128,7 @@ enum auth_type_pdcp {
 	PDCP_AUTH_TYPE_INVALID
 };
 
-/*
+/**
  * @enum       pdcp_dir protoshared.h
  * @details    Type selectors for direction for PDCP protocol.
  */
@@ -137,8 +137,8 @@ enum pdcp_dir {
 	PDCP_DIR_DOWNLINK = 1
 };
 
-/*
- * @struct     pdcp_plane protoshared.h
+/**
+ * @enum     pdcp_plane protoshared.h
  * @details    PDCP domain selectors.
  */
 enum pdcp_plane {
@@ -146,8 +146,8 @@ enum pdcp_plane {
 	PDCP_DATA_PLANE
 };
 
-/*
- * @struct     pdcp_sn_size protoshared.h
+/**
+ * @enum     pdcp_sn_size protoshared.h
  * @details    Sequence Number length selectors for PDCP protocol
  */
 enum pdcp_sn_size {
