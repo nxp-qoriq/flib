@@ -700,12 +700,12 @@ void cnstr_shdsc_wimax_encap(uint32_t *descbuf, unsigned *bufsize,
 		MATHB(MATH0, OR, IMM(0x4000000000000000), MATH0, SIZE(8), 0);
 
 		/* Update Length field */
+		MOVE(DESCBUF, 0, MATH1, 0, IMM(8), WITH(0));
 		MATHB(MATH0, ADD, IMM(0x00000c0000000000), MATH0, SIZE(8), 0);
-		MOVE(DESCBUF, 1 * 4, MATH1, 0, IMM(4), WITH(WAITCOMP));
-		MATHB(MATH1, SUB, ONE, MATH1, SIZE(8), 0);
+		MATHB(MATH1, AND, ONE, NONE, SIZE(8), 0);
 
 		/* Update Length field if FCS bit is enabled */
-		pcrc8 = JUMP(IMM(crc8), LOCAL_JUMP, ALL_TRUE, WITH(MATH_N));
+		pcrc8 = JUMP(IMM(crc8), LOCAL_JUMP, ALL_TRUE, WITH(MATH_Z));
 		MATHB(MATH0, ADD, IMM(0x0000040000000000), MATH0, SIZE(8), 0);
 
 		/*
@@ -867,12 +867,12 @@ void cnstr_shdsc_wimax_decap(uint32_t *descbuf, unsigned *bufsize,
 		MATHB(MATH0, AND, IMM(0xbfffffffffffffff), MATH0, SIZE(8), 0);
 
 		/* Update Length field. */
+		MOVE(DESCBUF, 0, MATH1, 0, IMM(8), WITH(0));
 		MATHB(MATH0, SUB, IMM(0x00000c0000000000), MATH0, SIZE(8), 0);
-		MOVE(DESCBUF, 1 * 4, MATH1, 0, IMM(4), WITH(WAITCOMP));
-		MATHB(MATH1, SUB, ONE, MATH1, SIZE(8), 0);
+		MATHB(MATH1, AND, ONE, NONE, SIZE(8), 0);
 
 		/* Update Length field if FCS is enabled */
-		pcrc8 = JUMP(IMM(crc8), LOCAL_JUMP, ALL_TRUE, WITH(MATH_N));
+		pcrc8 = JUMP(IMM(crc8), LOCAL_JUMP, ALL_TRUE, WITH(MATH_Z));
 		MATHB(MATH0, SUB, IMM(0x0000040000000000), MATH0, SIZE(8), 0);
 
 		/*
