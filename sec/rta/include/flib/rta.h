@@ -31,7 +31,7 @@
  * Contains details of RTA descriptor buffer management and SEC Era
  * management routines.
  *
- * @defgroup cmd_group CAAM Commands Routines
+ * @defgroup cmd_group SEC Commands Routines
  * @ingroup rta_api_group
  * Contains details of RTA wrapper routines over SEC engine commands.
  *

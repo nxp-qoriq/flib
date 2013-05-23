@@ -5,7 +5,7 @@
 
 /**
  * @file                 protoshared.h
- * @brief                CAAM Descriptor Construction Library Protocol-level
+ * @brief                SEC Descriptor Construction Library Protocol-level
  *                       Shared Descriptor Constructors
  */
 
@@ -945,7 +945,7 @@ static inline int pdcp_insert_cplane_null_op(struct program *program,
 		 * command dynamically by writing the length from M1 by
 		 * OR-ing the command in the M1 register and MOVE the
 		 * result into the descriptor buffer. Care must be taken
-		 * wrt. the location of the command because of CAAM
+		 * wrt. the location of the command because of SEC
 		 * pipelining. The actual MOVEs are written at the end
 		 * of the descriptor due to calculations needed on the
 		 * offset in the descriptor for the MOVE command.
@@ -1019,7 +1019,7 @@ static inline int pdcp_insert_uplane_null_op(struct program *program,
 		 * command dynamically by writing the length from M1 by
 		 * OR-ing the command in the M1 register and MOVE the
 		 * result into the descriptor buffer. Care must be taken
-		 * wrt. the location of the command because of CAAM
+		 * wrt. the location of the command because of SEC
 		 * pipelining. The actual MOVEs are written at the end
 		 * of the descriptor due to calculations needed on the
 		 * offset in the descriptor for the MOVE command.
@@ -1128,7 +1128,7 @@ static inline int pdcp_insert_cplane_int_only_op(struct program *program,
 			 * command dynamically by writing the length from M1 by
 			 * OR-ing the command in the M1 register and MOVE the
 			 * result into the descriptor buffer. Care must be taken
-			 * wrt. the location of the command because of CAAM
+			 * wrt. the location of the command because of SEC
 			 * pipelining. The actual MOVEs are written at the end
 			 * of the descriptor due to calculations needed on the
 			 * offset in the descriptor for the MOVE command.
@@ -1222,7 +1222,7 @@ static inline int pdcp_insert_cplane_int_only_op(struct program *program,
 			 * command dynamically by writing the length from M1 by
 			 * OR-ing the command in the M1 register and MOVE the
 			 * result into the descriptor buffer. Care must be taken
-			 * wrt. the location of the command because of CAAM
+			 * wrt. the location of the command because of SEC
 			 * pipelining. The actual MOVEs are written at the end
 			 * of the descriptor due to calculations needed on the
 			 * offset in the descriptor for the MOVE command.
@@ -2084,7 +2084,7 @@ static inline enum pdb_type_e cnstr_pdcp_c_plane_pdb(struct program *program,
  * @param [in] direction      The direction of the PDCP frame (UL/DL).
  *
  * @param [in] hfn_threshold  HFN value that once reached triggers a warning
- *                            from CAAM that keys should be renegociated at the
+ *                            from SEC that keys should be renegociated at the
  *                            earliest convenience.
  *
  * @param [in] cipherdata     Pointer to block cipher transform definitions.
@@ -2237,7 +2237,7 @@ static inline void cnstr_shdsc_pdcp_c_plane_encap(uint32_t *descbuf,
  * @param [in] direction      The direction of the PDCP frame (UL/DL).
  *
  * @param [in] hfn_threshold  HFN value that once reached triggers a warning
- *                            from CAAM that keys should be renegociated at the
+ *                            from SEC that keys should be renegociated at the
  *                            earliest convenience.
  *
  * @param [in] cipherdata     Pointer to block cipher transform definitions.
@@ -2392,7 +2392,7 @@ static inline void cnstr_shdsc_pdcp_c_plane_decap(uint32_t *descbuf,
  * @param [in] direction      The direction of the PDCP frame (UL/DL).
  *
  * @param [in] hfn_threshold  HFN value that once reached triggers a warning
- *                            from CAAM that keys should be renegociated at the
+ *                            from SEC that keys should be renegociated at the
  *                            earliest convenience.
  *
  * @param [in] cipherdata     Pointer to block cipher transform definitions.
@@ -2526,7 +2526,7 @@ static inline void cnstr_shdsc_pdcp_u_plane_encap(uint32_t *descbuf,
  * @param [in] direction      The direction of the PDCP frame (UL/DL).
  *
  * @param [in] hfn_threshold  HFN value that once reached triggers a warning
- *                            from CAAM that keys should be renegociated at the
+ *                            from SEC that keys should be renegociated at the
  *                            earliest convenience.
  *
  * @param [in] cipherdata     Pointer to block cipher transform definitions.
@@ -2696,7 +2696,7 @@ static inline void cnstr_shdsc_pdcp_short_mac(uint32_t *descbuf,
 		 * command dynamically by writing the length from M1 by
 		 * OR-ing the command in the M1 register and MOVE the
 		 * result into the descriptor buffer. Care must be taken
-		 * wrt. the location of the command because of CAAM
+		 * wrt. the location of the command because of SEC
 		 * pipelining. The actual MOVEs are written at the end
 		 * of the descriptor due to calculations needed on the
 		 * offset in the descriptor for the MOVE command.

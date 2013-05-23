@@ -58,7 +58,7 @@ int test_store_cmds(uint32_t *buff)
 	STORE(CONTEXT2, 0, PTR(ctx), 16, 0);
 	STORE(CONTEXT2, 8, PTR(foo), 4, 0);
 
-	/* DECO / CAAM registers */
+	/* DECO / SEC registers */
 	STORE(DJQCTRL, 0, PTR(foo), 8, 0);
 	/* DECO JQ Descriptor Address */
 	STORE(DJQDA, 0, PTR(foo), 8, 0);

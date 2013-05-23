@@ -1,10 +1,10 @@
 Runtime Assembler provides an easy and flexible runtime method for writing
-CAAM descriptors.
+SEC descriptors.
 
 1. What's supported
 ===================
 1.1 Initialization/verification code for descriptor buffer.
-1.2 Configuration/verification code for CAAM commands:
+1.2 Configuration/verification code for SEC commands:
        FIFOLOAD and SEQFIFOLOAD;
        FIFOSTORE and SEQFIFOSTORE;
        SHARED HEADER and JOB HEADER;
@@ -25,7 +25,7 @@ CAAM descriptors.
 
 2. What's not supported
 =======================
-2.1 Era verification for CAAM commands.
+2.1 Era verification for SEC commands.
 
 3. Integration
 ==============

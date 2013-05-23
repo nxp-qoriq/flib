@@ -5,7 +5,7 @@
 /*
   Example job to create DLC/DSA Domain Parameters for q=p
 
-  This runs on CAAM Era 2 or later (as long as there is a PKHA)
+  This runs on SEC Era 2 or later (as long as there is a PKHA)
 
   Algorithm is modeled after IEEE Std 1363-2000, A.16.1, except:
     -- A substitute method for q generation A.15.7

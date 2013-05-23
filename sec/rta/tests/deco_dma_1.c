@@ -23,7 +23,7 @@ int deco_dma(uint32_t *buff)
 
 	PROGRAM_CNTXT_INIT(buff, 0);
 	/*
-	 * Job to perform DMA on CAAM Era 2 (and later) platforms
+	 * Job to perform DMA on SEC Era 2 (and later) platforms
 	 * input/output/data_size configure the data to be moved.  move_size
 	 * is to set the 'chunk' size.  Up to a limit, this determines how
 	 * fast the movement will take place.  Beyond that limit, the

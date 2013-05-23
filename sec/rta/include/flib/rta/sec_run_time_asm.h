@@ -520,7 +520,7 @@ static inline void rta_program_cntxt_init(struct program *program,
 static inline unsigned rta_program_finalize(struct program *program)
 {
 	/* Descriptor is not allowed to go beyond 64 words size */
-	if (program->current_pc > 0x40)
+	if (program->current_pc > MAX_CAAM_DESCSIZE)
 		pr_debug("Descriptor Size exceeded max limit of 64 words\n");
 
 	/* Descriptor is erroneous */

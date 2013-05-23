@@ -1,13 +1,13 @@
 /*
- * CAAM descriptor composition header.
- * Definitions to support CAAM descriptor instruction generation
+ * SEC descriptor composition header.
+ * Definitions to support SEC descriptor instruction generation
  */
 
 #ifndef DESC_H
 #define DESC_H
 
 
-/* Max size of any CAAM descriptor in 32-bit words, inclusive of header */
+/* Max size of any SEC descriptor in 32-bit words, inclusive of header */
 #define MAX_CAAM_DESCSIZE	64
 
 /* Block size of any entity covered/uncovered with a KEK/TKEK */
