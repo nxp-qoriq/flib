@@ -75,7 +75,7 @@
 #define HDR_RSLS		0x02000000
 
 /*
- * Do Not Run - marks a descriptor inexecutable if there was
+ * Do Not Run - marks a descriptor not executable if there was
  * a preceding error somewhere
  */
 #define HDR_DNR			0x01000000
@@ -118,7 +118,7 @@
  */
 #define HDR_REVERSE		0x00000800
 
-/* Propogate DNR property to SharedDesc */
+/* Propagate DNR property to SharedDesc */
 #define HDR_PROP_DNR		0x00000800
 
 /* JobDesc/SharedDesc share property */
@@ -177,7 +177,7 @@
 
 /*
  * KDEST - Key Destination: 0 - class key register,
- * 1 - PKHA 'e', 2 - AFHA Sbox, 3 - MDHA split-key
+ * 1 - PKHA 'e', 2 - AFHA Sbox, 3 - MDHA split key
  */
 #define KEY_DEST_SHIFT		16
 #define KEY_DEST_MASK		(0x03 << KEY_DEST_SHIFT)
@@ -1359,7 +1359,7 @@
 #define OP_ALG_AAI_SHIFT	4
 #define OP_ALG_AAI_MASK		(0x3ff << OP_ALG_AAI_SHIFT)
 
-/* blockcipher AAI set */
+/* block cipher AAI set */
 #define OP_ALG_AESA_MODE_MASK	(0xF0 << OP_ALG_AAI_SHIFT)
 #define OP_ALG_AAI_CTR		(0x00 << OP_ALG_AAI_SHIFT)
 #define OP_ALG_AAI_CTR_MOD128	(0x00 << OP_ALG_AAI_SHIFT)

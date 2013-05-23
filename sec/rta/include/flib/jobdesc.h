@@ -41,7 +41,7 @@ static inline void cnstr_jobdesc_mdsplitkey(uint32_t *descbuf,
 					    uint32_t cipher,
 					    uint64_t padbuf)
 {
-	/* key and split-key sizes in bytes */
+	/* key and split key sizes in bytes */
 	const uint8_t mdkeylen[][2] = {
 		{16, 32},   /* MD5 */
 		{20, 40},   /* SHA1 */

@@ -61,7 +61,7 @@ enum rta_sec_era {
  */
 #define USER_SEC_ERA(sec_era)	(sec_era + 1)
 
-/* Convinience macros */
+/* Convenience macros */
 #define WITH(x) (x)
 #define SIZE(x) (x)
 #define NO_OPT 0
@@ -527,7 +527,7 @@ static inline unsigned rta_program_finalize(struct program *program)
 	if (program->first_error_pc)
 		pr_debug("Descriptor creation error\n");
 
-	/* Update descriptor lenght in shared and job descriptor headers */
+	/* Update descriptor length in shared and job descriptor headers */
 	if (program->shrhdr != NULL)
 		*program->shrhdr |= program->current_pc;
 

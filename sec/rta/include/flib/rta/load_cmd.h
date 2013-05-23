@@ -37,7 +37,7 @@ enum e_lenoff {
 	LENOF_8,
 	LENOF_128,
 	LENOF_256,
-	DSNM /* it doesn't matter the lenght/offset values */
+	DSNM /* it doesn't matter the length/offset values */
 };
 
 struct load_map {

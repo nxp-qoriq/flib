@@ -50,7 +50,7 @@ static inline unsigned rta_seq_in_ptr(struct program *program, uint64_t src,
 	program->current_pc++;
 	program->current_instruction++;
 
-	/* write pointer or immidiate data field */
+	/* write pointer or immediate data field */
 	if (!(opcode & (SQIN_PRE | SQIN_RTO))) {
 		if (program->ps == 1) {
 			program->buffer[program->current_pc] = high_32b(src);
@@ -109,7 +109,7 @@ static inline unsigned rta_seq_out_ptr(struct program *program, uint64_t dst,
 	program->current_pc++;
 	program->current_instruction++;
 
-	/* write pointer or immidiate data field */
+	/* write pointer or immediate data field */
 	if (!(opcode & (SQOUT_PRE | SQOUT_RTO))) {
 		if (program->ps == 1) {
 			program->buffer[program->current_pc] = high_32b(dst);

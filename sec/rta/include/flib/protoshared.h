@@ -169,7 +169,7 @@ enum pdcp_sn_size {
  *
  * @param [in,out] descbuf   Pointer to descriptor-under-construction buffer.
  * @param [in,out] bufsize   Points to size to be updated at completion.
- * @param [in] cipherdata    Pointer to blockcipher transform definitions.
+ * @param [in] cipherdata    Pointer to block cipher transform definitions.
  * @param [in] dir           Cipher direction (DIR_ENCRYPT/DIR_DECRYPT).
  * @param [in] count         UEA2 count value (32 bits).
  * @param [in] bearer        UEA2 bearer ID (5 bits).
@@ -245,12 +245,12 @@ static inline void cnstr_shdsc_snow_f9(uint32_t *descbuf, unsigned *bufsize,
 }
 
 /**
- * @details                 CBC blockcipher
+ * @details                 CBC block cipher
  * @ingroup                 sharedesc_group
  *
  * @param[in,out] descbuf   Pointer to descriptor-under-construction buffer.
  * @param[in,out] bufsize   Limit/returned descriptor buffer size.
- * @param[in] cipherdata    Pointer to blockcipher transform definitions.
+ * @param[in] cipherdata    Pointer to block cipher transform definitions.
  * @param[in] iv            IV data.
  * @param[in] ivlen         IV length.
  * @param[in] dir           DIR_ENCRYPT/DIR_DECRYPT.
@@ -344,13 +344,13 @@ static inline void cnstr_shdsc_hmac(uint32_t *descbuf, unsigned *bufsize,
 }
 
 /**
- * @details                 KASUMI F8 (Confidentialy) as a shared descriptor
+ * @details                 KASUMI F8 (Confidentiality) as a shared descriptor
  *                          (ETSI "Document 1: f8 and f9 specification").
  * @ingroup                 sharedesc_group
  *
  * @param[in,out] descbuf   Pointer to descriptor-under-construction buffer.
  * @param[in,out] bufsize   Points to size to be updated at completion.
- * @param[in] cipherdata    Pointer to blockcipher transform definitions.
+ * @param[in] cipherdata    Pointer to block cipher transform definitions.
  * @param[in] dir           Cipher direction (DIR_ENCRYPT/DIR_DECRYPT).
  * @param[in] count         Count value (32 bits).
  * @param[in] bearer        Bearer ID (5 bits).
@@ -458,7 +458,7 @@ static inline void cnstr_shdsc_crc(uint32_t *descbuf, unsigned *bufsize)
  *
  * @param[in,out] descbuf   Pointer to descriptor-under-construction buffer.
  * @param[in,out] bufsize   Points to size to be updated at completion.
- * @param[in] cipherdata    Pointer to blockcipher transform definitions.
+ * @param[in] cipherdata    Pointer to block cipher transform definitions.
  * @param[in] sci           PDB Secure Channel Identifier.
  * @param[in] ethertype     PDB EtherType.
  * @param[in] tci_an        TAG Control Information and Association Number
@@ -510,7 +510,7 @@ static inline void cnstr_shdsc_macsec_encap(uint32_t *descbuf,
  *
  * @param[in,out] descbuf   Pointer to descriptor-under-construction buffer.
  * @param[in,out] bufsize   Points to size to be updated at completion.
- * @param[in] cipherdata    Pointer to blockcipher transform definitions.
+ * @param[in] cipherdata    Pointer to block cipher transform definitions.
  * @param[in] sci           PDB Secure Channel Identifier.
  * @param[in] pn            PDB Packet Number.
  **/
@@ -552,7 +552,7 @@ static inline void cnstr_shdsc_macsec_decap(uint32_t *descbuf,
 
 /**
  * @details  IPSec ESP encapsulation protocol-level shared descriptor.
- *           Requires an MDHA splitkey.
+ *           Requires an MDHA split key.
  * @ingroup sharedesc_group
  *
  * @param[in,out] descbuf    Pointer to buffer used for descriptor construction
@@ -564,7 +564,7 @@ static inline void cnstr_shdsc_macsec_decap(uint32_t *descbuf,
  *      block guide for a details of the encapsulation PDB.
  * @param[in] ip_hdr      Optional header to be prepended to an encapsulated
  *      frame. Size of the optional header is defined in pdb.ip_hdr_len.
- * @param[in] cipherdata  Pointer to blockcipher transform definitions. Valid
+ * @param[in] cipherdata  Pointer to block cipher transform definitions. Valid
  *      algorithm values: one of OP_PCL_IPSEC_*
  * @param[in] authdata    Pointer to authentication transform definitions. Note
  *      that since a split key is to be used, the size of the split key itself
@@ -605,7 +605,7 @@ static inline void cnstr_shdsc_ipsec_encap(uint32_t *descbuf,
 
 /**
  * @details IPSec ESP decapsulation protocol-level sharedesc
- *          Requires an MDHA splitkey.
+ *          Requires an MDHA split key.
  * @ingroup sharedesc_group
  *
  * @param[in,out] descbuf    Pointer to buffer used for descriptor construction
@@ -615,7 +615,7 @@ static inline void cnstr_shdsc_ipsec_encap(uint32_t *descbuf,
  *      This structure will be copied inline to the descriptor under
  *      construction. No error checking will be made. Refer to the
  *      block guide for details about the decapsulation PDB.
- * @param[in] cipherdata  Pointer to blockcipher transform definitions. Valid
+ * @param[in] cipherdata  Pointer to block cipher transform definitions. Valid
  *      algorithm values: one of OP_PCL_IPSEC_*
  * @param[in] authdata    Pointer to authentication transform definitions. Note
  *      that since a split key is to be used, the size of the split key itself
@@ -662,7 +662,7 @@ static inline void cnstr_shdsc_ipsec_decap(uint32_t *descbuf,
  * @param[in,out] bufsize   Points to size to be updated at completion.
  * @param[in] pdb_opts      PDB Options Byte.
  * @param[in] pn            PDB Packet Number.
- * @param[in] cipherdata    Pointer to blockcipher transform definitions.
+ * @param[in] cipherdata    Pointer to block cipher transform definitions.
  * @param[in] protinfo      Protocol information: OP_PCL_WIMAX_OFDM/OFDMA.
  */
 void cnstr_shdsc_wimax_encap(uint32_t *descbuf, unsigned *bufsize,
@@ -731,7 +731,7 @@ void cnstr_shdsc_wimax_encap(uint32_t *descbuf, unsigned *bufsize,
 		 *        Input Length in MATH1, MATH2, MATH3 registers.
 		 *     2. Transform SEQINPTR in SEQOUTPTR.
 		 *     3. Load in MATH3 a local conditional JUMP with offset
-		 *        targetting the SEQSTORE command.
+		 *        targeting the SEQSTORE command.
 		 *     4. Copy MATH1, MATH2, MATH3 contents at the first word
 		 *        after PDB offset.
 		 *     5. JUMP to SEQOUTPTR offset, run SEQOUTPTR,
@@ -755,7 +755,7 @@ void cnstr_shdsc_wimax_encap(uint32_t *descbuf, unsigned *bufsize,
 		 *        Output Pointer and Output Length in MATH0, MATH1,
 		 *        MATH2 registers.
 		 *     2. Load in MATH2 a local conditional JUMP with offset
-		 *        targetting the KEY command.
+		 *        targeting the KEY command.
 		 *     3. Copy MATH0, MATH1, MATH2 contents at the first word
 		 *        after PDB offset.
 		 *     4. JUMP to SEQOUTPTR offset, run SEQOUTPTR,
@@ -797,7 +797,7 @@ void cnstr_shdsc_wimax_encap(uint32_t *descbuf, unsigned *bufsize,
  * @param[in,out] bufsize   Points to size to be updated at completion.
  * @param[in] pdb_opts      PDB Options Byte.
  * @param[in] pn            PDB Packet Number.
- * @param[in] cipherdata    Pointer to blockcipher transform definitions.
+ * @param[in] cipherdata    Pointer to block cipher transform definitions.
  * @param[in] protinfo      Protocol information: OP_PCL_WIMAX_OFDM/OFDMA.
  */
 void cnstr_shdsc_wimax_decap(uint32_t *descbuf, unsigned *bufsize,
@@ -846,7 +846,7 @@ void cnstr_shdsc_wimax_decap(uint32_t *descbuf, unsigned *bufsize,
 		 *        registers.
 		 *     2. Transform SEQOUTPTR in SEQINPTR.
 		 *     3. Load in MATH2 a local conditional JUMP with offset
-		 *        targetting the SEQLOAD command.
+		 *        targeting the SEQLOAD command.
 		 *     4. Copy MATH0, MATH1, MATH2 contents at the first word
 		 *        after PDB offset.
 		 *     5. JUMP to SEQINPTR offset, run SEQINPTR,
@@ -2094,7 +2094,7 @@ static inline enum pdb_type_e cnstr_pdcp_c_plane_pdb(struct program *program,
  *                            from CAAM that keys should be renegociated at the
  *                            earliest convenience.
  *
- * @param [in] cipherdata     Pointer to blockcipher transform definitions.
+ * @param [in] cipherdata     Pointer to block cipher transform definitions.
  *                            Valid algorithm values are those from
  *                            cipher_type_pdcp enum.
  *
@@ -2107,7 +2107,7 @@ static inline enum pdb_type_e cnstr_pdcp_c_plane_pdb(struct program *program,
  *                                      @note Can only be used for SEC ERA 2
  *
  * @note  @b descbuf must be large enough to contain a full 256 byte long
- *        descriptor; after the function returns, by substracting the actual
+ *        descriptor; after the function returns, by subtracting the actual
  *        number of bytes used (using @b bufsize), the user can reuse the
  *        remaining buffer space for other purposes.
  *
@@ -2247,7 +2247,7 @@ static inline void cnstr_shdsc_pdcp_c_plane_encap(uint32_t *descbuf,
  *                            from CAAM that keys should be renegociated at the
  *                            earliest convenience.
  *
- * @param [in] cipherdata     Pointer to blockcipher transform definitions.
+ * @param [in] cipherdata     Pointer to block cipher transform definitions.
  *                            Valid algorithm values are those from
  *                            cipher_type_pdcp enum.
  *
@@ -2260,7 +2260,7 @@ static inline void cnstr_shdsc_pdcp_c_plane_encap(uint32_t *descbuf,
  *                                      @note Can only be used for SEC ERA 2
  *
  * @note  @b descbuf must be large enough to contain a full 256 byte long
- *        descriptor; after the function returns, by substracting the actual
+ *        descriptor; after the function returns, by subtracting the actual
  *        number of bytes used (using @b bufsize), the user can reuse the
  *        remaining buffer space for other purposes.
  *
@@ -2402,7 +2402,7 @@ static inline void cnstr_shdsc_pdcp_c_plane_decap(uint32_t *descbuf,
  *                            from CAAM that keys should be renegociated at the
  *                            earliest convenience.
  *
- * @param [in] cipherdata     Pointer to blockcipher transform definitions.
+ * @param [in] cipherdata     Pointer to block cipher transform definitions.
  *                            Valid algorithm values are those from
  *                            cipher_type_pdcp enum.
  *
@@ -2411,7 +2411,7 @@ static inline void cnstr_shdsc_pdcp_c_plane_decap(uint32_t *descbuf,
  *                                      @note Can only be used for SEC ERA 2
  *
  * @note  @b descbuf must be large enough to contain a full 256 byte long
- *        descriptor; after the function returns, by substracting the actual
+ *        descriptor; after the function returns, by subtracting the actual
  *        number of bytes used (using @b bufsize), the user can reuse the
  *        remaining buffer space for other purposes.
  *
@@ -2536,7 +2536,7 @@ static inline void cnstr_shdsc_pdcp_u_plane_encap(uint32_t *descbuf,
  *                            from CAAM that keys should be renegociated at the
  *                            earliest convenience.
  *
- * @param [in] cipherdata     Pointer to blockcipher transform definitions.
+ * @param [in] cipherdata     Pointer to block cipher transform definitions.
  *                            Valid algorithm values are those from
  *                            cipher_type_pdcp enum.
  *
@@ -2545,7 +2545,7 @@ static inline void cnstr_shdsc_pdcp_u_plane_encap(uint32_t *descbuf,
  *                                      @note Can only be used for SEC ERA 2
  *
  * @note  @b descbuf must be large enough to contain a full 256 byte long
- *        descriptor; after the function returns, by substracting the actual
+ *        descriptor; after the function returns, by subtracting the actual
  *        number of bytes used (using @b bufsize), the user can reuse the
  *        remaining buffer space for other purposes.
  *
@@ -2664,7 +2664,7 @@ static inline void cnstr_shdsc_pdcp_u_plane_decap(uint32_t *descbuf,
  *                                      @note Can only be used for SEC ERA 2
  *
  * @note  @b descbuf must be large enough to contain a full 256 byte long
- *        descriptor; after the function returns, by substracting the actual
+ *        descriptor; after the function returns, by subtracting the actual
  *        number of bytes used (using @b bufsize), the user can reuse the
  *        remaining buffer space for other purposes.
  *
