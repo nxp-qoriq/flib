@@ -43,7 +43,6 @@ int jump_cmd_desc1(struct program *prg, uint32_t *buff, int buffpos)
 	struct program *program = prg;
 	int size;
 
-	LABEL(share1end);
 	REFERENCE(pjump1);
 	REFERENCE(pjump2);
 	REFERENCE(phdr1);
@@ -78,8 +77,6 @@ int jump_cmd_desc1(struct program *prg, uint32_t *buff, int buffpos)
 		ref1_shr_fff = SHR_HDR(SHR_NEVER, fff, 0);
 		ref1_shr_ggg = SHR_HDR(SHR_NEVER, ggg, 0);
 		ref1_shr_zzz = SHR_HDR(SHR_NEVER, zzz, 0);
-
-		SET_LABEL(share1end);
 	}
 
 	PATCH_JUMP(pjump1, aaa);

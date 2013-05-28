@@ -15,11 +15,8 @@ int test_perf(uint32_t *buff)
 	LABEL(test1);
 	LABEL(test2);
 	LABEL(encap_iv);
-	LABEL(previous_iv);
-	LABEL(new_IV_OK);
 	LABEL(seqoutptr);
 	LABEL(new_seqinptr);
-	LABEL(skip_keyloading);
 
 	{
 		SHR_HDR(SHR_ALWAYS, 0, 0);
@@ -64,15 +61,12 @@ int test_perf(uint32_t *buff)
 		MATHU(MATH2, BSWAP, MATH3, 2, WITH(NFU));
 
 		SET_LABEL(encap_iv);
-		/* Location of the extra, custom part of PDB */
-		previous_iv = 16;
 		/* All of the IV, both next and previous */
 		ENDIAN_DATA(((uint8_t[]) { 00, 00}), 2);
 
 		MOVE(DESCBUF, seqoutptr, MATH0, 0, IMM(16), WITH(WAITCOMP));
 		MATHB(MATH0, XOR, IMM(0x0840010000000000), MATH0, 8, 0);
 		MOVE(MATH0, 0, DESCBUF, new_seqinptr, IMM(8), 0);
-		SET_LABEL(skip_keyloading);
 		SET_LABEL(new_seqinptr);
 		WORD(0x0);
 		WORD(0x0);
@@ -80,10 +74,8 @@ int test_perf(uint32_t *buff)
 		SEQLOAD(MATH2, 0, 8, 0);
 		/* JUMP_COND(all[calm], ADD1); */
 		MATHB(MATH0, XOR, MATH2, NONE, 8, 0);
-		/* JUMP_COND(nall[z], new_IV_OK); */
 		MATHB(MATH1, XOR, MATH3, NONE, 8, 0);
 		/* HALT_COND(all[z], 255); */
-		SET_LABEL(new_IV_OK);
 		MOVE(MATH0, 0, DESCBUF, encap_iv, IMM(32), 0);
 		seqoutptr = 8;
 

@@ -45,7 +45,6 @@ int build_shr_desc_ppp_encap(struct program *prg, uint32_t *buff, int buffpos)
 	REFERENCE(pjumpp);
 	LABEL(r);
 	REFERENCE(pjumpr);
-	LABEL(endshare);
 	REFERENCE(pmoves);
 	REFERENCE(pjumps);
 
@@ -130,7 +129,6 @@ int build_shr_desc_ppp_encap(struct program *prg, uint32_t *buff, int buffpos)
 		pjump1 = SHR_HDR(SHR_NEVER, start, 0);
 		WORD(0);
 		WORD(0);
-		SET_LABEL(endshare);
 	}
 
 	PATCH_HDR(pjump1, start);

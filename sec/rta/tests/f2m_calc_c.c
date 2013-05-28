@@ -12,7 +12,6 @@ int f2m_calc_c_test(uint32_t *buff)
 
 	LABEL(bit_search_top);
 	REFERENCE(pjump1);
-	LABEL(shr_end);
 
 	PROGRAM_CNTXT_INIT(buff, 0);
 	SHR_HDR(SHR_NEVER, 0, 0);
@@ -79,8 +78,6 @@ int f2m_calc_c_test(uint32_t *buff)
 
 		MATHB(SEQOUTSZ, ADD, ZERO, VSEQOUTSZ, 4, 0);
 		SEQFIFOSTORE(PKB, 0, 0, WITH(VLF));
-
-		SET_LABEL(shr_end);
 	}
 	PATCH_JUMP(pjump1, bit_search_top);
 	size = PROGRAM_FINALIZE();
