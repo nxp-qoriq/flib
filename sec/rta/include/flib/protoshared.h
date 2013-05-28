@@ -693,8 +693,8 @@ void cnstr_shdsc_wimax_encap(uint32_t *descbuf, unsigned *bufsize,
 	{
 		ENDIAN_DATA((uint8_t *)&pdb, sizeof(struct wimax_encap_pdb));
 		SEQLOAD(MATH0, 0, 8, WITH(0));
-		SET_LABEL(seq_ptr);
 		JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, WITH(CALM));
+		SET_LABEL(seq_ptr);
 
 		/* Set Encryption Control bit */
 		MATHB(MATH0, OR, IMM(0x4000000000000000), MATH0, SIZE(8), 0);
@@ -731,18 +731,17 @@ void cnstr_shdsc_wimax_encap(uint32_t *descbuf, unsigned *bufsize,
 		 *        Input Length in MATH1, MATH2, MATH3 registers.
 		 *     2. Transform SEQINPTR in SEQOUTPTR.
 		 *     3. Load in MATH3 a local conditional JUMP with offset
-		 *        targeting the SEQSTORE command.
-		 *     4. Copy MATH1, MATH2, MATH3 contents at the first word
-		 *        after PDB offset.
-		 *     5. JUMP to SEQOUTPTR offset, run SEQOUTPTR,
-		 *        Input Pointer, Input Length and then JUMP
-		 *        to SEQSTORE.
+		 *        targetting the SEQSTORE command.
+		 *     4. Copy MATH1, MATH2, MATH3 contents
+		 *        at the first word before seq_ptr LABEL.
+		 *     5. JUMP to seq_ptr LABEL, run SEQOUTPTR, Input Pointer,
+		 *        Input Length and then JUMP to SEQSTORE.
 		 *     6. Save encapsulation Generic Mac Header.
 		 */
 		MOVE(DESCBUF, 55 * 4, MATH1, 0, IMM(20), WITH(WAITCOMP));
 		MATHB(MATH1, OR, IMM(0x08000000), MATH1, SIZE(8), IFB);
-		LOAD(IMM(0xa0000017), MATH3, 4, 4, WITH(0));
-		MOVE(MATH1, 0, DESCBUF, 5 * 4, IMM(24), WITH(WAITCOMP));
+		LOAD(IMM(0xa0000016), MATH3, 4, 4, WITH(0));
+		MOVE(MATH1, 0, DESCBUF, 6 * 4, IMM(24), WITH(WAITCOMP));
 		pseq_in_ptr = JUMP(IMM(seq_ptr), LOCAL_JUMP, ALL_TRUE, WITH(0));
 		SEQSTORE(MATH0, 0, 8, WITH(0));
 
@@ -755,16 +754,15 @@ void cnstr_shdsc_wimax_encap(uint32_t *descbuf, unsigned *bufsize,
 		 *        Output Pointer and Output Length in MATH0, MATH1,
 		 *        MATH2 registers.
 		 *     2. Load in MATH2 a local conditional JUMP with offset
-		 *        targeting the KEY command.
-		 *     3. Copy MATH0, MATH1, MATH2 contents at the first word
-		 *        after PDB offset.
-		 *     4. JUMP to SEQOUTPTR offset, run SEQOUTPTR,
-		 *        Output Pointer, Output Length and then JUMP
-		 *        to KEY command.
+		 *        targetting the KEY command.
+		 *     3. Copy MATH0, MATH1, MATH2 contents
+		 *        at the first word before seq_ptr LABEL.
+		 *     4. JUMP to seq_ptr LABEL, run SEQOUTPTR, Output Pointer,
+		 *        Output Length and then JUMP to KEY command.
 		 */
 		MOVE(DESCBUF, 51 * 4, MATH0, 0, IMM(20), WITH(WAITCOMP));
-		LOAD(IMM(0xa000001f), MATH2, 4, 4, WITH(0));
-		MOVE(MATH0, 0, DESCBUF, 5 * 4, IMM(24), WITH(WAITCOMP));
+		LOAD(IMM(0xa000001e), MATH2, 4, 4, WITH(0));
+		MOVE(MATH0, 0, DESCBUF, 6 * 4, IMM(24), WITH(WAITCOMP));
 		pseq_out_ptr = JUMP(IMM(seq_ptr), LOCAL_JUMP, ALL_TRUE,
 				    WITH(0));
 
@@ -827,14 +825,10 @@ void cnstr_shdsc_wimax_decap(uint32_t *descbuf, unsigned *bufsize,
 	SHR_HDR(SHR_WAIT, ++startidx, WITH(0));
 	{
 		ENDIAN_DATA((uint8_t *)&pdb, sizeof(struct wimax_decap_pdb));
-		SET_LABEL(seq_ptr);
-
-		/* Label first word after KEY opcode */
-		seq_ptr++;
-
 		KEY(KEY1, 0, PTR(cipherdata->key), cipherdata->keylen,
 		    WITH(IMMED));
 		PROTOCOL(OP_TYPE_DECAP_PROTOCOL, OP_PCLID_WIMAX, protinfo);
+		SET_LABEL(seq_ptr);
 		SEQOUTPTR(0, 8, WITH(RTO));
 
 		/*
@@ -846,17 +840,16 @@ void cnstr_shdsc_wimax_decap(uint32_t *descbuf, unsigned *bufsize,
 		 *        registers.
 		 *     2. Transform SEQOUTPTR in SEQINPTR.
 		 *     3. Load in MATH2 a local conditional JUMP with offset
-		 *        targeting the SEQLOAD command.
-		 *     4. Copy MATH0, MATH1, MATH2 contents at the first word
-		 *        after PDB offset.
-		 *     5. JUMP to SEQINPTR offset, run SEQINPTR,
-		 *        Output Pointer, Output Length and then JUMP
-		 *        to SEQLOAD.
+		 *        targetting the SEQLOAD command.
+		 *     4. Copy MATH0, MATH1, MATH2 contents
+		 *        at the first word before seq_ptr LABEL.
+		 *     5. JUMP to seq_ptr LABEL, run SEQINPTR, Output Pointer,
+		 *        Output Length and then JUMP to SEQLOAD.
 		 */
 		MOVE(DESCBUF, 49 * 4, MATH0, 0, IMM(20), WITH(WAITCOMP));
 		MATHB(MATH0, AND, IMM(0xfffffffff7ffffff), MATH0, SIZE(8), 0);
-		LOAD(IMM(0xa000000a), MATH2, 4, 4, WITH(0));
-		MOVE(MATH0, 0, DESCBUF, 8 * 4, IMM(24), WITH(WAITCOMP));
+		LOAD(IMM(0xa0000005), MATH2, 4, 4, WITH(0));
+		MOVE(MATH0, 0, DESCBUF, 13 * 4, IMM(24), WITH(WAITCOMP));
 		pseq_out_ptr = JUMP(IMM(seq_ptr), LOCAL_JUMP, ALL_TRUE,
 				    WITH(0));
 
