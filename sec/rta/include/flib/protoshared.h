@@ -689,7 +689,7 @@ void cnstr_shdsc_wimax_encap(uint32_t *descbuf, unsigned *bufsize,
 	startidx = sizeof(struct wimax_encap_pdb) >> 2;
 
 	PROGRAM_CNTXT_INIT(descbuf, 0);
-	SHR_HDR(SHR_WAIT, ++startidx, WITH(0));
+	SHR_HDR(SHR_NEVER, ++startidx, WITH(0));
 	{
 		ENDIAN_DATA((uint8_t *)&pdb, sizeof(struct wimax_encap_pdb));
 		SEQLOAD(MATH0, 0, 8, WITH(0));
@@ -822,7 +822,7 @@ void cnstr_shdsc_wimax_decap(uint32_t *descbuf, unsigned *bufsize,
 	startidx = sizeof(struct wimax_decap_pdb) >> 2;
 
 	PROGRAM_CNTXT_INIT(descbuf, 0);
-	SHR_HDR(SHR_WAIT, ++startidx, WITH(0));
+	SHR_HDR(SHR_NEVER, ++startidx, WITH(0));
 	{
 		ENDIAN_DATA((uint8_t *)&pdb, sizeof(struct wimax_decap_pdb));
 		KEY(KEY1, 0, PTR(cipherdata->key), cipherdata->keylen,
