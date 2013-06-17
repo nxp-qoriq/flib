@@ -807,9 +807,10 @@ void cnstr_shdsc_wimax_decap(uint32_t *descbuf, unsigned *bufsize,
 	struct program *program = &prg;
 	uint32_t startidx;
 
-	LABEL(seq_ptr);
 	LABEL(crc8);
-	REFERENCE(pseq_out_ptr);
+	LABEL(gmh);
+	REFERENCE(load_gmh);
+	REFERENCE(move_gmh);
 	REFERENCE(pcrc8);
 
 	memset(&pdb, 0x00, sizeof(struct wimax_decap_pdb));
@@ -825,36 +826,15 @@ void cnstr_shdsc_wimax_decap(uint32_t *descbuf, unsigned *bufsize,
 	SHR_HDR(SHR_NEVER, ++startidx, WITH(0));
 	{
 		ENDIAN_DATA((uint8_t *)&pdb, sizeof(struct wimax_decap_pdb));
+		load_gmh = SEQLOAD(DESCBUF, 0, 8, WITH(0));
+		SEQINPTR(0, 8, WITH(RTO));
+
 		KEY(KEY1, 0, PTR(cipherdata->key), cipherdata->keylen,
 		    WITH(IMMED));
 		PROTOCOL(OP_TYPE_DECAP_PROTOCOL, OP_PCLID_WIMAX, protinfo);
-		SET_LABEL(seq_ptr);
+
 		SEQOUTPTR(0, 8, WITH(RTO));
-
-		/*
-		 * Make Input Sequence point to decapsulation Output Frame
-		 * in order to load and update Generic Mac Header.
-		 * SEC workflow is as follows:
-		 *     1. Copy Shared Descriptor Pointer, SEQOUTPTR,
-		 *        Output Pointer, Output Length in MATH0, MATH1, MATH2
-		 *        registers.
-		 *     2. Transform SEQOUTPTR in SEQINPTR.
-		 *     3. Load in MATH2 a local conditional JUMP with offset
-		 *        targetting the SEQLOAD command.
-		 *     4. Copy MATH0, MATH1, MATH2 contents
-		 *        at the first word before seq_ptr LABEL.
-		 *     5. JUMP to seq_ptr LABEL, run SEQINPTR, Output Pointer,
-		 *        Output Length and then JUMP to SEQLOAD.
-		 */
-		MOVE(DESCBUF, 49 * 4, MATH0, 0, IMM(20), WITH(WAITCOMP));
-		MATHB(MATH0, AND, IMM(0xfffffffff7ffffff), MATH0, SIZE(8), 0);
-		LOAD(IMM(0xa0000005), MATH2, 4, 4, WITH(0));
-		MOVE(MATH0, 0, DESCBUF, 13 * 4, IMM(24), WITH(WAITCOMP));
-		pseq_out_ptr = JUMP(IMM(seq_ptr), LOCAL_JUMP, ALL_TRUE,
-				    WITH(0));
-
-		SEQLOAD(MATH0, 0, 8, WITH(0));
-		JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, WITH(CALM));
+		move_gmh = MOVE(DESCBUF, 0, MATH0, 0, IMM(8), WITH(WAITCOMP));
 
 		/* Set Encryption Control bit. */
 		MATHB(MATH0, AND, IMM(0xbfffffffffffffff), MATH0, SIZE(8), 0);
@@ -894,10 +874,17 @@ void cnstr_shdsc_wimax_decap(uint32_t *descbuf, unsigned *bufsize,
 		MOVE(MATH1, 0, MATH0, 5, IMM(1), WITH(WAITCOMP));
 
 		/* Rewrite decapsulation Generic Mac Header. */
-		SEQSTORE(MATH0, 0, 8, WITH(0));
+		SEQSTORE(MATH0, 0, 6, WITH(0));
+/*
+ * TODO: RTA currently doesn't support adding labels in or after Job Descriptor.
+ * To be changed when proper support is added in RTA.
+ */
+		SET_LABEL(gmh);
+		gmh += 11;
 	}
-	PATCH_JUMP(pseq_out_ptr, seq_ptr);
 	PATCH_JUMP(pcrc8, crc8);
+	PATCH_LOAD(load_gmh, gmh);
+	PATCH_MOVE(move_gmh, gmh);
 	*bufsize = PROGRAM_FINALIZE();
 }
 
