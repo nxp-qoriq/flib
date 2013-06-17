@@ -22,6 +22,37 @@
  */
 
 /**
+ * @def CRC_8_ATM_POLY
+ * This CRC Polynomial is used for the GMH Header Check Sequence.
+ */
+#define CRC_8_ATM_POLY			0x07000000
+
+/**
+ * @def WIMAX_GMH_EC_MASK
+ * This mask is used in the WiMAX encapsulation/decapsulation descriptor
+ * for setting/clearing the Encryption Control bit from the Generic Mac Header.
+ */
+#define WIMAX_GMH_EC_MASK		0x4000000000000000ull
+
+/**
+ * @def WIMAX_ICV_LEN
+ * The length of the Integrity Check Value for WiMAX.
+ */
+#define WIMAX_ICV_LEN			0x0000000000000008ull
+
+/**
+ * @def WIMAX_FCS_LEN
+ * The length of the Frame Check Sequence for WiMAX.
+ */
+#define WIMAX_FCS_LEN			0x00000000000000004ull
+
+/**
+ * @def WIMAX_PN_LEN
+ * The length of the Packet Number for WiMAX.
+ */
+#define WIMAX_PN_LEN			0x0000000000000004ull
+
+/**
  * @def PDCP_NULL_MAX_FRAME_LEN
  * The maximum frame frame length that is supported by PDCP NULL protocol.
  */
@@ -672,13 +703,21 @@ void cnstr_shdsc_wimax_encap(uint32_t *descbuf, unsigned *bufsize,
 	struct wimax_encap_pdb pdb;
 	struct program prg;
 	struct program *program = &prg;
-	uint32_t startidx;
 
-	LABEL(seq_ptr);
 	LABEL(crc8);
-	REFERENCE(pseq_in_ptr);
-	REFERENCE(pseq_out_ptr);
+	LABEL(hdr);
+	LABEL(out_len);
+	LABEL(local_offset);
+	LABEL(sh_desc_ptr);
+	LABEL(swapped_seqout_ptr);
 	REFERENCE(pcrc8);
+	REFERENCE(phdr);
+	REFERENCE(move_seqin_ptr);
+	REFERENCE(move_seqout_ptr);
+	REFERENCE(seqout_ptr_jump1);
+	REFERENCE(seqout_ptr_jump2);
+	REFERENCE(write_seqout_ptr);
+	REFERENCE(write_swapped_seqout_ptr);
 
 	memset(&pdb, 0x00, sizeof(struct wimax_encap_pdb));
 	pdb.options = pdb_opts;
@@ -686,27 +725,34 @@ void cnstr_shdsc_wimax_encap(uint32_t *descbuf, unsigned *bufsize,
 	pdb.b0_flags = WIMAX_PDB_B0;
 	pdb.ctr_flags = WIMAX_PDB_CTR;
 
-	startidx = sizeof(struct wimax_encap_pdb) >> 2;
-
 	PROGRAM_CNTXT_INIT(descbuf, 0);
-	SHR_HDR(SHR_NEVER, ++startidx, WITH(0));
+	phdr = SHR_HDR(SHR_NEVER, hdr, WITH(0));
 	{
 		ENDIAN_DATA((uint8_t *)&pdb, sizeof(struct wimax_encap_pdb));
+		SET_LABEL(hdr);
 		SEQLOAD(MATH0, 0, 8, WITH(0));
+
+		SET_LABEL(local_offset);
 		JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, WITH(CALM));
-		SET_LABEL(seq_ptr);
+		SET_LABEL(swapped_seqout_ptr);
 
 		/* Set Encryption Control bit */
-		MATHB(MATH0, OR, IMM(0x4000000000000000), MATH0, SIZE(8), 0);
+		MATHB(MATH0, OR, IMM(WIMAX_GMH_EC_MASK), MATH0, SIZE(8), 0);
 
-		/* Update Length field */
+		/*
+		 * Update Generic Mac Header Length field.
+		 * The left shift is used in order to update the GMH LEN field
+		 * and nothing else.
+		 */
 		MOVE(DESCBUF, 0, MATH1, 0, IMM(8), WITH(0));
-		MATHB(MATH0, ADD, IMM(0x00000c0000000000), MATH0, SIZE(8), 0);
+		MATHB(MATH0, ADD, IMM((WIMAX_PN_LEN << 0x28) +
+				      (WIMAX_ICV_LEN << 0x28)),
+		      MATH0, SIZE(8), 0);
 		MATHB(MATH1, AND, ONE, NONE, SIZE(8), 0);
-
-		/* Update Length field if FCS bit is enabled */
+		/* Update GMH LEN field if FCS is enabled */
 		pcrc8 = JUMP(IMM(crc8), LOCAL_JUMP, ALL_TRUE, WITH(MATH_Z));
-		MATHB(MATH0, ADD, IMM(0x0000040000000000), MATH0, SIZE(8), 0);
+		MATHB(MATH0, ADD, IMM(WIMAX_FCS_LEN << 0x28), MATH0, SIZE(8),
+		      0);
 
 		/*
 		 * Compute the CRC-8-ATM value for the first five bytes
@@ -714,7 +760,7 @@ void cnstr_shdsc_wimax_encap(uint32_t *descbuf, unsigned *bufsize,
 		 * MATH0 byte field.
 		 */
 		SET_LABEL(crc8);
-		KEY(KEY2, 0, IMM(0x07000000), 2, WITH(IMMED));
+		KEY(KEY2, 0, IMM(CRC_8_ATM_POLY), 2, WITH(IMMED));
 		ALG_OPERATION(OP_ALG_ALGSEL_CRC,
 			      OP_ALG_AAI_CUST_POLY | OP_ALG_AAI_DIS,
 			      OP_ALG_AS_UPDATE, ICV_CHECK_DISABLE,
@@ -733,16 +779,25 @@ void cnstr_shdsc_wimax_encap(uint32_t *descbuf, unsigned *bufsize,
 		 *     3. Load in MATH3 a local conditional JUMP with offset
 		 *        targetting the SEQSTORE command.
 		 *     4. Copy MATH1, MATH2, MATH3 contents
-		 *        at the first word before seq_ptr LABEL.
-		 *     5. JUMP to seq_ptr LABEL, run SEQOUTPTR, Input Pointer,
-		 *        Input Length and then JUMP to SEQSTORE.
+		 *        to the word corresponding the local_offset LABEL.
+		 *     5. JUMP to the swapped_seqout_ptr LABEL, run SEQOUTPTR,
+		 *        Input Pointer, Input Length and then JUMP to SEQSTORE.
 		 *     6. Save encapsulation Generic Mac Header.
 		 */
-		MOVE(DESCBUF, 55 * 4, MATH1, 0, IMM(20), WITH(WAITCOMP));
-		MATHB(MATH1, OR, IMM(0x08000000), MATH1, SIZE(8), IFB);
+		move_seqin_ptr = MOVE(DESCBUF, 0, MATH1, 0, IMM(20),
+				      WITH(WAITCOMP));
+		MATHB(MATH1, OR, IMM(CMD_SEQ_IN_PTR ^ CMD_SEQ_OUT_PTR), MATH1,
+		      SIZE(8), IFB);
+/*
+ * TODO: RTA currently doesn't support creating a LOAD command
+ * with another command as IMM.
+ * To be changed when proper support is added in RTA.
+ */
 		LOAD(IMM(0xa0000016), MATH3, 4, 4, WITH(0));
-		MOVE(MATH1, 0, DESCBUF, 6 * 4, IMM(24), WITH(WAITCOMP));
-		pseq_in_ptr = JUMP(IMM(seq_ptr), LOCAL_JUMP, ALL_TRUE, WITH(0));
+		write_swapped_seqout_ptr = MOVE(MATH1, 0, DESCBUF, 0, IMM(24),
+						WITH(WAITCOMP));
+		seqout_ptr_jump1 = JUMP(IMM(swapped_seqout_ptr), LOCAL_JUMP,
+				       ALL_TRUE, WITH(0));
 		SEQSTORE(MATH0, 0, 8, WITH(0));
 
 		SEQINPTR(0, 8, WITH(RTO));
@@ -756,15 +811,23 @@ void cnstr_shdsc_wimax_encap(uint32_t *descbuf, unsigned *bufsize,
 		 *     2. Load in MATH2 a local conditional JUMP with offset
 		 *        targetting the KEY command.
 		 *     3. Copy MATH0, MATH1, MATH2 contents
-		 *        at the first word before seq_ptr LABEL.
-		 *     4. JUMP to seq_ptr LABEL, run SEQOUTPTR, Output Pointer,
-		 *        Output Length and then JUMP to KEY command.
+		 *        to the word corresponding the local_offset LABEL.
+		 *     4. JUMP to the swapped_seqout_ptr LABEL, run SEQOUTPTR,
+		 *        Output Pointer, Output Length and then JUMP to KEY
+		 *        command.
 		 */
-		MOVE(DESCBUF, 51 * 4, MATH0, 0, IMM(20), WITH(WAITCOMP));
+		move_seqout_ptr = MOVE(DESCBUF, 0, MATH0, 0, IMM(20),
+				       WITH(WAITCOMP));
+/*
+ * TODO: RTA currently doesn't support creating a LOAD command
+ * with another command as IMM.
+ * To be changed when proper support is added in RTA.
+ */
 		LOAD(IMM(0xa000001e), MATH2, 4, 4, WITH(0));
-		MOVE(MATH0, 0, DESCBUF, 6 * 4, IMM(24), WITH(WAITCOMP));
-		pseq_out_ptr = JUMP(IMM(seq_ptr), LOCAL_JUMP, ALL_TRUE,
-				    WITH(0));
+		write_seqout_ptr = MOVE(MATH0, 0, DESCBUF, 0, IMM(24),
+					WITH(WAITCOMP));
+		seqout_ptr_jump2 = JUMP(IMM(swapped_seqout_ptr), LOCAL_JUMP,
+					ALL_TRUE, WITH(0));
 
 		KEY(KEY1, 0, PTR(cipherdata->key), cipherdata->keylen,
 		    WITH(IMMED));
@@ -778,10 +841,23 @@ void cnstr_shdsc_wimax_encap(uint32_t *descbuf, unsigned *bufsize,
 			 CLRW_RESET_CLS1_CHA),
 		     CLRW, 0, 4, WITH(0));
 		PROTOCOL(OP_TYPE_ENCAP_PROTOCOL, OP_PCLID_WIMAX, protinfo);
+/*
+ * TODO: RTA currently doesn't support adding labels in or after Job Descriptor.
+ * To be changed when proper support is added in RTA.
+ */
+		SET_LABEL(sh_desc_ptr);
+		sh_desc_ptr += 2;
+		SET_LABEL(out_len);
+		out_len += 6;
 	}
+	PATCH_HDR(phdr, hdr);
 	PATCH_JUMP(pcrc8, crc8);
-	PATCH_JUMP(pseq_in_ptr, seq_ptr);
-	PATCH_JUMP(pseq_out_ptr, seq_ptr);
+	PATCH_JUMP(seqout_ptr_jump1, swapped_seqout_ptr);
+	PATCH_JUMP(seqout_ptr_jump2, swapped_seqout_ptr);
+	PATCH_MOVE(move_seqin_ptr, out_len);
+	PATCH_MOVE(move_seqout_ptr, sh_desc_ptr);
+	PATCH_MOVE(write_seqout_ptr, local_offset);
+	PATCH_MOVE(write_swapped_seqout_ptr, local_offset);
 	*bufsize = PROGRAM_FINALIZE();
 }
 
@@ -805,13 +881,14 @@ void cnstr_shdsc_wimax_decap(uint32_t *descbuf, unsigned *bufsize,
 	struct wimax_decap_pdb pdb;
 	struct program prg;
 	struct program *program = &prg;
-	uint32_t startidx;
 
 	LABEL(crc8);
 	LABEL(gmh);
+	LABEL(hdr);
 	REFERENCE(load_gmh);
 	REFERENCE(move_gmh);
 	REFERENCE(pcrc8);
+	REFERENCE(phdr);
 
 	memset(&pdb, 0x00, sizeof(struct wimax_decap_pdb));
 	pdb.options = pdb_opts;
@@ -820,12 +897,11 @@ void cnstr_shdsc_wimax_decap(uint32_t *descbuf, unsigned *bufsize,
 	pdb.iv_flags = WIMAX_PDB_B0;
 	pdb.ctr_flags = WIMAX_PDB_CTR;
 
-	startidx = sizeof(struct wimax_decap_pdb) >> 2;
-
 	PROGRAM_CNTXT_INIT(descbuf, 0);
-	SHR_HDR(SHR_NEVER, ++startidx, WITH(0));
+	phdr = SHR_HDR(SHR_NEVER, hdr, WITH(0));
 	{
 		ENDIAN_DATA((uint8_t *)&pdb, sizeof(struct wimax_decap_pdb));
+		SET_LABEL(hdr);
 		load_gmh = SEQLOAD(DESCBUF, 0, 8, WITH(0));
 		SEQINPTR(0, 8, WITH(RTO));
 
@@ -836,17 +912,23 @@ void cnstr_shdsc_wimax_decap(uint32_t *descbuf, unsigned *bufsize,
 		SEQOUTPTR(0, 8, WITH(RTO));
 		move_gmh = MOVE(DESCBUF, 0, MATH0, 0, IMM(8), WITH(WAITCOMP));
 
-		/* Set Encryption Control bit. */
-		MATHB(MATH0, AND, IMM(0xbfffffffffffffff), MATH0, SIZE(8), 0);
+		/* Clear Encryption Control bit. */
+		MATHB(MATH0, AND, IMM(~WIMAX_GMH_EC_MASK), MATH0, SIZE(8), 0);
 
-		/* Update Length field. */
+		/*
+		 * Update Generic Mac Header Length field.
+		 * The left shift is used in order to update the GMH LEN field
+		 * and nothing else.
+		 */
 		MOVE(DESCBUF, 0, MATH1, 0, IMM(8), WITH(0));
-		MATHB(MATH0, SUB, IMM(0x00000c0000000000), MATH0, SIZE(8), 0);
+		MATHB(MATH0, SUB, IMM((WIMAX_PN_LEN << 0x28) +
+				      (WIMAX_ICV_LEN << 0x28)),
+		      MATH0, SIZE(8), 0);
 		MATHB(MATH1, AND, ONE, NONE, SIZE(8), 0);
-
-		/* Update Length field if FCS is enabled */
+		/* Update GMH LEN field if FCS is enabled */
 		pcrc8 = JUMP(IMM(crc8), LOCAL_JUMP, ALL_TRUE, WITH(MATH_Z));
-		MATHB(MATH0, SUB, IMM(0x0000040000000000), MATH0, SIZE(8), 0);
+		MATHB(MATH0, SUB, IMM(WIMAX_FCS_LEN << 0x28), MATH0, SIZE(8),
+		      0);
 
 		/*
 		 * Compute the CRC-8-ATM value for the first five bytes
@@ -863,7 +945,7 @@ void cnstr_shdsc_wimax_decap(uint32_t *descbuf, unsigned *bufsize,
 			 CLRW_RESET_CLS2_CHA |
 			 CLRW_RESET_CLS1_CHA),
 		     CLRW, 0, 4, WITH(0));
-		KEY(KEY2, 0, IMM(0x07000000), 2, WITH(IMMED));
+		KEY(KEY2, 0, IMM(CRC_8_ATM_POLY), 2, WITH(IMMED));
 		ALG_OPERATION(OP_ALG_ALGSEL_CRC,
 			      OP_ALG_AAI_CUST_POLY | OP_ALG_AAI_DIS,
 			      OP_ALG_AS_UPDATE, ICV_CHECK_DISABLE,
@@ -882,6 +964,7 @@ void cnstr_shdsc_wimax_decap(uint32_t *descbuf, unsigned *bufsize,
 		SET_LABEL(gmh);
 		gmh += 11;
 	}
+	PATCH_HDR(phdr, hdr);
 	PATCH_JUMP(pcrc8, crc8);
 	PATCH_LOAD(load_gmh, gmh);
 	PATCH_MOVE(move_gmh, gmh);
