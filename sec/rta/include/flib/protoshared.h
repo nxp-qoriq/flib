@@ -1928,75 +1928,381 @@ static inline int pdcp_insert_cplane_aes_snow_op(struct program *program,
 
 	return 0;
 }
-/*
- * FIXME: Add support for SNOW encryption and ZUC integrity processing
- */
+
 static inline int pdcp_insert_cplane_snow_zuc_op(struct program *program,
 		struct alginfo *cipherdata,
 		struct alginfo *authdata,
 		unsigned dir,
 		unsigned char era_2_sw_hfn_override)
 {
+	LABEL(keyjump);
+	REFERENCE(pkeyjump);
+
 	if (rta_sec_era < RTA_SEC_ERA_5) {
 		pr_debug("Invalid era for selected algorithm\n");
 		return -1;
 	}
 
-	pr_debug("Not implemented");
-	return -1;
+	pkeyjump = JUMP(IMM(keyjump), LOCAL_JUMP, ALL_TRUE,
+			WITH(SHRD | SELF | BOTH));
+	KEY(KEY1, 0, PTR(cipherdata->key), cipherdata->keylen, WITH(0));
+	KEY(KEY2, 0, PTR(authdata->key), authdata->keylen, WITH(0));
+
+	SET_LABEL(keyjump);
+	SEQLOAD(MATH0, 7, 1, WITH(0));
+	JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, WITH(CALM));
+	MOVE(MATH0, 7, IFIFOAB2, 0, IMM(1), WITH(0));
+	MATHB(MATH0, AND, IMM(PDCP_SN_MASK), MATH1, SIZE(8), WITH(IFB));
+	MATHB(MATH1, SHLD, MATH1, MATH1, SIZE(8), WITH(0));
+	MOVE(DESCBUF, 4, MATH2, 0, IMM(8), WITH(WAITCOMP));
+	MATHB(MATH1, OR, MATH2, MATH2, SIZE(8), WITH(0));
+	MOVE(MATH2, 0, CONTEXT1, 0, IMM(8), WITH(0));
+	MOVE(MATH2, 0, CONTEXT2, 0, IMM(8), WITH(WAITCOMP));
+
+	if (dir == OP_TYPE_ENCAP_PROTOCOL)
+		MATHB(SEQINSZ, ADD, IMM(PDCP_MAC_I_LEN), VSEQOUTSZ, SIZE(4),
+		      WITH(0));
+	else
+		MATHB(SEQINSZ, SUB, IMM(PDCP_MAC_I_LEN), VSEQOUTSZ, SIZE(4),
+		      WITH(0));
+
+	MATHB(SEQINSZ, SUB, ZERO, VSEQINSZ, SIZE(4), WITH(0));
+	SEQSTORE(MATH0, 7, 1, WITH(0));
+
+	if (dir == OP_TYPE_ENCAP_PROTOCOL) {
+		SEQFIFOSTORE(MSG, 0, 0, WITH(VLF));
+		SEQFIFOLOAD(MSGINSNOOP, 0, WITH(VLF | LAST2));
+	} else {
+		SEQFIFOSTORE(MSG, 0, 0, WITH(VLF | CONT));
+		SEQFIFOLOAD(MSGOUTSNOOP, 0, WITH(VLF | LAST1 | FLUSH1));
+	}
+
+	ALG_OPERATION(OP_ALG_ALGSEL_ZUCA,
+		      OP_ALG_AAI_F9,
+		      OP_ALG_AS_INITFINAL,
+		      dir == OP_TYPE_ENCAP_PROTOCOL ?
+			     ICV_CHECK_DISABLE : ICV_CHECK_ENABLE,
+		      OP_ALG_ENCRYPT);
+
+	ALG_OPERATION(OP_ALG_ALGSEL_SNOW_F8,
+		      OP_ALG_AAI_F8,
+		      OP_ALG_AS_INITFINAL,
+		      ICV_CHECK_DISABLE,
+		      dir == OP_TYPE_ENCAP_PROTOCOL ?
+			     OP_ALG_ENCRYPT : OP_ALG_DECRYPT);
+	if (dir == OP_TYPE_ENCAP_PROTOCOL) {
+		MOVE(CONTEXT2, 0, IFIFOAB1, 0, IMM(4), WITH(LAST1 | FLUSH1));
+	} else {
+		/* Save ICV */
+		MOVE(OFIFO, 0, MATH0, 0, IMM(4), WITH(0));
+		LOAD(IMM(NFIFOENTRY_STYPE_ALTSOURCE |
+			 NFIFOENTRY_DEST_CLASS2 |
+			 NFIFOENTRY_DTYPE_ICV |
+			 NFIFOENTRY_LC2 | 4), NFIFO_SZL, 0, 4, WITH(0));
+		MOVE(MATH0, 0, ALTSOURCE, 0, IMM(4), WITH(WAITCOMP));
+	}
+
+	/* Reset ZUCA mode and done interrupt */
+	LOAD(IMM(CLRW_CLR_C2MODE), CLRW, 0, 4, WITH(0));
+/* TODO: Add ICTRL definitions */
+	LOAD(IMM(0x00001000), ICTRL, 0, 4, WITH(0));
+
+	PATCH_JUMP(pkeyjump, keyjump);
+	return 0;
 }
 
-/*
- * FIXME: Add support for AES encryption and ZUC integrity processing
- */
 static inline int pdcp_insert_cplane_aes_zuc_op(struct program *program,
 		struct alginfo *cipherdata,
 		struct alginfo *authdata,
 		unsigned dir,
 		unsigned char era_2_sw_hfn_override)
 {
+	LABEL(keyjump);
+	REFERENCE(pkeyjump);
+
 	if (rta_sec_era < RTA_SEC_ERA_5) {
 		pr_debug("Invalid era for selected algorithm\n");
 		return -1;
 	}
 
-	pr_debug("Not implemented");
-	return -1;
+	pkeyjump = JUMP(IMM(keyjump), LOCAL_JUMP, ALL_TRUE,
+			WITH(SHRD | SELF | BOTH));
+	KEY(KEY1, 0, PTR(cipherdata->key), cipherdata->keylen, WITH(0));
+	KEY(KEY2, 0, PTR(authdata->key), authdata->keylen, WITH(0));
+
+	SET_LABEL(keyjump);
+	SEQLOAD(MATH0, 7, 1, WITH(0));
+	JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, WITH(CALM));
+	MOVE(MATH0, 7, IFIFOAB2, 0, IMM(1), WITH(0));
+	MATHB(MATH0, AND, IMM(PDCP_SN_MASK), MATH1, SIZE(8), WITH(IFB));
+
+	MATHB(MATH1, SHLD, MATH1, MATH1, SIZE(8), WITH(0));
+	MOVE(DESCBUF, 4, MATH2, 0, IMM(8), WITH(WAITCOMP));
+	MATHB(MATH1, OR, MATH2, MATH2, SIZE(8), WITH(0));
+	MOVE(MATH2, 0, CONTEXT1, 16, IMM(8), WITH(0));
+	MOVE(MATH2, 0, CONTEXT2, 0, IMM(8), WITH(WAITCOMP));
+
+	if (dir == OP_TYPE_ENCAP_PROTOCOL)
+		MATHB(SEQINSZ, ADD, IMM(PDCP_MAC_I_LEN), VSEQOUTSZ, SIZE(4),
+		      WITH(0));
+	else
+		MATHB(SEQINSZ, SUB, IMM(PDCP_MAC_I_LEN), VSEQOUTSZ, SIZE(4),
+		      WITH(0));
+
+	MATHB(SEQINSZ, SUB, ZERO, VSEQINSZ, SIZE(4), WITH(0));
+	SEQSTORE(MATH0, 7, 1, WITH(0));
+
+	if (dir == OP_TYPE_ENCAP_PROTOCOL) {
+		SEQFIFOSTORE(MSG, 0, 0, WITH(VLF));
+		SEQFIFOLOAD(MSGINSNOOP, 0, WITH(VLF | LAST2));
+	} else {
+		SEQFIFOSTORE(MSG, 0, 0, WITH(VLF | CONT));
+		SEQFIFOLOAD(MSGOUTSNOOP, 0, WITH(VLF | LAST1 | FLUSH1));
+	}
+
+	ALG_OPERATION(OP_ALG_ALGSEL_ZUCA,
+		      OP_ALG_AAI_F9,
+		      OP_ALG_AS_INITFINAL,
+		      dir == OP_TYPE_ENCAP_PROTOCOL ?
+			     ICV_CHECK_DISABLE : ICV_CHECK_ENABLE,
+		      OP_ALG_ENCRYPT);
+
+	ALG_OPERATION(OP_ALG_ALGSEL_AES,
+		      OP_ALG_AAI_CTR,
+		      OP_ALG_AS_INITFINAL,
+		      ICV_CHECK_DISABLE,
+		      dir == OP_TYPE_ENCAP_PROTOCOL ?
+			     OP_ALG_ENCRYPT : OP_ALG_DECRYPT);
+
+	if (dir == OP_TYPE_ENCAP_PROTOCOL) {
+		MOVE(CONTEXT2, 0, IFIFOAB1, 0, IMM(4), WITH(LAST1 | FLUSH1));
+	} else {
+		/* Save ICV */
+		MOVE(OFIFO, 0, MATH0, 0, IMM(4), WITH(0));
+
+		LOAD(IMM(NFIFOENTRY_STYPE_ALTSOURCE |
+			 NFIFOENTRY_DEST_CLASS2 |
+			 NFIFOENTRY_DTYPE_ICV |
+			 NFIFOENTRY_LC2 | 4), NFIFO_SZL, 0, 4, WITH(0));
+		MOVE(MATH0, 0, ALTSOURCE, 0, IMM(4), WITH(WAITCOMP));
+	}
+
+	/* Reset ZUCA mode and done interrupt */
+	LOAD(IMM(CLRW_CLR_C2MODE), CLRW, 0, 4, WITH(0));
+/* TODO: Add ICTRL definitions */
+	LOAD(IMM(0x00001000), ICTRL, 0, 4, WITH(0));
+
+	PATCH_JUMP(pkeyjump, keyjump);
+
+	return 0;
 }
 
-/*
- * FIXME: Add support for ZUC encryption and SNOW integrity processing
- */
 static inline int pdcp_insert_cplane_zuc_snow_op(struct program *program,
 		struct alginfo *cipherdata,
 		struct alginfo *authdata,
 		unsigned dir,
 		unsigned char era_2_sw_hfn_override)
 {
+	LABEL(keyjump);
+	REFERENCE(pkeyjump);
+
 	if (rta_sec_era < RTA_SEC_ERA_5) {
 		pr_debug("Invalid era for selected algorithm\n");
 		return -1;
 	}
 
-	pr_debug("Not implemented");
-	return -1;
+	pkeyjump = JUMP(IMM(keyjump), LOCAL_JUMP, ALL_TRUE,
+				WITH(SHRD | SELF | BOTH));
+	KEY(KEY1, 0, PTR(cipherdata->key), cipherdata->keylen, WITH(0));
+	KEY(KEY2, 0, PTR(authdata->key), authdata->keylen, WITH(0));
+
+	SET_LABEL(keyjump);
+	SEQLOAD(MATH0, 7, 1, WITH(0));
+	JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, WITH(CALM));
+	MOVE(MATH0, 7, IFIFOAB2, 0, IMM(1), WITH(0));
+	MATHB(MATH0, AND, IMM(PDCP_SN_MASK), MATH1, SIZE(8), WITH(IFB));
+	MATHB(MATH1, SHLD, MATH1, MATH1, SIZE(8), WITH(0));
+	MOVE(DESCBUF, 4, MATH2, 0, IMM(8), WITH(WAITCOMP));
+	MATHB(MATH1, OR, MATH2, MATH1, SIZE(8), WITH(0));
+	MOVE(MATH1, 0, CONTEXT1, 0, IMM(8), WITH(0));
+	MOVE(MATH1, 0, CONTEXT2, 0, IMM(4), WITH(0));
+	MATHB(MATH1, AND, IMM(low_32b(PDCP_BEARER_MASK)), MATH2,
+	      SIZE(4), WITH(0));
+	MATHB(MATH1, AND, IMM(high_32b(PDCP_DIR_MASK)), MATH3, SIZE(4),
+	      WITH(0));
+	MATHB(MATH3, SHLD, MATH3, MATH3, SIZE(8), WITH(0));
+	MOVE(MATH2, 4, OFIFO, 0, IMM(12), WITH(0));
+	MOVE(OFIFO, 0, CONTEXT2, 4, IMM(12), WITH(0));
+
+	if (dir == OP_TYPE_ENCAP_PROTOCOL) {
+		MATHB(SEQINSZ, ADD, IMM(PDCP_MAC_I_LEN), VSEQOUTSZ, SIZE(4),
+		      WITH(0));
+		MATHB(SEQINSZ, SUB, ZERO, VSEQINSZ, SIZE(4), WITH(0));
+	} else {
+		MATHB(SEQINSZ, SUB, IMM(PDCP_MAC_I_LEN), VSEQOUTSZ, SIZE(4),
+		      WITH(0));
+		MATHB(VSEQOUTSZ, SUB, ZERO, VSEQINSZ, SIZE(4), WITH(0));
+	}
+
+	SEQSTORE(MATH0, 7, 1, WITH(0));
+
+	if (dir == OP_TYPE_ENCAP_PROTOCOL) {
+		SEQFIFOSTORE(MSG, 0, 0, WITH(VLF));
+		SEQFIFOLOAD(MSGINSNOOP, 0, WITH(VLF | LAST2));
+	} else {
+		SEQFIFOSTORE(MSG, 0, 0, WITH(VLF | CONT));
+		SEQFIFOLOAD(MSGOUTSNOOP, 0, WITH(VLF | LAST2));
+	}
+
+	ALG_OPERATION(OP_ALG_ALGSEL_SNOW_F9,
+		      OP_ALG_AAI_F9,
+		      OP_ALG_AS_INITFINAL,
+		      dir == OP_TYPE_ENCAP_PROTOCOL ?
+			     ICV_CHECK_DISABLE : ICV_CHECK_ENABLE,
+		      OP_ALG_DECRYPT);
+
+	ALG_OPERATION(OP_ALG_ALGSEL_ZUCE,
+		      OP_ALG_AAI_F8,
+		      OP_ALG_AS_INITFINAL,
+		      ICV_CHECK_DISABLE,
+		      dir == OP_TYPE_ENCAP_PROTOCOL ?
+			     OP_ALG_ENCRYPT : OP_ALG_DECRYPT);
+
+	if (dir == OP_TYPE_ENCAP_PROTOCOL) {
+		MOVE(CONTEXT2, 0, IFIFOAB1, 0, IMM(4), WITH(LAST1 | FLUSH1));
+	} else {
+		SEQFIFOLOAD(MSG1, 4, WITH(LAST1 | FLUSH1));
+
+		/* Save ICV */
+		MOVE(OFIFO, 0, MATH0, 0, IMM(4), WITH(WAITCOMP));
+
+		LOAD(IMM(NFIFOENTRY_STYPE_ALTSOURCE |
+			 NFIFOENTRY_DEST_CLASS2 |
+			 NFIFOENTRY_DTYPE_ICV |
+			 NFIFOENTRY_LC2 | 4), NFIFO_SZL, 0, 4, WITH(0));
+		MOVE(MATH0, 0, ALTSOURCE, 0, IMM(4), WITH(0));
+	}
+
+	PATCH_JUMP(pkeyjump, keyjump);
+	return 0;
 }
 
-/*
- * FIXME: Add support for ZUC encryption and AES integrity processing
- */
 static inline int pdcp_insert_cplane_zuc_aes_op(struct program *program,
 		struct alginfo *cipherdata,
 		struct alginfo *authdata,
 		unsigned dir,
 		unsigned char era_2_sw_hfn_override)
 {
-	if (rta_sec_era < RTA_SEC_ERA_5)
+	if (rta_sec_era < RTA_SEC_ERA_5) {
 		pr_debug("Invalid era for selected algorithm\n");
 		return -1;
-	pr_debug("Not implemented");
+	}
 
-	return -1;
+	SEQLOAD(MATH0, 7, 1, WITH(0));
+	JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, WITH(CALM));
+	MATHB(MATH0, AND, IMM(PDCP_SN_MASK), MATH1, SIZE(8), WITH(IFB));
+	MATHB(MATH1, SHLD, MATH1, MATH1, SIZE(8), WITH(0));
+	MOVE(DESCBUF, 4, MATH2, 0, IMM(0x08), WITH(WAITCOMP));
+	MATHB(MATH1, OR, MATH2, MATH2, SIZE(8), WITH(0));
+	SEQSTORE(MATH0, 7, 1, WITH(0));
+	if (dir == OP_TYPE_ENCAP_PROTOCOL) {
+		KEY(KEY1, 0, PTR(authdata->key), authdata->keylen, WITH(0));
+		MOVE(MATH2, 0, IFIFOAB1, 0, IMM(0x08), WITH(0));
+		MOVE(MATH0, 7, IFIFOAB1, 0, IMM(1), WITH(0));
+
+		MATHB(SEQINSZ, SUB, ZERO, VSEQINSZ, SIZE(4), WITH(0));
+		MATHB(VSEQINSZ, ADD, IMM(PDCP_MAC_I_LEN),
+		      VSEQOUTSZ, SIZE(4), 0);
+
+		ALG_OPERATION(OP_ALG_ALGSEL_AES,
+			      OP_ALG_AAI_CMAC,
+			      OP_ALG_AS_INITFINAL,
+			      ICV_CHECK_DISABLE,
+			      OP_ALG_DECRYPT);
+		SEQFIFOLOAD(MSG1, 0, WITH(VLF | LAST1 | FLUSH1));
+		MOVE(CONTEXT1, 0, MATH3, 0, IMM(4), WITH(WAITCOMP));
+		LOAD(IMM(CLRW_RESET_CLS1_CHA |
+			 CLRW_CLR_C1KEY |
+			 CLRW_CLR_C1CTX |
+			 CLRW_CLR_C1ICV |
+			 CLRW_CLR_C1DATAS |
+			 CLRW_CLR_C1MODE),
+		     CLRW, 0, 4, WITH(0));
+
+		KEY(KEY1, 0, PTR(cipherdata->key), cipherdata->keylen, WITH(0));
+
+		MOVE(MATH2, 0, CONTEXT1, 0, IMM(8), WITH(0));
+		SEQINPTR(0, PDCP_NULL_MAX_FRAME_LEN, WITH(RTO));
+
+		ALG_OPERATION(OP_ALG_ALGSEL_ZUCE,
+			      OP_ALG_AAI_F8,
+			      OP_ALG_AS_INITFINAL,
+			      ICV_CHECK_DISABLE,
+			      OP_ALG_ENCRYPT);
+		SEQFIFOSTORE(MSG, 0, 0, WITH(VLF));
+
+		SEQFIFOLOAD(SKIP, 1, WITH(0));
+
+		SEQFIFOLOAD(MSG1, 0, WITH(VLF));
+		MOVE(MATH3, 0, IFIFOAB1, 0, IMM(4), WITH(LAST1 | FLUSH1));
+	} else {
+		MOVE(MATH2, 0, CONTEXT1, 0, IMM(8), WITH(0));
+
+		MOVE(CONTEXT1, 0, CONTEXT2, 0, IMM(8), WITH(0));
+
+		MATHB(SEQINSZ, SUB, ZERO, VSEQINSZ, SIZE(4), WITH(0));
+
+		MATHB(SEQINSZ, SUB, IMM(PDCP_MAC_I_LEN), VSEQOUTSZ, SIZE(4),
+		      WITH(0));
+
+		KEY(KEY1, 0, PTR(cipherdata->key), cipherdata->keylen, WITH(0));
+
+		MOVE(CONTEXT1, 0, CONTEXT2, 0, IMM(8), WITH(0));
+
+		ALG_OPERATION(OP_ALG_ALGSEL_ZUCE,
+			      OP_ALG_AAI_F8,
+			      OP_ALG_AS_INITFINAL,
+			      ICV_CHECK_DISABLE,
+			      OP_ALG_DECRYPT);
+		SEQFIFOSTORE(MSG, 0, 0, WITH(VLF | CONT));
+		SEQFIFOLOAD(MSG1, 0, WITH(VLF | LAST1 | FLUSH1));
+
+		MOVE(OFIFO, 0, MATH3, 0, IMM(4), WITH(0));
+
+		LOAD(IMM(CLRW_RESET_CLS1_CHA |
+			 CLRW_CLR_C1KEY |
+			 CLRW_CLR_C1CTX |
+			 CLRW_CLR_C1ICV |
+			 CLRW_CLR_C1DATAS |
+			 CLRW_CLR_C1MODE),
+			 CLRW, 0, 4, WITH(0));
+
+		KEY(KEY1, 0, PTR(authdata->key), authdata->keylen, WITH(0));
+
+/* TODO: Add support in RTA for SOP bit in SEQINPTR command */
+		WORD(0xF0080000);
+
+		ALG_OPERATION(OP_ALG_ALGSEL_AES,
+			      OP_ALG_AAI_CMAC,
+			      OP_ALG_AS_INITFINAL,
+			      ICV_CHECK_ENABLE,
+			      OP_ALG_DECRYPT);
+
+		MATHB(SEQINSZ, SUB, ZERO, VSEQINSZ, SIZE(4), WITH(0));
+
+		MOVE(CONTEXT2, 0, IFIFOAB1, 0, IMM(8), WITH(0));
+
+		SEQFIFOLOAD(MSG1, 0, WITH(VLF | LAST1 | FLUSH1));
+
+		LOAD(IMM(NFIFOENTRY_STYPE_ALTSOURCE |
+			 NFIFOENTRY_DEST_CLASS1 |
+			 NFIFOENTRY_DTYPE_ICV |
+			 NFIFOENTRY_LC1 |
+			 NFIFOENTRY_FC1 | 4), NFIFO_SZL, 0, 4, WITH(0));
+		MOVE(MATH3, 0, ALTSOURCE, 0, IMM(4), WITH(0));
+	}
+
+	return 0;
 }
 
 /*
@@ -2242,7 +2548,7 @@ static inline void cnstr_shdsc_pdcp_c_plane_encap(uint32_t *descbuf,
 		},
 		{	/* ZUC-E */
 			SHR_ALWAYS,	/* NULL */
-			SHR_ALWAYS,	/* SNOW f9 */
+			SHR_WAIT,	/* SNOW f9 */
 			SHR_WAIT,	/* AES CMAC */
 			SHR_ALWAYS	/* ZUC-I */
 		},
@@ -2395,7 +2701,7 @@ static inline void cnstr_shdsc_pdcp_c_plane_decap(uint32_t *descbuf,
 		},
 		{	/* ZUC-E */
 			SHR_ALWAYS,	/* NULL */
-			SHR_ALWAYS,	/* SNOW f9 */
+			SHR_WAIT,	/* SNOW f9 */
 			SHR_WAIT,	/* AES CMAC */
 			SHR_ALWAYS	/* ZUC-I */
 		},
