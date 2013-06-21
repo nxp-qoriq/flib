@@ -115,6 +115,29 @@
  */
 
 #define PDCP_NULL_INT_MAC_I_VAL		0x00000000
+
+/**
+ * @def PDCP_DPOVRD_HFN_OV_EN
+ * Value to be used in the FD status/cmd field to indicate the HFN override
+ * mechanism is active for the frame.
+ */
+#define PDCP_DPOVRD_HFN_OV_EN		0x80000000
+
+/**
+ * @def PDCP_P4080REV2_HFN_OV_BUFLEN
+ * The length in bytes of the supplementary space that must be provided by the
+ * user at the beginning of the input frame buffer for P4080 REV 2. The format
+ * of the frame buffer is the following:
+ *
+ *  |<---PDCP_P4080REV2_HFN_OV_BUFLEN-->|
+ * //===================================||============||==============\\
+ * || PDCP_DPOVRD_HFN_OV_EN | HFN value || PDCP Header|| PDCP Payload ||
+ * \\===================================||============||==============//
+ *
+ * If HFN override mechanism is not desired, then the MSB of the first 4 bytes
+ * must be set to 0b.
+ */
+#define PDCP_P4080REV2_HFN_OV_BUFLEN	4
 /** @} */ /* end of defines_group */
 /**
  * @defgroup typedefs_group Auxiliary Data Structures
