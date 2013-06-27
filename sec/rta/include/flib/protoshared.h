@@ -707,13 +707,15 @@ void cnstr_shdsc_wimax_encap(uint32_t *descbuf, unsigned *bufsize,
 	LABEL(crc8);
 	LABEL(hdr);
 	LABEL(out_len);
+	LABEL(keyjump);
 	LABEL(local_offset);
-	LABEL(sh_desc_ptr);
+	LABEL(seqout_ptr);
 	LABEL(swapped_seqout_ptr);
 	REFERENCE(pcrc8);
 	REFERENCE(phdr);
 	REFERENCE(move_seqin_ptr);
 	REFERENCE(move_seqout_ptr);
+	REFERENCE(pkeyjump);
 	REFERENCE(seqout_ptr_jump1);
 	REFERENCE(seqout_ptr_jump2);
 	REFERENCE(write_seqout_ptr);
@@ -726,16 +728,50 @@ void cnstr_shdsc_wimax_encap(uint32_t *descbuf, unsigned *bufsize,
 	pdb.ctr_flags = WIMAX_PDB_CTR;
 
 	PROGRAM_CNTXT_INIT(descbuf, 0);
-	phdr = SHR_HDR(SHR_NEVER, hdr, WITH(0));
+	phdr = SHR_HDR(SHR_SERIAL, hdr, WITH(0));
 	{
 		ENDIAN_DATA((uint8_t *)&pdb, sizeof(struct wimax_encap_pdb));
 		SET_LABEL(hdr);
+		/* Save SEQOUTPTR, Output Pointer and Output Length. */
+		move_seqout_ptr = MOVE(DESCBUF, 0, OFIFO, 0, IMM(16),
+				       WITH(WAITCOMP));
+/*
+ * TODO: RTA currently doesn't support creating a LOAD command
+ * with another command as IMM.
+ * To be changed when proper support is added in RTA.
+ */
+		LOAD(IMM(0xa00000fa), OFIFO, 0, 4, WITH(0));
+
+		/* Swap SEQOUTPTR to the SEQINPTR. */
+		move_seqin_ptr = MOVE(DESCBUF, 0, MATH0, 0, IMM(20),
+				      WITH(WAITCOMP));
+		MATHB(MATH0, OR, IMM(CMD_SEQ_IN_PTR ^ CMD_SEQ_OUT_PTR), MATH0,
+		      SIZE(8), IFB);
+/*
+ * TODO: RTA currently doesn't support creating a LOAD command
+ * with another command as IMM.
+ * To be changed when proper support is added in RTA.
+ */
+		LOAD(IMM(0xa00000dd), MATH2, 4, 4, WITH(0));
+		write_swapped_seqout_ptr = MOVE(MATH0, 0, DESCBUF, 0, IMM(24),
+						WITH(WAITCOMP));
+		seqout_ptr_jump1 = JUMP(IMM(swapped_seqout_ptr), LOCAL_JUMP,
+				       ALL_TRUE, WITH(0));
+
+		write_seqout_ptr = MOVE(OFIFO, 0, DESCBUF, 0, IMM(20),
+					WITH(WAITCOMP));
+
 		SEQLOAD(MATH0, 0, 8, WITH(0));
-
-		SET_LABEL(local_offset);
+		LOAD(IMM(LDST_SRCDST_WORD_CLRW |
+			 CLRW_CLR_C1MODE |
+			 CLRW_CLR_C2MODE |
+			 CLRW_CLR_C2DATAS |
+			 CLRW_CLR_C2CTX |
+			 CLRW_CLR_C2KEY |
+			 CLRW_RESET_CLS2_CHA |
+			 CLRW_RESET_CLS1_CHA),
+		     CLRW, 0, 4, WITH(0));
 		JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, WITH(CALM));
-		SET_LABEL(swapped_seqout_ptr);
-
 		/* Set Encryption Control bit */
 		MATHB(MATH0, OR, IMM(WIMAX_GMH_EC_MASK), MATH0, SIZE(8), 0);
 
@@ -768,68 +804,9 @@ void cnstr_shdsc_wimax_encap(uint32_t *descbuf, unsigned *bufsize,
 		MOVE(MATH0, 0, IFIFOAB2, 0, IMM(5), WITH(LAST1));
 		MOVE(CONTEXT2, 0, MATH1, 0, IMM(4), WITH(WAITCOMP));
 		MOVE(MATH1, 0, MATH0, 5, IMM(1), WITH(WAITCOMP));
-
-		/*
-		 * Rewrite encapsulation input frame with the updated
-		 * Generic Mac Header from MATH0. SEC workflow is as follows:
-		 *     1. Copy JD's Output Length, SEQINPTR, Input Pointer and
-		 *        Input Length in MATH1, MATH2, MATH3 registers.
-		 *     2. Transform SEQINPTR in SEQOUTPTR.
-		 *     3. Load in MATH3 a local conditional JUMP with offset
-		 *        targetting the SEQSTORE command.
-		 *     4. Copy MATH1, MATH2, MATH3 contents
-		 *        to the word corresponding the local_offset LABEL.
-		 *     5. JUMP to the swapped_seqout_ptr LABEL, run SEQOUTPTR,
-		 *        Input Pointer, Input Length and then JUMP to SEQSTORE.
-		 *     6. Save encapsulation Generic Mac Header.
-		 */
-		move_seqin_ptr = MOVE(DESCBUF, 0, MATH1, 0, IMM(20),
-				      WITH(WAITCOMP));
-		MATHB(MATH1, OR, IMM(CMD_SEQ_IN_PTR ^ CMD_SEQ_OUT_PTR), MATH1,
-		      SIZE(8), IFB);
-/*
- * TODO: RTA currently doesn't support creating a LOAD command
- * with another command as IMM.
- * To be changed when proper support is added in RTA.
- */
-		LOAD(IMM(0xa000000f), MATH3, 4, 4, WITH(0));
-		write_swapped_seqout_ptr = MOVE(MATH1, 0, DESCBUF, 0, IMM(24),
-						WITH(WAITCOMP));
-		seqout_ptr_jump1 = JUMP(IMM(swapped_seqout_ptr), LOCAL_JUMP,
-				       ALL_TRUE, WITH(0));
 		SEQSTORE(MATH0, 0, 8, WITH(0));
 
 		SEQINPTR(0, 8, WITH(RTO));
-		JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, WITH(CALM));
-
-		/*
-		 * Restore Output Sequence. SEC workflow is as follows:
-		 *     1. Copy JD's Shared Descriptor Pointer, SEQOUTPTR,
-		 *        Output Pointer and Output Length in MATH0, MATH1,
-		 *        MATH2 registers.
-		 *     2. Load in MATH2 a local conditional JUMP with offset
-		 *        targetting the KEY command.
-		 *     3. Copy MATH0, MATH1, MATH2 contents
-		 *        to the word corresponding the local_offset LABEL.
-		 *     4. JUMP to the swapped_seqout_ptr LABEL, run SEQOUTPTR,
-		 *        Output Pointer, Output Length and then JUMP to KEY
-		 *        command.
-		 */
-		move_seqout_ptr = MOVE(DESCBUF, 0, MATH0, 0, IMM(20),
-				       WITH(WAITCOMP));
-/*
- * TODO: RTA currently doesn't support creating a LOAD command
- * with another command as IMM.
- * To be changed when proper support is added in RTA.
- */
-		LOAD(IMM(0xa0000017), MATH2, 4, 4, WITH(0));
-		write_seqout_ptr = MOVE(MATH0, 0, DESCBUF, 0, IMM(24),
-					WITH(WAITCOMP));
-		seqout_ptr_jump2 = JUMP(IMM(swapped_seqout_ptr), LOCAL_JUMP,
-					ALL_TRUE, WITH(0));
-
-		KEY(KEY1, 0, PTR(cipherdata->key), cipherdata->keylen,
-		    WITH(IMMED));
 		LOAD(IMM(LDST_SRCDST_WORD_CLRW |
 			 CLRW_CLR_C1MODE |
 			 CLRW_CLR_C2MODE |
@@ -839,22 +816,37 @@ void cnstr_shdsc_wimax_encap(uint32_t *descbuf, unsigned *bufsize,
 			 CLRW_RESET_CLS2_CHA |
 			 CLRW_RESET_CLS1_CHA),
 		     CLRW, 0, 4, WITH(0));
+		pkeyjump = JUMP(IMM(keyjump), LOCAL_JUMP, ALL_TRUE,
+				WITH(SHRD | SELF));
+		KEY(KEY1, 0, PTR(cipherdata->key), cipherdata->keylen,
+		    WITH(IMMED));
+		SET_LABEL(keyjump);
+		seqout_ptr_jump2 = JUMP(IMM(swapped_seqout_ptr), LOCAL_JUMP,
+					ALL_TRUE, WITH(0));
 		PROTOCOL(OP_TYPE_ENCAP_PROTOCOL, OP_PCLID_WIMAX, protinfo);
 /*
  * TODO: RTA currently doesn't support adding labels in or after Job Descriptor.
  * To be changed when proper support is added in RTA.
  */
-		SET_LABEL(sh_desc_ptr);
-		sh_desc_ptr += 2;
+		SET_LABEL(local_offset);
+		local_offset += 1;
+
+		SET_LABEL(swapped_seqout_ptr);
+		swapped_seqout_ptr += 2;
+
+		SET_LABEL(seqout_ptr);
+		seqout_ptr += 3;
 		SET_LABEL(out_len);
 		out_len += 6;
+
 	}
 	PATCH_HDR(phdr, hdr);
 	PATCH_JUMP(pcrc8, crc8);
+	PATCH_JUMP(pkeyjump, keyjump);
 	PATCH_JUMP(seqout_ptr_jump1, swapped_seqout_ptr);
-	PATCH_JUMP(seqout_ptr_jump2, swapped_seqout_ptr);
+	PATCH_JUMP(seqout_ptr_jump2, local_offset);
 	PATCH_MOVE(move_seqin_ptr, out_len);
-	PATCH_MOVE(move_seqout_ptr, sh_desc_ptr);
+	PATCH_MOVE(move_seqout_ptr, seqout_ptr);
 	PATCH_MOVE(write_seqout_ptr, local_offset);
 	PATCH_MOVE(write_swapped_seqout_ptr, local_offset);
 	*bufsize = PROGRAM_FINALIZE();
@@ -884,10 +876,12 @@ void cnstr_shdsc_wimax_decap(uint32_t *descbuf, unsigned *bufsize,
 	LABEL(crc8);
 	LABEL(gmh);
 	LABEL(hdr);
+	LABEL(keyjump);
 	REFERENCE(load_gmh);
 	REFERENCE(move_gmh);
 	REFERENCE(pcrc8);
 	REFERENCE(phdr);
+	REFERENCE(pkeyjump);
 
 	memset(&pdb, 0x00, sizeof(struct wimax_decap_pdb));
 	pdb.options = pdb_opts;
@@ -897,15 +891,27 @@ void cnstr_shdsc_wimax_decap(uint32_t *descbuf, unsigned *bufsize,
 	pdb.ctr_flags = WIMAX_PDB_CTR;
 
 	PROGRAM_CNTXT_INIT(descbuf, 0);
-	phdr = SHR_HDR(SHR_NEVER, hdr, WITH(0));
+	phdr = SHR_HDR(SHR_SERIAL, hdr, WITH(0));
 	{
 		ENDIAN_DATA((uint8_t *)&pdb, sizeof(struct wimax_decap_pdb));
 		SET_LABEL(hdr);
 		load_gmh = SEQLOAD(DESCBUF, 0, 8, WITH(0));
+		LOAD(IMM(LDST_SRCDST_WORD_CLRW |
+			 CLRW_CLR_C1MODE |
+			 CLRW_CLR_C2MODE |
+			 CLRW_CLR_C2DATAS |
+			 CLRW_CLR_C2CTX |
+			 CLRW_CLR_C2KEY |
+			 CLRW_RESET_CLS2_CHA |
+			 CLRW_RESET_CLS1_CHA),
+		     CLRW, 0, 4, WITH(0));
 		SEQINPTR(0, 8, WITH(RTO));
 
+		pkeyjump = JUMP(IMM(keyjump), LOCAL_JUMP, ALL_TRUE,
+				WITH(SHRD | SELF));
 		KEY(KEY1, 0, PTR(cipherdata->key), cipherdata->keylen,
 		    WITH(IMMED));
+		SET_LABEL(keyjump);
 		PROTOCOL(OP_TYPE_DECAP_PROTOCOL, OP_PCLID_WIMAX, protinfo);
 
 		SEQOUTPTR(0, 8, WITH(RTO));
@@ -964,6 +970,7 @@ void cnstr_shdsc_wimax_decap(uint32_t *descbuf, unsigned *bufsize,
 	}
 	PATCH_HDR(phdr, hdr);
 	PATCH_JUMP(pcrc8, crc8);
+	PATCH_JUMP(pkeyjump, keyjump);
 	PATCH_LOAD(load_gmh, gmh);
 	PATCH_MOVE(move_gmh, gmh);
 	*bufsize = PROGRAM_FINALIZE();
