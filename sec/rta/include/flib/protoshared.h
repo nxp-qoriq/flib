@@ -767,7 +767,6 @@ void cnstr_shdsc_wimax_encap(uint32_t *descbuf, unsigned *bufsize,
 			      OP_ALG_ENCRYPT);
 		MOVE(MATH0, 0, IFIFOAB2, 0, IMM(5), WITH(LAST1));
 		MOVE(CONTEXT2, 0, MATH1, 0, IMM(4), WITH(WAITCOMP));
-		JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, WITH(CLASS2));
 		MOVE(MATH1, 0, MATH0, 5, IMM(1), WITH(WAITCOMP));
 
 		/*
@@ -793,7 +792,7 @@ void cnstr_shdsc_wimax_encap(uint32_t *descbuf, unsigned *bufsize,
  * with another command as IMM.
  * To be changed when proper support is added in RTA.
  */
-		LOAD(IMM(0xa0000016), MATH3, 4, 4, WITH(0));
+		LOAD(IMM(0xa0000015), MATH3, 4, 4, WITH(0));
 		write_swapped_seqout_ptr = MOVE(MATH1, 0, DESCBUF, 0, IMM(24),
 						WITH(WAITCOMP));
 		seqout_ptr_jump1 = JUMP(IMM(swapped_seqout_ptr), LOCAL_JUMP,
@@ -823,7 +822,7 @@ void cnstr_shdsc_wimax_encap(uint32_t *descbuf, unsigned *bufsize,
  * with another command as IMM.
  * To be changed when proper support is added in RTA.
  */
-		LOAD(IMM(0xa000001e), MATH2, 4, 4, WITH(0));
+		LOAD(IMM(0xa000001d), MATH2, 4, 4, WITH(0));
 		write_seqout_ptr = MOVE(MATH0, 0, DESCBUF, 0, IMM(24),
 					WITH(WAITCOMP));
 		seqout_ptr_jump2 = JUMP(IMM(swapped_seqout_ptr), LOCAL_JUMP,
@@ -952,7 +951,6 @@ void cnstr_shdsc_wimax_decap(uint32_t *descbuf, unsigned *bufsize,
 			      OP_ALG_ENCRYPT);
 		MOVE(MATH0, 0, IFIFOAB2, 0, IMM(5), WITH(LAST1));
 		MOVE(CONTEXT2, 0, MATH1, 0, IMM(4), WITH(WAITCOMP));
-		JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, WITH(CLASS2));
 		MOVE(MATH1, 0, MATH0, 5, IMM(1), WITH(WAITCOMP));
 
 		/* Rewrite decapsulation Generic Mac Header. */
