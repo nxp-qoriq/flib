@@ -744,15 +744,15 @@ void cnstr_shdsc_wimax_encap(uint32_t *descbuf, unsigned *bufsize,
 		 * The left shift is used in order to update the GMH LEN field
 		 * and nothing else.
 		 */
-		MOVE(DESCBUF, 0, MATH1, 0, IMM(8), WITH(0));
-		MATHB(MATH0, ADD, IMM((WIMAX_PN_LEN << 0x28) +
-				      (WIMAX_ICV_LEN << 0x28)),
-		      MATH0, SIZE(8), 0);
-		MATHB(MATH1, AND, ONE, NONE, SIZE(8), 0);
-		/* Update GMH LEN field if FCS is enabled */
-		pcrc8 = JUMP(IMM(crc8), LOCAL_JUMP, ALL_TRUE, WITH(MATH_Z));
-		MATHB(MATH0, ADD, IMM(WIMAX_FCS_LEN << 0x28), MATH0, SIZE(8),
-		      0);
+		if (pdb_opts & WIMAX_PDBOPTS_FCS)
+			MATHB(MATH0, ADD, IMM((WIMAX_PN_LEN << 0x28) +
+					      (WIMAX_ICV_LEN << 0x28) +
+					      (WIMAX_FCS_LEN << 0x28)),
+			      MATH0, SIZE(8), 0);
+		else
+			MATHB(MATH0, ADD, IMM((WIMAX_PN_LEN << 0x28) +
+					      (WIMAX_ICV_LEN << 0x28)),
+			      MATH0, SIZE(8), 0);
 
 		/*
 		 * Compute the CRC-8-ATM value for the first five bytes
@@ -792,7 +792,7 @@ void cnstr_shdsc_wimax_encap(uint32_t *descbuf, unsigned *bufsize,
  * with another command as IMM.
  * To be changed when proper support is added in RTA.
  */
-		LOAD(IMM(0xa0000015), MATH3, 4, 4, WITH(0));
+		LOAD(IMM(0xa000000f), MATH3, 4, 4, WITH(0));
 		write_swapped_seqout_ptr = MOVE(MATH1, 0, DESCBUF, 0, IMM(24),
 						WITH(WAITCOMP));
 		seqout_ptr_jump1 = JUMP(IMM(swapped_seqout_ptr), LOCAL_JUMP,
@@ -822,7 +822,7 @@ void cnstr_shdsc_wimax_encap(uint32_t *descbuf, unsigned *bufsize,
  * with another command as IMM.
  * To be changed when proper support is added in RTA.
  */
-		LOAD(IMM(0xa000001d), MATH2, 4, 4, WITH(0));
+		LOAD(IMM(0xa0000017), MATH2, 4, 4, WITH(0));
 		write_seqout_ptr = MOVE(MATH0, 0, DESCBUF, 0, IMM(24),
 					WITH(WAITCOMP));
 		seqout_ptr_jump2 = JUMP(IMM(swapped_seqout_ptr), LOCAL_JUMP,
@@ -919,15 +919,15 @@ void cnstr_shdsc_wimax_decap(uint32_t *descbuf, unsigned *bufsize,
 		 * The left shift is used in order to update the GMH LEN field
 		 * and nothing else.
 		 */
-		MOVE(DESCBUF, 0, MATH1, 0, IMM(8), WITH(0));
-		MATHB(MATH0, SUB, IMM((WIMAX_PN_LEN << 0x28) +
-				      (WIMAX_ICV_LEN << 0x28)),
-		      MATH0, SIZE(8), 0);
-		MATHB(MATH1, AND, ONE, NONE, SIZE(8), 0);
-		/* Update GMH LEN field if FCS is enabled */
-		pcrc8 = JUMP(IMM(crc8), LOCAL_JUMP, ALL_TRUE, WITH(MATH_Z));
-		MATHB(MATH0, SUB, IMM(WIMAX_FCS_LEN << 0x28), MATH0, SIZE(8),
-		      0);
+		if (pdb_opts & WIMAX_PDBOPTS_FCS)
+			MATHB(MATH0, SUB, IMM((WIMAX_PN_LEN << 0x28) +
+					      (WIMAX_ICV_LEN << 0x28) +
+					      (WIMAX_FCS_LEN << 0x28)),
+			      MATH0, SIZE(8), 0);
+		else
+			MATHB(MATH0, SUB, IMM((WIMAX_PN_LEN << 0x28) +
+					      (WIMAX_ICV_LEN << 0x28)),
+			      MATH0, SIZE(8), 0);
 
 		/*
 		 * Compute the CRC-8-ATM value for the first five bytes
