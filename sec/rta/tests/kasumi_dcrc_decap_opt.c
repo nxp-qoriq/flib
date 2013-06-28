@@ -10,11 +10,10 @@ LABEL(decap_share_end);
 
 uint64_t desc_addr_1 = 0x00000ac0ull;
 
-int build_shdesc_kasumi_dcrc_decap(struct program *prg, uint32_t *buff,
-				   int buffpos)
+unsigned build_shdesc_kasumi_dcrc_decap(struct program *prg, uint32_t *buff,
+					unsigned buffpos)
 {
 	struct program *program = prg;
-	int size;
 	uint32_t key_size = 16;
 
 	LABEL(foo);
@@ -53,7 +52,7 @@ int build_shdesc_kasumi_dcrc_decap(struct program *prg, uint32_t *buff,
 		MOVE(CONTEXT1, 36, MATH0, 0, IMM(4), WITH(WAITCOMP));
 		/* get PDU len in left 2 bytes */
 		MATHB(MATH0, LSHIFT, IMM(16), MATH0, 8, WITH(IFB));
-		pmove1 = MOVE(MATH0, 0, DESCBUF, foo, IMM(4), 0);
+		pmove1 = MOVE(MATH0, 0, DESCBUF, 0, IMM(4), 0);
 		PROTOCOL(OP_TYPE_DECAP_PROTOCOL, OP_PCLID_3G_DCRC,
 			 WITH(OP_PCL_3G_DCRC_CRC7));
 		MATHB(ZERO, SUB, ONE, NONE, 4, 0);
@@ -62,7 +61,7 @@ int build_shdesc_kasumi_dcrc_decap(struct program *prg, uint32_t *buff,
 
 		SET_LABEL(handle_kasumi);
 		MOVE(CONTEXT1, 32, MATH0, 0, IMM(32), 0);
-		pmove2 = MOVE(CONTEXT1, 0, DESCBUF, foo, IMM(12), 0);
+		pmove2 = MOVE(CONTEXT1, 0, DESCBUF, 0, IMM(12), 0);
 		/* skip over the preamble and the DCRC header */
 		MATHB(MATH0, ADD, IMM(60), VSEQINSZ, 4, 0);
 		SEQFIFOLOAD(SKIP, 0, WITH(VLF));
@@ -108,15 +107,13 @@ int build_shdesc_kasumi_dcrc_decap(struct program *prg, uint32_t *buff,
 	PATCH_MOVE(pmove1, foo);
 	PATCH_MOVE(pmove2, foo);
 
-	size = PROGRAM_FINALIZE();
-	return size;
+	return PROGRAM_FINALIZE();
 }
 
-int build_jbdesc_kasumi_dcrc_decap(struct program *prg, uint32_t *buff,
-				   int buffpos)
+unsigned build_jbdesc_kasumi_dcrc_decap(struct program *prg, uint32_t *buff,
+					unsigned buffpos)
 {
 	struct program *program = prg;
-	int size;
 	uint32_t input_frame_length = 89;
 	uint32_t output_frame_length = 89;
 	uint64_t pdu_in_addr_1 = 0x00000b78ull;
@@ -129,15 +126,15 @@ int build_jbdesc_kasumi_dcrc_decap(struct program *prg, uint32_t *buff,
 		SEQOUTPTR(pdu_out_addr_1, output_frame_length, WITH(EXT));
 		SEQINPTR(pdu_in_addr_1, input_frame_length, WITH(EXT));
 	}
-	size = PROGRAM_FINALIZE();
-	return size;
+
+	return PROGRAM_FINALIZE();
 }
 
 int main(int argc, char **argv)
 {
 	uint32_t lte_desc[60];
 	uint32_t job_desc[20];
-	int lte_desc_size, job_desc_size;
+	unsigned lte_desc_size, job_desc_size;
 
 	struct program lte_desc_prgm;
 	struct program job_desc_prgm;

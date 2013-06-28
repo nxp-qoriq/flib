@@ -16,11 +16,10 @@ uint8_t exponent[20] = {
 	0xB1, 0xBB, 0x82, 0xF1
 };
 
-int dlc_keygen(uint32_t *buff)
+unsigned dlc_keygen(uint32_t *buff)
 {
 	struct program prg;
 	struct program *program = &prg;
-	int size;
 	int field_size = 20;
 	uint64_t mod = 0x08049668;	/* I/O address for modulus */
 	uint64_t private_key = 0x32244514ull;
@@ -88,22 +87,20 @@ int dlc_keygen(uint32_t *buff)
 	PATCH_JUMP(p2_retry, retry);
 	PATCH_JUMP(p3_retry, retry);
 
-	size = PROGRAM_FINALIZE();
-
-	return size;
+	return PROGRAM_FINALIZE();
 }
 
-int prg_buff[1000];
+uint32_t prg_buff[1000];
 
 int main(int argc, char **argv)
 {
-	int size;
+	unsigned size;
 
 	pr_debug("DLC KEYGEN program\n");
 	rta_set_sec_era(RTA_SEC_ERA_1);
-	size = dlc_keygen((uint32_t *) prg_buff);
+	size = dlc_keygen(prg_buff);
 	pr_debug("size = %d\n", size);
-	print_prog((uint32_t *) prg_buff, size);
+	print_prog(prg_buff, size);
 
 	return 0;
 }

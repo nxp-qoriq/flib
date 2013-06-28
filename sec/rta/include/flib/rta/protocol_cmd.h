@@ -3,7 +3,7 @@
 
 extern enum rta_sec_era rta_sec_era;
 
-static inline int32_t __rta_ssl_proto(uint16_t protoinfo)
+static inline int __rta_ssl_proto(uint16_t protoinfo)
 {
 	switch (protoinfo) {
 	case OP_PCL_SSL30_RC4_40_MD5_2:
@@ -181,7 +181,7 @@ static inline int32_t __rta_ssl_proto(uint16_t protoinfo)
 	return -1;
 }
 
-static inline int32_t __rta_ike_proto(uint16_t protoinfo)
+static inline int __rta_ike_proto(uint16_t protoinfo)
 {
 	switch (protoinfo) {
 	case OP_PCL_IKE_HMAC_MD5:
@@ -197,7 +197,7 @@ static inline int32_t __rta_ike_proto(uint16_t protoinfo)
 	return -1;
 }
 
-static inline int32_t __rta_ipsec_proto(uint16_t protoinfo)
+static inline int __rta_ipsec_proto(uint16_t protoinfo)
 {
 	uint16_t proto_cls1 = protoinfo & OP_PCL_IPSEC_CIPHER_MASK;
 	uint16_t proto_cls2 = protoinfo & OP_PCL_IPSEC_AUTH_MASK;
@@ -241,7 +241,7 @@ static inline int32_t __rta_ipsec_proto(uint16_t protoinfo)
 	return -1;
 }
 
-static inline int32_t __rta_srtp_proto(uint16_t protoinfo)
+static inline int __rta_srtp_proto(uint16_t protoinfo)
 {
 	uint16_t proto_cls1 = protoinfo & OP_PCL_SRTP_CIPHER_MASK;
 	uint16_t proto_cls2 = protoinfo & OP_PCL_SRTP_AUTH_MASK;
@@ -258,7 +258,7 @@ static inline int32_t __rta_srtp_proto(uint16_t protoinfo)
 	return -1;
 }
 
-static inline int32_t __rta_macsec_proto(uint16_t protoinfo)
+static inline int __rta_macsec_proto(uint16_t protoinfo)
 {
 	switch (protoinfo) {
 	case OP_PCL_MACSEC:
@@ -268,7 +268,7 @@ static inline int32_t __rta_macsec_proto(uint16_t protoinfo)
 	return -1;
 }
 
-static inline int32_t __rta_wifi_proto(uint16_t protoinfo)
+static inline int __rta_wifi_proto(uint16_t protoinfo)
 {
 	switch (protoinfo) {
 	case OP_PCL_WIFI:
@@ -278,7 +278,7 @@ static inline int32_t __rta_wifi_proto(uint16_t protoinfo)
 	return -1;
 }
 
-static inline int32_t __rta_wimax_proto(uint16_t protoinfo)
+static inline int __rta_wimax_proto(uint16_t protoinfo)
 {
 	switch (protoinfo) {
 	case OP_PCL_WIMAX_OFDM:
@@ -302,7 +302,7 @@ static const uint32_t proto_blob_flags[] = {
 		OP_PCL_BLOB_EKT | OP_PCL_BLOB_REG_MASK | OP_PCL_BLOB_SEC_MEM
 };
 
-static inline int32_t __rta_blob_proto(uint16_t protoinfo)
+static inline int __rta_blob_proto(uint16_t protoinfo)
 {
 	if (protoinfo & ~proto_blob_flags[rta_sec_era])
 		return -1;
@@ -332,7 +332,7 @@ static inline int32_t __rta_blob_proto(uint16_t protoinfo)
 	return -1;
 }
 
-static inline int32_t __rta_dlc_proto(uint16_t protoinfo)
+static inline int __rta_dlc_proto(uint16_t protoinfo)
 {
 	if ((rta_sec_era < RTA_SEC_ERA_2) &&
 	    (protoinfo & (OP_PCL_PKPROT_DSA_MSG | OP_PCL_PKPROT_HASH_MASK |
@@ -355,7 +355,7 @@ static inline int32_t __rta_dlc_proto(uint16_t protoinfo)
 	return 0;
 }
 
-static inline int32_t __rta_rsa_enc_proto(uint16_t protoinfo)
+static inline int __rta_rsa_enc_proto(uint16_t protoinfo)
 {
 	switch (protoinfo & OP_PCL_RSAPROT_OP_MASK) {
 	case OP_PCL_RSAPROT_OP_ENC_F_IN:
@@ -382,7 +382,7 @@ static inline int32_t __rta_rsa_enc_proto(uint16_t protoinfo)
 	return 0;
 }
 
-static inline int32_t __rta_rsa_dec_proto(uint16_t protoinfo)
+static inline int __rta_rsa_dec_proto(uint16_t protoinfo)
 {
 	switch (protoinfo & OP_PCL_RSAPROT_OP_MASK) {
 	case OP_PCL_RSAPROT_OP_DEC_ND:
@@ -419,7 +419,7 @@ static inline int32_t __rta_rsa_dec_proto(uint16_t protoinfo)
 	return 0;
 }
 
-static inline int32_t __rta_3g_dcrc_proto(uint16_t protoinfo)
+static inline int __rta_3g_dcrc_proto(uint16_t protoinfo)
 {
 	switch (protoinfo) {
 	case OP_PCL_3G_DCRC_CRC7:
@@ -430,7 +430,7 @@ static inline int32_t __rta_3g_dcrc_proto(uint16_t protoinfo)
 	return -1;
 }
 
-static inline int32_t __rta_3g_rlc_proto(uint16_t protoinfo)
+static inline int __rta_3g_rlc_proto(uint16_t protoinfo)
 {
 	switch (protoinfo) {
 	case OP_PCL_3G_RLC_NULL:
@@ -442,7 +442,7 @@ static inline int32_t __rta_3g_rlc_proto(uint16_t protoinfo)
 	return -1;
 }
 
-static inline int32_t __rta_lte_pdcp_proto(uint16_t protoinfo)
+static inline int __rta_lte_pdcp_proto(uint16_t protoinfo)
 {
 	switch (protoinfo) {
 	case OP_PCL_LTE_ZUC:
@@ -460,7 +460,7 @@ static inline int32_t __rta_lte_pdcp_proto(uint16_t protoinfo)
 struct proto_map {
 	uint32_t optype;
 	uint32_t protid;
-	int32_t (*protoinfo_func)(uint16_t);
+	int (*protoinfo_func)(uint16_t);
 };
 
 static const struct proto_map proto_table[] = {
@@ -499,14 +499,14 @@ static const struct proto_map proto_table[] = {
  * Allowed OPERATION protocols for each SEC Era.
  * Values represent the number of entries from proto_table[] that are supported.
  */
-static const uint8_t proto_table_sz[] = {21, 29, 29, 29, 29};
+static const unsigned proto_table_sz[] = {21, 29, 29, 29, 29};
 
 static inline unsigned rta_proto_operation(struct program *program,
 					   uint32_t optype, uint32_t protid,
 					   uint16_t protoinfo)
 {
 	uint32_t opcode = CMD_OPERATION;
-	uint8_t i, found = 0;
+	int i, found = 0;
 	uint32_t optype_tmp = optype;
 	unsigned start_pc = program->current_pc;
 

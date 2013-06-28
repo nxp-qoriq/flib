@@ -5,13 +5,12 @@
 enum rta_sec_era rta_sec_era;
 
 /* Subroutine to populate a Descriptor buffer */
-int build_rsa_verify_desc(uint32_t *buff, uint32_t n_len, uint32_t e_len,
-			  const uint64_t n, const uint64_t e,
-			  const uint64_t f, const uint64_t g)
+unsigned build_rsa_verify_desc(uint32_t *buff, uint32_t n_len, uint32_t e_len,
+			       const uint64_t n, const uint64_t e,
+			       const uint64_t f, const uint64_t g)
 {
 	struct program prg;
 	struct program *program = &prg;
-	int size;
 	LABEL(pdb_end);
 
 	PROGRAM_SET_36BIT_ADDR();
@@ -32,13 +31,12 @@ int build_rsa_verify_desc(uint32_t *buff, uint32_t n_len, uint32_t e_len,
 		PROTOCOL(OP_TYPE_UNI_PROTOCOL, OP_PCLID_RSAENCRYPT, 0);
 	}
 	PATCH_HDR(0, pdb_end);
-	size = PROGRAM_FINALIZE();
-	return size;
+
+	return PROGRAM_FINALIZE();
 }
 
-int test_rsa_verify(uint32_t *buff)
+unsigned test_rsa_verify(uint32_t *buff)
 {
-	int size;
 	uint32_t n_len = 128;
 	uint32_t e_len = 3;
 
@@ -48,21 +46,20 @@ int test_rsa_verify(uint32_t *buff)
 	uint64_t g = n + n_len;	/* 3rd                  */
 	uint64_t f = g;		/* 4th overwrites 3rd   */
 
-	size = build_rsa_verify_desc(buff, n_len, e_len, n, e, f, g);
-	return size;
+	return build_rsa_verify_desc(buff, n_len, e_len, n, e, f, g);
 }
 
-int prg_buff[1000];
+uint32_t prg_buff[1000];
 
 int main(int argc, char **argv)
 {
-	int size;
+	unsigned size;
 
 	pr_debug("RSA Verify example program\n");
 	rta_set_sec_era(RTA_SEC_ERA_2);
-	size = test_rsa_verify((uint32_t *) prg_buff);
+	size = test_rsa_verify(prg_buff);
 	pr_debug("size = %d\n", size);
-	print_prog((uint32_t *) prg_buff, size);
+	print_prog(prg_buff, size);
 
 	return 0;
 }

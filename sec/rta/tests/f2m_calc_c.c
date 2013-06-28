@@ -4,11 +4,10 @@
 
 enum rta_sec_era rta_sec_era;
 
-int f2m_calc_c_test(uint32_t *buff)
+unsigned f2m_calc_c_test(uint32_t *buff)
 {
 	struct program prg;
 	struct program *program = &prg;
-	int size;
 
 	LABEL(bit_search_top);
 	REFERENCE(pjump1);
@@ -80,22 +79,21 @@ int f2m_calc_c_test(uint32_t *buff)
 		SEQFIFOSTORE(PKB, 0, 0, WITH(VLF));
 	}
 	PATCH_JUMP(pjump1, bit_search_top);
-	size = PROGRAM_FINALIZE();
 
-	return size;
+	return PROGRAM_FINALIZE();
 }
 
-int prg_buff[1000];
+uint32_t prg_buff[1000];
 
 int main(int argc, char **argv)
 {
-	int size;
+	unsigned size;
 
 	pr_debug("F2M_calc_c example program\n");
 	rta_set_sec_era(RTA_SEC_ERA_3);
-	size = f2m_calc_c_test((uint32_t *) prg_buff);
+	size = f2m_calc_c_test(prg_buff);
 	pr_debug("size = %d\n", size);
-	print_prog((uint32_t *) prg_buff, size);
+	print_prog(prg_buff, size);
 
 	return 0;
 }

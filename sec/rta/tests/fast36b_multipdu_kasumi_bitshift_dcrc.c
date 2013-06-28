@@ -8,11 +8,10 @@ uint64_t shraddr = 0x51100030ull;
 REFERENCE(ref_jump_reload);
 LABEL(reload);
 
-int build_shdesc_kasumi_bitshift_dcrc(struct program *prg, uint32_t *buff,
-				      int buffpos)
+unsigned build_shdesc_kasumi_bitshift_dcrc(struct program *prg, uint32_t *buff,
+					   unsigned buffpos)
 {
 	struct program *program = prg;
-	int size;
 
 	LABEL(do_dcrc);
 	REFERENCE(pjump1);
@@ -46,7 +45,7 @@ int build_shdesc_kasumi_bitshift_dcrc(struct program *prg, uint32_t *buff,
 		SEQLOAD(CONTEXT2, 0, 64, 0);
 		/* [08] 7813040C         move:  class2-ctx->descbuf, len=12,
 		 *                              dstoffs=4(w1), srcoffs=0(0) */
-		pmove2 = MOVE(CONTEXT2, 0, DESCBUF, pdb1, IMM(12), 0);
+		pmove2 = MOVE(CONTEXT2, 0, DESCBUF, 0, IMM(12), 0);
 		/* [09] 78142020         move:  class2-ctx->math0, len=32,
 		 *                              srcoffs=32 */
 		MOVE(CONTEXT2, 32, MATH0, 0, IMM(32), 0);
@@ -95,7 +94,7 @@ int build_shdesc_kasumi_bitshift_dcrc(struct program *prg, uint32_t *buff,
 		MATHB(MATH0, SHLD, MATH0, MATH0, 8, WITH(NFU));
 		/* [28] 79438404         move:  math0->descbuf, len=4,
 		 *                              dstoffs=132(w33) wait */
-		pmove1 = MOVE(MATH0, 0, DESCBUF, lab33, IMM(4), WITH(WAITCOMP));
+		pmove1 = MOVE(MATH0, 0, DESCBUF, 0, IMM(4), WITH(WAITCOMP));
 		/* [29] 16860800           ld: deco-deco-ctrl len=0 offs=8
 		 *                             imm -auto-nfifo-entries */
 		LOAD(IMM(0), DCTRL, LDOFF_DISABLE_AUTO_NFIFO, 0, 0);
@@ -168,15 +167,13 @@ int build_shdesc_kasumi_bitshift_dcrc(struct program *prg, uint32_t *buff,
 	PATCH_JUMP(pjump3, lab35);
 	PATCH_MOVE(pmove2, pdb1);
 
-	size = PROGRAM_FINALIZE();
-	return size;
+	return PROGRAM_FINALIZE();
 }
 
-int build_jbdesc_kasumi_bitshift_dcrc(struct program *prg, uint32_t *buff,
-				      int buffpos)
+unsigned build_jbdesc_kasumi_bitshift_dcrc(struct program *prg, uint32_t *buff,
+					   unsigned buffpos)
 {
 	struct program *program = prg;
-	int size;
 
 	PROGRAM_CNTXT_INIT(buff, buffpos);
 	PROGRAM_SET_36BIT_ADDR();
@@ -187,15 +184,14 @@ int build_jbdesc_kasumi_bitshift_dcrc(struct program *prg, uint32_t *buff,
 		SEQOUTPTR(0, 0, 0);
 	}
 
-	size = PROGRAM_FINALIZE();
-	return size;
+	return PROGRAM_FINALIZE();
 }
 
 int main(int argc, char **argv)
 {
 	uint32_t share[64];
 	uint32_t job[16];
-	int lte_desc_size, job_desc_size;
+	unsigned lte_desc_size, job_desc_size;
 	struct program lte_desc_prgm;
 	struct program job_desc_prgm;
 

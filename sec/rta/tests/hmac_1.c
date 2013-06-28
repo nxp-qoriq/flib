@@ -4,11 +4,10 @@
 
 enum rta_sec_era rta_sec_era;
 
-int hmac_1(uint32_t *buff)
+unsigned hmac_1(uint32_t *buff)
 {
 	struct program prg;
 	struct program *program = &prg;
-	int size;
 	uint64_t key_data = (uint64_t) 0xacd1f8000ull;
 	int keylen = 64;
 	uint64_t msg = (uint64_t) 0xef7452b00ull;
@@ -26,21 +25,21 @@ int hmac_1(uint32_t *buff)
 		FIFOLOAD(MSG2, PTR(msg), msglen, WITH(LAST2 | EXT));
 		STORE(CONTEXT2, 0, PTR(hmac), 32, 0);
 	}
-	size = PROGRAM_FINALIZE();
-	return size;
+
+	return PROGRAM_FINALIZE();
 }
 
-int prg_buff[1000];
+uint32_t prg_buff[1000];
 
 int main(int argc, char **argv)
 {
-	int size;
+	unsigned size;
 
 	pr_debug("HMAC_1 example program\n");
 	rta_set_sec_era(RTA_SEC_ERA_1);
-	size = hmac_1((uint32_t *) prg_buff);
+	size = hmac_1(prg_buff);
 	pr_debug("size = %d\n", size);
-	print_prog((uint32_t *) prg_buff, size);
+	print_prog(prg_buff, size);
 
 	return 0;
 }

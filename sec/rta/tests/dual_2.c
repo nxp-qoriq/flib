@@ -4,11 +4,10 @@
 
 enum rta_sec_era rta_sec_era;
 
-int dual_2(uint32_t *buff)
+unsigned dual_2(uint32_t *buff)
 {
 	struct program prg;
 	struct program *program = &prg;
-	int size;
 	uint64_t ctx = (uint64_t) 0xdf8093280ull;
 	int ctx_size = 16;
 	uint64_t cipher_key = (uint64_t) 0x5c36c3700ull;
@@ -42,22 +41,21 @@ int dual_2(uint32_t *buff)
 		FIFOSTORE(MSG, 0, pt_out, msg_len, 0);
 		FIFOLOAD(ICV2, PTR(icv), icv_size, WITH(LAST2));
 	}
-	size = PROGRAM_FINALIZE();
 
-	return size;
+	return PROGRAM_FINALIZE();
 }
 
-int prg_buff[1000];
+uint32_t prg_buff[1000];
 
 int main(int argc, char **argv)
 {
-	int size;
+	unsigned size;
 
 	pr_debug("DUAL_2 example program\n");
 	rta_set_sec_era(RTA_SEC_ERA_2);
-	size = dual_2((uint32_t *) prg_buff);
+	size = dual_2(prg_buff);
 	pr_debug("size = %d\n", size);
-	print_prog((uint32_t *) prg_buff, size);
+	print_prog(prg_buff, size);
 
 	return 0;
 }

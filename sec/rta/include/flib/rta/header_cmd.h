@@ -22,7 +22,7 @@ static const uint32_t shr_header_flags[] = {
 };
 
 static inline unsigned rta_shr_header(struct program *program, uint32_t share,
-				      uint32_t start_idx, uint32_t flags)
+				      unsigned start_idx, uint32_t flags)
 {
 	uint32_t opcode = CMD_SHARED_DESC_HDR;
 	unsigned start_pc = program->current_pc;
@@ -82,7 +82,7 @@ static inline unsigned rta_shr_header(struct program *program, uint32_t share,
 }
 
 static inline unsigned rta_job_header(struct program *program, uint32_t share,
-				      uint32_t start_idx, uint64_t shr_desc,
+				      unsigned start_idx, uint64_t shr_desc,
 				      uint32_t flags)
 {
 	uint32_t opcode = CMD_DESC_HDR;

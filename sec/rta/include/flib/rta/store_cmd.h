@@ -46,15 +46,14 @@ static const uint32_t store_src_table[][2] = {
  * Values represent the number of entries from source_src_table[] that are
  * supported.
  */
-static const uint32_t store_src_table_sz[] = {29, 31, 33, 33, 33};
+static const unsigned store_src_table_sz[] = {29, 31, 33, 33, 33};
 
 static inline unsigned rta_store(struct program *program, uint64_t src,
 				 int type_src, uint16_t offset, uint64_t dst,
 				 int type_dst, uint32_t length, uint32_t flags)
 {
 	uint32_t opcode = 0, val;
-	uint8_t i;
-	int8_t ret;
+	int ret, i;
 	unsigned start_pc = program->current_pc;
 
 	if (flags & SEQ)
@@ -96,7 +95,7 @@ static inline unsigned rta_store(struct program *program, uint64_t src,
 	 *      user can give this value as actual value or pointer to data;
 	 */
 	if (type_src == REG_TYPE) {
-		ret = __rta_map_opcode(src, store_src_table,
+		ret = __rta_map_opcode((uint32_t)src, store_src_table,
 				       store_src_table_sz[rta_sec_era], &val);
 		if (ret == -1) {
 			pr_debug("STORE: Invalid source. SEC PC: %d; "

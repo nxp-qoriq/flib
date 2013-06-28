@@ -4,11 +4,10 @@
 
 enum rta_sec_era rta_sec_era;
 
-int test_op_cipher(uint32_t *buff)
+unsigned test_op_cipher(uint32_t *buff)
 {
 	struct program prg;
 	struct program *program = &prg;
-	int size;
 
 	PROGRAM_CNTXT_INIT(buff, 0);
 	{
@@ -126,16 +125,14 @@ int test_op_cipher(uint32_t *buff)
 				   OP_ALG_AAI_IVZ), OP_ALG_AS_INIT,
 			      ICV_CHECK_ENABLE, OP_ALG_DECRYPT);
 	}
-	size = PROGRAM_FINALIZE();
 
-	return size;
+	return PROGRAM_FINALIZE();
 }
 
-int test_op_alg_mdha(uint32_t *buff)
+unsigned test_op_alg_mdha(uint32_t *buff)
 {
 	struct program prg;
 	struct program *program = &prg;
-	int size;
 
 	PROGRAM_CNTXT_INIT(buff, 0);
 	{
@@ -186,28 +183,27 @@ int test_op_alg_mdha(uint32_t *buff)
 		ALG_OPERATION(OP_ALG_ALGSEL_SHA384, OP_ALG_AAI_HMAC_PRECOMP,
 			      OP_ALG_AS_INITFINAL, ICV_CHECK_ENABLE, 0);
 	}
-	size = PROGRAM_FINALIZE();
 
-	return size;
+	return PROGRAM_FINALIZE();
 }
 
-int prg_buff[1000];
+uint32_t prg_buff[1000];
 
 int main(int argc, char **argv)
 {
-	int size;
+	unsigned size;
 
 	rta_set_sec_era(RTA_SEC_ERA_5);
 
 	pr_debug("OPERATION ALGORITHM CIPHER program\n");
-	size = test_op_cipher((uint32_t *) prg_buff);
+	size = test_op_cipher(prg_buff);
 	pr_debug("size = %d\n", size);
-	print_prog((uint32_t *) prg_buff, size);
+	print_prog(prg_buff, size);
 
 	pr_debug("OPERATION ALGORITHM MDHA program\n");
-	size = test_op_alg_mdha((uint32_t *) prg_buff);
+	size = test_op_alg_mdha(prg_buff);
 	pr_debug("size = %d\n", size);
-	print_prog((uint32_t *) prg_buff, size);
+	print_prog(prg_buff, size);
 
 	return 0;
 }

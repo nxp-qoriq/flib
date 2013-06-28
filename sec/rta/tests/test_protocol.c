@@ -4,11 +4,10 @@
 
 enum rta_sec_era rta_sec_era;
 
-int test_op_proto(uint32_t *buff)
+unsigned test_op_proto(uint32_t *buff)
 {
 	struct program prg;
 	struct program *program = &prg;
-	int size;
 
 	PROGRAM_CNTXT_INIT(buff, 0);
 
@@ -1505,21 +1504,20 @@ int test_op_proto(uint32_t *buff)
 	PROTOCOL(OP_TYPE_DECAP_PROTOCOL, OP_PCLID_3G_DCRC,
 		 WITH(OP_PCL_3G_DCRC_CRC11));
 
-	size = PROGRAM_FINALIZE();
-	return size;
+	return PROGRAM_FINALIZE();
 }
 
-int prg_buff[1000];
+uint32_t prg_buff[1000];
 
 int main(int argc, char **argv)
 {
-	int size;
+	unsigned size;
 
 	pr_debug("OPERATION PROTOCOL program\n");
 	rta_set_sec_era(RTA_SEC_ERA_5);
-	size = test_op_proto((uint32_t *) prg_buff);
+	size = test_op_proto(prg_buff);
 	pr_debug("size = %d\n", size);
-	print_prog((uint32_t *) prg_buff, size);
+	print_prog(prg_buff, size);
 
 	return 0;
 }

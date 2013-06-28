@@ -3,7 +3,7 @@
 
 extern enum rta_sec_era rta_sec_era;
 
-static inline int32_t __rta_alg_aai_aes(uint16_t aai)
+static inline int __rta_alg_aai_aes(uint16_t aai)
 {
 	uint16_t aes_mode = aai & OP_ALG_AESA_MODE_MASK;
 
@@ -40,9 +40,9 @@ static inline int32_t __rta_alg_aai_aes(uint16_t aai)
 	return -1;
 }
 
-static inline int32_t __rta_alg_aai_des(uint16_t aai)
+static inline int __rta_alg_aai_des(uint16_t aai)
 {
-	uint16_t aai_code = aai & ~OP_ALG_AAI_CHECKODD;
+	uint16_t aai_code = (uint16_t)(aai & ~OP_ALG_AAI_CHECKODD);
 
 	switch (aai_code) {
 	case OP_ALG_AAI_CBC:
@@ -55,7 +55,7 @@ static inline int32_t __rta_alg_aai_des(uint16_t aai)
 	return -1;
 }
 
-static inline int32_t __rta_alg_aai_md5(uint16_t aai)
+static inline int __rta_alg_aai_md5(uint16_t aai)
 {
 	switch (aai) {
 	case OP_ALG_AAI_HMAC:
@@ -71,7 +71,7 @@ static inline int32_t __rta_alg_aai_md5(uint16_t aai)
 	return -1;
 }
 
-static inline int32_t __rta_alg_aai_sha(uint16_t aai)
+static inline int __rta_alg_aai_sha(uint16_t aai)
 {
 	switch (aai) {
 	case OP_ALG_AAI_HMAC:
@@ -86,7 +86,7 @@ static inline int32_t __rta_alg_aai_sha(uint16_t aai)
 	return -1;
 }
 
-static inline int32_t __rta_alg_aai_rng(uint16_t aai)
+static inline int __rta_alg_aai_rng(uint16_t aai)
 {
 	uint16_t rng_mode = aai & OP_ALG_RNG_MODE_MASK;
 	uint16_t rng_sh = aai & OP_ALG_AAI_RNG_SH_MASK;
@@ -113,7 +113,7 @@ static inline int32_t __rta_alg_aai_rng(uint16_t aai)
 	return -1;
 }
 
-static inline int32_t __rta_alg_aai_crc(uint16_t aai)
+static inline int __rta_alg_aai_crc(uint16_t aai)
 {
 	uint16_t aai_code = aai & OP_ALG_CRC_POLY_MASK;
 
@@ -127,7 +127,7 @@ static inline int32_t __rta_alg_aai_crc(uint16_t aai)
 	return -1;
 }
 
-static inline int32_t __rta_alg_aai_kasumi(uint16_t aai)
+static inline int __rta_alg_aai_kasumi(uint16_t aai)
 {
 	switch (aai) {
 	case OP_ALG_AAI_GSM:
@@ -140,7 +140,7 @@ static inline int32_t __rta_alg_aai_kasumi(uint16_t aai)
 	return -1;
 }
 
-static inline int32_t __rta_alg_aai_snow_f9(uint16_t aai)
+static inline int __rta_alg_aai_snow_f9(uint16_t aai)
 {
 	if (aai == OP_ALG_AAI_F9)
 		return 0;
@@ -148,7 +148,7 @@ static inline int32_t __rta_alg_aai_snow_f9(uint16_t aai)
 	return -1;
 }
 
-static inline int32_t __rta_alg_aai_snow_f8(uint16_t aai)
+static inline int __rta_alg_aai_snow_f8(uint16_t aai)
 {
 	if (aai == OP_ALG_AAI_F8)
 		return 0;
@@ -156,7 +156,7 @@ static inline int32_t __rta_alg_aai_snow_f8(uint16_t aai)
 	return -1;
 }
 
-static inline int32_t __rta_alg_aai_zuce(uint16_t aai)
+static inline int __rta_alg_aai_zuce(uint16_t aai)
 {
 	if (aai == OP_ALG_AAI_F8)
 		return 0;
@@ -164,7 +164,7 @@ static inline int32_t __rta_alg_aai_zuce(uint16_t aai)
 	return -1;
 }
 
-static inline int32_t __rta_alg_aai_zuca(uint16_t aai)
+static inline int __rta_alg_aai_zuca(uint16_t aai)
 {
 	if (aai == OP_ALG_AAI_F9)
 		return 0;
@@ -174,7 +174,7 @@ static inline int32_t __rta_alg_aai_zuca(uint16_t aai)
 
 struct alg_aai_map {
 	uint32_t chipher_algo;
-	int32_t (*aai_func)(uint16_t);
+	int (*aai_func)(uint16_t);
 	uint32_t class;
 };
 
@@ -202,15 +202,15 @@ static const struct alg_aai_map alg_table[] = {
  * Allowed OPERATION algorithms for each SEC Era.
  * Values represent the number of entries from alg_table[] that are supported.
  */
-static const uint8_t alg_table_sz[] = {14, 15, 15, 15, 17};
+static const unsigned alg_table_sz[] = {14, 15, 15, 15, 17};
 
 static inline unsigned rta_operation(struct program *program,
 				     uint32_t cipher_algo, uint16_t aai,
-				     uint8_t algo_state, uint8_t icv_checking,
-				     uint8_t enc)
+				     uint8_t algo_state, int icv_checking,
+				     int enc)
 {
 	uint32_t opcode = CMD_OPERATION;
-	uint32_t i, found = 0;
+	int i, found = 0;
 	unsigned start_pc = program->current_pc;
 
 	for (i = 0; i < alg_table_sz[rta_sec_era]; i++) {
@@ -290,7 +290,7 @@ static inline unsigned rta_operation(struct program *program,
 /*
  * OPERATION PKHA routines
  */
-static inline int32_t __rta_pkha_clearmem(uint32_t pkha_op)
+static inline int __rta_pkha_clearmem(uint32_t pkha_op)
 {
 	switch (pkha_op) {
 	case (OP_ALG_PKMODE_CLEARMEM_ALL):
@@ -314,7 +314,7 @@ static inline int32_t __rta_pkha_clearmem(uint32_t pkha_op)
 	return -1;
 }
 
-static inline int32_t __rta_pkha_mod_arithmetic(uint32_t pkha_op)
+static inline int __rta_pkha_mod_arithmetic(uint32_t pkha_op)
 {
 	pkha_op &= ~OP_ALG_PKMODE_OUT_A;
 
@@ -371,7 +371,7 @@ static inline int32_t __rta_pkha_mod_arithmetic(uint32_t pkha_op)
 	return -1;
 }
 
-static inline int32_t __rta_pkha_copymem(uint32_t pkha_op)
+static inline int __rta_pkha_copymem(uint32_t pkha_op)
 {
 	switch (pkha_op) {
 	case (OP_ALG_PKMODE_COPY_NSZ_A0_B0):

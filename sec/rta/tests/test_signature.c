@@ -4,11 +4,10 @@
 
 enum rta_sec_era rta_sec_era;
 
-int test_signature_op(uint32_t *buff)
+unsigned test_signature_op(uint32_t *buff)
 {
 	struct program prg;
 	struct program *program = &prg;
-	int size;
 
 	PROGRAM_CNTXT_INIT(buff, 0);
 	{
@@ -52,21 +51,20 @@ int test_signature_op(uint32_t *buff)
 		DWORD(0x123454320002222);
 	}
 
-	size = PROGRAM_FINALIZE();
-	return size;
+	return PROGRAM_FINALIZE();
 }
 
-int prg_buff[1000];
+uint32_t prg_buff[1000];
 
 int main(int argc, char **argv)
 {
-	int size;
+	unsigned size;
 
 	pr_debug("SIGNATURE program\n");
 	rta_set_sec_era(RTA_SEC_ERA_1);
-	size = test_signature_op((uint32_t *) prg_buff);
+	size = test_signature_op(prg_buff);
 	pr_debug("size = %d\n", size);
-	print_prog((uint32_t *) prg_buff, size);
+	print_prog(prg_buff, size);
 
 	return 0;
 }

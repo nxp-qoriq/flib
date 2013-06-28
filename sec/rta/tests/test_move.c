@@ -3,14 +3,14 @@
 #include "test_common.h"
 
 enum rta_sec_era rta_sec_era;
-int prg_buff[1000];
+unsigned prg_buff[1000];
 
-int test_move_op(uint32_t *buff)
+unsigned test_move_op(uint32_t *buff)
 {
 	struct program prg;
 	struct program *program = &prg;
-	int size, len = 16;
-	int label1 = 24;
+	int len = 16;
+	uint16_t label1 = 24;
 
 	PROGRAM_CNTXT_INIT(buff, 0);
 	/* MOVE from Class 1 Context */
@@ -287,19 +287,18 @@ int test_move_op(uint32_t *buff)
 
 	MOVE(AB2, 0, OFIFO, 0, MATH3, 0);
 
-	size = PROGRAM_FINALIZE();
-	return size;
+	return PROGRAM_FINALIZE();
 }
 
 int main(int argc, char **argv)
 {
-	int size;
+	unsigned size;
 
 	pr_debug("MOVE program\n");
 	rta_set_sec_era(RTA_SEC_ERA_4);
-	size = test_move_op((uint32_t *) prg_buff);
+	size = test_move_op(prg_buff);
 	pr_debug("size = %d\n", size);
-	print_prog((uint32_t *) prg_buff, size);
+	print_prog(prg_buff, size);
 
 	return 0;
 }

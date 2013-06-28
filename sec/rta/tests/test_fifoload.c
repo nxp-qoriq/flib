@@ -3,13 +3,12 @@
 #include "test_common.h"
 
 enum rta_sec_era rta_sec_era;
-int prg_buff[1000];
+uint32_t prg_buff[1000];
 
-int test_fifo_load_op(uint32_t *buff)
+unsigned test_fifo_load_op(uint32_t *buff)
 {
 	struct program prg;
 	struct program *program = &prg;
-	int size;
 	uint64_t msg = 0x12004201;
 	uint64_t aad_ptr = 0x200;
 	uint64_t src_dma = 0x800;
@@ -59,19 +58,18 @@ int test_fifo_load_op(uint32_t *buff)
 	FIFOLOAD(PKB3, IMM(0x12131415), 4, 0);
 	FIFOLOAD(PKN, PTR(mod), 12, 0);
 
-	size = PROGRAM_FINALIZE();
-	return size;
+	return PROGRAM_FINALIZE();
 }
 
 int main(int argc, char **argv)
 {
-	int size;
+	unsigned size;
 
 	pr_debug("FIFOLOAD program\n");
 	rta_set_sec_era(RTA_SEC_ERA_3);
-	size = test_fifo_load_op((uint32_t *) prg_buff);
+	size = test_fifo_load_op(prg_buff);
 	pr_debug("size = %d\n", size);
-	print_prog((uint32_t *) prg_buff, size);
+	print_prog(prg_buff, size);
 
 	return 0;
 }

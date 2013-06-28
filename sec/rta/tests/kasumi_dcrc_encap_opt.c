@@ -14,11 +14,10 @@ LABEL(encap_share_end);
 
 uint64_t desc_addr_1 = 0x00000040ull;
 
-int build_shdesc_kasumi_dcrc_encap(struct program *prg, uint32_t *buff,
-				   int buffpos)
+unsigned build_shdesc_kasumi_dcrc_encap(struct program *prg, uint32_t *buff,
+					unsigned buffpos)
 {
 	struct program *program = prg;
-	int size;
 	uint32_t key_size = 16;
 
 	LABEL(foo);
@@ -51,21 +50,20 @@ int build_shdesc_kasumi_dcrc_encap(struct program *prg, uint32_t *buff,
 		LOAD(IMM(0), DCTRL, LDOFF_DISABLE_AUTO_NFIFO, 0, 0);
 		SEQFIFOLOAD(PKA0, 60, 0);
 		LOAD(IMM(0), DCTRL, LDOFF_ENABLE_AUTO_NFIFO, 0, 0);
-		pmove1 = MOVE(IFIFOABD, 0, DESCBUF, 4 * foo, IMM(12), 0);
+		pmove1 = MOVE(IFIFOABD, 0, DESCBUF, 0, IMM(12), 0);
 		MOVE(IFIFOABD, 0, KEY1, 0, IMM(key_size), 0);
 		MOVE(IFIFOABD, 0, CONTEXT2, 32, IMM(32), 0);
 		LOAD(IMM(key_size), KEY1SZ, 0, 4, 0);
 		MOVE(CONTEXT2, 32, MATH0, 0, IMM(32), 0);
 		/* Get SEQ IN PTR command from Job Descriptor */
-		ref_job_seqout = MOVE(DESCBUF, 4 * encap_job_seqout, MATH2, 0,
-				      IMM(12), WITH(WAITCOMP));
+		ref_job_seqout = MOVE(DESCBUF, 0, MATH2, 0, IMM(12),
+				      WITH(WAITCOMP));
 		/* Mask out the bit so SOP becomes SIP; maintain ptr value */
 		MATHB(MATH2, AND, IMM(0xf7ffffffffffffff), MATH2, 8, 0);
 		MATHB(SEQINSZ, ADD, MATH3, MATH3, 8, WITH(NFU));
 		/* swap words */
 		MATHB(MATH0, SHLD, MATH3, MATH3, 8, 0);
-		ref_job_seqin = MOVE(MATH2, 0, DESCBUF, encap_job_seqin,
-				     IMM(12), 0);
+		ref_job_seqin = MOVE(MATH2, 0, DESCBUF, 0, IMM(12), 0);
 		MOVE(CONTEXT2, 48, MATH2, 0, IMM(16), WITH(WAITCOMP));
 
 		/* Build a MOVE command to process input data */
@@ -80,8 +78,7 @@ int build_shdesc_kasumi_dcrc_encap(struct program *prg, uint32_t *buff,
 		MATHB(ZERO, ADD, MATH0, VSEQINSZ, 2, WITH(NFU));
 		MATHB(ZERO, ADD, MATH0, VSEQOUTSZ, 2, WITH(NFU));
 		MATHB(MATH0, SHLD, MATH0, MATH0, 8, WITH(NFU));
-		pmove4 = MOVE(MATH0, 0, DESCBUF, get_data, IMM(4),
-			      WITH(WAITCOMP));
+		pmove4 = MOVE(MATH0, 0, DESCBUF, 0, IMM(4), WITH(WAITCOMP));
 		LOAD(IMM(0), DCTRL, LDOFF_DISABLE_AUTO_NFIFO, 0, 0);
 		SEQFIFOLOAD(PKA0, 0, WITH(VLF));
 		SEQFIFOSTORE(MSG, 0, 0, WITH(VLF));
@@ -125,15 +122,13 @@ int build_shdesc_kasumi_dcrc_encap(struct program *prg, uint32_t *buff,
 	PATCH_MOVE(pmove1, foo);
 	PATCH_MOVE(pmove4, get_data);
 
-	size = PROGRAM_FINALIZE();
-	return size;
+	return PROGRAM_FINALIZE();
 }
 
-int build_jbdesc_kasumi_dcrc_encap(struct program *prg, uint32_t *buff,
-				   int buffpos)
+unsigned build_jbdesc_kasumi_dcrc_encap(struct program *prg, uint32_t *buff,
+					unsigned buffpos)
 {
 	struct program *program = prg;
-	int size;
 	uint32_t input_frame_length = 2356;
 	uint32_t output_frame_length = 2302;
 	uint64_t pdu_in_addr_1 = 0x155ull;
@@ -149,15 +144,14 @@ int build_jbdesc_kasumi_dcrc_encap(struct program *prg, uint32_t *buff,
 		SEQINPTR(pdu_in_addr_1, input_frame_length, WITH(EXT));
 	}
 
-	size = PROGRAM_FINALIZE();
-	return size;
+	return PROGRAM_FINALIZE();
 }
 
 int main(int argc, char **argv)
 {
 	uint32_t lte_desc[60];
 	uint32_t job_desc[20];
-	int lte_desc_size, job_desc_size;
+	unsigned lte_desc_size, job_desc_size;
 	struct program lte_desc_prgm;
 	struct program job_desc_prgm;
 

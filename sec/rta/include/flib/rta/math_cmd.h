@@ -22,7 +22,7 @@ static const uint32_t math_op1[][2] = {
  * Allowed MATH op1 sources for each SEC Era.
  * Values represent the number of entries from math_op1[] that are supported.
  */
-static const uint32_t math_op1_sz[] = {10, 10, 12, 12, 12};
+static const unsigned math_op1_sz[] = {10, 10, 12, 12, 12};
 
 static const uint32_t math_op2[][2] = {
 /*1*/	{ _MATH0,     MATH_SRC1_REG0 },
@@ -44,7 +44,7 @@ static const uint32_t math_op2[][2] = {
  * Allowed MATH op2 sources for each SEC Era.
  * Values represent the number of entries from math_op2[] that are supported.
  */
-static const uint32_t math_op2_sz[] = {8, 9, 13, 13, 13};
+static const unsigned math_op2_sz[] = {8, 9, 13, 13, 13};
 
 static const uint32_t math_result[][2] = {
 /*1*/	{ _MATH0,     MATH_DEST_REG0 },
@@ -64,7 +64,7 @@ static const uint32_t math_result[][2] = {
  * Values represent the number of entries from math_result[] that are
  * supported.
  */
-static const uint32_t math_result_sz[] = {9, 9, 10, 10, 10};
+static const unsigned math_result_sz[] = {9, 9, 10, 10, 10};
 
 static inline unsigned rta_math(struct program *program, uint64_t operand1,
 				int type_op1, uint32_t op, uint64_t operand2,
@@ -73,7 +73,7 @@ static inline unsigned rta_math(struct program *program, uint64_t operand1,
 {
 	uint32_t opcode = CMD_MATH;
 	uint32_t val = 0;
-	int8_t ret = 0;
+	int ret;
 	unsigned start_pc = program->current_pc;
 
 	if (((op == BSWAP) && (rta_sec_era < RTA_SEC_ERA_4)) ||
@@ -111,7 +111,7 @@ static inline unsigned rta_math(struct program *program, uint64_t operand1,
 	if (type_op1 == IMM_DATA)
 		opcode |= MATH_SRC0_IMM;
 	else {
-		ret = __rta_map_opcode(operand1, math_op1,
+		ret = __rta_map_opcode((uint32_t)operand1, math_op1,
 				       math_op1_sz[rta_sec_era], &val);
 		if (ret == -1) {
 			pr_debug("MATH: operand1 not supported. SEC PC: %d; "
@@ -126,7 +126,7 @@ static inline unsigned rta_math(struct program *program, uint64_t operand1,
 	if (type_op2 == IMM_DATA)
 		opcode |= MATH_SRC1_IMM;
 	else {
-		ret = __rta_map_opcode(operand2, math_op2,
+		ret = __rta_map_opcode((uint32_t)operand2, math_op2,
 				       math_op2_sz[rta_sec_era], &val);
 		if (ret == -1) {
 			pr_debug("MATH: operand2 not supported. SEC PC: %d; "

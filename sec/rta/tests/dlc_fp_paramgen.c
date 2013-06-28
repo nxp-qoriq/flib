@@ -29,10 +29,9 @@ uint64_t make_X_addr = 0x861776ed8ull;
 uint64_t make_q_addr = 0x4b633925aull;
 uint64_t make_g_addr = 0x7aa7742f1ull;
 
-int generate_dlc_fp_params(struct program *prg, uint32_t *buff)
+unsigned generate_dlc_fp_params(struct program *prg, uint32_t *buff)
 {
 	struct program *program = prg;
-	int size = 0;
 
 	LABEL(new_r);
 	REFERENCE(ref_new_r);
@@ -82,14 +81,12 @@ int generate_dlc_fp_params(struct program *prg, uint32_t *buff)
 	}
 	PATCH_JUMP(ref_new_r, new_r);
 
-	size = PROGRAM_FINALIZE();
-	return size;
+	return PROGRAM_FINALIZE();
 }
 
-int dlc_fp_make_x(struct program *prg, uint32_t *buff)
+unsigned dlc_fp_make_x(struct program *prg, uint32_t *buff)
 {
 	struct program *program = prg;
-	int size;
 
 	PROGRAM_CNTXT_INIT(buff, 0);
 	PROGRAM_SET_36BIT_ADDR();
@@ -118,15 +115,13 @@ int dlc_fp_make_x(struct program *prg, uint32_t *buff)
 		FIFOSTORE(PKN, 0, dom_q_addr, q_size, 0);
 		JUMP(PTR(make_q_addr), FAR_JUMP, ALL_TRUE, 0);
 	}
-	size = PROGRAM_FINALIZE();
 
-	return size;
+	return PROGRAM_FINALIZE();
 }
 
-int dlc_fp_make_q(struct program *prg, uint32_t *buff)
+unsigned dlc_fp_make_q(struct program *prg, uint32_t *buff)
 {
 	struct program *program = prg;
-	int size;
 
 	LABEL(store_q);
 	REFERENCE(ref_store_q);
@@ -189,15 +184,13 @@ int dlc_fp_make_q(struct program *prg, uint32_t *buff)
 		JUMP(PTR(make_g_addr), FAR_JUMP, ALL_TRUE, 0);
 	}
 	PATCH_JUMP(ref_store_q, store_q);
-	size = PROGRAM_FINALIZE();
 
-	return size;
+	return PROGRAM_FINALIZE();
 }
 
-int dlc_fp_make_g(struct program *prg, uint32_t *buff)
+unsigned dlc_fp_make_g(struct program *prg, uint32_t *buff)
 {
 	struct program *program = prg;
-	int size;
 
 	LABEL(h_loop);
 	REFERENCE(ref_h_loop);
@@ -277,9 +270,7 @@ int dlc_fp_make_g(struct program *prg, uint32_t *buff)
 	PATCH_JUMP(ref_h_loop, h_loop);
 	PATCH_JUMP(ref_found_g, found_g);
 
-	size = PROGRAM_FINALIZE();
-
-	return size;
+	return PROGRAM_FINALIZE();
 }
 
 int main(int argc, char **argv)
@@ -293,7 +284,7 @@ int main(int argc, char **argv)
 	struct program make_x_prgm;
 	struct program make_q_prgm;
 	struct program make_g_prgm;
-	int size;
+	unsigned size;
 
 	rta_set_sec_era(RTA_SEC_ERA_1);
 

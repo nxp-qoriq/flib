@@ -20,11 +20,10 @@ uint8_t secret[20] = {
 	0x53, 0xA2, 0x10, 0x08
 };				/* [] secret */
 
-int var_test(uint32_t *buff)
+unsigned var_test(uint32_t *buff)
 {
 	struct program prg;
 	struct program *program = &prg;
-	int size;
 	int secret_len = sizeof(secret);
 	uint64_t secret_out = 0x3000200;
 
@@ -34,30 +33,29 @@ int var_test(uint32_t *buff)
 	/* RSA Encrypt */
 	JOB_HDR(SHR_NEVER, 0, 0, 0);
 	{
-		FIFOLOAD(PKN, PTR((intptr_t) &modulus), (sizeof(modulus)),
+		FIFOLOAD(PKN, PTR((uintptr_t) &modulus), (sizeof(modulus)),
 			 WITH(IMMED));
-		FIFOLOAD(PKA, PTR((intptr_t) &secret), secret_len,
+		FIFOLOAD(PKA, PTR((uintptr_t) &secret), secret_len,
 			 WITH(IMMED));
 		KEY(PKE, 0, IMM(0x03), 1, 0);
 		PKHA_OPERATION(OP_ALG_PKMODE_MOD_EXPO);
 		FIFOSTORE(PKB, 0, secret_out, (sizeof(modulus)), 0);
 	}
-	size = PROGRAM_FINALIZE();
 
-	return size;
+	return PROGRAM_FINALIZE();
 }
 
-int prg_buff[1000];
+uint32_t prg_buff[1000];
 
 int main(int argc, char **argv)
 {
-	int size;
+	unsigned size;
 
 	pr_debug("VAR_1 example program\n");
 	rta_set_sec_era(RTA_SEC_ERA_1);
-	size = var_test((uint32_t *) prg_buff);
+	size = var_test(prg_buff);
 	pr_debug("size = %d\n", size);
-	print_prog((uint32_t *) prg_buff, size);
+	print_prog(prg_buff, size);
 
 	return 0;
 }

@@ -20,10 +20,10 @@ uint16_t e_size = 3;		/* input public key length */
 uint16_t n_size = 128;		/* configuration parameter for RSA-nnnn */
 uint16_t pq_size = 64;
 
-int jdesc_pkha_make_rsa_p_q(struct program *prg, uint32_t *buff, int buffpos)
+unsigned jdesc_pkha_make_rsa_p_q(struct program *prg, uint32_t *buff,
+				 unsigned buffpos)
 {
 	struct program *program = prg;
-	int size;
 	uint64_t pq_count = (uint64_t) 0x318d7f00ul;
 
 	LABEL(retry);
@@ -106,15 +106,13 @@ int jdesc_pkha_make_rsa_p_q(struct program *prg, uint32_t *buff, int buffpos)
 	PATCH_JUMP(pjump4, now_do_q);
 	PATCH_JUMP(pjump5, retry);
 
-	size = PROGRAM_FINALIZE();
-	return size;
+	return PROGRAM_FINALIZE();
 }
 
-int jdesc_pkha_make_rsa_check_pq(struct program *prg, uint32_t *buff,
-				 int buffpos)
+unsigned jdesc_pkha_make_rsa_check_pq(struct program *prg, uint32_t *buff,
+				      unsigned buffpos)
 {
 	struct program *program = prg;
-	int size;
 
 	LABEL(check_2);
 	REFERENCE(pjump1);
@@ -181,14 +179,13 @@ int jdesc_pkha_make_rsa_check_pq(struct program *prg, uint32_t *buff,
 	PATCH_JUMP(pjump5, pq_ok);
 	PATCH_JUMP(pjump6, pq_ok);
 
-	size = PROGRAM_FINALIZE();
-	return size;
+	return PROGRAM_FINALIZE();
 }
 
-int jdesc_pkha_make_rsa_keys(struct program *prg, uint32_t *buff, int buffpos)
+unsigned jdesc_pkha_make_rsa_keys(struct program *prg, uint32_t *buff,
+				  unsigned buffpos)
 {
 	struct program *program = prg;
-	int size;
 
 	PROGRAM_CNTXT_INIT(buff, buffpos);
 	JOB_HDR(SHR_NEVER, 0, 0, 0);
@@ -203,14 +200,13 @@ int jdesc_pkha_make_rsa_keys(struct program *prg, uint32_t *buff, int buffpos)
 		JUMP(PTR(pkha_make_rsa_p_q_phys), FAR_JUMP, ALL_TRUE, 0);
 	}
 
-	size = PROGRAM_FINALIZE();
-	return size;
+	return PROGRAM_FINALIZE();
 }
 
-int jdesc_pkha_make_rsa_d_n(struct program *prg, uint32_t *buff, int buffpos)
+unsigned jdesc_pkha_make_rsa_d_n(struct program *prg, uint32_t *buff,
+				 unsigned buffpos)
 {
 	struct program *program = prg;
-	int size;
 
 	LABEL(phi_e_relatively_prime);
 	REFERENCE(pjump1);
@@ -251,8 +247,7 @@ int jdesc_pkha_make_rsa_d_n(struct program *prg, uint32_t *buff, int buffpos)
 	}
 	PATCH_JUMP(pjump1, phi_e_relatively_prime);
 
-	size = PROGRAM_FINALIZE();
-	return size;
+	return PROGRAM_FINALIZE();
 }
 
 int main(int argc, char **argv)
@@ -262,8 +257,8 @@ int main(int argc, char **argv)
 	uint32_t make_rsa_check_pq[64];
 	uint32_t make_rsa_d_n[64];
 
-	int rsa_keys_size, rsa_p_q_size;
-	int rsa_check_pq_size, rsa_d_n_size;
+	unsigned rsa_keys_size, rsa_p_q_size;
+	unsigned rsa_check_pq_size, rsa_d_n_size;
 
 	struct program rsa_keys_prgm;
 	struct program rsa_p_q_prgm;

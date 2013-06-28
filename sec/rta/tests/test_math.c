@@ -4,11 +4,10 @@
 
 enum rta_sec_era rta_sec_era;
 
-int math_test(uint32_t *buff)
+unsigned math_test(uint32_t *buff)
 {
 	struct program prg;
 	struct program *program = &prg;
-	int size;
 	uint32_t smallnum = 393615378ULL;
 	uint64_t bignum = 0x19261959fedcba01ULL;
 
@@ -13338,15 +13337,14 @@ int math_test(uint32_t *buff)
 	MATHB(ZERO, ADD, JOBSRC, MATH0, SIZE(4), 0);
 	MATHB(IMM(0x07), AND, JOBSRC, MATH0, SIZE(4), 0);
 
-	size = PROGRAM_FINALIZE();
-	return size;
+	return PROGRAM_FINALIZE();
 }
 
 uint32_t prg_buff[1000000];
 
 int main(int argc, char **argv)
 {
-	int size;
+	unsigned size;
 
 	rta_set_sec_era(RTA_SEC_ERA_4);
 

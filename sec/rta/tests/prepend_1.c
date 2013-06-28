@@ -4,11 +4,10 @@
 
 enum rta_sec_era rta_sec_era;
 
-int prepend(uint32_t *buff)
+unsigned prepend(uint32_t *buff)
 {
 	struct program prg;
 	struct program *program = &prg;
-	int size;
 	uint8_t key_1[40] = {
 		0xc8, 0xc1, 0xd7, 0xbf, 0xa4, 0xe3, 0xee, 0x84,
 		0xb1, 0x52, 0x37, 0x06, 0x38, 0x97, 0xac, 0x9f,
@@ -48,34 +47,33 @@ int prepend(uint32_t *buff)
 			WORD(0x79890a98);	/* Opt IP Hdr */
 		}
 
-		SEQSTORE(PTR((intptr_t) &data_in), 0, 14, WITH(IMMED));
+		SEQSTORE(PTR((uintptr_t) &data_in), 0, 14, WITH(IMMED));
 		pjump1 = JUMP(IMM(skip_key_load), LOCAL_JUMP, ALL_TRUE,
 			      WITH(SHRD));
-		KEY(MDHA_SPLIT_KEY, 0, PTR((intptr_t) &key_1), 40,
+		KEY(MDHA_SPLIT_KEY, 0, PTR((uintptr_t) &key_1), 40,
 		    WITH(IMMED));
-		KEY(KEY1, 0, PTR((intptr_t) &key_2), 16, WITH(IMMED));
+		KEY(KEY1, 0, PTR((uintptr_t) &key_2), 16, WITH(IMMED));
 		SET_LABEL(skip_key_load);
 		PROTOCOL(OP_TYPE_ENCAP_PROTOCOL, OP_PCLID_IPSEC,
 			 WITH(OP_PCL_IPSEC_AES_CBC |
 			      OP_PCL_IPSEC_HMAC_SHA1_160));
 	}
 	PATCH_JUMP(pjump1, skip_key_load);
-	size = PROGRAM_FINALIZE();
 
-	return size;
+	return PROGRAM_FINALIZE();
 }
 
-int prg_buff[1000];
+uint32_t prg_buff[1000];
 
 int main(int argc, char **argv)
 {
-	int size;
+	unsigned size;
 
 	pr_debug("PREPEND_1 example program\n");
 	rta_set_sec_era(RTA_SEC_ERA_4);
-	size = prepend((uint32_t *) prg_buff);
+	size = prepend(prg_buff);
 	pr_debug("size = %d\n", size);
-	print_prog((uint32_t *) prg_buff, size);
+	print_prog(prg_buff, size);
 
 	return 0;
 }

@@ -34,16 +34,15 @@ static const uint32_t fifo_load_table[][2] = {
  * Values represent the number of entries from fifo_load_table[] that are
  * supported.
  */
-static const uint32_t fifo_load_table_sz[] = {22, 22, 23, 23, 23};
+static const unsigned fifo_load_table_sz[] = {22, 22, 23, 23, 23};
 
 static inline unsigned rta_fifo_load(struct program *program, uint32_t src,
-				     uint32_t type_src, uint64_t loc,
-				     uint32_t type_loc, uint32_t length,
-				     uint32_t flags)
+				     int type_src, uint64_t loc, int type_loc,
+				     uint32_t length, uint32_t flags)
 {
 	uint32_t opcode = 0;
-	uint32_t is_seq_cmd = 0, ext_length = 0, val = 0;
-	int8_t ret = 0, i;
+	uint32_t ext_length = 0, val = 0;
+	int ret, is_seq_cmd = 0, i;
 	unsigned start_pc = program->current_pc;
 
 	/* write command type field */
@@ -204,16 +203,16 @@ static const uint32_t fifo_store_table[][2] = {
  * Values represent the number of entries from fifo_store_table[] that are
  * supported.
  */
-static const uint32_t fifo_store_table_sz[] = {21, 21, 21, 21, 22};
+static const unsigned fifo_store_table_sz[] = {21, 21, 21, 21, 22};
 
 static inline unsigned rta_fifo_store(struct program *program, uint32_t src,
-				      uint32_t type_src, uint32_t encrypt_flags,
+				      int type_src, uint32_t encrypt_flags,
 				      uint64_t dst, uint32_t length,
 				      uint32_t flags)
 {
 	uint32_t opcode = 0;
-	uint32_t is_seq_cmd = 0, val = 0;
-	int8_t ret = 0;
+	uint32_t val = 0;
+	int ret, is_seq_cmd = 0;
 	unsigned start_pc = program->current_pc;
 
 	/* write command type field */

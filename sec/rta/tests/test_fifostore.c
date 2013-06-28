@@ -3,13 +3,12 @@
 #include "test_common.h"
 
 enum rta_sec_era rta_sec_era;
-int prg_buff[1000];
+uint32_t prg_buff[1000];
 
-int test_fifo_store_op(uint32_t *buff)
+unsigned test_fifo_store_op(uint32_t *buff)
 {
 	struct program prg;
 	struct program *program = &prg;
-	int size;
 	uint64_t loc = 0x1224445;
 
 	PROGRAM_CNTXT_INIT(buff, 0);
@@ -64,19 +63,18 @@ int test_fifo_store_op(uint32_t *buff)
 	SEQFIFOSTORE(METADATA, 0, 92, WITH(BOTH));
 	SEQFIFOSTORE(METADATA, 0, 0, WITH(BOTH | VLF));
 
-	size = PROGRAM_FINALIZE();
-	return size;
+	return PROGRAM_FINALIZE();
 }
 
 int main(int argc, char **argv)
 {
-	int size;
+	unsigned size;
 
 	pr_debug("FIFOSTORE program\n");
 	rta_set_sec_era(RTA_SEC_ERA_5);
-	size = test_fifo_store_op((uint32_t *) prg_buff);
+	size = test_fifo_store_op(prg_buff);
 	pr_debug("size = %d\n", size);
-	print_prog((uint32_t *) prg_buff, size);
+	print_prog(prg_buff, size);
 
 	return 0;
 }

@@ -38,10 +38,9 @@ REFERENCE(ref1_shr_yyy);
 
 uint32_t sharehdr = 0x200000;
 
-int jump_cmd_desc1(struct program *prg, uint32_t *buff, int buffpos)
+unsigned jump_cmd_desc1(struct program *prg, uint32_t *buff, unsigned buffpos)
 {
 	struct program *program = prg;
-	int size;
 
 	REFERENCE(pjump1);
 	REFERENCE(pjump2);
@@ -86,14 +85,12 @@ int jump_cmd_desc1(struct program *prg, uint32_t *buff, int buffpos)
 	PATCH_HDR(phdr3, aaa);
 	PATCH_HDR(phdr4, bbb);
 
-	size = PROGRAM_FINALIZE();
-	return size;
+	return PROGRAM_FINALIZE();
 }
 
-int jump_cmd_desc2(struct program *prg, uint32_t *buff, int buffpos)
+unsigned jump_cmd_desc2(struct program *prg, uint32_t *buff, unsigned buffpos)
 {
 	struct program *program = prg;
-	int size;
 
 	REFERENCE(pjump1);
 	REFERENCE(pjump2);
@@ -145,14 +142,12 @@ int jump_cmd_desc2(struct program *prg, uint32_t *buff, int buffpos)
 	PATCH_HDR(phdr3, fff);
 	PATCH_HDR(phdr4, ggg);
 
-	size = PROGRAM_FINALIZE();
-	return size;
+	return PROGRAM_FINALIZE();
 }
 
-int jump_cmd_desc3(struct program *prg, uint32_t *buff, int buffpos)
+unsigned jump_cmd_desc3(struct program *prg, uint32_t *buff, unsigned buffpos)
 {
 	struct program *program = prg;
-	int size;
 
 	REFERENCE(pjump1);
 	REFERENCE(phdr1);
@@ -181,28 +176,24 @@ int jump_cmd_desc3(struct program *prg, uint32_t *buff, int buffpos)
 	PATCH_HDR(phdr1, zzz);
 	PATCH_HDR(phdr2, yyy);
 
-	size = PROGRAM_FINALIZE();
-	return size;
+	return PROGRAM_FINALIZE();
 }
 
-int jump_cmd_desc4(struct program *prg, uint32_t *buff, int buffpos)
+unsigned jump_cmd_desc4(struct program *prg, uint32_t *buff, unsigned buffpos)
 {
 	struct program *program = prg;
-	int size;
 
 	PROGRAM_CNTXT_INIT(buff, buffpos);
 	{
 		JUMP(IMM(7 - buffpos), LOCAL_JUMP, ALL_TRUE, 0);
 	}
 
-	size = PROGRAM_FINALIZE();
-	return size;
+	return PROGRAM_FINALIZE();
 }
 
-int jump_cmd_desc5(struct program *prg, uint32_t *buff, int buffpos)
+unsigned jump_cmd_desc5(struct program *prg, uint32_t *buff, unsigned buffpos)
 {
 	struct program *program = prg;
-	int size;
 
 	PROGRAM_CNTXT_INIT(buff, buffpos);
 	{
@@ -219,14 +210,13 @@ int jump_cmd_desc5(struct program *prg, uint32_t *buff, int buffpos)
 		JUMP(PTR(0x42), HALT_STATUS, ANY_FALSE, WITH(PK_0 | MATH_Z));
 		JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, WITH(CLASS1 | CLASS2));
 	}
-	size = PROGRAM_FINALIZE();
-	return size;
+
+	return PROGRAM_FINALIZE();
 }
 
-int jump_cmd_desc6(struct program *prg, uint32_t *buff, int buffpos)
+unsigned jump_cmd_desc6(struct program *prg, uint32_t *buff, unsigned buffpos)
 {
 	struct program *program = prg;
-	int size;
 
 	PROGRAM_CNTXT_INIT(buff, buffpos);
 	JOB_HDR(SHR_NEVER, 0, 0, 0);
@@ -251,8 +241,7 @@ int jump_cmd_desc6(struct program *prg, uint32_t *buff, int buffpos)
 		JUMP(IMM(2), LOCAL_JUMP, ANY_FALSE, WITH(MATH_Z | MATH_N));
 	}
 
-	size = PROGRAM_FINALIZE();
-	return size;
+	return PROGRAM_FINALIZE();
 }
 
 int main(int argc, char **argv)
@@ -263,8 +252,8 @@ int main(int argc, char **argv)
 	uint32_t desc4[50];
 	uint32_t desc5[50];
 	uint32_t desc6[50];
-	int buf1len, buf2len, buf3len;
-	int buf4len, buf5len, buf6len;
+	unsigned buf1len, buf2len, buf3len;
+	unsigned buf4len, buf5len, buf6len;
 
 	struct program desc1_prgm;
 	struct program desc2_prgm;

@@ -2,9 +2,9 @@
 #include <stdio.h>
 #include "test_common.h"
 
-void print_prog(uint32_t *buff, int size)
+void print_prog(uint32_t *buff, unsigned size)
 {
-	int i;
+	unsigned i;
 
 	for (i = 0; i < size; i++)
 		printf("%08x\n", buff[i]);

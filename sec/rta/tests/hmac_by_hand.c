@@ -8,11 +8,10 @@ uint8_t *iv1 = (uint8_t *) 0x64;	/* input constant */
 uint8_t *ipad = (uint8_t *) 0x664;
 uint8_t *opad = (uint8_t *) 0x12364;
 
-int build_hmacprecomp(uint32_t *buff)
+unsigned build_hmacprecomp(uint32_t *buff)
 {
 	struct program prg;
 	struct program *program = &prg;
-	int size;
 	uint8_t *hmac_key = (uint8_t *) (0x12);	/* input */
 	unsigned int hmac_key_len = 18;	/* input */
 	uint32_t *hmacprecompute_opad_phys = (uint32_t *) 0xaabb2200;
@@ -70,15 +69,13 @@ int build_hmacprecomp(uint32_t *buff)
 		     ALL_TRUE, 0);
 	}
 
-	size = PROGRAM_FINALIZE();
-	return size;
+	return PROGRAM_FINALIZE();
 }
 
-int build_hmacprecomp_opad(uint32_t *buff)
+unsigned build_hmacprecomp_opad(uint32_t *buff)
 {
 	struct program prg;
 	struct program *program = &prg;
-	int size;
 
 	PROGRAM_CNTXT_INIT(buff, 0);
 	JOB_HDR(SHR_NEVER, 0, 0, 0);
@@ -132,15 +129,14 @@ int build_hmacprecomp_opad(uint32_t *buff)
 		/* This happens when MDHA is finished */
 		STORE(CONTEXT2, 0, PTR((uintptr_t) opad), 0, 0);
 	}
-	size = PROGRAM_FINALIZE();
-	return size;
+
+	return PROGRAM_FINALIZE();
 }
 
-int build_hmac_from_pre(uint32_t *buff)
+unsigned build_hmac_from_pre(uint32_t *buff)
 {
 	struct program prg;
 	struct program *program = &prg;
-	int size;
 	uint8_t *innerhash = (uint8_t *) 0x28;	/* debug */
 	uint8_t *mac = (uint8_t *) 12228;
 	void *msg = (void *)0x12341234ul;	/* physical ptr */
@@ -176,32 +172,32 @@ int build_hmac_from_pre(uint32_t *buff)
 			      OP_ALG_AS_FINALIZE, 0, 0);
 		STORE(CONTEXT2, 0, PTR((uintptr_t) mac), maclen, 0);
 	}
-	size = PROGRAM_FINALIZE();
-	return size;
+
+	return PROGRAM_FINALIZE();
 }
 
-int prg_buff[1000];
+uint32_t prg_buff[1000];
 
 int main(int argc, char **argv)
 {
-	int size;
+	unsigned size;
 
 	rta_set_sec_era(RTA_SEC_ERA_1);
 
 	pr_debug("HMAC_By_Hand #1 JD program\n");
-	size = build_hmacprecomp((uint32_t *) prg_buff);
+	size = build_hmacprecomp(prg_buff);
 	pr_debug("size = %d\n", size);
-	print_prog((uint32_t *) prg_buff, size);
+	print_prog(prg_buff, size);
 
 	pr_debug("HMAC_By_Hand #2 JD program\n");
-	size = build_hmacprecomp_opad((uint32_t *) prg_buff);
+	size = build_hmacprecomp_opad(prg_buff);
 	pr_debug("size = %d\n", size);
-	print_prog((uint32_t *) prg_buff, size);
+	print_prog(prg_buff, size);
 
 	pr_debug("HMAC_By_Hand #3 JD program\n");
-	size = build_hmac_from_pre((uint32_t *) prg_buff);
+	size = build_hmac_from_pre(prg_buff);
 	pr_debug("size = %d\n", size);
-	print_prog((uint32_t *) prg_buff, size);
+	print_prog(prg_buff, size);
 
 	return 0;
 }

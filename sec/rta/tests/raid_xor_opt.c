@@ -18,10 +18,10 @@ REFERENCE(ref1_shr_first);
 LABEL(last);
 REFERENCE(ref1_shr_last);
 
-int build_shdesc_raid_xor_opt(struct program *prg, uint32_t *buff, int buffpos)
+unsigned build_shdesc_raid_xor_opt(struct program *prg, uint32_t *buff,
+				   unsigned buffpos)
 {
 	struct program *program = prg;
-	int size;
 	uint32_t chunk_size = 128;
 	uint32_t fetch_limit = 64;
 
@@ -48,8 +48,7 @@ int build_shdesc_raid_xor_opt(struct program *prg, uint32_t *buff, int buffpos)
 		SEQLOAD(CONTEXT1, 0, c1_ctxt_slots * 16, 0);
 		SEQLOAD(CONTEXT2, 0, c2_ctxt_slots * 16, 0);
 		LOAD(IMM(0), DCTRL, LDOFF_DISABLE_AUTO_NFIFO, 0, 0);
-		pmove1 = MOVE(CONTEXT1, 0, DESCBUF, new_source, IMM(16),
-			      WITH(WAITCOMP));
+		pmove1 = MOVE(CONTEXT1, 0, DESCBUF, 0, IMM(16), WITH(WAITCOMP));
 
 		phdr1 = SHR_HDR(SHR_NEVER, label_2, 0);
 
@@ -96,7 +95,7 @@ int build_shdesc_raid_xor_opt(struct program *prg, uint32_t *buff, int buffpos)
 		SEQFIFOLOAD(PKA0, chunk_size, 0);
 		NFIFOADD(IFIFO, MSG, chunk_size, WITH(LAST1));
 
-		pmove2 = MOVE(CONTEXT1, 16, DESCBUF, new_source, IMM(16), 0);
+		pmove2 = MOVE(CONTEXT1, 16, DESCBUF, 0, IMM(16), 0);
 		MATHB(VSEQINSZ, SUB, ONE, NONE, SIZE(4), 0);
 		pjump4 = JUMP(IMM(return_point), LOCAL_JUMP, ANY_FALSE,
 			      WITH(MATH_N));
@@ -107,7 +106,7 @@ int build_shdesc_raid_xor_opt(struct program *prg, uint32_t *buff, int buffpos)
 		SET_LABEL(last);
 		SEQFIFOLOAD(SKIP, 0, WITH(VLF));
 		MATHB(VSEQINSZ, ADD, IMM(chunk_size), VSEQINSZ, SIZE(4), 0);
-		pmove3 = MOVE(CONTEXT1, 0, DESCBUF, new_source, IMM(16), 0);
+		pmove3 = MOVE(CONTEXT1, 0, DESCBUF, 0, IMM(16), 0);
 		phdr4 = SHR_HDR(SHR_NEVER, c, 0);
 	}
 
@@ -124,14 +123,13 @@ int build_shdesc_raid_xor_opt(struct program *prg, uint32_t *buff, int buffpos)
 	PATCH_JUMP(pjump4, return_point);
 	PATCH_JUMP(pjump5, store_here);
 
-	size = PROGRAM_FINALIZE();
-	return size;
+	return PROGRAM_FINALIZE();
 }
 
-int build_jbdesc_raid_xor_opt(struct program *prg, uint32_t *buff, int buffpos)
+unsigned build_jbdesc_raid_xor_opt(struct program *prg, uint32_t *buff,
+				   unsigned buffpos)
 {
 	struct program *program = prg;
-	int size;
 	uint64_t context_ptr = 0x08858d80ULL;
 	uint64_t store_ptr = 0x00000040ULL;
 
@@ -141,15 +139,14 @@ int build_jbdesc_raid_xor_opt(struct program *prg, uint32_t *buff, int buffpos)
 		SEQOUTPTR(store_ptr, data_size, WITH(EXT));
 		SEQINPTR(context_ptr, 8 * 16, 0);
 	}
-	size = PROGRAM_FINALIZE();
-	return size;
+
+	return PROGRAM_FINALIZE();
 }
 
-int build_more_cmds_raid_xor_opt(struct program *prg, uint32_t *buff,
-				 int buffpos)
+unsigned build_more_cmds_raid_xor_opt(struct program *prg, uint32_t *buff,
+				      unsigned buffpos)
 {
 	struct program *program = prg;
-	int size;
 	uint64_t load_data_addr[8];
 	int i;
 	uint32_t num_sources = 8;
@@ -175,7 +172,7 @@ int build_more_cmds_raid_xor_opt(struct program *prg, uint32_t *buff,
 					 WITH(EXT));
 				ref1_move_new_source =
 					MOVE(CONTEXT1, (16 * (i + 1)), DESCBUF,
-					     new_source, IMM(16), 0);
+					     0, IMM(16), 0);
 				JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, 0);
 				PATCH_MOVE(ref1_move_new_source, new_source);
 			} else {
@@ -183,7 +180,7 @@ int build_more_cmds_raid_xor_opt(struct program *prg, uint32_t *buff,
 					 WITH(EXT));
 				ref2_move_new_source =
 					MOVE(CONTEXT2, (16 * (i + 1)), DESCBUF,
-					     new_source, IMM(16), 0);
+					     0, IMM(16), 0);
 				JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, 0);
 				PATCH_MOVE(ref2_move_new_source, new_source);
 			}
@@ -196,8 +193,7 @@ int build_more_cmds_raid_xor_opt(struct program *prg, uint32_t *buff,
 	PATCH_HDR(ref1_shr_first, first);
 	PATCH_HDR(ref1_shr_last, last);
 
-	size = PROGRAM_FINALIZE();
-	return size;
+	return PROGRAM_FINALIZE();
 
 }
 
@@ -206,7 +202,7 @@ int main(int argc, char **argv)
 	uint32_t sharedesc[64];
 	uint32_t jobdesc[10];
 	uint32_t context_buf[64];
-	int shr_size, job_size, ctx_size;
+	unsigned shr_size, job_size, ctx_size;
 
 	struct program shr_desc_prgm;
 	struct program job_desc_prgm;

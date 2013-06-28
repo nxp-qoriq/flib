@@ -4,11 +4,10 @@
 
 enum rta_sec_era rta_sec_era;
 
-int test_decryption(uint32_t *buff)
+unsigned test_decryption(uint32_t *buff)
 {
 	struct program prg;
 	struct program *program = &prg;
-	int size;
 	uint64_t data_in = (uint64_t) 0x82ba84e1cull;
 	uint64_t data_out = (uint64_t) 0x582007840ull;
 	uint64_t key_data = (uint64_t) 0xdd5fa8880ull;
@@ -29,21 +28,21 @@ int test_decryption(uint32_t *buff)
 		FIFOLOAD(MSG1, PTR(data_in), datasz, WITH(LAST1));
 		FIFOSTORE(MSG, 0, data_out, datasz, WITH(EXT));
 	}
-	size = PROGRAM_FINALIZE();
-	return size;
+
+	return PROGRAM_FINALIZE();
 }
 
-int prg_buff[1000];
+uint32_t prg_buff[1000];
 
 int main(int argc, char **argv)
 {
-	int size;
+	unsigned size;
 
 	pr_debug("Decryption program\n");
 	rta_set_sec_era(RTA_SEC_ERA_1);
-	size = test_decryption((uint32_t *) prg_buff);
+	size = test_decryption(prg_buff);
 	pr_debug("size = %d\n", size);
-	print_prog((uint32_t *) prg_buff, size);
+	print_prog(prg_buff, size);
 
 	return 0;
 }

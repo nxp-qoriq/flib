@@ -45,10 +45,9 @@ const uint32_t num_ctx1_extras =
     /*num_even_more_extras_bytes */ 11 * 4 + 4 +
     /*num_still_more_extras_bytes */ 2 * 4;
 
-int generate_lte_code(struct program *prg, uint32_t *buff, int mdatalen,
-		      int buffpos)
+unsigned generate_lte_code(struct program *prg, uint32_t *buff, int mdatalen,
+			   unsigned buffpos)
 {
-	int size;
 	struct program *program = prg;
 
 	LABEL(last_info);
@@ -82,10 +81,10 @@ int generate_lte_code(struct program *prg, uint32_t *buff, int mdatalen,
 		SEQFIFOLOAD(MSG1, 0, WITH(VLF));
 		LOAD(IMM(0), DCTRL, 4, 0, 0);
 		/* First extra command words */
-		pmove1 =
-		    MOVE(IFIFOABD, 0, DESCBUF, encap_share_end,
-			 IMM(num_more_extras_bytes), WITH(FLUSH1 | WAITCOMP));
-		pjump1 = JUMP(IMM(encap_share_end), LOCAL_JUMP, ALL_TRUE, 0);
+		pmove1 = MOVE(IFIFOABD, 0, DESCBUF, 0,
+			      IMM(num_more_extras_bytes),
+			      WITH(FLUSH1 | WAITCOMP));
+		pjump1 = JUMP(IMM(0), LOCAL_JUMP, ALL_TRUE, 0);
 
 		SET_LABEL(back_from_extras);
 
@@ -95,8 +94,8 @@ int generate_lte_code(struct program *prg, uint32_t *buff, int mdatalen,
 		MOVE(IFIFOABD, 0, MATH0, 4, IMM(4), WITH(FLUSH1));
 
 		/* calculate the data size for CRC */
-		pmove2 = MOVE(DESCBUF, datasz_len, MATH0, 0, IMM(4), 0);
-		pmove3 = MOVE(MATH0, 0, DESCBUF, datasz_len, IMM(8), 0);
+		pmove2 = MOVE(DESCBUF, 0, MATH0, 0, IMM(4), 0);
+		pmove3 = MOVE(MATH0, 0, DESCBUF, 0, IMM(8), 0);
 
 		/*
 		 * The input to cipher is 2 bytes less than B. And the amount
@@ -106,18 +105,18 @@ int generate_lte_code(struct program *prg, uint32_t *buff, int mdatalen,
 		/* B-2: Size of each PDU not including the header */
 		MATHB(MATH0, SUB, IMM(2), MATH0, BYTES_2, 0);
 
-		pmove4 = MOVE(DESCBUF, datasz1_len, MATH0, 0, IMM(4), 0);
-		pmove5 = MOVE(MATH0, 0, DESCBUF, datasz1_len, IMM(8), 0);
+		pmove4 = MOVE(DESCBUF, 0, MATH0, 0, IMM(4), 0);
+		pmove5 = MOVE(MATH0, 0, DESCBUF, 0, IMM(8), 0);
 
 		/* calculate the info fifo size for CRC */
 		/* get stuff that precedes where INFO LENGTH goes */
-		pmove6 = MOVE(DESCBUF, info_len, MATH0, 0, IMM(6), 0);
+		pmove6 = MOVE(DESCBUF, 0, MATH0, 0, IMM(6), 0);
 		/* put it back */
-		pmove7 = MOVE(MATH0, 0, DESCBUF, info_len, IMM(8), 0);
+		pmove7 = MOVE(MATH0, 0, DESCBUF, 0, IMM(8), 0);
 		/* get stuff that precedes where INFO LENGTH goes */
-		pmove8 = MOVE(DESCBUF, last_info, MATH0, 0, IMM(6), 0);
+		pmove8 = MOVE(DESCBUF, 0, MATH0, 0, IMM(6), 0);
 		/* put it back */
-		pmove9 = MOVE(MATH0, 0, DESCBUF, last_info, IMM(8), 0);
+		pmove9 = MOVE(MATH0, 0, DESCBUF, 0, IMM(8), 0);
 
 		/*
 		 * MATH3 - HFN/Bearer
@@ -175,7 +174,7 @@ int generate_lte_code(struct program *prg, uint32_t *buff, int mdatalen,
 		/* but haven't decremented N yet */
 		MATHB(MATH0, SUB, ONE, MATH0, BYTES_2, 0);
 		/* do the final entry */
-		pjump2 = JUMP(IMM(last_info), LOCAL_JUMP, ALL_TRUE,
+		pjump2 = JUMP(IMM(0), LOCAL_JUMP, ALL_TRUE,
 				WITH(MATH_Z));
 		SET_LABEL(info_len);
 		LOAD(IMM(NFIFOENTRY_STYPE_SNOOP | NFIFOENTRY_DEST_BOTH |
@@ -217,18 +216,16 @@ int generate_lte_code(struct program *prg, uint32_t *buff, int mdatalen,
 	PATCH_MOVE(pmove8, last_info);
 	PATCH_MOVE(pmove9, last_info);
 
-	size = PROGRAM_FINALIZE();
-	return size;
+	return PROGRAM_FINALIZE();
 }
 
 /*
  * This command group goes in last and is there when the descriptor finishes
  * This command group waits at the end of CTX2 until it is put in place
  */
-int generate_extra_desc_code(struct program *prg, uint32_t *buff, int mdatalen,
-			     int buffpos)
+unsigned generate_extra_desc_code(struct program *prg, uint32_t *buff,
+				  int mdatalen, unsigned buffpos)
 {
-	int size;
 	struct program *program = prg;
 
 	PROGRAM_CNTXT_INIT(buff, buffpos);
@@ -248,18 +245,17 @@ int generate_extra_desc_code(struct program *prg, uint32_t *buff, int mdatalen,
 	SEQSTORE(CONTEXT2, 0, 2, 0);
 
 	JUMP(NONE, HALT_STATUS, ALL_TRUE, 0);
-	size = PROGRAM_FINALIZE();
-	return size;
+
+	return PROGRAM_FINALIZE();
 }
 
 /*
  * This command group goes directly to the descriptor buffer,
  * it is never in context
  */
-int generate_more_extra_desc_code(struct program *prg, uint32_t *buff,
-				  int mdatalen, int buffpos)
+unsigned generate_more_extra_desc_code(struct program *prg, uint32_t *buff,
+				       int mdatalen, unsigned buffpos)
 {
-	int size;
 	struct program *program = prg;
 
 	PROGRAM_CNTXT_INIT(buff, buffpos);
@@ -276,14 +272,12 @@ int generate_more_extra_desc_code(struct program *prg, uint32_t *buff,
 
 	MATHB(ZERO, ADD, MATH0, VSEQOUTSZ, 4, 0);	/* size of the header */
 	MOVE(CONTEXT2, 4, MATH0, 0, IMM(4), 0);	/* fix up head size */
-	encap_share_end_ref3 = MOVE(CONTEXT1, 0, DESCBUF, encap_share_end,
+	encap_share_end_ref3 = MOVE(CONTEXT1, 0, DESCBUF, 0,
 				    IMM(num_even_more_extras_bytes),
 				    WITH(WAITCOMP));
-	encap_share_end_ref4 =
-	    JUMP(IMM(encap_share_end), LOCAL_JUMP, ALL_TRUE, 0);
+	encap_share_end_ref4 = JUMP(IMM(0), LOCAL_JUMP, ALL_TRUE, 0);
 
-	size = PROGRAM_FINALIZE();
-	return size;
+	return PROGRAM_FINALIZE();
 
 }
 
@@ -291,10 +285,9 @@ int generate_more_extra_desc_code(struct program *prg, uint32_t *buff,
  * This command group sits at the start of CTX1 until needed.
  * It is the 2nd group to go in.
  */
-int generate_even_more_extra_desc_code(struct program *prg, uint32_t *buff,
-				       int mdatalen, int buffpos)
+unsigned generate_even_more_extra_desc_code(struct program *prg, uint32_t *buff,
+					    int mdatalen, unsigned buffpos)
 {
-	int size;
 	struct program *program = prg;
 
 	PROGRAM_CNTXT_INIT(buff, buffpos);
@@ -309,25 +302,22 @@ int generate_even_more_extra_desc_code(struct program *prg, uint32_t *buff,
 
 	LOAD(IMM(16), KEY1SZ, 0, 4, 0);
 
-	encap_share_end_ref5 = MOVE(CONTEXT2, 0, DESCBUF, encap_share_end,
+	encap_share_end_ref5 = MOVE(CONTEXT2, 0, DESCBUF, 0,
 				    IMM(num_yet_more_extras_bytes), 0);
-	yet_more_ref1 = MOVE(CONTEXT1, 48, DESCBUF, yet_more,
+	yet_more_ref1 = MOVE(CONTEXT1, 48, DESCBUF, 0,
 			     IMM(num_still_more_extras_bytes), 0);
-	encap_share_end_ref6 =
-	    JUMP(IMM(encap_share_end), LOCAL_JUMP, ALL_TRUE, 0);
+	encap_share_end_ref6 = JUMP(IMM(0), LOCAL_JUMP, ALL_TRUE, 0);
 
-	size = PROGRAM_FINALIZE();
-	return size;
+	return PROGRAM_FINALIZE();
 }
 
 /*
  * This command group sits in the first 8 words of CTX2 until needed.
  * It is the 3rd group to go in.
  */
-int generate_yet_more_extra_desc_code(struct program *prg, uint32_t *buff,
-				      int mdatalen, int buffpos)
+unsigned generate_yet_more_extra_desc_code(struct program *prg, uint32_t *buff,
+					   int mdatalen, unsigned buffpos)
 {
-	int size;
 	struct program *program = prg;
 
 	PROGRAM_CNTXT_INIT(buff, buffpos);
@@ -345,16 +335,14 @@ int generate_yet_more_extra_desc_code(struct program *prg, uint32_t *buff,
 	 * It's a race - but the needed commands should be in the pipeline
 	 * before the MOVE overwrites them!
 	 */
-	encap_share_end_ref7 =
-	    MOVE(CONTEXT2, 32, DESCBUF, encap_share_end, IMM(num_extras_bytes),
-		 0);
+	encap_share_end_ref7 = MOVE(CONTEXT2, 32, DESCBUF, 0,
+				    IMM(num_extras_bytes), 0);
 	ALG_OPERATION(OP_ALG_ALGSEL_CRC,
 		      OP_ALG_AAI_CUST_POLY | OP_ALG_AAI_IVZ | OP_ALG_AAI_DOC |
 		      OP_ALG_AAI_DIS | OP_ALG_AAI_DOS, OP_ALG_AS_FINALIZE,
 		      ICV_CHECK_DISABLE, DIR_ENC);
 
-	size = PROGRAM_FINALIZE();
-	return size;
+	return PROGRAM_FINALIZE();
 }
 
 /*
@@ -362,10 +350,10 @@ int generate_yet_more_extra_desc_code(struct program *prg, uint32_t *buff,
  * It is the 4th group to go in. (It is actually present at the same time as
  * the 3rd group!
  */
-int generate_still_more_extra_desc_code(struct program *prg, uint32_t *buff,
-					int mdatalen, int buffpos)
+unsigned generate_still_more_extra_desc_code(struct program *prg,
+					     uint32_t *buff, int mdatalen,
+					     unsigned buffpos)
 {
-	int size;
 	struct program *program = prg;
 
 	PROGRAM_CNTXT_INIT(buff, buffpos);
@@ -375,8 +363,7 @@ int generate_still_more_extra_desc_code(struct program *prg, uint32_t *buff,
 	back_from_extras_ref1 =
 	    JUMP(IMM(back_from_extras), LOCAL_JUMP, ALL_TRUE, 0);
 
-	size = PROGRAM_FINALIZE();
-	return size;
+	return PROGRAM_FINALIZE();
 }
 
 int main(int argc, char *argv[])
@@ -387,9 +374,9 @@ int main(int argc, char *argv[])
 	uint32_t even_more_extra_desc[20000];
 	uint32_t yet_more_extra_desc[20000];
 	uint32_t still_more_extra_desc[20000];
-	int lte_desc_size, extra_desc_size, more_extra_desc_size;
-	int even_more_extra_desc_size, yet_more_extra_desc_size;
-	int still_more_extra_desc_size;
+	unsigned lte_desc_size, extra_desc_size, more_extra_desc_size;
+	unsigned even_more_extra_desc_size, yet_more_extra_desc_size;
+	unsigned still_more_extra_desc_size;
 
 	struct program lte_prgm;
 	struct program extra_prgm;

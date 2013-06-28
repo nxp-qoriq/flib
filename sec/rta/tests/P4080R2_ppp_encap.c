@@ -22,10 +22,10 @@ LABEL(s);
 REFERENCE(ref1_moves);
 REFERENCE(ref2_moves);
 
-int build_shr_desc_ppp_encap(struct program *prg, uint32_t *buff, int buffpos)
+unsigned build_shr_desc_ppp_encap(struct program *prg, uint32_t *buff,
+				  unsigned buffpos)
 {
 	struct program *program = prg;
-	int size;
 	uint32_t c1_ctx_addr = 0x0972ecc0ul;
 	uint32_t c2_ctx_addr = 0x094E03C0ul;
 
@@ -64,13 +64,12 @@ int build_shr_desc_ppp_encap(struct program *prg, uint32_t *buff, int buffpos)
 		 */
 		WORD(0xaa240108);
 		NFIFOADD(PAD, MSG1, 0, WITH(PAD_ZERO | LAST1));
-		pmove1 = MOVE(MATH1, 0, DESCBUF, do_nfifo, IMM(8),
-			      WITH(WAITCOMP));
+		pmove1 = MOVE(MATH1, 0, DESCBUF, 0, IMM(8), WITH(WAITCOMP));
 		MATHB(VSEQINSZ, ADD, MATH0, VSEQINSZ, 4, WITH(NFU));
 
 		SET_LABEL(d);
 		SEQFIFOLOAD(MSG1, 0, WITH(VLF));
-		pmoves = MOVE(CONTEXT2, 0, DESCBUF, s, IMM(72), 0);
+		pmoves = MOVE(CONTEXT2, 0, DESCBUF, 0, IMM(72), 0);
 		pjumpe = JUMP(IMM(e), LOCAL_JUMP, ANY_FALSE, WITH(MATH_N));
 
 		SET_LABEL(do_nfifo);
@@ -142,8 +141,7 @@ int build_shr_desc_ppp_encap(struct program *prg, uint32_t *buff, int buffpos)
 	PATCH_HDR(pjumps, s);
 	PATCH_MOVE(pmoves, s);
 
-	size = PROGRAM_FINALIZE();
-	return size;
+	return PROGRAM_FINALIZE();
 }
 
 /*
@@ -159,10 +157,9 @@ int build_shr_desc_ppp_encap(struct program *prg, uint32_t *buff, int buffpos)
  * all the other bits in the register. And, there you have it - 0x80 using only
  * one word instead of two!
  */
-int build_extra_cmds(struct program *prg, uint32_t *buff, int buffpos)
+unsigned build_extra_cmds(struct program *prg, uint32_t *buff, unsigned buffpos)
 {
 	struct program *program = prg;
-	int size;
 
 	REFERENCE(pjumpk);
 
@@ -181,20 +178,18 @@ int build_extra_cmds(struct program *prg, uint32_t *buff, int buffpos)
 		MATHB(MATH0, LSHIFT, IMM(8), MATH0, 8, WITH(IFB));
 		MATHB(MATH2, RSHIFT, ONE, MATH2, 1, 0);
 		ref_jumpl = JUMP(IMM(l), LOCAL_JUMP, ANY_FALSE, WITH(MATH_Z));
-		ref1_moves = MOVE(CONTEXT2, 0, DESCBUF, s, IMM(64),
+		ref1_moves = MOVE(CONTEXT2, 0, DESCBUF, 0, IMM(64),
 				  WITH(WAITCOMP));
 		ref_jumpc = SHR_HDR(SHR_NEVER, c, 0);
 	}
 	PATCH_JUMP(pjumpk, k);
 
-	size = PROGRAM_FINALIZE();
-	return size;
+	return PROGRAM_FINALIZE();
 }
 
-int build_more_cmds(struct program *prg, uint32_t *buff, int buffpos)
+unsigned build_more_cmds(struct program *prg, uint32_t *buff, unsigned buffpos)
 {
 	struct program *program = prg;
-	int size;
 
 	LABEL(g);
 	REFERENCE(pjumpg);
@@ -210,7 +205,7 @@ int build_more_cmds(struct program *prg, uint32_t *buff, int buffpos)
 
 		pjumpg = JUMP(IMM(g), LOCAL_JUMP, ALL_TRUE, WITH(MATH_Z));
 
-		ref2_moves = MOVE(CONTEXT1, 0, DESCBUF, s, IMM(64),
+		ref2_moves = MOVE(CONTEXT1, 0, DESCBUF, 0, IMM(64),
 				  WITH(WAITCOMP));
 		refq_hdr = SHR_HDR(SHR_NEVER, q, 0);
 
@@ -226,14 +221,13 @@ int build_more_cmds(struct program *prg, uint32_t *buff, int buffpos)
 	}
 	PATCH_JUMP(pjumpg, g);
 
-	size = PROGRAM_FINALIZE();
-	return size;
+	return PROGRAM_FINALIZE();
 }
 
-int build_jbdesc_ppp_encap(struct program *prg, uint32_t *buff, int buffpos)
+unsigned build_jbdesc_ppp_encap(struct program *prg, uint32_t *buff,
+				unsigned buffpos)
 {
 	struct program *program = prg;
-	int size;
 	uint32_t in_addr = 0x09DDDB80ul;
 	uint32_t in_len = 1450;
 	uint32_t out_addr = 0x00000000ul;
@@ -249,8 +243,7 @@ int build_jbdesc_ppp_encap(struct program *prg, uint32_t *buff, int buffpos)
 		SEQINPTR(in_addr, in_len, WITH(EXT));
 	}
 
-	size = PROGRAM_FINALIZE();
-	return size;
+	return PROGRAM_FINALIZE();
 }
 
 int main(int argc, char **argv)
@@ -260,7 +253,7 @@ int main(int argc, char **argv)
 	uint32_t c2_ctx[20];
 	uint32_t job[20];
 
-	int shr_size, job_size, c1_ctx_size, c2_ctx_size;
+	unsigned shr_size, job_size, c1_ctx_size, c2_ctx_size;
 
 	struct program shr_desc_prgm;
 	struct program job_desc_prgm;

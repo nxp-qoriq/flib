@@ -13,12 +13,12 @@ static const uint32_t key_enc_flags[] = {
 };
 
 static inline unsigned rta_key(struct program *program, uint32_t key_dst,
-			       uint32_t key_type, uint32_t encrypt_flags,
-			       uint64_t dst, uint32_t dst_type, uint32_t length,
+			       int key_type, uint32_t encrypt_flags,
+			       uint64_t dst, int dst_type, uint32_t length,
 			       uint32_t flags)
 {
 	uint32_t opcode = 0, is_seq_cmd = 0;
-	uint8_t i;
+	int i;
 	unsigned start_pc = program->current_pc;
 
 	if (encrypt_flags & ~key_enc_flags[rta_sec_era]) {

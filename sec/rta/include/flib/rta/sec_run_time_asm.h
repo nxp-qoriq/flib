@@ -50,14 +50,14 @@ enum rta_sec_era {
 
 /**
  * @def DEFAULT_SEC_ERA
- * The default value for the SEC era in case the user provides an unsupported.
- * value.
+ * @details The default value for the SEC era in case the user provides an
+ * unsupported value.
  */
 #define DEFAULT_SEC_ERA	MAX_SEC_ERA
 
 /**
  * @def USER_SEC_ERA(sec_era)
- * Translates the SEC Era from internal to user representation.
+ * @details Translates the SEC Era from internal to user representation.
  */
 #define USER_SEC_ERA(sec_era)	(sec_era + 1)
 
@@ -498,14 +498,14 @@ struct program {
 	uint32_t *buffer;	 /**< Buffer carrying descriptor */
 	uint32_t *shrhdr;	 /**< Shared Descriptor Header */
 	uint32_t *jobhdr;	 /**< Job Descriptor Header */
-	uint8_t ps;		 /**< Pointer fields size; if ps is set to 1,
+	unsigned short ps;	 /**< Pointer fields size; if ps is set to 1,
 				    pointers will be 36bits in length; if ps
 				    is set to 0, pointers will be 32bits in
 				    length. */
 };
 
 static inline void rta_program_cntxt_init(struct program *program,
-					 uint32_t *buffer, int offset)
+					 uint32_t *buffer, unsigned offset)
 {
 	program->current_pc = 0;
 	program->current_instruction = 0;
@@ -567,11 +567,11 @@ static inline unsigned rta_dword(struct program *program, uint64_t val)
 }
 
 static inline unsigned rta_endian_data(struct program *program, uint8_t *data,
-				       int length)
+				       unsigned length)
 {
 	int i;
 	unsigned start_pc = program->current_pc;
-	char *tmp = (char *)&program->buffer[program->current_pc];
+	uint8_t *tmp = (uint8_t *)&program->buffer[program->current_pc];
 
 	for (i = 0; i < length; i++)
 		*tmp++ = data[i];
@@ -604,8 +604,9 @@ static inline void rta_patch_move(struct program *program, unsigned line,
 				  unsigned new_ref)
 {
 	uint32_t opcode = program->buffer[line];
+
 	opcode &= ~MOVE_OFFSET_MASK;
-	opcode |= (((int8_t) new_ref) * 4) << MOVE_OFFSET_SHIFT;
+	opcode |= (new_ref << (MOVE_OFFSET_SHIFT + 2)) & MOVE_OFFSET_MASK;
 	program->buffer[line] = opcode;
 }
 
@@ -613,6 +614,7 @@ static inline void rta_patch_jmp(struct program *program, unsigned line,
 				 unsigned new_ref)
 {
 	uint32_t opcode = program->buffer[line];
+
 	opcode &= ~JUMP_OFFSET_MASK;
 	opcode |= (new_ref - (line + program->start_pc)) & JUMP_OFFSET_MASK;
 	program->buffer[line] = opcode;
@@ -622,6 +624,7 @@ static inline void rta_patch_header(struct program *program, unsigned line,
 				    unsigned new_ref)
 {
 	uint32_t opcode = program->buffer[line];
+
 	opcode &= ~HDR_START_IDX_MASK;
 	opcode |= (new_ref << HDR_START_IDX_SHIFT) & HDR_START_IDX_MASK;
 	program->buffer[line] = opcode;
@@ -635,9 +638,10 @@ static inline void rta_patch_load(struct program *program, unsigned line,
 	opcode &= ~LDST_OFFSET_MASK;
 
 	if (opcode & (LDST_SRCDST_WORD_DESCBUF | LDST_CLASS_DECO))
-		opcode |= ((int8_t) new_ref) << LDST_OFFSET_SHIFT;
+		opcode |= (new_ref << LDST_OFFSET_SHIFT) & LDST_OFFSET_MASK;
 	else
-		opcode |= (((int8_t) new_ref) * 4) << LDST_OFFSET_SHIFT;
+		opcode |= (new_ref << (LDST_OFFSET_SHIFT + 2)) &
+			  LDST_OFFSET_MASK;
 
 	program->buffer[line] = opcode;
 }
@@ -655,20 +659,22 @@ static inline void rta_patch_store(struct program *program, unsigned line,
 	case LDST_SRCDST_WORD_SHRDESCBUF:
 	case LDST_SRCDST_WORD_JOBDESCBUF_EFF:
 	case LDST_SRCDST_WORD_SHRDESCBUF_EFF:
-		opcode |= ((int8_t) new_ref) << LDST_OFFSET_SHIFT;
+		opcode |= ((new_ref) << LDST_OFFSET_SHIFT) & LDST_OFFSET_MASK;
 		break;
 	default:
-		opcode |= (((int8_t) new_ref) * 4) << LDST_OFFSET_SHIFT;
+		opcode |= (new_ref << (LDST_OFFSET_SHIFT + 2)) &
+			  LDST_OFFSET_MASK;
 	}
 
 	program->buffer[line] = opcode;
 }
 
-static inline int8_t __rta_map_opcode(uint32_t name,
-				      const uint32_t (*map_table)[2],
-				      uint8_t num_of_entries, uint32_t *val)
+static inline int __rta_map_opcode(uint32_t name,
+				  const uint32_t (*map_table)[2],
+				  unsigned num_of_entries, uint32_t *val)
 {
-	uint8_t i;
+	unsigned i;
+
 	for (i = 0; i < num_of_entries; i++)
 		if (map_table[i][0] == name) {
 			*val = map_table[i][1];
@@ -679,9 +685,10 @@ static inline int8_t __rta_map_opcode(uint32_t name,
 
 static inline void __rta_map_flags(uint32_t flags,
 				   const uint32_t (*flags_table)[2],
-				   uint8_t num_of_entries, uint32_t *opcode)
+				   unsigned num_of_entries, uint32_t *opcode)
 {
-	uint8_t i;
+	unsigned i;
+
 	for (i = 0; i < num_of_entries; i++) {
 		if (flags_table[i][0] & flags)
 			*opcode |= flags_table[i][1];

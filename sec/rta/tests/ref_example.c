@@ -13,33 +13,30 @@ uint32_t job_buf[1000];
 LABEL(label_different_desc);
 REFERENCE(label_different_ref);
 
-int generate_capwap_code(struct program *program, uint32_t *buff)
+unsigned generate_capwap_code(struct program *program, uint32_t *buff)
 {
-	int size;
-
 	PROGRAM_CNTXT_INIT(buff, 0);
 	SHR_HDR(SHR_ALWAYS, 0, 0);
 
 	label_different_ref = JUMP(IMM(label_different_desc), LOCAL_JUMP,
 				   ALL_TRUE, 0);
-	size = PROGRAM_FINALIZE();
-	return size;
+
+	return PROGRAM_FINALIZE();
 }
 
-int generate_job_desc(struct program *program, uint32_t *buff)
+unsigned generate_job_desc(struct program *program, uint32_t *buff)
 {
-	int size;
 	PROGRAM_CNTXT_INIT(buff, 0x20);
 	SET_LABEL(label_different_desc);
 	MATHB(MATH2, XOR, MATH1, MATH3, 4, 0);
 	MATHU(MATH2, BSWAP, MATH3, 2, WITH(NFU));
-	size = PROGRAM_FINALIZE();
-	return size;
+
+	return PROGRAM_FINALIZE();
 }
 
 int main(int argc, char **argv)
 {
-	int sd_size, jd_size;
+	unsigned sd_size, jd_size;
 
 	rta_set_sec_era(RTA_SEC_ERA_4);
 

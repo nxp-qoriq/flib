@@ -23,13 +23,12 @@ const uint8_t key2[48] = {
  * Function to generate a Shared Descriptor for DTLS encap, with metadata and
  * verification that IV is not used twice in a rwo.
  */
-int build_dtls_sharedesc(uint32_t *buff, uint32_t seqnum,
-			 const uint8_t *aes_key, const uint8_t *hmac_key,
-			 uint32_t mdatalen, uint32_t cipher_alg)
+unsigned build_dtls_sharedesc(uint32_t *buff, uint32_t seqnum,
+			      const uint8_t *aes_key, const uint8_t *hmac_key,
+			      uint32_t mdatalen, uint16_t cipher_alg)
 {
 	struct program prg;
 	struct program *program = &prg;
-	int size;
 	int word_size = sizeof(uint32_t);
 
 	LABEL(encap_iv);
@@ -68,11 +67,10 @@ int build_dtls_sharedesc(uint32_t *buff, uint32_t seqnum,
 		 *     mask to turn the SEQ-OUT-PTR cmd into a SEQ-IN-PTR cmd
 		 *     put new SEQ-IN-PTR command in-line in shared descriptor
 		 */
-		pmove1 = MOVE(DESCBUF, seqoutptr, MATH0, 0, IMM(16),
-			      WITH(WAITCOMP));
+		pmove1 = MOVE(DESCBUF, 0, MATH0, 0, IMM(16), WITH(WAITCOMP));
 		MATHB(MATH0, XOR, IMM(0x0840010000000000), MATH0, 8, 0);
 		/*(8 needs to be 12 if 64-bit pointers are being used */
-		pmove2 = MOVE(MATH0, 0, DESCBUF, new_seqinptr, IMM(8), 0);
+		pmove2 = MOVE(MATH0, 0, DESCBUF, 0, IMM(8), 0);
 		/*
 		 * s2: Customer has defined that every packet has 46 bytes of
 		 *     what we call metadata -- data that we are to pass
@@ -84,11 +82,11 @@ int build_dtls_sharedesc(uint32_t *buff, uint32_t seqnum,
 		/* s3: Skip key commands when sharing permits */
 		pjump1 = JUMP(IMM(skip_keyloading), LOCAL_JUMP, ALL_TRUE,
 			      WITH(SHRD));
-		KEY(MDHA_SPLIT_KEY, ENC, PTR((intptr_t) hmac_key), 40,
+		KEY(MDHA_SPLIT_KEY, ENC, PTR((uintptr_t) hmac_key), 40,
 		    WITH(IMMED));
 
 		/* load DTLS HMAC authentication key */
-		KEY(KEY1, 0, PTR((intptr_t) aes_key), 16, WITH(IMMED));
+		KEY(KEY1, 0, PTR((uintptr_t) aes_key), 16, WITH(IMMED));
 		/* load DTLS AES confidentiality key */
 		SET_LABEL(skip_keyloading);
 		/* s4: Execute DTLS protocol thread */
@@ -110,8 +108,7 @@ int build_dtls_sharedesc(uint32_t *buff, uint32_t seqnum,
 		SEQFIFOLOAD(SKIP, 59, 0);
 		SEQLOAD(MATH2, 0, 16, 0);
 		/* Load last frame's output IV into math0/math1 */
-		pmove3 = MOVE(DESCBUF, previous_iv, MATH0, 0, IMM(16),
-			      WITH(WAITCOMP));
+		pmove3 = MOVE(DESCBUF, 0, MATH0, 0, IMM(16), WITH(WAITCOMP));
 		/* Wait for loads to complete */
 		JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, WITH(CALM));
 		/* Compare upper half of two IVs */
@@ -132,7 +129,7 @@ int build_dtls_sharedesc(uint32_t *buff, uint32_t seqnum,
 		 * s7: Store back both IVs; math2/3 for next compare; math0/1
 		 * for software to check if need be
 		 */
-		pmove4 = MOVE(MATH0, 0, DESCBUF, encap_iv, IMM(32), 0);
+		pmove4 = MOVE(MATH0, 0, DESCBUF, 0, IMM(32), 0);
 		/* Store back both IVs to the shared descriptor in system
 		 * memory */
 		STORE(SHAREDESCBUF, 4 * word_size, NONE, 8 * word_size, 0);
@@ -154,23 +151,21 @@ int build_dtls_sharedesc(uint32_t *buff, uint32_t seqnum,
 	PATCH_MOVE(pmove3, previous_iv);
 	PATCH_JUMP(pjump2, new_IV_OK);
 
-	size = PROGRAM_FINALIZE();
-	return size;
+	return PROGRAM_FINALIZE();
 }
 
-int prg_buff[1000];
+uint32_t prg_buff[1000];
 
 int main(int argc, char **argv)
 {
 	uint32_t seqnum = 0x179;
-	int size;
+	unsigned size;
 
 	pr_debug("DTLS example program\n");
 	rta_set_sec_era(RTA_SEC_ERA_3);
-	size = build_dtls_sharedesc((uint32_t *) prg_buff, seqnum, key1, key2,
-				    46, 0xff80);
+	size = build_dtls_sharedesc(prg_buff, seqnum, key1, key2, 46, 0xff80);
 	pr_debug("size = %d\n", size);
-	print_prog((uint32_t *) prg_buff, size);
+	print_prog(prg_buff, size);
 
 	return 0;
 }

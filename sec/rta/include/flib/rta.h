@@ -75,7 +75,7 @@
  * @param[in] buffer   Input buffer where the descriptor will be placed
  *                     (@c uint32_t *).
  * @param[in] offset   Offset in input buffer from where the data will be
- *                     written (@c int).
+ *                     written (@c unsigned).
  */
 #define PROGRAM_CNTXT_INIT(buffer, offset) \
 	rta_program_cntxt_init(program, buffer, offset)
@@ -127,7 +127,7 @@
  *
  * @param[in] data     Input data to be written in descriptor buffer
  *                     (@c uint8_t *).
- * @param[in] len      Length of input data (@c int).
+ * @param[in] len      Length of input data (@c unsigned).
  * @return             Descriptor buffer offset where this command is inserted
  *                     (@c unsigned).
  */
@@ -187,7 +187,7 @@ static inline unsigned rta_get_sec_era(void)
  * @param[in] share    Descriptor share state:@n @li <em>SHR_ALWAYS, SHR_SERIAL,
  *                     SHR_NEVER, SHR_WAIT</em>.
  * @param[in] start_idx Index in descriptor buffer where the execution of the
- *                     Shared Descriptor should start (@c uint32_t).
+ *                     Shared Descriptor should start (@c unsigned).
  * @param[in] flags    Operational flags:@n @li <em>RIF, DNR, CIF, SC, PD</em>.
  * @return             @li On success, descriptor buffer offset where this
  *                     command is inserted (@c unsigned).
@@ -205,7 +205,7 @@ static inline unsigned rta_get_sec_era(void)
  * @param[in] share    Descriptor share state:@n @li <em>SHR_ALWAYS,
  *                     SHR_SERIAL, SHR_NEVER, SHR_WAIT, SHR_DEFER</em>.
  * @param[in] start_idx Index in descriptor buffer where the execution of the
- *                     Job Descriptor should start (@c uint32_t).
+ *                     Job Descriptor should start (@c unsigned).
  *                     In case SHR bit is present in flags, this will be the
  *                     shared descriptor length.
  * @param[in] share_desc Pointer to shared descriptor, in case @em SHR bit is

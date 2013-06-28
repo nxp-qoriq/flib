@@ -4,11 +4,10 @@
 
 enum rta_sec_era rta_sec_era;
 
-int test_jump(uint32_t *buff)
+unsigned test_jump(uint32_t *buff)
 {
 	struct program prg;
 	struct program *program = &prg;
-	int size;
 	char test_data_char[13] = "My Imm Data\n";
 	uint32_t test_data = (uint32_t) &test_data_char;
 
@@ -34,23 +33,22 @@ int test_jump(uint32_t *buff)
 
 		PATCH_JUMP(ptest1, test1);
 		PATCH_JUMP(ptest2, test2);
-
-		size = PROGRAM_FINALIZE();
 	}
-	return size;
+
+	return PROGRAM_FINALIZE();
 }
 
-int prg_buff[1000];
+uint32_t prg_buff[1000];
 
 int main(int argc, char **argv)
 {
-	int size;
+	unsigned size;
 
 	pr_debug("JUMP program\n");
 	rta_set_sec_era(RTA_SEC_ERA_4);
-	size = test_jump((uint32_t *) prg_buff);
+	size = test_jump(prg_buff);
 	pr_debug("size = %d\n", size);
-	print_prog((uint32_t *) prg_buff, size);
+	print_prog(prg_buff, size);
 
 	return 0;
 }

@@ -124,10 +124,10 @@ static const struct load_map load_dst[] = {
  * Allowed LOAD destinations for each SEC Era.
  * Values represent the number of entries from load_dst[] that are supported.
  */
-static const uint32_t load_dst_sz[] = { 31, 34, 34, 40, 40 };
+static const unsigned load_dst_sz[] = { 31, 34, 34, 40, 40 };
 
-static inline int8_t load_check_len_offset(int8_t pos, uint32_t length,
-		uint32_t offset)
+static inline int load_check_len_offset(int pos, uint32_t length,
+					uint32_t offset)
 {
 	if ((load_dst[pos].dst == _DCTRL) &&
 	    ((length & ~load_len_mask_allowed[rta_sec_era]) ||
@@ -196,12 +196,12 @@ err:
 }
 
 static inline unsigned rta_load(struct program *program, uint64_t src,
-				uint32_t src_type, uint64_t dst,
-				uint32_t dst_type, uint32_t offset,
-				uint32_t length, uint32_t flags)
+				int src_type, uint64_t dst, int dst_type,
+				uint32_t offset, uint32_t length,
+				uint32_t flags)
 {
-	uint32_t opcode = 0, i;
-	int8_t pos = -1;
+	uint32_t opcode = 0;
+	int pos = -1, i;
 	unsigned start_pc = program->current_pc;
 
 	if (flags & SEQ)

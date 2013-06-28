@@ -31,7 +31,7 @@ static const uint32_t move_src_table[][2] = {
  * Values represent the number of entries from move_src_table[] that are
  * supported.
  */
-static const uint32_t move_src_table_sz[] = {9, 11, 14, 14, 14};
+static const unsigned move_src_table_sz[] = {9, 11, 14, 14, 14};
 
 static const uint32_t move_dst_table[][2] = {
 /*1*/	{ _CONTEXT1,  MOVE_DEST_CLASS1CTX },
@@ -55,7 +55,7 @@ static const uint32_t move_dst_table[][2] = {
  * Values represent the number of entries from move_dst_table[] that are
  * supported.
  */
-static const uint32_t move_dst_table_sz[] = {13, 14, 14, 15, 15};
+static const unsigned move_dst_table_sz[] = {13, 14, 14, 15, 15};
 
 static inline int set_move_offset(struct program *program, uint64_t src,
 				  uint16_t src_offset, uint64_t dst,
@@ -69,10 +69,10 @@ static inline unsigned rta_move(struct program *program, uint64_t src,
 				uint32_t length, int type_length,
 				uint32_t flags)
 {
-	uint32_t opcode = 0, is_move_len_cmd = 0;
+	uint32_t opcode = 0;
 	uint16_t offset = 0, opt = 0;
 	uint32_t val = 0;
-	int ret = 0;
+	int ret, is_move_len_cmd = 0;
 	unsigned start_pc = program->current_pc;
 
 	/* write command type */
@@ -102,8 +102,8 @@ static inline unsigned rta_move(struct program *program, uint64_t src,
 	 * offset values sooner; decide which offset should be here
 	 * (src or dst)
 	 */
-	ret = set_move_offset(program, src, (uint16_t) src_offset, dst,
-			(uint16_t) dst_offset, &offset, &opt);
+	ret = set_move_offset(program, src, src_offset, dst, dst_offset,
+			      &offset, &opt);
 	if (ret)
 		goto err;
 
@@ -118,7 +118,7 @@ static inline unsigned rta_move(struct program *program, uint64_t src,
 		opcode |= MOVE_AUX_LS;
 
 	/* write source field */
-	ret = __rta_map_opcode(src, move_src_table,
+	ret = __rta_map_opcode((uint32_t)src, move_src_table,
 			       move_src_table_sz[rta_sec_era], &val);
 	if (ret == -1) {
 		pr_debug("MOVE: Invalid SRC. SEC PC: %d; Instr: %d\n",
@@ -129,7 +129,7 @@ static inline unsigned rta_move(struct program *program, uint64_t src,
 	opcode |= val;
 
 	/* write destination field */
-	ret = __rta_map_opcode(dst, move_dst_table,
+	ret = __rta_map_opcode((uint32_t)dst, move_dst_table,
 			       move_dst_table_sz[rta_sec_era], &val);
 	if (ret == -1) {
 		pr_debug("MOVE: Invalid DST. SEC PC: %d; Instr: %d\n",

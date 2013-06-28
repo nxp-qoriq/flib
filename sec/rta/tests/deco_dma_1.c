@@ -4,11 +4,10 @@
 
 enum rta_sec_era rta_sec_era;
 
-int deco_dma(uint32_t *buff)
+unsigned deco_dma(uint32_t *buff)
 {
 	struct program prg;
 	struct program *program = &prg;
-	int size;
 	int data_size = 7040;
 	int move_size = 128;	/* how many bytes to load/store at a time */
 	uint64_t input = (uint64_t) 0x32a8ce00ull;
@@ -92,21 +91,20 @@ int deco_dma(uint32_t *buff)
 	PATCH_JUMP(pjump1, loop);
 	PATCH_JUMP(pjump2, done_full);
 
-	size = PROGRAM_FINALIZE();
-	return size;
+	return PROGRAM_FINALIZE();
 }
 
-int prg_buff[1000];
+uint32_t prg_buff[1000];
 
 int main(int argc, char **argv)
 {
-	int size;
+	unsigned size;
 
 	pr_debug("DECO DMA example program\n");
 	rta_set_sec_era(RTA_SEC_ERA_3);
-	size = deco_dma((uint32_t *) prg_buff);
+	size = deco_dma(prg_buff);
 	pr_debug("size = %d\n", size);
-	print_prog((uint32_t *) prg_buff, size);
+	print_prog(prg_buff, size);
 
 	return 0;
 }

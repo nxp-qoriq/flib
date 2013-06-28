@@ -5,11 +5,10 @@
 enum rta_sec_era rta_sec_era;
 int shdesc_len = 5;
 
-int pointer_size_1(uint32_t *buff)
+unsigned pointer_size_1(uint32_t *buff)
 {
 	struct program prg;
 	struct program *program = &prg;
-	int size;
 
 	PROGRAM_CNTXT_INIT(buff, 0);
 	JOB_HDR(SHR_NEVER, shdesc_len, 200, WITH(SHR));
@@ -17,15 +16,14 @@ int pointer_size_1(uint32_t *buff)
 		FIFOLOAD(PKN, PTR(0x4), 4, 0);
 		PKHA_OPERATION(OP_ALG_PKMODE_MOD_EXPO);
 	}
-	size = PROGRAM_FINALIZE();
-	return size;
+
+	return PROGRAM_FINALIZE();
 }
 
-int pointer_size_2(uint32_t *buff)
+unsigned pointer_size_2(uint32_t *buff)
 {
 	struct program prg;
 	struct program *program = &prg;
-	int size;
 
 	PROGRAM_CNTXT_INIT(buff, 0);
 	PROGRAM_SET_36BIT_ADDR();
@@ -35,27 +33,27 @@ int pointer_size_2(uint32_t *buff)
 		FIFOLOAD(PKN, PTR(0x4), 4, 0);
 		PKHA_OPERATION(OP_ALG_PKMODE_MOD_EXPO);
 	}
-	size = PROGRAM_FINALIZE();
-	return size;
+
+	return PROGRAM_FINALIZE();
 }
 
-int prg_buff[1000];
+uint32_t prg_buff[1000];
 
 int main(int argc, char **argv)
 {
-	int size;
+	unsigned size;
 
 	rta_set_sec_era(RTA_SEC_ERA_1);
 
 	pr_debug("POINTER_SIZE_1 example program\n");
-	size = pointer_size_1((uint32_t *) prg_buff);
+	size = pointer_size_1(prg_buff);
 	pr_debug("size = %d\n", size);
-	print_prog((uint32_t *) prg_buff, size);
+	print_prog(prg_buff, size);
 
 	pr_debug("POINTER_SIZE_2 example program\n");
-	size = pointer_size_2((uint32_t *) prg_buff);
+	size = pointer_size_2(prg_buff);
 	pr_debug("size = %d\n", size);
-	print_prog((uint32_t *) prg_buff, size);
+	print_prog(prg_buff, size);
 
 	return 0;
 }

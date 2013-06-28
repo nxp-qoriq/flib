@@ -15,7 +15,7 @@ static const uint32_t nfifo_src[][2] = {
  * Allowed NFIFO LOAD sources for each SEC Era.
  * Values represent the number of entries from nfifo_src[] that are supported.
  */
-static const uint8_t nfifo_src_sz[] = {4, 5, 5, 5, 5};
+static const unsigned nfifo_src_sz[] = {4, 5, 5, 5, 5};
 
 static const uint32_t nfifo_data[][2] = {
 	{ _MSG,   NFIFOENTRY_DTYPE_MSG },
@@ -68,7 +68,7 @@ static const uint32_t nfifo_flags[][2] = {
  * Allowed NFIFO LOAD flags for each SEC Era.
  * Values represent the number of entries from nfifo_flags[] that are supported.
  */
-static const uint8_t nfifo_flags_sz[] = {12, 14, 14, 14, 14};
+static const unsigned nfifo_flags_sz[] = {12, 14, 14, 14, 14};
 
 static const uint32_t nfifo_pad_flags[][2] = {
 	{ BM, NFIFOENTRY_BM },
@@ -81,7 +81,7 @@ static const uint32_t nfifo_pad_flags[][2] = {
  * Values represent the number of entries from nfifo_pad_flags[] that are
  * supported.
  */
-static const uint8_t nfifo_pad_flags_sz[] = {2, 2, 2, 2, 3};
+static const unsigned nfifo_pad_flags_sz[] = {2, 2, 2, 2, 3};
 
 static inline unsigned rta_nfifo_load(struct program *program, uint32_t src,
 				      int type_src, uint32_t data,
@@ -89,7 +89,7 @@ static inline unsigned rta_nfifo_load(struct program *program, uint32_t src,
 				      uint32_t flags)
 {
 	uint32_t opcode = 0, val;
-	int32_t ret = 0;
+	int ret;
 	uint32_t load_cmd = CMD_LOAD | LDST_IMM | LDST_CLASS_IND_CCB \
 				     | LDST_SRCDST_WORD_INFO_FIFO;
 	unsigned start_pc = program->current_pc;

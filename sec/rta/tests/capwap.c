@@ -3,15 +3,14 @@
 #include "test_common.h"
 
 enum rta_sec_era rta_sec_era;
-int prg_buff[1000];
+uint32_t prg_buff[1000];
 
-int generate_capwap_code(uint32_t *buff, int mdatalen)
+unsigned generate_capwap_code(uint32_t *buff, unsigned mdatalen)
 {
-	int size;
 	struct program prg;
 	struct program *program = &prg;
 	uint8_t key_imm[] = { 0x12, 0x13, 0x14, 0x15 };
-	intptr_t key_addr = (intptr_t) &key_imm;
+	uintptr_t key_addr = (uintptr_t) &key_imm;
 
 	PROGRAM_CNTXT_INIT(buff, 0);
 
@@ -39,13 +38,13 @@ int generate_capwap_code(uint32_t *buff, int mdatalen)
 	/* All of the IV, both next and previous */
 	ENDIAN_DATA(((uint8_t[]){ 00, 00}), 2);
 
-	ref1 = MOVE(DESCBUF, seqoutptr, MATH0, 0, IMM(16), WITH(WAITCOMP));
+	ref1 = MOVE(DESCBUF, 0, MATH0, 0, IMM(16), WITH(WAITCOMP));
 	MATHB(MATH0, XOR, IMM(0x0840010000000000), MATH0, SIZE(8), 0);
-	ref2 = MOVE(MATH0, 0, DESCBUF, new_seqinptr, IMM(8), 0);
+	ref2 = MOVE(MATH0, 0, DESCBUF, 0, IMM(8), 0);
 	MOVE(IFIFOABD, 0, OFIFO, 0, IMM(mdatalen), 0);
 	SEQFIFOSTORE(MSG, 0, mdatalen, 0);
 
-	pjump2 = JUMP(IMM(skip_keyloading), LOCAL_JUMP, ALL_TRUE, WITH(SHRD));
+	pjump2 = JUMP(IMM(0), LOCAL_JUMP, ALL_TRUE, WITH(SHRD));
 	KEY(MDHA_SPLIT_KEY, WITH(ENC), IMM(key_addr), 4, 0);
 	KEY(KEY1, WITH(EKT), IMM(key_addr), 4, 0);
 	SET_LABEL(skip_keyloading);
@@ -57,13 +56,13 @@ int generate_capwap_code(uint32_t *buff, int mdatalen)
 	SEQFIFOLOAD(SKIP, 59, 0);
 
 	SEQLOAD(MATH2, 0, SIZE(8), 0);
-	MOVE(DESCBUF, previous_iv, MATH0, 0, IMM(16), WITH(WAITCOMP));
+	MOVE(DESCBUF, (uint16_t)previous_iv, MATH0, 0, IMM(16), WITH(WAITCOMP));
 	MATHB(MATH0, XOR, MATH2, MATH1, SIZE(8), 0);
 
-	pjump1 = JUMP(IMM(new_IV_OK), LOCAL_JUMP, ALL_FALSE, WITH(MATH_Z));
+	pjump1 = JUMP(IMM(0), LOCAL_JUMP, ALL_FALSE, WITH(MATH_Z));
 	MATHB(MATH1, XOR, MATH3, MATH2, SIZE(8), 0);
 	SET_LABEL(new_IV_OK);
-	MOVE(MATH0, 0, DESCBUF, encap_iv, IMM(32), 0);
+	MOVE(MATH0, 0, DESCBUF, (uint16_t)encap_iv, IMM(32), 0);
 	SEQSTORE(DESCBUF, 4, 8, 0);
 	seqoutptr = 8;
 
@@ -71,20 +70,19 @@ int generate_capwap_code(uint32_t *buff, int mdatalen)
 	PATCH_MOVE(ref2, descbuf + new_seqinptr);
 	PATCH_JUMP(pjump1, new_IV_OK);
 	PATCH_JUMP(pjump2, skip_keyloading);
-	size = PROGRAM_FINALIZE();
 
-	return size;
+	return PROGRAM_FINALIZE();
 }
 
 int main(int argc, char **argv)
 {
-	int size;
+	unsigned size;
 
 	pr_debug("CAPWAP program\n");
 	rta_set_sec_era(RTA_SEC_ERA_2);
-	size = generate_capwap_code((uint32_t *) prg_buff, 0);
+	size = generate_capwap_code(prg_buff, 0);
 	pr_debug("size = %d\n", size);
-	print_prog((uint32_t *) prg_buff, size);
+	print_prog(prg_buff, size);
 
 	return 0;
 }

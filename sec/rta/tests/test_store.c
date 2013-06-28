@@ -15,11 +15,10 @@ REFERENCE(pstore4);
 LABEL(mod_loc2);
 LABEL(shr_loc);
 
-int test_store_cmds(uint32_t *buff)
+unsigned test_store_cmds(uint32_t *buff)
 {
 	struct program prg;
 	struct program *program = &prg;
-	int size;
 	uintptr_t ctx = (uintptr_t) 0x55330087ull;
 	uintptr_t sgtable = (uintptr_t) 0x22223333ull;
 	int ivlen = 16;
@@ -81,16 +80,13 @@ int test_store_cmds(uint32_t *buff)
 	SEQSTORE(IMM(0x01020304050607), 0, 7, WITH(IMMED | VLF));
 	SEQSTORE(PTR((uintptr_t) &abc), 0, 3, WITH(IMMED));
 
-	size = PROGRAM_FINALIZE();
-
-	return size;
+	return PROGRAM_FINALIZE();
 }
 
-int test_store_jd1(uint32_t *buff, uint32_t buffpos)
+unsigned test_store_jd1(uint32_t *buff, unsigned buffpos)
 {
 	struct program prg;
 	struct program *program = &prg;
-	int size;
 	REFERENCE(pstore);
 	LABEL(mod_loc1);
 
@@ -103,15 +99,13 @@ int test_store_jd1(uint32_t *buff, uint32_t buffpos)
 
 	PATCH_STORE(pstore, mod_loc1);
 
-	size = PROGRAM_FINALIZE();
-
-	return size;
+	return PROGRAM_FINALIZE();
 }
 
-int test_store_sd(struct program *share_desc, uint32_t *buff, uint32_t buffpos)
+unsigned test_store_sd(struct program *share_desc, uint32_t *buff,
+		       unsigned buffpos)
 {
 	struct program *program = share_desc;
-	int size;
 	REFERENCE(pstore);
 
 	PROGRAM_CNTXT_INIT(buff, 0);
@@ -123,19 +117,17 @@ int test_store_sd(struct program *share_desc, uint32_t *buff, uint32_t buffpos)
 	MATHB(ZERO, ADD, ONE, MATH1, SIZE(1), 0);
 	MATHB(ZERO, ADD, ONE, MATH1, SIZE(1), 0);
 	MATHB(ZERO, ADD, ONE, MATH1, SIZE(1), 0);
-	pstore2 = STORE(JOBDESCBUF, mod_loc2, IMM(0), 4 * word_size, 0);
+	pstore2 = STORE(JOBDESCBUF, 0, IMM(0), 4 * word_size, 0);
 
 	PATCH_STORE(pstore, shr_loc);
 
-	size = PROGRAM_FINALIZE();
-
-	return size;
+	return PROGRAM_FINALIZE();
 }
 
-int test_store_jd2(struct program *job_desc, uint32_t *buff, uint32_t buffpos)
+unsigned test_store_jd2(struct program *job_desc, uint32_t *buff,
+			unsigned buffpos)
 {
 	struct program *program = job_desc;
-	int size;
 	uint64_t shrloc = 0x72650040ull;
 
 	PROGRAM_CNTXT_INIT(buff, 0);
@@ -147,18 +139,16 @@ int test_store_jd2(struct program *job_desc, uint32_t *buff, uint32_t buffpos)
 	STORE(DESCBUF, mod_loc2 * word_size, PTR(descwords), 4 * word_size, 0);
 	MATHB(ZERO, ADD, ONE, MATH1, SIZE(1), 0);
 	MATHB(ZERO, ADD, ONE, MATH1, SIZE(1), 0);
-	pstore3 = STORE(JOBDESCBUF, mod_loc2, IMM(0), 4 * word_size, 0);
-	pstore4 = STORE(SHAREDESCBUF, shr_loc, IMM(0), 4 * word_size, 0);
+	pstore3 = STORE(JOBDESCBUF, 0, IMM(0), 4 * word_size, 0);
+	pstore4 = STORE(SHAREDESCBUF, 0, IMM(0), 4 * word_size, 0);
 
-	size = PROGRAM_FINALIZE();
-
-	return size;
+	return PROGRAM_FINALIZE();
 }
 
 int main(int argc, char **argv)
 {
 	struct program share_desc, job_desc;
-	int cmd_size, jd1_size, jd2_size, sd_size;
+	unsigned cmd_size, jd1_size, jd2_size, sd_size;
 
 	rta_set_sec_era(RTA_SEC_ERA_3);
 

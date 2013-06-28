@@ -3,11 +3,11 @@
 #include "test_common.h"
 
 enum rta_sec_era rta_sec_era;
-int prg_buff[1000];
+uint32_t prg_buff[1000];
 
 const uint8_t abc[] = { 0x61, 0x62, 0x63 };
 
-int test_load_op(uint32_t *buff)
+unsigned test_load_op(uint32_t *buff)
 {
 	struct program prg;
 	struct program *program = &prg;
@@ -19,7 +19,6 @@ int test_load_op(uint32_t *buff)
 	uint8_t *ctx = (uint8_t *) 0x10288;
 	int ctxoff = 5;
 	uintptr_t foo = (uintptr_t) 0x00000000abacbdcedeull;
-	int size;
 	int word_size = sizeof(uint32_t);
 	int here = 32;
 	int where = 24;
@@ -93,19 +92,18 @@ int test_load_op(uint32_t *buff)
 	LOAD(IMM(0x02000000), SZM, 0, 3, 0);
 	LOAD(IMM(0x82f60000), SZM, 0, 3, 0);
 
-	size = PROGRAM_FINALIZE();
-	return size;
+	return PROGRAM_FINALIZE();
 }
 
 int main(int argc, char **argv)
 {
-	int size;
+	unsigned size;
 
 	pr_debug("LOAD program\n");
 	rta_set_sec_era(RTA_SEC_ERA_4);
-	size = test_load_op((uint32_t *) prg_buff);
+	size = test_load_op(prg_buff);
 	pr_debug("size = %d\n", size);
-	print_prog((uint32_t *) prg_buff, size);
+	print_prog(prg_buff, size);
 
 	return 0;
 }
