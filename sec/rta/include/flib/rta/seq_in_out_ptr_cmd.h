@@ -3,6 +3,15 @@
 
 extern enum rta_sec_era rta_sec_era;
 
+/* Allowed SEQ IN PTR flags for each SEC Era. */
+static const uint32_t seq_in_ptr_flags[] = {
+	RBS | INL | SGF | PRE | EXT | RTO,
+	RBS | INL | SGF | PRE | EXT | RTO | RJD,
+	RBS | INL | SGF | PRE | EXT | RTO | RJD,
+	RBS | INL | SGF | PRE | EXT | RTO | RJD,
+	RBS | INL | SGF | PRE | EXT | RTO | RJD | SOP
+};
+
 static inline unsigned rta_seq_in_ptr(struct program *program, uint64_t src,
 				      uint32_t length, uint32_t flags)
 {
@@ -14,9 +23,9 @@ static inline unsigned rta_seq_in_ptr(struct program *program, uint64_t src,
 		pr_debug("SEQ IN PTR: Invalid usage of RTO and PRE flags\n");
 		goto err;
 	}
-	if ((rta_sec_era == RTA_SEC_ERA_1) && (flags & RJD)) {
-		pr_debug("SEQ IN PTR: Replacement Job Descriptors (RJD) not "
-			 "supported\n");
+	if (flags & ~seq_in_ptr_flags[rta_sec_era]) {
+		pr_debug("SEQ IN PTR: Flag(s) not supported by SEC Era %d\n",
+			 USER_SEC_ERA(rta_sec_era));
 		goto err;
 	}
 	if ((flags & INL) && (flags & RJD)) {
@@ -25,6 +34,11 @@ static inline unsigned rta_seq_in_ptr(struct program *program, uint64_t src,
 	}
 	if ((src) && (flags & (RTO | PRE))) {
 		pr_debug("SEQ IN PTR: Invalid usage of RTO or PRE flag\n");
+		goto err;
+	}
+	if ((flags & SOP) && (flags & (RBS | PRE | RTO | EXT))) {
+		pr_debug("SEQ IN PTR: Invalid usage of SOP and (RBS or PRE or "
+			 "RTO or EXT) flags\n");
 		goto err;
 	}
 
@@ -41,10 +55,19 @@ static inline unsigned rta_seq_in_ptr(struct program *program, uint64_t src,
 		opcode |= SQIN_RTO;
 	if (flags & RJD)
 		opcode |= SQIN_RJD;
-	if ((length >> 16) || (flags & EXT))
+	if (flags & SOP)
+		opcode |= SQIN_SOP;
+	if ((length >> 16) || (flags & EXT)) {
+		if (flags & SOP) {
+			pr_debug("SEQ IN PTR: Invalid usage of SOP and EXT "
+				 "flags\n");
+			goto err;
+		}
+
 		opcode |= SQIN_EXT;
-	else
+	} else {
 		opcode |= length & SQIN_LEN_MASK;
+	}
 
 	program->buffer[program->current_pc] = opcode;
 	program->current_pc++;

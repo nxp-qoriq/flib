@@ -2069,6 +2069,9 @@
 /* Replace job descriptor */
 #define SQIN_RJD		0x00100000
 
+/* Sequence Out Pointer - start a new input sequence using output sequence */
+#define SQIN_SOP		0x00080000
+
 #define SQIN_LEN_SHIFT		0
 #define SQIN_LEN_MASK		(0xffff << SQIN_LEN_SHIFT)
 
