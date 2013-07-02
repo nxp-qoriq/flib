@@ -355,6 +355,32 @@
 #define CCTRL_UNLOAD_PK_B            0x8000000
 #define CCTRL_UNLOAD_SBOX            0x10000000
 
+/* IRQ Control Register (CxCIRQ) bits */
+#define CIRQ_ADI	(0x1 << 1)
+#define CIRQ_DDI	(0x1 << 2)
+#define CIRQ_RCDI	(0x1 << 3)
+#define CIRQ_KDI	(0x1 << 4)
+#define CIRQ_S8DI	(0x1 << 5)
+#define CIRQ_PDI	(0x1 << 6)
+#define CIRQ_MDI	(0x1 << 7)
+#define CIRQ_CDI	(0x1 << 8)
+#define CIRQ_RNDI	(0x1 << 9)
+#define CIRQ_S9DI	(0x1 << 10)
+#define CIRQ_ZEDI	(0x1 << 11) /* valid for Era 5 or higher */
+#define CIRQ_ZADI	(0x1 << 12) /* valid for Era 5 or higher */
+#define CIRQ_AEI	(0x1 << 17)
+#define CIRQ_DEI	(0x1 << 18)
+#define CIRQ_RCEI	(0x1 << 19)
+#define CIRQ_KEI	(0x1 << 20)
+#define CIRQ_S8EI	(0x1 << 21)
+#define CIRQ_PEI	(0x1 << 22)
+#define CIRQ_MEI	(0x1 << 23)
+#define CIRQ_CEI	(0x1 << 24)
+#define CIRQ_RNEI	(0x1 << 25)
+#define CIRQ_S9EI	(0x1 << 26)
+#define CIRQ_ZEEI	(0x1 << 27) /* valid for Era 5 or higher */
+#define CIRQ_ZAEI	(0x1 << 28) /* valid for Era 5 or higher */
+
 /*
  * FIFO_LOAD/FIFO_STORE/SEQ_FIFO_LOAD/SEQ_FIFO_STORE
  * Command Constructs
