@@ -117,6 +117,12 @@
 #define PDCP_NULL_INT_MAC_I_VAL		0x00000000
 
 /**
+ * @def PDCP_NULL_INT_ICV_CHECK_FAILED_STATUS
+ * The status used to report ICV check failed in case of NULL integrity
+ * Control Plane processing
+ */
+#define PDCP_NULL_INT_ICV_CHECK_FAILED_STATUS	0x0A
+/**
  * @def PDCP_DPOVRD_HFN_OV_EN
  * Value to be used in the FD status/cmd field to indicate the HFN override
  * mechanism is active for the frame.
@@ -1463,14 +1469,6 @@ static inline int pdcp_insert_cplane_enc_only_op(struct program *program,
 			      OP_ALG_AS_INITFINAL, ICV_CHECK_DISABLE,
 			      dir == OP_TYPE_ENCAP_PROTOCOL ?
 					OP_ALG_ENCRYPT : OP_ALG_DECRYPT);
-
-		if (dir == OP_TYPE_ENCAP_PROTOCOL) {
-			SEQFIFOLOAD(MSG1, 0, WITH(VLF));
-			FIFOLOAD(MSG1, IMM(PDCP_NULL_INT_MAC_I_VAL), 4,
-				 WITH(LAST1 | FLUSH1));
-		} else {
-			SEQFIFOLOAD(MSG1, 0, WITH(VLF | LAST1 | FLUSH1));
-		}
 		break;
 
 	case PDCP_CIPHER_TYPE_AES:
@@ -1496,15 +1494,6 @@ static inline int pdcp_insert_cplane_enc_only_op(struct program *program,
 			      ICV_CHECK_DISABLE,
 			      dir == OP_TYPE_ENCAP_PROTOCOL ?
 					OP_ALG_ENCRYPT : OP_ALG_DECRYPT);
-
-		if (dir == OP_TYPE_ENCAP_PROTOCOL) {
-			SEQFIFOLOAD(MSG1, 0, WITH(VLF));
-			FIFOLOAD(MSG1, IMM(PDCP_NULL_INT_MAC_I_VAL), 4,
-				 WITH(LAST1 | FLUSH1));
-		} else {
-			SEQFIFOLOAD(MSG1, 0, WITH(VLF | LAST1 | FLUSH1));
-		}
-
 		break;
 
 	case PDCP_CIPHER_TYPE_ZUC:
@@ -1528,15 +1517,6 @@ static inline int pdcp_insert_cplane_enc_only_op(struct program *program,
 			      OP_ALG_AS_INITFINAL,
 			      ICV_CHECK_DISABLE,
 			      dir);
-		if (dir == OP_TYPE_ENCAP_PROTOCOL) {
-			SEQFIFOLOAD(MSG1, 0, WITH(VLF));
-			FIFOLOAD(MSG1, IMM(PDCP_NULL_INT_MAC_I_VAL), 4,
-				 WITH(LAST1 | FLUSH1));
-
-		} else {
-			SEQFIFOLOAD(MSG1, 0, WITH(VLF | LAST1 | FLUSH1));
-		}
-
 		break;
 
 	default:
@@ -1544,6 +1524,20 @@ static inline int pdcp_insert_cplane_enc_only_op(struct program *program,
 			 "pdcp_insert_cplane_enc_only_op",
 			 cipherdata->algtype);
 		return -1;
+	}
+
+	if (dir == OP_TYPE_ENCAP_PROTOCOL) {
+		SEQFIFOLOAD(MSG1, 0, WITH(VLF));
+		FIFOLOAD(MSG1, IMM(PDCP_NULL_INT_MAC_I_VAL), 4,
+			 WITH(LAST1 | FLUSH1));
+	} else {
+		SEQFIFOLOAD(MSG1, 0, WITH(VLF | LAST1 | FLUSH1));
+		MOVE(OFIFO, 0, MATH1, 4, IMM(PDCP_MAC_I_LEN),
+		     WITH(WAITCOMP));
+		MATHB(MATH1, XOR, IMM(PDCP_NULL_INT_MAC_I_VAL), NONE,
+		      SIZE(4), WITH(0));
+		JUMP(IMM(PDCP_NULL_INT_ICV_CHECK_FAILED_STATUS),
+		     HALT_STATUS, ALL_FALSE, WITH(MATH_Z));
 	}
 
 	return 0;
