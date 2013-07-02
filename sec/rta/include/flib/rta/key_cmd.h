@@ -14,7 +14,7 @@ static const uint32_t key_enc_flags[] = {
 
 static inline unsigned rta_key(struct program *program, uint32_t key_dst,
 			       int key_type, uint32_t encrypt_flags,
-			       uint64_t dst, int dst_type, uint32_t length,
+			       uint64_t src, int src_type, uint32_t length,
 			       uint32_t flags)
 {
 	uint32_t opcode = 0, is_seq_cmd = 0;
@@ -34,7 +34,7 @@ static inline unsigned rta_key(struct program *program, uint32_t key_dst,
 	} else
 		opcode = CMD_KEY;
 
-	if (dst_type == IMM_DATA)
+	if (src_type == IMM_DATA)
 		flags |= IMMED;
 
 	/* check parameters */
@@ -119,29 +119,29 @@ static inline unsigned rta_key(struct program *program, uint32_t key_dst,
 	program->current_instruction++;
 
 	if (flags & IMMED) {
-		if (dst_type == IMM_DATA) {
+		if (src_type == IMM_DATA) {
 			if (length > BYTES_4) {
 				program->buffer[program->current_pc] =
-					high_32b(dst);
+					high_32b(src);
 				program->current_pc++;
 			}
 
-			program->buffer[program->current_pc] = low_32b(dst);
+			program->buffer[program->current_pc] = low_32b(src);
 			program->current_pc++;
 		} else {
 			uint8_t *tmp = (uint8_t *) &program->buffer[program->current_pc];
 
 			for (i = 0; i < length; i++)
-				*tmp++ = ((uint8_t *)(uintptr_t)dst)[i];
+				*tmp++ = ((uint8_t *)(uintptr_t)src)[i];
 			program->current_pc += ((length + 3) / 4);
 		}
 	} else {
 		if (program->ps == 1) {
-			program->buffer[program->current_pc] = high_32b(dst);
+			program->buffer[program->current_pc] = high_32b(src);
 			program->current_pc++;
 		}
 
-		program->buffer[program->current_pc] = low_32b(dst);
+		program->buffer[program->current_pc] = low_32b(src);
 		program->current_pc++;
 	}
 
