@@ -428,11 +428,11 @@ enum rta_sec_era {
 #define BOTH            0x00002000
 
 /* SEQ IN/OUT PTR Command specific flags */
-#define RBS             0x00000001
-#define INL             0x00000002
-#define PRE             0x00000004
-#define RTO             0x00000008
-#define RJD             0x00000010
+#define RBS             0x00010000
+#define INL             0x00020000
+#define PRE             0x00040000
+#define RTO             0x00080000
+#define RJD             0x00100000
 
 #define ENC             0x00004000	/* Encrypted Key */
 #define EKT             0x00008000	/* AES CCM Encryption */
@@ -442,16 +442,16 @@ enum rta_sec_era {
 #define JDK             0x00080000	/* Job Descriptor Key */
 
 /* HEADER Command specific flags */
-#define RIF             0x00000001
-#define DNR             0x00000002
-#define CIF             0x00000004
-#define PD              0x00000008
-#define RSMS            0x00000010
-#define TD              0x00000020
-#define MTD             0x00000040
-#define REO             0x00000080
-#define SHR             0x00000100
-#define SC		0x00000200
+#define RIF             0x00010000
+#define DNR             0x00020000
+#define CIF             0x00040000
+#define PD              0x00080000
+#define RSMS            0x00100000
+#define TD              0x00200000
+#define MTD             0x00400000
+#define REO             0x00800000
+#define SHR             0x01000000
+#define SC		0x02000000
 
 /* JUMP Command specific flags */
 #define NIFP            0x00100000
