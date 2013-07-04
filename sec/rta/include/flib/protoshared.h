@@ -1763,17 +1763,12 @@ static inline int pdcp_insert_cplane_snow_aes_op(struct program *program,
 
 		if (rta_sec_era <= RTA_SEC_ERA_3)
 			move_mac_i_to_desc_buf = MOVE(OFIFO, 0, DESCBUF, 0,
-						      IMM(4), WITH(0));
+						      IMM(4), WITH(WAITCOMP));
 		else
 			MOVE(OFIFO, 0, MATH3, 0, IMM(4), WITH(0));
 
 		if (rta_sec_era <= RTA_SEC_ERA_3)
-			LOAD(IMM(CLRW_CLR_C1KEY |
-				 CLRW_CLR_C1CTX |
-				 CLRW_CLR_C1ICV |
-				 CLRW_CLR_C1DATAS |
-				 CLRW_CLR_C1MODE),
-			     CLRW, 0, 4, WITH(0));
+			LOAD(IMM(CCTRL_RESET_CHA_ALL), CCTRL, 0, 4, WITH(0));
 		else
 			LOAD(IMM(CLRW_RESET_CLS1_CHA |
 				 CLRW_CLR_C1KEY |
@@ -1798,17 +1793,18 @@ static inline int pdcp_insert_cplane_snow_aes_op(struct program *program,
 			      ICV_CHECK_ENABLE,
 			      OP_ALG_DECRYPT);
 
-		if (rta_sec_era > RTA_SEC_ERA_2) {
+		if (rta_sec_era > RTA_SEC_ERA_2)
 			MATHB(SEQINSZ, SUB, ZERO, VSEQINSZ, SIZE(4), WITH(0));
-		} else {
-			MATHB(SEQINSZ, SUB, ONE, VSEQINSZ, SIZE(4), WITH(0));
-			MATHB(VSEQINSZ, ADD, ONE, VSEQINSZ, SIZE(4), WITH(0));
-		}
+		else
+			MATHB(VSEQOUTSZ, ADD, ONE, VSEQINSZ, SIZE(4), WITH(0));
 
 		if (rta_sec_era <= RTA_SEC_ERA_3)
 			MOVE(MATH3, 0, IFIFOAB1, 0, IMM(8), WITH(0));
 		else
 			MOVE(CONTEXT2, 0, IFIFOAB1, 0, IMM(8), WITH(0));
+
+		if (rta_sec_era == RTA_SEC_ERA_2 && era_2_sw_hfn_override)
+			SEQFIFOLOAD(SKIP, 4, WITH(0));
 
 		SEQFIFOLOAD(MSG1, 0, WITH(VLF | LAST1 | FLUSH1));
 
