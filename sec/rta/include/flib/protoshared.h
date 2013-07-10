@@ -1463,7 +1463,7 @@ static inline int pdcp_insert_cplane_enc_only_op(struct program *program,
 
 		MATHB(SEQINSZ, dir == OP_TYPE_ENCAP_PROTOCOL ? ADD : SUB,
 		      IMM(PDCP_MAC_I_LEN), VSEQOUTSZ, SIZE(4), WITH(0));
-		SEQFIFOSTORE(MSG, 0, 0, WITH(VLF));
+		SEQFIFOSTORE(MSG, 0, 0, WITH(VLF | CONT));
 		ALG_OPERATION(OP_ALG_ALGSEL_SNOW_F8,
 			      OP_ALG_AAI_F8,
 			      OP_ALG_AS_INITFINAL, ICV_CHECK_DISABLE,
@@ -1487,7 +1487,7 @@ static inline int pdcp_insert_cplane_enc_only_op(struct program *program,
 		      VSEQOUTSZ,
 		      SIZE(4),
 		      0);
-		SEQFIFOSTORE(MSG, 0, 0, WITH(VLF));
+		SEQFIFOSTORE(MSG, 0, 0, WITH(VLF | CONT));
 		ALG_OPERATION(OP_ALG_ALGSEL_AES,
 			      OP_ALG_AAI_CTR,
 			      OP_ALG_AS_INITFINAL,
@@ -1511,7 +1511,7 @@ static inline int pdcp_insert_cplane_enc_only_op(struct program *program,
 		      VSEQOUTSZ,
 		      SIZE(4),
 		      0);
-		SEQFIFOSTORE(MSG, 0, 0, WITH(VLF));
+		SEQFIFOSTORE(MSG, 0, 0, WITH(VLF | CONT));
 		ALG_OPERATION(OP_ALG_ALGSEL_ZUCE,
 			      OP_ALG_AAI_F8,
 			      OP_ALG_AS_INITFINAL,
