@@ -272,4 +272,41 @@ enum pdb_type_e {
 	PDCP_PDB_TYPE_INVALID
 };
 
+/*
+ * SRTP Protocol Data Blocks
+ */
+#define SRTP_PDBOPTS_MKI	0x08
+#define SRTP_PDBOPTS_AR		0x40
+#define SRTP_CIPHER_SALT_LEN	14
+
+struct srtp_encap_pdb {
+	uint8_t x_len;			   /* RTP Extension length */
+	uint8_t mki_len;		   /* MKI length */
+	uint8_t n_tag;			   /* ICV length */
+	uint8_t options;		   /* Options Byte */
+	uint32_t cnst0;			   /* Constant Bits */
+	uint8_t rsvd[2];		   /* Reserved Bits */
+	uint16_t cnst1;			   /* Constant Bits */
+	uint8_t salt[SRTP_CIPHER_SALT_LEN];/* Cipher Salt */
+	uint16_t cnst2;			   /* Constant Bits */
+	uint32_t rsvd1;			   /* Reserved Bits */
+	uint32_t roc;			   /* Rollover Counter */
+	uint32_t opt_mki;		   /* MKI */
+};
+
+struct srtp_decap_pdb {
+	uint8_t x_len;			   /* RTP Extension length */
+	uint8_t mki_len;		   /* MKI length */
+	uint8_t n_tag;			   /* ICV length */
+	uint8_t options;		   /* Options Byte */
+	uint32_t cnst0;			   /* Constant Bits */
+	uint8_t rsvd[2];		   /* Reserved Bits */
+	uint16_t cnst1;			   /* Constant Bits */
+	uint8_t salt[SRTP_CIPHER_SALT_LEN];/* Cipher Salt */
+	uint16_t cnst2;			   /* Constant Bits */
+	uint16_t rsvd1;			   /* Reserved Bits */
+	uint16_t seq_num;		   /* Sequence Number */
+	uint32_t roc;			   /* Rollover Counter */
+	uint64_t antireplay_scorecard;	   /* Anti-replay Scorecard */
+};
 #endif /* __RTA_PDB_H__ */
