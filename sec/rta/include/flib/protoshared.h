@@ -163,7 +163,6 @@ enum cipher_type_macsec {
  * must be set to 0b.
  */
 #define PDCP_P4080REV2_HFN_OV_BUFLEN	4
-
 /** @} */ /* end of defines_group */
 /**
  * @defgroup typedefs_group Auxiliary Data Structures
@@ -258,6 +257,15 @@ enum rsa_decrypt_form {
 	RSA_DECRYPT_FORM1 = 1,
 	RSA_DECRYPT_FORM2,
 	RSA_DECRYPT_FORM3
+};
+
+/**
+ * @enum      ipsec_icv_size protoshared.h
+ * @details   Type selectors for icv size in IPsec protocol.
+ */
+enum ipsec_icv_size {
+	IPSEC_ICV_MD5_SIZE = 16,
+	IPSEC_ICV_MD5_TRUNC_SIZE = 12
 };
 /** @} */ /* end of typedefs_group */
 /**
@@ -779,6 +787,302 @@ static inline void cnstr_shdsc_ipsec_decap(uint32_t *descbuf,
 	*bufsize = PROGRAM_FINALIZE();
 }
 
+/**
+ * @details  IPSec DES-CBC/3DES-CBC & AES-XCBC-MAC-96 ESP encapsulation
+ * shared descriptor. Supported only for platforms with 32-bit address pointers,
+ * and SEC ERA 4 or higher. The tunnel/transport mode of the IPsec ESP
+ * is supported only if the Outer/Transport IP Header is present in
+ * the encapsulation output packet.
+ * The descriptor performs DES-CBC/3DES-CBC & HMAC-MD5-96 and then rereads
+ * the input packet to do the AES-XCBC-MAC-96 calculation and to overwrite
+ * the MD5 ICV.
+ * The descriptor uses all the benefits of the built-in protocol by computing
+ * the IPsec ESP with a hardware supported algorithms combination
+ * (DES-CBC/3DES-CBC & HMAC-MD5-96). The HMAC-MD5 authentication algorithm
+ * was chosen in order to speed up the computational time for this intermediate
+ * step.
+ * Warning: The user must allocate at least 32 bytes for the authentication key
+ * (in order to use it also with HMAC-MD5-96),even when using a shorter key
+ * for the AES-XCBC-MAC-96.
+ * @ingroup sharedesc_group
+ *
+ * @param[in,out] descbuf    Pointer to buffer used for descriptor construction
+ * @param[in,out] bufsize    Pointer to descriptor size to be written back upon
+ *      completion
+ * @param[in] pdb            Pointer to the PDB to be used with this descriptor.
+ *      This structure will be copied inline to the descriptor under
+ *      construction. No error checking will be made. Refer to the
+ *      block guide for a details of the encapsulation PDB.
+ * @param[in] cipherdata     Pointer to block cipher transform definitions.
+ *      Valid algorithm values: OP_PCL_IPSEC_DES, OP_PCL_IPSEC_3DES.
+ * @param[in] authdata       Pointer to authentication transform definition.
+ *      Valid algorithm value: OP_PCL_IPSEC_AES_XCBC_MAC_96.
+ **/
+static inline void cnstr_shdsc_ipsec_encap_des_aes_xcbc(uint32_t *descbuf,
+		unsigned *bufsize, struct ipsec_encap_pdb *pdb,
+		struct alginfo *cipherdata, struct alginfo *authdata)
+{
+	struct program prg;
+	struct program *program = &prg;
+
+	LABEL(hdr);
+	LABEL(shd_ptr);
+	LABEL(keyjump);
+	LABEL(outptr);
+	LABEL(swapped_seqin_fields);
+	LABEL(swapped_seqin_ptr);
+	REFERENCE(phdr);
+	REFERENCE(pkeyjump);
+	REFERENCE(move_outlen);
+	REFERENCE(move_seqout_ptr);
+	REFERENCE(swapped_seqin_ptr_jump);
+	REFERENCE(write_swapped_seqin_ptr);
+
+	PROGRAM_CNTXT_INIT(descbuf, 0);
+	phdr = SHR_HDR(SHR_SERIAL, hdr, 0);
+	ENDIAN_DATA((uint8_t *)pdb,
+		    sizeof(struct ipsec_encap_pdb) + pdb->ip_hdr_len);
+	SET_LABEL(hdr);
+	pkeyjump = JUMP(IMM(keyjump), LOCAL_JUMP, ALL_TRUE, SHRD | SELF);
+	/*
+	 * Hard-coded KEY arguments. The descriptor uses all the benefits of
+	 * the built-in protocol by computing the IPsec ESP with a hardware
+	 * supported algorithms combination (DES-CBC/3DES-CBC & HMAC-MD5-96).
+	 * The HMAC-MD5 authentication algorithm was chosen with
+	 * the keys options from below in order to speed up the computational
+	 * time for this intermediate step.
+	 * Warning: The user must allocate at least 32 bytes for
+	 * the authentication key (in order to use it also with HMAC-MD5-96),
+	 * even when using a shorter key for the AES-XCBC-MAC-96.
+	 */
+	KEY(MDHA_SPLIT_KEY, 0, PTR(authdata->key), 32, 0);
+	SET_LABEL(keyjump);
+	LOAD(IMM(LDST_SRCDST_WORD_CLRW | CLRW_CLR_C1MODE | CLRW_CLR_C1DATAS |
+		 CLRW_CLR_C1CTX | CLRW_CLR_C1KEY | CLRW_RESET_CLS1_CHA),
+	     CLRW, 0, 4, 0);
+	KEY(KEY1, cipherdata->key_enc_flags, PTR(cipherdata->key),
+	    cipherdata->keylen, 0);
+	PROTOCOL(OP_TYPE_ENCAP_PROTOCOL, OP_PCLID_IPSEC,
+		 cipherdata->algtype | OP_PCL_IPSEC_HMAC_MD5_96);
+	/* Swap SEQINPTR to SEQOUTPTR. */
+	move_seqout_ptr = MOVE(DESCBUF, 0, MATH1, 0, IMM(16), WAITCOMP);
+	MATHB(MATH1, AND, IMM(~(CMD_SEQ_IN_PTR ^ CMD_SEQ_OUT_PTR)), MATH1,
+	      SIZE(8), IFB);
+/*
+ * TODO: RTA currently doesn't support creating a LOAD command
+ * with another command as IMM.
+ * To be changed when proper support is added in RTA.
+ */
+	LOAD(IMM(0xa00000e5), MATH3, 4, 4, 0);
+	MATHB(MATH3, SHLD, MATH3, MATH3,  SIZE(8), 0);
+	write_swapped_seqin_ptr = MOVE(MATH1, 0, DESCBUF, 0, IMM(20), WAITCOMP);
+	swapped_seqin_ptr_jump = JUMP(IMM(swapped_seqin_ptr), LOCAL_JUMP,
+				      ALL_TRUE, 0);
+	LOAD(IMM(LDST_SRCDST_WORD_CLRW | CLRW_CLR_C1MODE | CLRW_CLR_C1DATAS |
+		 CLRW_CLR_C1CTX | CLRW_CLR_C1KEY | CLRW_RESET_CLS1_CHA),
+	     CLRW, 0, 4, 0);
+	SEQOUTPTR(0, 65535, RTO);
+	move_outlen = MOVE(DESCBUF, 0, MATH0, 4, IMM(8), WAITCOMP);
+	MATHB(MATH0, SUB, IMM(pdb->ip_hdr_len + IPSEC_ICV_MD5_TRUNC_SIZE),
+	      VSEQINSZ, SIZE(4), 0);
+	MATHB(MATH0, SUB, IMM(IPSEC_ICV_MD5_TRUNC_SIZE), VSEQOUTSZ, SIZE(4), 0);
+	KEY(KEY1, authdata->key_enc_flags, PTR(authdata->key), authdata->keylen,
+	    0);
+	ALG_OPERATION(OP_ALG_ALGSEL_AES, OP_ALG_AAI_XCBC_MAC,
+		      OP_ALG_AS_INITFINAL, ICV_CHECK_DISABLE, OP_ALG_ENCRYPT);
+	SEQFIFOLOAD(SKIP, pdb->ip_hdr_len, 0);
+	SEQFIFOLOAD(MSG1, 0, VLF | FLUSH1 | LAST1);
+	SEQFIFOSTORE(SKIP, 0, 0, VLF);
+	SEQSTORE(CONTEXT1, 0, IPSEC_ICV_MD5_TRUNC_SIZE, 0);
+/*
+ * TODO: RTA currently doesn't support adding labels in or after Job Descriptor.
+ * To be changed when proper support is added in RTA.
+ */
+	/* Label the Shared Descriptor Pointer */
+	SET_LABEL(shd_ptr);
+	shd_ptr += 1;
+	/* Label the Output Pointer */
+	SET_LABEL(outptr);
+	outptr += 3;
+	/* Label the first word after JD */
+	SET_LABEL(swapped_seqin_fields);
+	swapped_seqin_fields += 8;
+	/* Label the second word after JD */
+	SET_LABEL(swapped_seqin_ptr);
+	swapped_seqin_ptr += 9;
+
+	PATCH_HDR(phdr, hdr);
+	PATCH_JUMP(pkeyjump, keyjump);
+	PATCH_JUMP(swapped_seqin_ptr_jump, swapped_seqin_ptr);
+	PATCH_MOVE(move_outlen, outptr);
+	PATCH_MOVE(move_seqout_ptr, shd_ptr);
+	PATCH_MOVE(write_swapped_seqin_ptr, swapped_seqin_fields);
+	*bufsize = PROGRAM_FINALIZE();
+}
+
+/**
+ * @details  IPSec DES-CBC/3DES-CBC & AES-XCBC-MAC-96 ESP decapsulation
+ * shared descriptor. Supported only for platforms with 32-bit address pointers,
+ * and SEC ERA 4 or higher. The tunnel/transport mode of the IPsec ESP
+ * is supported only if the Outer/Transport IP Header is present in
+ * the decapsulation input packet.
+ * The descriptor computes the AES-XCBC-MAC-96 to check if the received ICV
+ * is correct, rereads the input packet to compute the MD5 ICV, overwrites
+ * the XCBC ICV, and then sends the modified input packet to the
+ * DES-CBC/3DES-CBC & HMAC-MD5-96 IPsec.
+ * The descriptor uses all the benefits of the built-in protocol by computing
+ * the IPsec ESP with a hardware supported algorithms combination
+ * (DES-CBC/3DES-CBC & HMAC-MD5-96). The HMAC-MD5 authentication algorithm
+ * was chosen in order to speed up the computational time for this intermediate
+ * step.
+ * Warning: The user must allocate at least 32 bytes for the authentication key
+ * (in order to use it also with HMAC-MD5-96),even when using a shorter key
+ * for the AES-XCBC-MAC-96.
+ * @ingroup sharedesc_group
+ *
+ * @param[in,out] descbuf    Pointer to buffer used for descriptor construction
+ * @param[in,out] bufsize    Pointer to descriptor size to be written back upon
+ *      completion
+ * @param[in] pdb            Pointer to the PDB to be used with this descriptor.
+ *      This structure will be copied inline to the descriptor under
+ *      construction. No error checking will be made. Refer to the
+ *      block guide for a details of the encapsulation PDB.
+ * @param[in] cipherdata     Pointer to block cipher transform definitions.
+ *      Valid algorithm values: OP_PCL_IPSEC_DES, OP_PCL_IPSEC_3DES.
+ * @param[in] authdata       Pointer to authentication transform definition.
+ *      Valid algorithm value: OP_PCL_IPSEC_AES_XCBC_MAC_96.
+ **/
+static inline void cnstr_shdsc_ipsec_decap_des_aes_xcbc(uint32_t *descbuf,
+		unsigned *bufsize, struct ipsec_decap_pdb *pdb,
+		struct alginfo *cipherdata, struct alginfo *authdata)
+{
+	struct program prg;
+	struct program *program = &prg;
+
+	LABEL(hdr);
+	LABEL(jump_cmd);
+	LABEL(keyjump);
+	LABEL(outlen);
+	LABEL(seqin_ptr);
+	LABEL(seqout_ptr);
+	LABEL(swapped_seqout_fields);
+	LABEL(swapped_seqout_ptr);
+	REFERENCE(seqout_ptr_jump);
+	REFERENCE(phdr);
+	REFERENCE(pkeyjump);
+	REFERENCE(move_jump);
+	REFERENCE(move_jump_back);
+	REFERENCE(move_seqin_ptr);
+	REFERENCE(swapped_seqout_ptr_jump);
+	REFERENCE(write_swapped_seqout_ptr);
+
+	PROGRAM_CNTXT_INIT(descbuf, 0);
+	phdr = SHR_HDR(SHR_SERIAL, hdr, 0);
+	ENDIAN_DATA((uint8_t *)pdb, sizeof(struct ipsec_decap_pdb));
+	SET_LABEL(hdr);
+	pkeyjump = JUMP(IMM(keyjump), LOCAL_JUMP, ALL_TRUE, SHRD | SELF);
+	/*
+	 * Hard-coded KEY arguments. The descriptor uses all the benefits of
+	 * the built-in protocol by computing the IPsec ESP with a hardware
+	 * supported algorithms combination (DES-CBC/3DES-CBC & HMAC-MD5-96).
+	 * The HMAC-MD5 authentication algorithm was chosen with
+	 * the keys options from bellow in order to speed up the computational
+	 * time for this intermediate step.
+	 * Warning: The user must allocate at least 32 bytes for
+	 * the authentication key (in order to use it also with HMAC-MD5-96),
+	 * even when using a shorter key for the AES-XCBC-MAC-96.
+	 */
+	KEY(MDHA_SPLIT_KEY, 0, PTR(authdata->key), 32, 0);
+	SET_LABEL(keyjump);
+	LOAD(IMM(LDST_SRCDST_WORD_CLRW | CLRW_CLR_C1MODE | CLRW_CLR_C1DATAS |
+		 CLRW_CLR_C1CTX | CLRW_CLR_C1KEY | CLRW_RESET_CLS1_CHA),
+	     CLRW, 0, 4, 0);
+	KEY(KEY1, authdata->key_enc_flags, PTR(authdata->key), authdata->keylen,
+	    0);
+	MATHB(SEQINSZ, SUB, IMM(pdb->ip_hdr_len + IPSEC_ICV_MD5_TRUNC_SIZE),
+	      MATH0, SIZE(4), 0);
+	MATHB(MATH0, SUB, ZERO, VSEQINSZ, SIZE(4), 0);
+	ALG_OPERATION(OP_ALG_ALGSEL_MD5, OP_ALG_AAI_HMAC_PRECOMP,
+		      OP_ALG_AS_INITFINAL, ICV_CHECK_DISABLE, OP_ALG_ENCRYPT);
+	ALG_OPERATION(OP_ALG_ALGSEL_AES, OP_ALG_AAI_XCBC_MAC,
+		      OP_ALG_AS_INITFINAL, ICV_CHECK_ENABLE, OP_ALG_DECRYPT);
+	SEQFIFOLOAD(SKIP, pdb->ip_hdr_len, 0);
+	SEQFIFOLOAD(MSG1, 0, VLF | FLUSH1);
+	SEQFIFOLOAD(ICV1, IPSEC_ICV_MD5_TRUNC_SIZE, FLUSH1 | LAST1);
+	/* Swap SEQOUTPTR to SEQINPTR. */
+	move_seqin_ptr = MOVE(DESCBUF, 0, MATH1, 0, IMM(16), WAITCOMP);
+	MATHB(MATH1, OR, IMM(CMD_SEQ_IN_PTR ^ CMD_SEQ_OUT_PTR), MATH1, SIZE(8),
+	      IFB);
+/*
+ * TODO: RTA currently doesn't support creating a LOAD command
+ * with another command as IMM.
+ * To be changed when proper support is added in RTA.
+ */
+	LOAD(IMM(0xA00000e1), MATH3, 4, 4, 0);
+	MATHB(MATH3, SHLD, MATH3, MATH3,  SIZE(8), 0);
+	write_swapped_seqout_ptr = MOVE(MATH1, 0, DESCBUF, 0, IMM(20),
+					WAITCOMP);
+	swapped_seqout_ptr_jump = JUMP(IMM(swapped_seqout_ptr), LOCAL_JUMP,
+				       ALL_TRUE, 0);
+/*
+ * TODO: To be changed when proper support is added in RTA (can't load
+ * a command that is also written by RTA).
+ * Change when proper RTA support is added.
+ */
+	SET_LABEL(jump_cmd);
+	WORD(0xA00000f3);
+	SEQINPTR(0, 65535, RTO);
+	MATHB(MATH0, SUB, ZERO, VSEQINSZ, SIZE(4), 0);
+	MATHB(MATH0, ADD, IMM(pdb->ip_hdr_len), VSEQOUTSZ, SIZE(4), 0);
+	move_jump = MOVE(DESCBUF, 0, OFIFO, 0, IMM(8), WAITCOMP);
+	move_jump_back = MOVE(OFIFO, 0, DESCBUF, 0, IMM(8), 0);
+	SEQFIFOLOAD(SKIP, pdb->ip_hdr_len, 0);
+	SEQFIFOLOAD(MSG2, 0, VLF | LAST2);
+	SEQFIFOSTORE(SKIP, 0, 0, VLF);
+	SEQSTORE(CONTEXT2, 0, IPSEC_ICV_MD5_TRUNC_SIZE, 0);
+	seqout_ptr_jump = JUMP(IMM(seqout_ptr), LOCAL_JUMP, ALL_TRUE, CALM);
+
+	LOAD(IMM(LDST_SRCDST_WORD_CLRW | CLRW_CLR_C1MODE | CLRW_CLR_C1DATAS |
+		 CLRW_CLR_C1CTX | CLRW_CLR_C1KEY | CLRW_CLR_C2MODE |
+		 CLRW_CLR_C2DATAS | CLRW_CLR_C2CTX | CLRW_RESET_CLS1_CHA),
+	     CLRW, 0, 4, 0);
+	SEQINPTR(0, 65535, RTO);
+	MATHB(MATH0, ADD, IMM(pdb->ip_hdr_len + IPSEC_ICV_MD5_TRUNC_SIZE),
+	      SEQINSZ, SIZE(4), 0);
+	KEY(KEY1, cipherdata->key_enc_flags, PTR(cipherdata->key),
+	    cipherdata->keylen, 0);
+	PROTOCOL(OP_TYPE_DECAP_PROTOCOL, OP_PCLID_IPSEC,
+		 cipherdata->algtype | OP_PCL_IPSEC_HMAC_MD5_96);
+/*
+ * TODO: RTA currently doesn't support adding labels in or after Job Descriptor.
+ * To be changed when proper support is added in RTA.
+ */
+	/* Label the SEQ OUT PTR */
+	SET_LABEL(seqout_ptr);
+	seqout_ptr += 2;
+	/* Label the Output Length */
+	SET_LABEL(outlen);
+	outlen += 4;
+	/* Label the SEQ IN PTR */
+	SET_LABEL(seqin_ptr);
+	seqin_ptr += 5;
+	/* Label the first word after JD */
+	SET_LABEL(swapped_seqout_fields);
+	swapped_seqout_fields += 8;
+	/* Label the second word after JD */
+	SET_LABEL(swapped_seqout_ptr);
+	swapped_seqout_ptr += 9;
+
+	PATCH_HDR(phdr, hdr);
+	PATCH_JUMP(pkeyjump, keyjump);
+	PATCH_JUMP(seqout_ptr_jump, seqout_ptr);
+	PATCH_JUMP(swapped_seqout_ptr_jump, swapped_seqout_ptr);
+	PATCH_MOVE(move_jump, jump_cmd);
+	PATCH_MOVE(move_jump_back, seqin_ptr);
+	PATCH_MOVE(move_seqin_ptr, outlen);
+	PATCH_MOVE(write_swapped_seqout_ptr, swapped_seqout_fields);
+	*bufsize = PROGRAM_FINALIZE();
+}
 
 /**
  * @details                 WiMAX(802.16) encapsulation
