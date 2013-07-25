@@ -4,14 +4,14 @@
 extern enum rta_sec_era rta_sec_era;
 
 static const uint32_t jump_test_cond[][2] = {
-	{ NIFP,     JUMP_JSL | JUMP_COND_NIFP },
-	{ NIP,      JUMP_JSL | JUMP_COND_NIP },
-	{ NOP,      JUMP_JSL | JUMP_COND_NOP },
-	{ NCP,      JUMP_JSL | JUMP_COND_NCP },
-	{ CALM,     JUMP_JSL | JUMP_COND_CALM },
-	{ SELF,     JUMP_JSL | JUMP_COND_SELF },
-	{ SHRD,     JUMP_JSL | JUMP_COND_SHRD },
-	{ JQP,      JUMP_JSL | JUMP_COND_JQP },
+	{ NIFP,     JUMP_COND_NIFP },
+	{ NIP,      JUMP_COND_NIP },
+	{ NOP,      JUMP_COND_NOP },
+	{ NCP,      JUMP_COND_NCP },
+	{ CALM,     JUMP_COND_CALM },
+	{ SELF,     JUMP_COND_SELF },
+	{ SHRD,     JUMP_COND_SHRD },
+	{ JQP,      JUMP_COND_JQP },
 	{ MATH_Z,   JUMP_COND_MATH_Z },
 	{ MATH_N,   JUMP_COND_MATH_N },
 	{ MATH_NV,  JUMP_COND_MATH_NV },
