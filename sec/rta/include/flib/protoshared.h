@@ -22,6 +22,15 @@
  */
 
 /**
+ * @enum      cipher_type_macsec protoshared.h
+ * @details   Type selectors for cipher types in MACSEC protocol.
+ */
+enum cipher_type_macsec {
+	MACSEC_CIPHER_TYPE_GCM,
+	MACSEC_CIPHER_TYPE_GMAC
+};
+
+/**
  * @def CRC_8_ATM_POLY
  * This CRC Polynomial is used for the GMH Header Check Sequence.
  */
@@ -542,6 +551,10 @@ static inline void cnstr_shdsc_macsec_encap(uint32_t *descbuf,
 	LABEL(keyjump);
 	REFERENCE(pkeyjump);
 
+	if ((cipherdata->algtype == MACSEC_CIPHER_TYPE_GMAC) &&
+	    (rta_sec_era < RTA_SEC_ERA_5))
+		pr_debug("MACsec GMAC available only for Era 5 or above\n");
+
 	memset(&pdb, 0x00, sizeof(struct macsec_encap_pdb));
 	pdb.sci_hi = high_32b(sci);
 	pdb.sci_lo = low_32b(sci);
@@ -589,6 +602,10 @@ static inline void cnstr_shdsc_macsec_decap(uint32_t *descbuf,
 
 	LABEL(keyjump);
 	REFERENCE(pkeyjump);
+
+	if ((cipherdata->algtype == MACSEC_CIPHER_TYPE_GMAC) &&
+	    (rta_sec_era < RTA_SEC_ERA_5))
+		pr_debug("MACsec GMAC available only for Era 5 or above\n");
 
 	memset(&pdb, 0x00, sizeof(struct macsec_decap_pdb));
 	pdb.sci_hi = high_32b(sci);
