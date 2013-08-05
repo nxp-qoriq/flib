@@ -81,12 +81,20 @@ enum cipher_type_macsec {
 #define PDCP_MAX_FRAME_LEN_STATUS	0xF1
 
 /**
- * @def PDCP_SN_MASK
+ * @def PDCP_C_PLANE_SN_MASK
  * This mask is used in the PDCP descriptors for extracting the sequence
  * number (SN) from the PDCP Control Plane header. For PDCP Control Plane,
- * the SN is constant (5 bits) as opposed to PDCP Data Plane (7/12 bits).
+ * the SN is constant (5 bits) as opposed to PDCP Data Plane (7/12/15 bits).
  */
-#define PDCP_SN_MASK			0x0000001F
+#define PDCP_C_PLANE_SN_MASK		0x0000001F
+
+/**
+ * @def PDCP_U_PLANE_15BIT_SN_MASK
+ * This mask is used in the PDCP descriptors for extracting the sequence
+ * number (SN) from the PDCP User Plane header. For PDCP Control Plane,
+ * the SN is constant (5 bits) as opposed to PDCP Data Plane (7/12/15 bits).
+ */
+#define PDCP_U_PLANE_15BIT_SN_MASK	0x00007FFF
 
 /**
  * @def PDCP_BEARER_MASK
@@ -220,12 +228,13 @@ enum pdcp_plane {
 
 /**
  * @enum     pdcp_sn_size protoshared.h
- * @details    Sequence Number length selectors for PDCP protocol
+ * @details  Sequence Number Size selectors for PDCP protocol
  */
 enum pdcp_sn_size {
 	PDCP_SN_SIZE_5 = 5,
 	PDCP_SN_SIZE_7 = 7,
-	PDCP_SN_SIZE_12 = 12
+	PDCP_SN_SIZE_12 = 12,
+	PDCP_SN_SIZE_15 = 15
 };
 /** @} */ /* end of typedefs_group */
 /**
@@ -1212,7 +1221,7 @@ static inline int pdcp_insert_cplane_int_only_op(struct program *program,
 			SEQFIFOLOAD(SKIP, 4, WITH(0));
 		}
 
-		MATHB(MATH0, AND, IMM(PDCP_SN_MASK), MATH1,  SIZE(8),
+		MATHB(MATH0, AND, IMM(PDCP_C_PLANE_SN_MASK), MATH1,  SIZE(8),
 		      WITH(IFB));
 		MATHB(MATH1, SHLD, MATH1, MATH1,  SIZE(8), WITH(0));
 		MOVE(DESCBUF, 8, MATH2, 0, IMM(8), WITH(WAITCOMP));
@@ -1313,7 +1322,8 @@ static inline int pdcp_insert_cplane_int_only_op(struct program *program,
 			SEQFIFOLOAD(SKIP, 4, WITH(0));
 		}
 
-		MATHB(MATH0, AND, IMM(PDCP_SN_MASK), MATH1, SIZE(8), WITH(IFB));
+		MATHB(MATH0, AND, IMM(PDCP_C_PLANE_SN_MASK), MATH1, SIZE(8),
+		      WITH(IFB));
 		MATHB(MATH1, SHLD, MATH1, MATH1, SIZE(8), WITH(0));
 		MOVE(DESCBUF, 8, MATH2, 0, IMM(8), WITH(WAITCOMP));
 		MATHB(MATH1, OR, MATH2, MATH2, SIZE(8), WITH(0));
@@ -1406,7 +1416,8 @@ static inline int pdcp_insert_cplane_int_only_op(struct program *program,
 		SEQLOAD(MATH0, 7, 1, WITH(0));
 		JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, WITH(CALM));
 		SEQINPTR(0, 1, WITH(RTO));
-		MATHB(MATH0, AND, IMM(PDCP_SN_MASK), MATH1, SIZE(8), WITH(IFB));
+		MATHB(MATH0, AND, IMM(PDCP_C_PLANE_SN_MASK), MATH1, SIZE(8),
+		      WITH(IFB));
 		MATHB(MATH1, SHLD, MATH1, MATH1, SIZE(8), WITH(0));
 		MOVE(DESCBUF, 8, MATH2, 8, IMM(8), WITH(WAITCOMP));
 		MATHB(MATH1, OR, MATH2, MATH2, SIZE(8), WITH(0));
@@ -1462,7 +1473,7 @@ static inline int pdcp_insert_cplane_enc_only_op(struct program *program,
 	KEY(KEY1, 0, PTR(cipherdata->key), cipherdata->keylen, WITH(0));
 	SEQLOAD(MATH0, 7, 1, WITH(0));
 	JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, WITH(CALM));
-	MATHB(MATH0, AND, IMM(PDCP_SN_MASK), MATH1, SIZE(8), WITH(IFB));
+	MATHB(MATH0, AND, IMM(PDCP_C_PLANE_SN_MASK), MATH1, SIZE(8), WITH(IFB));
 	SEQSTORE(MATH0, 7, 1, WITH(0));
 	MATHB(MATH1, SHLD, MATH1, MATH1, SIZE(8), WITH(0));
 	MOVE(DESCBUF, 8, MATH2, 8, IMM(8), WITH(WAITCOMP));
@@ -1596,7 +1607,7 @@ static inline int pdcp_insert_cplane_snow_aes_op(struct program *program,
 
 	SEQLOAD(MATH0, 7, 1, WITH(0));
 	JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, WITH(CALM));
-	MATHB(MATH0, AND, IMM(PDCP_SN_MASK), MATH1, SIZE(8), WITH(IFB));
+	MATHB(MATH0, AND, IMM(PDCP_C_PLANE_SN_MASK), MATH1, SIZE(8), WITH(IFB));
 	MATHB(MATH1, SHLD, MATH1, MATH1, SIZE(8), WITH(0));
 	MOVE(DESCBUF, 4, MATH2, 0, IMM(0x08), WITH(WAITCOMP));
 	MATHB(MATH1, OR, MATH2, MATH2, SIZE(8), WITH(0));
@@ -1882,7 +1893,7 @@ static inline int pdcp_insert_cplane_aes_snow_op(struct program *program,
 	SEQLOAD(MATH0, 7, 1, WITH(0));
 	JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, WITH(CALM));
 	MOVE(MATH0, 7, IFIFOAB2, 0, IMM(1), WITH(0));
-	MATHB(MATH0, AND, IMM(PDCP_SN_MASK), MATH1, SIZE(8), WITH(IFB));
+	MATHB(MATH0, AND, IMM(PDCP_C_PLANE_SN_MASK), MATH1, SIZE(8), WITH(IFB));
 	SEQSTORE(MATH0, 7, 1, WITH(0));
 	MATHB(MATH1, SHLD, MATH1, MATH1, SIZE(8), WITH(0));
 	MOVE(DESCBUF, 4, MATH2, 0, IMM(8), WITH(WAITCOMP));
@@ -1985,7 +1996,7 @@ static inline int pdcp_insert_cplane_snow_zuc_op(struct program *program,
 	SEQLOAD(MATH0, 7, 1, WITH(0));
 	JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, WITH(CALM));
 	MOVE(MATH0, 7, IFIFOAB2, 0, IMM(1), WITH(0));
-	MATHB(MATH0, AND, IMM(PDCP_SN_MASK), MATH1, SIZE(8), WITH(IFB));
+	MATHB(MATH0, AND, IMM(PDCP_C_PLANE_SN_MASK), MATH1, SIZE(8), WITH(IFB));
 	MATHB(MATH1, SHLD, MATH1, MATH1, SIZE(8), WITH(0));
 	MOVE(DESCBUF, 4, MATH2, 0, IMM(8), WITH(WAITCOMP));
 	MATHB(MATH1, OR, MATH2, MATH2, SIZE(8), WITH(0));
@@ -2067,7 +2078,7 @@ static inline int pdcp_insert_cplane_aes_zuc_op(struct program *program,
 	SEQLOAD(MATH0, 7, 1, WITH(0));
 	JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, WITH(CALM));
 	MOVE(MATH0, 7, IFIFOAB2, 0, IMM(1), WITH(0));
-	MATHB(MATH0, AND, IMM(PDCP_SN_MASK), MATH1, SIZE(8), WITH(IFB));
+	MATHB(MATH0, AND, IMM(PDCP_C_PLANE_SN_MASK), MATH1, SIZE(8), WITH(IFB));
 
 	MATHB(MATH1, SHLD, MATH1, MATH1, SIZE(8), WITH(0));
 	MOVE(DESCBUF, 4, MATH2, 0, IMM(8), WITH(WAITCOMP));
@@ -2153,7 +2164,7 @@ static inline int pdcp_insert_cplane_zuc_snow_op(struct program *program,
 	SEQLOAD(MATH0, 7, 1, WITH(0));
 	JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, WITH(CALM));
 	MOVE(MATH0, 7, IFIFOAB2, 0, IMM(1), WITH(0));
-	MATHB(MATH0, AND, IMM(PDCP_SN_MASK), MATH1, SIZE(8), WITH(IFB));
+	MATHB(MATH0, AND, IMM(PDCP_C_PLANE_SN_MASK), MATH1, SIZE(8), WITH(IFB));
 	MATHB(MATH1, SHLD, MATH1, MATH1, SIZE(8), WITH(0));
 	MOVE(DESCBUF, 4, MATH2, 0, IMM(8), WITH(WAITCOMP));
 	MATHB(MATH1, OR, MATH2, MATH1, SIZE(8), WITH(0));
@@ -2233,7 +2244,7 @@ static inline int pdcp_insert_cplane_zuc_aes_op(struct program *program,
 
 	SEQLOAD(MATH0, 7, 1, WITH(0));
 	JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, WITH(CALM));
-	MATHB(MATH0, AND, IMM(PDCP_SN_MASK), MATH1, SIZE(8), WITH(IFB));
+	MATHB(MATH0, AND, IMM(PDCP_C_PLANE_SN_MASK), MATH1, SIZE(8), WITH(IFB));
 	MATHB(MATH1, SHLD, MATH1, MATH1, SIZE(8), WITH(0));
 	MOVE(DESCBUF, 4, MATH2, 0, IMM(0x08), WITH(WAITCOMP));
 	MATHB(MATH1, OR, MATH2, MATH2, SIZE(8), WITH(0));
@@ -2334,6 +2345,74 @@ static inline int pdcp_insert_cplane_zuc_aes_op(struct program *program,
 			 NFIFOENTRY_FC1 | 4), NFIFO_SZL, 0, 4, WITH(0));
 		MOVE(MATH3, 0, ALTSOURCE, 0, IMM(4), WITH(0));
 	}
+
+	return 0;
+}
+
+static inline int pdcp_insert_uplane_15bit_op(struct program *program,
+					      struct alginfo *cipherdata,
+					      unsigned dir)
+{
+	int op;
+	/* Insert Cipher Key */
+	KEY(KEY1, 0, PTR(cipherdata->key), cipherdata->keylen, WITH(0));
+	SEQLOAD(MATH0, 6, 2, WITH(0));
+	JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, WITH(CALM));
+	MATHB(MATH0, AND, IMM(PDCP_U_PLANE_15BIT_SN_MASK), MATH1, SIZE(8),
+	      WITH(IFB));
+	SEQSTORE(MATH0, 6, 2, WITH(0));
+	MATHB(MATH1, SHLD, MATH1, MATH1, SIZE(8), WITH(0));
+	MOVE(DESCBUF, 8, MATH2, 8, IMM(8), WITH(WAITCOMP));
+	MATHB(MATH1, OR, MATH2, MATH2, SIZE(8), WITH(0));
+
+	MATHB(SEQINSZ, SUB, MATH3, VSEQINSZ, SIZE(4), WITH(0));
+	MATHB(SEQINSZ, SUB, MATH3, VSEQOUTSZ, SIZE(4), WITH(0));
+
+	SEQFIFOSTORE(MSG, 0, 0, WITH(VLF));
+
+	op = dir == OP_TYPE_ENCAP_PROTOCOL ? OP_ALG_ENCRYPT : OP_ALG_DECRYPT;
+	switch (cipherdata->algtype) {
+	case PDCP_CIPHER_TYPE_SNOW:
+		MOVE(MATH2, 0, CONTEXT1, 0, IMM(8), WITH(WAITCOMP));
+		ALG_OPERATION(OP_ALG_ALGSEL_SNOW_F8,
+			      OP_ALG_AAI_F8,
+			      OP_ALG_AS_INITFINAL,
+			      ICV_CHECK_DISABLE,
+			      op);
+		break;
+
+	case PDCP_CIPHER_TYPE_AES:
+		MOVE(MATH2, 0, CONTEXT1, 0x10, IMM(0x10), WITH(WAITCOMP));
+		ALG_OPERATION(OP_ALG_ALGSEL_AES,
+			      OP_ALG_AAI_CTR,
+			      OP_ALG_AS_INITFINAL,
+			      ICV_CHECK_DISABLE,
+			      op);
+		break;
+
+	case PDCP_CIPHER_TYPE_ZUC:
+		if (rta_sec_era < RTA_SEC_ERA_5) {
+			pr_debug("Invalid era for selected algorithm\n");
+			return -1;
+		}
+		MOVE(MATH2, 0, CONTEXT1, 0, IMM(0x08), WITH(0));
+		MOVE(MATH2, 0, CONTEXT1, 0x08, IMM(0x08), WITH(WAITCOMP));
+
+		ALG_OPERATION(OP_ALG_ALGSEL_ZUCE,
+			      OP_ALG_AAI_F8,
+			      OP_ALG_AS_INITFINAL,
+			      ICV_CHECK_DISABLE,
+			      op);
+		break;
+
+	default:
+		pr_debug("%s: Invalid encrypt algorithm selected: %d\n",
+			 "pdcp_insert_uplane_15bit_op",
+			 cipherdata->algtype);
+		return -1;
+	}
+
+	SEQFIFOLOAD(MSG1, 0, WITH(VLF | LAST1 | FLUSH1));
 
 	return 0;
 }
@@ -2796,7 +2875,7 @@ static inline void cnstr_shdsc_pdcp_c_plane_decap(uint32_t *descbuf,
  * @param [in] ps             If 36/40bit addressing is desired, this parameter
  *                            must be non-zero.
  *
- * @param [in] sns            Selects if Short Sequence Number is used.
+ * @param [in] sn_size        Selects Sequence Number Size: 7/12/15 bits.
  *
  * @param [in] hfn            Starting Hyper Frame Number to be used together
  *                            with the SN from the PDCP frames.
@@ -2826,7 +2905,7 @@ static inline void cnstr_shdsc_pdcp_c_plane_decap(uint32_t *descbuf,
 static inline void cnstr_shdsc_pdcp_u_plane_encap(uint32_t *descbuf,
 		unsigned *bufsize,
 		unsigned short ps,
-		unsigned short sns,
+		enum pdcp_sn_size sn_size,
 		uint32_t hfn,
 		unsigned short bearer,
 		unsigned short direction,
@@ -2852,21 +2931,36 @@ static inline void cnstr_shdsc_pdcp_u_plane_encap(uint32_t *descbuf,
 	SHR_HDR(SHR_ALWAYS, 0, WITH(0));
 
 	/* Read options from user */
-	/* If SNS is enabled, then the HFN and HFN threshold
+	/* Depending on sequence number lenght, the HFN and HFN threshold
 	 * have different lengths.
 	 */
 	memset(&pdb, 0x00, sizeof(struct pdcp_pdb));
 
-	if (PDCP_SN_SIZE_7 == sns) {
+	switch (sn_size) {
+	case PDCP_SN_SIZE_7:
 		pdb.opt_res.opt |= PDCP_U_PLANE_PDB_OPT_SHORT_SN;
 		pdb.hfn_res = hfn << PDCP_U_PLANE_PDB_SHORT_SN_HFN_SHIFT;
 		pdb.hfn_thr_res =
 			hfn_threshold<<PDCP_U_PLANE_PDB_SHORT_SN_HFN_THR_SHIFT;
-	} else {
+		break;
+
+	case PDCP_SN_SIZE_12:
 		pdb.opt_res.opt &= ~PDCP_U_PLANE_PDB_OPT_SHORT_SN;
 		pdb.hfn_res = hfn << PDCP_U_PLANE_PDB_LONG_SN_HFN_SHIFT;
 		pdb.hfn_thr_res =
 			hfn_threshold<<PDCP_U_PLANE_PDB_LONG_SN_HFN_THR_SHIFT;
+		break;
+
+	case PDCP_SN_SIZE_15:
+		pdb.opt_res.opt &= ~PDCP_U_PLANE_PDB_OPT_SHORT_SN;
+		pdb.hfn_res = hfn << PDCP_U_PLANE_PDB_15BIT_SN_HFN_SHIFT;
+		pdb.hfn_thr_res =
+			hfn_threshold<<PDCP_U_PLANE_PDB_15BIT_SN_HFN_THR_SHIFT;
+		break;
+
+	default:
+		pr_debug("Invalid Sequence Number Size setting in PDB\n");
+		return;
 	}
 
 	pdb.bearer_dir_res = (bearer << PDCP_U_PLANE_PDB_BEARER_SHIFT) |
@@ -2878,37 +2972,57 @@ static inline void cnstr_shdsc_pdcp_u_plane_encap(uint32_t *descbuf,
 	SET_LABEL(pdb_end);
 
 	if (pdcp_insert_hfn_ov_op(program,
-				  PDCP_SN_SIZE_7 == sns ?
-					PDCP_SN_SIZE_7 : PDCP_SN_SIZE_12,
+				  sn_size,
 				  PDCP_PDB_TYPE_FULL_PDB,
 				  era_2_sw_hfn_override))
 		return;
 
-	switch (cipherdata->algtype) {
-	case PDCP_CIPHER_TYPE_ZUC:
-		if (rta_sec_era < RTA_SEC_ERA_5) {
-			pr_debug("Invalid era for selected algorithm\n");
+	switch (sn_size) {
+	case PDCP_SN_SIZE_7:
+	case PDCP_SN_SIZE_12:
+		switch (cipherdata->algtype) {
+		case PDCP_CIPHER_TYPE_ZUC:
+			if (rta_sec_era < RTA_SEC_ERA_5) {
+				pr_debug("Invalid era for selected algorithm\n");
+				return;
+			}
+		case PDCP_CIPHER_TYPE_AES:
+		case PDCP_CIPHER_TYPE_SNOW:
+			/* Insert Cipher Key */
+			KEY(KEY1, 0, PTR((uint64_t)cipherdata->key),
+			    cipherdata->keylen, WITH(0));
+			PROTOCOL(OP_TYPE_ENCAP_PROTOCOL,
+				 OP_PCLID_LTE_PDCP_USER,
+				 cipherdata->algtype);
+			break;
+		case PDCP_CIPHER_TYPE_NULL:
+			pdcp_insert_uplane_null_op(program,
+						   cipherdata,
+						   OP_TYPE_ENCAP_PROTOCOL);
+			break;
+		default:
+			pr_debug("%s: Invalid encrypt algorithm selected: %d\n",
+				 "cnstr_pcl_shdsc_pdcp_u_plane_decap",
+				 cipherdata->algtype);
 			return;
 		}
-	case PDCP_CIPHER_TYPE_AES:
-	case PDCP_CIPHER_TYPE_SNOW:
-		/* Insert Cipher Key */
-		KEY(KEY1, 0, PTR((uint64_t)cipherdata->key),
-		    cipherdata->keylen, WITH(0));
-		PROTOCOL(OP_TYPE_ENCAP_PROTOCOL,
-			 OP_PCLID_LTE_PDCP_USER,
-			 cipherdata->algtype);
 		break;
-	case PDCP_CIPHER_TYPE_NULL:
-		pdcp_insert_uplane_null_op(program,
-					   cipherdata,
-					   OP_TYPE_ENCAP_PROTOCOL);
+
+	case PDCP_SN_SIZE_15:
+		switch (cipherdata->algtype) {
+		case PDCP_CIPHER_TYPE_NULL:
+			pdcp_insert_uplane_null_op(program,
+						   cipherdata,
+						   OP_TYPE_ENCAP_PROTOCOL);
+			break;
+
+		default:
+			if (pdcp_insert_uplane_15bit_op(program, cipherdata,
+							OP_TYPE_ENCAP_PROTOCOL))
+				return;
+			break;
+		}
 		break;
-	default:
-		pr_debug("%s: Invalid encrypt algorithm selected: %d\n",
-			 "cnstr_pcl_shdsc_pdcp_u_plane_decap",
-			 cipherdata->algtype);
-		return;
 	}
 
 	PATCH_HDR(0, pdb_end);
@@ -2930,7 +3044,7 @@ static inline void cnstr_shdsc_pdcp_u_plane_encap(uint32_t *descbuf,
  * @param [in] ps             If 36/40bit addressing is desired, this parameter
  *                            must be non-zero.
  *
- * @param [in] sns            Selects if Short Sequence Number is used.
+ * @param [in] sn_size        Selects Sequence Number Size: 7/12/15 bits.
  *
  * @param [in] hfn            Starting Hyper Frame Number to be used together
  *                            with the SN from the PDCP frames.
@@ -2960,7 +3074,7 @@ static inline void cnstr_shdsc_pdcp_u_plane_encap(uint32_t *descbuf,
 static inline void cnstr_shdsc_pdcp_u_plane_decap(uint32_t *descbuf,
 		unsigned *bufsize,
 		unsigned short ps,
-		unsigned short sns,
+		enum pdcp_sn_size sn_size,
 		uint32_t hfn,
 		unsigned short bearer,
 		unsigned short direction,
@@ -2986,21 +3100,33 @@ static inline void cnstr_shdsc_pdcp_u_plane_decap(uint32_t *descbuf,
 	SHR_HDR(SHR_ALWAYS, 0, WITH(0));
 
 	/* Read options from user */
-	/* If SNS is enabled, then the HFN and HFN threshold
+	/* Depending on Sequence Number Size, the HFN and HFN threshold
 	 * have different lengths.
 	 */
 	memset(&pdb, 0x00, sizeof(struct pdcp_pdb));
 
-	if (PDCP_SN_SIZE_7 == sns) {
+	switch (sn_size) {
+	case PDCP_SN_SIZE_7:
 		pdb.opt_res.opt |= PDCP_U_PLANE_PDB_OPT_SHORT_SN;
 		pdb.hfn_res = hfn << PDCP_U_PLANE_PDB_SHORT_SN_HFN_SHIFT;
 		pdb.hfn_thr_res =
 			hfn_threshold<<PDCP_U_PLANE_PDB_SHORT_SN_HFN_THR_SHIFT;
-	} else {
+		break;
+
+	case PDCP_SN_SIZE_12:
 		pdb.opt_res.opt &= ~PDCP_U_PLANE_PDB_OPT_SHORT_SN;
 		pdb.hfn_res = hfn << PDCP_U_PLANE_PDB_LONG_SN_HFN_SHIFT;
 		pdb.hfn_thr_res =
 			hfn_threshold<<PDCP_U_PLANE_PDB_LONG_SN_HFN_THR_SHIFT;
+		break;
+
+	case PDCP_SN_SIZE_15:
+		pdb.opt_res.opt &= ~PDCP_U_PLANE_PDB_OPT_SHORT_SN;
+		pdb.hfn_res = hfn << PDCP_U_PLANE_PDB_15BIT_SN_HFN_SHIFT;
+		pdb.hfn_thr_res =
+			hfn_threshold<<PDCP_U_PLANE_PDB_15BIT_SN_HFN_THR_SHIFT;
+		break;
+
 	}
 
 	pdb.bearer_dir_res = (bearer << PDCP_U_PLANE_PDB_BEARER_SHIFT) |
@@ -3012,36 +3138,57 @@ static inline void cnstr_shdsc_pdcp_u_plane_decap(uint32_t *descbuf,
 	SET_LABEL(pdb_end);
 
 	if (pdcp_insert_hfn_ov_op(program,
-				  PDCP_SN_SIZE_7 == sns ?
-					PDCP_SN_SIZE_7 : PDCP_SN_SIZE_12,
+				  sn_size,
 				  PDCP_PDB_TYPE_FULL_PDB,
 				  era_2_sw_hfn_override))
 		return;
 
-	switch (cipherdata->algtype) {
-	case PDCP_CIPHER_TYPE_ZUC:
-		if (rta_sec_era < RTA_SEC_ERA_5) {
-			pr_debug("Invalid era for selected algorithm\n");
+	switch (sn_size) {
+	case PDCP_SN_SIZE_7:
+	case PDCP_SN_SIZE_12:
+		switch (cipherdata->algtype) {
+		case PDCP_CIPHER_TYPE_ZUC:
+			if (rta_sec_era < RTA_SEC_ERA_5) {
+				pr_debug("Invalid era for selected algorithm\n");
+				return;
+			}
+		case PDCP_CIPHER_TYPE_AES:
+		case PDCP_CIPHER_TYPE_SNOW:
+			/* Insert Cipher Key */
+			KEY(KEY1, 0, PTR(cipherdata->key), cipherdata->keylen,
+			    WITH(0));
+			PROTOCOL(OP_TYPE_DECAP_PROTOCOL,
+				 OP_PCLID_LTE_PDCP_USER,
+				 cipherdata->algtype);
+			break;
+		case PDCP_CIPHER_TYPE_NULL:
+			pdcp_insert_uplane_null_op(program,
+						   cipherdata,
+						   OP_TYPE_DECAP_PROTOCOL);
+			break;
+		default:
+			pr_debug("%s: Invalid encrypt algorithm selected: %d\n",
+				 "cnstr_pcl_shdsc_pdcp_u_plane_decap",
+				 cipherdata->algtype);
 			return;
 		}
-	case PDCP_CIPHER_TYPE_AES:
-	case PDCP_CIPHER_TYPE_SNOW:
-		/* Insert Cipher Key */
-		KEY(KEY1, 0, PTR(cipherdata->key), cipherdata->keylen, WITH(0));
-		PROTOCOL(OP_TYPE_DECAP_PROTOCOL,
-			 OP_PCLID_LTE_PDCP_USER,
-			 cipherdata->algtype);
 		break;
-	case PDCP_CIPHER_TYPE_NULL:
-		pdcp_insert_uplane_null_op(program,
-					   cipherdata,
-					   OP_TYPE_DECAP_PROTOCOL);
+
+	case PDCP_SN_SIZE_15:
+		switch (cipherdata->algtype) {
+		case PDCP_CIPHER_TYPE_NULL:
+			pdcp_insert_uplane_null_op(program,
+						   cipherdata,
+						   OP_TYPE_DECAP_PROTOCOL);
+			break;
+
+		default:
+			if (pdcp_insert_uplane_15bit_op(program, cipherdata,
+							OP_TYPE_DECAP_PROTOCOL))
+				return;
+			break;
+		}
 		break;
-	default:
-		pr_debug("%s: Invalid encrypt algorithm selected: %d\n",
-			 "cnstr_pcl_shdsc_pdcp_u_plane_decap",
-			 cipherdata->algtype);
-		return;
 	}
 
 	PATCH_HDR(0, pdb_end);
