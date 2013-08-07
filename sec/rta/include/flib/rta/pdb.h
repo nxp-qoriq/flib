@@ -97,9 +97,51 @@ struct wimax_decap_pdb {
  */
 /** @} end of ipsec_decap_pdb */
 
-/*
- * General IPSec encap/decap PDB definitions
+/** @addtogroup defines_group
+ *  @{
  */
+/* General IPSec ESP encap / decap PDB options */
+#define PDBOPTS_ESP_ESN		0x10   /**< extended sequence included */
+#define PDBOPTS_ESP_IPVSN	0x02   /**< process IPv6 header */
+#define PDBOPTS_ESP_TUNNEL	0x01   /**< tunnel mode next-header byte */
+
+/* IPSec ESP Encap PDB options */
+#define PDBOPTS_ESP_UPDATE_CSUM 0x80   /**< update ip header checksum */
+#define PDBOPTS_ESP_DIFFSERV	0x40   /**< copy TOS/TC from inner iphdr */
+#define PDBOPTS_ESP_IVSRC	0x20   /**< IV comes from internal random gen */
+#define PDBOPTS_ESP_IPHDRSRC	0x08   /**< IP header comes from PDB */
+#define PDBOPTS_ESP_INCIPHDR	0x04   /**< prepend IP header to output frame */
+
+/* IPSec ESP Decap PDB options */
+#define PDBOPTS_ESP_ARSNONE	0x00   /**< no antireplay window */
+#define PDBOPTS_ESP_ARS64	0xc0   /**< 64-entry antireplay window */
+#define PDBOPTS_ESP_ARS32	0x40   /**< 32-entry antireplay window */
+#define PDBOPTS_ESP_VERIFY_CSUM 0x20   /**< validate ip header checksum */
+#define PDBOPTS_ESP_OUTFMT	0x08   /**< output only decapsulation */
+#define PDBOPTS_ESP_AOFL	0x04   /**< adjust out frame len (SEC>=5.3) */
+
+#define PDBHMO_ESP_DECAP_SHIFT	12
+#define PDBHMO_ESP_ENCAP_SHIFT	4
+
+/**
+ * IPsec ESP decrement TTL (IPv4) / Hop limit (IPv6) HMO option
+ */
+#define PDBHMO_ESP_DECAP_DTTL	(0x02 << PDBHMO_ESP_DECAP_SHIFT)
+#define PDBHMO_ESP_ENCAP_DTTL	(0x02 << PDBHMO_ESP_ENCAP_SHIFT)
+
+/**
+ * Decap - DiffServ Copy - Copy the IPv4 TOS or IPv6 Traffic Class byte
+ * from the outer IP header to the inner IP header.
+ */
+#define PDBHMO_ESP_DIFFSERV	(0x01 << PDBHMO_ESP_DECAP_SHIFT)
+
+/**
+ * Encap - Copy DF bit - if an IPv4 tunnel mode outer IP header is coming from
+ * the PDB, copy the DF bit from the inner IP header to the outer IP header.
+ */
+#define PDBHMO_ESP_DFBIT	(0x04 << PDBHMO_ESP_ENCAP_SHIFT)
+
+/** @} */ /* end of defines_group */
 
 /**
  * @struct    ipsec_encap_cbc pdb.h
