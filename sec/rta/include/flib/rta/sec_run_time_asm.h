@@ -664,10 +664,10 @@ static inline void rta_patch_store(struct program *program, unsigned line,
 
 	switch (opcode & LDST_SRCDST_MASK) {
 	case LDST_SRCDST_WORD_DESCBUF:
-	case LDST_SRCDST_WORD_JOBDESCBUF:
-	case LDST_SRCDST_WORD_SHRDESCBUF:
-	case LDST_SRCDST_WORD_JOBDESCBUF_EFF:
-	case LDST_SRCDST_WORD_SHRDESCBUF_EFF:
+	case LDST_SRCDST_WORD_DESCBUF_JOB:
+	case LDST_SRCDST_WORD_DESCBUF_SHARED:
+	case LDST_SRCDST_WORD_DESCBUF_JOB_WE:
+	case LDST_SRCDST_WORD_DESCBUF_SHARED_WE:
 		opcode |= ((new_ref) << LDST_OFFSET_SHIFT) & LDST_OFFSET_MASK;
 		break;
 	default:
