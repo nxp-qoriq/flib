@@ -28,7 +28,7 @@ static const uint32_t fifo_load_table[][2] = {
 	{ _ICV1,        FIFOLD_CLASS_CLASS1 | FIFOLD_TYPE_ICV },
 	{ _ICV2,        FIFOLD_CLASS_CLASS2 | FIFOLD_TYPE_ICV },
 	{ _BIT_DATA,    FIFOLD_TYPE_BITDATA },
-/*23*/	{ _IFIFO,       FIFOLD_CLASS_CLASS1 | FIFOLD_TYPE_DFIFO }
+/*23*/	{ _IFIFO,       FIFOLD_CLASS_CLASS1 | FIFOLD_TYPE_NOINFOFIFO }
 };
 
 /*
