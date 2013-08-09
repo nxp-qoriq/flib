@@ -91,24 +91,29 @@ static inline int __rta_alg_aai_sha(uint16_t aai)
 static inline int __rta_alg_aai_rng(uint16_t aai)
 {
 	uint16_t rng_mode = aai & OP_ALG_RNG_MODE_MASK;
-	uint16_t rng_sh = aai & OP_ALG_AAI_RNG_SH_MASK;
+	uint16_t rng_sh = aai & OP_ALG_AAI_RNG4_SH_MASK;
 
 	switch (rng_mode) {
 	case OP_ALG_AAI_RNG:
-	case OP_ALG_AAI_RNG_NOZERO:
-	case OP_ALG_AAI_RNG_ODD:
+	case OP_ALG_AAI_RNG_NZB:
+	case OP_ALG_AAI_RNG_OBP:
 		break;
 	default:
 		return -1;
 	}
 
-	/* State Handle bits are reserved for SEC Era < 5 */
+	/* State Handle bits are valid only for SEC Era >= 5 */
 	if ((rta_sec_era < RTA_SEC_ERA_5) && rng_sh)
 		return -1;
 
+	/* PS, AI, SK bits are also valid only for SEC Era >= 5 */
+	if ((rta_sec_era < RTA_SEC_ERA_5) && (aai &
+	     (OP_ALG_AAI_RNG4_PS | OP_ALG_AAI_RNG4_AI | OP_ALG_AAI_RNG4_SK)))
+		return -1;
+
 	switch (rng_sh) {
-	case OP_ALG_AAI_RNG_SH0:
-	case OP_ALG_AAI_RNG_SH1:
+	case OP_ALG_AAI_RNG4_SH_0:
+	case OP_ALG_AAI_RNG4_SH_1:
 		return 0;
 	}
 
