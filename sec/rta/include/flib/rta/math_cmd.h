@@ -16,7 +16,7 @@ static const uint32_t math_op1[][2] = {
 	{ _VSEQOUTSZ, MATH_SRC0_VARSEQOUTLEN },
 	{ _ZERO,      MATH_SRC0_ZERO },
 /*10*/	{ _NONE,      0 }, /* dummy value */
-	{ _DPOVRD,    MATH_SRC0_PROT },
+	{ _DPOVRD,    MATH_SRC0_DPOVRD },
 	{ _ONE,       MATH_SRC0_ONE }
 };
 
@@ -36,7 +36,7 @@ static const uint32_t math_op2[][2] = {
 	{ _ONE,       MATH_SRC1_ONE },
 /*8*/	{ _NONE,      0 }, /* dummy value */
 	{ _JOBSRC,    MATH_SRC1_JOBSOURCE },
-	{ _DPOVRD,    MATH_SRC1_PROT },
+	{ _DPOVRD,    MATH_SRC1_DPOVRD },
 	{ _VSEQINSZ,  MATH_SRC1_VARSEQINLEN },
 	{ _VSEQOUTSZ, MATH_SRC1_VARSEQOUTLEN },
 /*13*/	{ _ZERO,      MATH_SRC1_ZERO }
@@ -58,7 +58,7 @@ static const uint32_t math_result[][2] = {
 	{ _VSEQINSZ,  MATH_DEST_VARSEQINLEN },
 	{ _VSEQOUTSZ, MATH_DEST_VARSEQOUTLEN },
 /*9*/	{ _NONE,      MATH_DEST_NONE },
-	{ _DPOVRD,    MATH_DEST_PROT }
+	{ _DPOVRD,    MATH_DEST_DPOVRD }
 };
 
 /*
