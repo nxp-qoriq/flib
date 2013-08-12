@@ -301,7 +301,7 @@ struct pdcp_pdb {
 	union {
 		uint32_t opt;
 		uint32_t rsvd;
-	}opt_res;
+	} opt_res;
 	uint32_t hfn_res;	/* HyperFrame number,(27, 25 or 21 bits),
 				 * left aligned & right-padded with zeros. */
 	uint32_t bearer_dir_res;/* Bearer(5 bits), packet direction (1 bit),

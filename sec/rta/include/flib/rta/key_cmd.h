@@ -33,8 +33,9 @@ static inline unsigned rta_key(struct program *program, uint32_t key_dst,
 	if (flags & SEQ) {
 		opcode = CMD_SEQ_KEY;
 		is_seq_cmd = 1;
-	} else
+	} else {
 		opcode = CMD_KEY;
+	}
 
 	if (src_type == IMM_DATA)
 		flags |= IMMED;
@@ -42,22 +43,22 @@ static inline unsigned rta_key(struct program *program, uint32_t key_dst,
 	/* check parameters */
 	if ((flags & IMMED) && (is_seq_cmd)) {
 		pr_debug("KEY: Invalid flag. SEC PC: %d; Instr: %d\n",
-		     program->current_pc, program->current_instruction);
+			 program->current_pc, program->current_instruction);
 		goto err;
 	}
 	if ((flags & SGF) && ((flags & IMMED) || (is_seq_cmd))) {
 		pr_debug("KEY: Invalid flag. SEC PC: %d; Instr: %d\n",
-		     program->current_pc, program->current_instruction);
+			 program->current_pc, program->current_instruction);
 		goto err;
 	}
 	if ((key_dst == _AFHA_SBOX) && (flags & IMMED)) {
 		pr_debug("KEY: Invalid flag. SEC PC: %d; Instr: %d\n",
-		     program->current_pc, program->current_instruction);
+			 program->current_pc, program->current_instruction);
 		goto err;
 	}
 	if ((key_dst == _AFHA_SBOX) && (length != 258)) {
 		pr_debug("KEY: Invalid flag. SEC PC: %d; Instr: %d\n",
-		     program->current_pc, program->current_instruction);
+			 program->current_pc, program->current_instruction);
 		goto err;
 	}
 
@@ -80,7 +81,7 @@ static inline unsigned rta_key(struct program *program, uint32_t key_dst,
 		break;
 	default:
 		pr_debug("KEY: Invalid destination. SEC PC: %d; Instr: %d\n",
-		     program->current_pc, program->current_instruction);
+			 program->current_pc, program->current_instruction);
 		goto err;
 		break;
 	}
@@ -100,8 +101,7 @@ static inline unsigned rta_key(struct program *program, uint32_t key_dst,
 			opcode |= KEY_EKT;
 			length = ALIGN(length, 8);
 			length += 12;
-		}
-		else {
+		} else {
 			length = ALIGN(length, 16);
 		}
 		if (encrypt_flags & TK)
@@ -131,7 +131,7 @@ static inline unsigned rta_key(struct program *program, uint32_t key_dst,
 			program->buffer[program->current_pc] = low_32b(src);
 			program->current_pc++;
 		} else {
-			uint8_t *tmp = (uint8_t *) &program->buffer[program->current_pc];
+			uint8_t *tmp = (uint8_t *)&program->buffer[program->current_pc];
 
 			for (i = 0; i < length; i++)
 				*tmp++ = ((uint8_t *)(uintptr_t)src)[i];

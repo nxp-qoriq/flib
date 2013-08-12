@@ -146,14 +146,14 @@ static inline int load_check_len_offset(int pos, uint32_t length,
 			goto err;
 		break;
 	case (LENOF_48):
-		if (!(((length == 4) && (offset == 0))
-		      || ((length == 8) && (offset == 0))))
+		if (!(((length == 4) && (offset == 0)) ||
+		      ((length == 8) && (offset == 0))))
 			goto err;
 		break;
 	case (LENOF_448):
-		if (!(((length == 4) && (offset == 0))
-		      || ((length == 4) && (offset == 4))
-		      || ((length == 8) && (offset == 0))))
+		if (!(((length == 4) && (offset == 0)) ||
+		      ((length == 4) && (offset == 4)) ||
+		      ((length == 8) && (offset == 0))))
 			goto err;
 		break;
 	case (LENOF_18):
@@ -178,7 +178,7 @@ static inline int load_check_len_offset(int pos, uint32_t length,
 		break;
 	case (LENOF_128):
 		if ((length > 128) || (offset > 128) ||
-				     ((offset + length) > 128))
+		    ((offset + length) > 128))
 			goto err;
 		break;
 	case (LENOF_256):
@@ -229,28 +229,26 @@ static inline unsigned rta_load(struct program *program, uint64_t src,
 		}
 	if (-1 == pos) {
 		pr_debug("LOAD: Invalid dst. SEC Program Line: %d\n",
-				program->current_pc);
+			 program->current_pc);
 		goto err;
 	}
 
 	if ((src_type == IMM_DATA) || (flags & IMMED)) {
 		if (load_dst[pos].imm_src == IMM_NO) {
-			pr_debug("LOAD: Invalid source type. "
-					"SEC Program Line: %d\n",
-					program->current_pc);
+			pr_debug("LOAD: Invalid source type. SEC Program Line: %d\n",
+				 program->current_pc);
 			goto err;
 		}
 		opcode |= LDST_IMM;
 	} else if (load_dst[pos].imm_src == IMM_MUST) {
-		pr_debug("LOAD IMM: Invalid source type. "
-				"SEC Program Line: %d\n",
-				program->current_pc);
+		pr_debug("LOAD IMM: Invalid source type. SEC Program Line: %d\n",
+			 program->current_pc);
 		goto err;
 	}
 
 	if (-1 == load_check_len_offset(pos, length, offset)) {
 		pr_debug("LOAD: Invalid length/offset. SEC Program Line: %d\n",
-				program->current_pc);
+			 program->current_pc);
 		goto err;
 	}
 
@@ -290,7 +288,7 @@ static inline unsigned rta_load(struct program *program, uint64_t src,
 
 	if ((src_type == PTR_DATA) && (flags & IMMED)) {
 		uint8_t *tmp =
-			(uint8_t *) &program->buffer[program->current_pc];
+			(uint8_t *)&program->buffer[program->current_pc];
 
 		for (i = 0; i < length; i++)
 			*tmp++ = ((uint8_t *)(uintptr_t)src)[i];

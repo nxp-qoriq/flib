@@ -61,7 +61,7 @@ static inline unsigned rta_jump(struct program *program, uint64_t address,
 		break;
 	default:
 		pr_debug("JUMP: Invalid jump type. SEC Program Line: %d\n",
-			program->current_pc);
+			 program->current_pc);
 		goto err;
 	}
 

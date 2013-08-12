@@ -92,16 +92,15 @@ static inline unsigned rta_nfifo_load(struct program *program, uint32_t src,
 {
 	uint32_t opcode = 0, val;
 	int ret;
-	uint32_t load_cmd = CMD_LOAD | LDST_IMM | LDST_CLASS_IND_CCB \
-				     | LDST_SRCDST_WORD_INFO_FIFO;
+	uint32_t load_cmd = CMD_LOAD | LDST_IMM | LDST_CLASS_IND_CCB |
+			    LDST_SRCDST_WORD_INFO_FIFO;
 	unsigned start_pc = program->current_pc;
 
 	/* write source field */
 	ret = __rta_map_opcode(src, nfifo_src, nfifo_src_sz[rta_sec_era], &val);
 	if (ret == -1) {
 		pr_debug("NFIFO: Invalid SRC. SEC PC: %d; Instr: %d\n",
-				program->current_pc,
-				program->current_instruction);
+			 program->current_pc, program->current_instruction);
 		goto err;
 	}
 	opcode |= val;
@@ -110,8 +109,7 @@ static inline unsigned rta_nfifo_load(struct program *program, uint32_t src,
 	ret = __rta_map_opcode(data, nfifo_data, ARRAY_SIZE(nfifo_data), &val);
 	if (ret == -1) {
 		pr_debug("NFIFO: Invalid data. SEC PC: %d; Instr: %d\n",
-				program->current_pc,
-				program->current_instruction);
+			 program->current_pc, program->current_instruction);
 		goto err;
 	}
 	opcode |= val;

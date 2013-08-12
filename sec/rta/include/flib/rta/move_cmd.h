@@ -80,8 +80,7 @@ static inline unsigned rta_move(struct program *program, uint64_t src,
 	/* write command type */
 	if (type_length == REG_TYPE) {
 		if (rta_sec_era < RTA_SEC_ERA_3) {
-			pr_debug("MOVE: MOVE_LEN not supported by SEC Era %d. "
-				 "SEC PC: %d; Instr: %d\n",
+			pr_debug("MOVE: MOVE_LEN not supported by SEC Era %d. SEC PC: %d; Instr: %d\n",
 				 USER_SEC_ERA(rta_sec_era), program->current_pc,
 				 program->current_instruction);
 			goto err;
@@ -89,16 +88,17 @@ static inline unsigned rta_move(struct program *program, uint64_t src,
 
 		if ((length != _MATH0) && (length != _MATH1) &&
 		    (length != _MATH2) && (length != _MATH3)) {
-			pr_debug("MOVE: MOVE_LEN length must be MATH[0-3]. "
-				 "SEC PC: %d; Instr: %d\n", program->current_pc,
+			pr_debug("MOVE: MOVE_LEN length must be MATH[0-3]. SEC PC: %d; Instr: %d\n",
+				 program->current_pc,
 				 program->current_instruction);
 			goto err;
 		}
 
 		opcode = CMD_MOVE_LEN;
 		is_move_len_cmd = 1;
-	} else
+	} else {
 		opcode = CMD_MOVE;
+	}
 
 	/* write offset first, to check for invalid combinations or incorrect
 	 * offset values sooner; decide which offset should be here
@@ -124,8 +124,7 @@ static inline unsigned rta_move(struct program *program, uint64_t src,
 			       move_src_table_sz[rta_sec_era], &val);
 	if (ret == -1) {
 		pr_debug("MOVE: Invalid SRC. SEC PC: %d; Instr: %d\n",
-				program->current_pc,
-				program->current_instruction);
+			 program->current_pc, program->current_instruction);
 		goto err;
 	}
 	opcode |= val;
@@ -135,8 +134,7 @@ static inline unsigned rta_move(struct program *program, uint64_t src,
 			       move_dst_table_sz[rta_sec_era], &val);
 	if (ret == -1) {
 		pr_debug("MOVE: Invalid DST. SEC PC: %d; Instr: %d\n",
-				program->current_pc,
-				program->current_instruction);
+			 program->current_pc, program->current_instruction);
 		goto err;
 	}
 	opcode |= val;
@@ -197,24 +195,23 @@ static inline int set_move_offset(struct program *program, uint64_t src,
 			*offset = dst_offset;
 		} else if ((dst == _KEY1) || (dst == _KEY2)) {
 			if ((src_offset) && (dst_offset)) {
-				pr_debug("MOVE: Bad offset. SEC PC: %d; "
-						"Instr: %d\n",
-						program->current_pc,
-						program->current_instruction);
+				pr_debug("MOVE: Bad offset. SEC PC: %d; Instr: %d\n",
+					 program->current_pc,
+					 program->current_instruction);
 				goto err;
 			}
 			if (dst_offset) {
 				*opt = MOVE_SET_AUX_LS;
 				*offset = dst_offset;
-			} else
+			} else {
 				*offset = src_offset;
+			}
 		} else {
-			if (((dst == _OFIFO) || (dst == _ALTSOURCE))
-			    && (src_offset % 4)) {
-				pr_debug("MOVE: Bad offset alignment. "
-					"SEC PC: %d; Instr: %d\n",
-					program->current_pc,
-					program->current_instruction);
+			if (((dst == _OFIFO) || (dst == _ALTSOURCE)) &&
+			    (src_offset % 4)) {
+				pr_debug("MOVE: Bad offset alignment. SEC PC: %d; Instr: %d\n",
+					 program->current_pc,
+					 program->current_instruction);
 				goto err;
 			}
 			*offset = src_offset;
@@ -224,16 +221,16 @@ static inline int set_move_offset(struct program *program, uint64_t src,
 	case (_OFIFO):
 		if (dst == _OFIFO) {
 			pr_debug("MOVE: Invalid DST. SEC PC: %d; Instr: %d\n",
-					program->current_pc,
-					program->current_instruction);
+				 program->current_pc,
+				 program->current_instruction);
 			goto err;
 		}
-		if (((dst == _IFIFOAB1) || (dst == _IFIFOAB2) || (dst == _IFIFO)
-		     || (dst == _PKA))
-		    && (src_offset || dst_offset)) {
-			pr_debug("MOVE: Offset should be zero. SEC PC: %d; "
-					"Instr: %d\n", program->current_pc,
-					program->current_instruction);
+		if (((dst == _IFIFOAB1) || (dst == _IFIFOAB2) ||
+		     (dst == _IFIFO) || (dst == _PKA)) &&
+		    (src_offset || dst_offset)) {
+			pr_debug("MOVE: Offset should be zero. SEC PC: %d; Instr: %d\n",
+				 program->current_pc,
+				 program->current_instruction);
 			goto err;
 		}
 		*offset = dst_offset;
@@ -246,15 +243,15 @@ static inline int set_move_offset(struct program *program, uint64_t src,
 		}
 		if (dst == _DESCBUF) {
 			pr_debug("MOVE: Invalid DST. SEC PC: %d; Instr: %d\n",
-					program->current_pc,
-					program->current_instruction);
+				 program->current_pc,
+				 program->current_instruction);
 			goto err;
 		}
-		if (((dst == _OFIFO) || (dst == _ALTSOURCE))
-		    && (src_offset % 4)) {
-			pr_debug("MOVE: Invalid offset alignment. SEC PC: %d; "
-					"Instr %d\n", program->current_pc,
-					program->current_instruction);
+		if (((dst == _OFIFO) || (dst == _ALTSOURCE)) &&
+		    (src_offset % 4)) {
+			pr_debug("MOVE: Invalid offset alignment. SEC PC: %d; Instr %d\n",
+				 program->current_pc,
+				 program->current_instruction);
 			goto err;
 		}
 		*offset = src_offset;
@@ -266,18 +263,19 @@ static inline int set_move_offset(struct program *program, uint64_t src,
 	case (_MATH3):
 		if ((dst == _OFIFO) || (dst == _ALTSOURCE)) {
 			if (src_offset % 4) {
-				pr_debug("MOVE: Bad offset alignment. "
-						"SEC PC: %d; Instr: %d\n",
-						program->current_pc,
-						program->current_instruction);
+				pr_debug("MOVE: Bad offset alignment. SEC PC: %d; Instr: %d\n",
+					 program->current_pc,
+					 program->current_instruction);
 				goto err;
 			}
 			*offset = src_offset;
-		} else if ((dst == _IFIFOAB1) || (dst == _IFIFOAB2)
-			   || (dst == _IFIFO) || (dst == _PKA))
-			*offset = src_offset;
-		else
-			*offset = dst_offset;
+		} else {
+			if ((dst == _IFIFOAB1) || (dst == _IFIFOAB2) ||
+			    (dst == _IFIFO) || (dst == _PKA))
+				*offset = src_offset;
+			else
+				*offset = dst_offset;
+		}
 		break;
 
 	case (_IFIFOABD):
@@ -286,23 +284,24 @@ static inline int set_move_offset(struct program *program, uint64_t src,
 	case (_ABD):
 	case (_AB1):
 	case (_AB2):
-		if ((dst == _IFIFOAB1) || (dst == _IFIFOAB2) || (dst == _IFIFO)
-		    || (dst == _PKA) || (dst == _ALTSOURCE)) {
+		if ((dst == _IFIFOAB1) || (dst == _IFIFOAB2) ||
+		    (dst == _IFIFO) || (dst == _PKA) || (dst == _ALTSOURCE)) {
 			pr_debug("MOVE: Bad DST. SEC PC: %d; Instr: %d\n",
-					program->current_pc,
-					program->current_instruction);
+				 program->current_pc,
+				 program->current_instruction);
 			goto err;
-		} else if (dst == _OFIFO)
-			*opt = MOVE_SET_LEN_16b;
-		else {
-			if (dst_offset % 4) {
-				pr_debug("MOVE: Bad offset alignment. "
-						"SEC PC: %d; Instr: %d\n",
-						program->current_pc,
-						program->current_instruction);
-				goto err;
+		} else {
+			if (dst == _OFIFO) {
+				*opt = MOVE_SET_LEN_16b;
+			} else {
+				if (dst_offset % 4) {
+					pr_debug("MOVE: Bad offset alignment. SEC PC: %d; Instr: %d\n",
+						 program->current_pc,
+						 program->current_instruction);
+					goto err;
+				}
+				*offset = dst_offset;
 			}
-			*offset = dst_offset;
 		}
 		break;
 	default:

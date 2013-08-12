@@ -51,8 +51,9 @@ static inline unsigned rta_fifo_load(struct program *program, uint32_t src,
 	if (flags & SEQ) {
 		opcode = CMD_SEQ_FIFO_LOAD;
 		is_seq_cmd = 1;
-	} else
+	} else {
 		opcode = CMD_FIFO_LOAD;
+	}
 
 	if (type_loc == IMM_DATA)
 		flags |= IMMED;
@@ -86,8 +87,8 @@ static inline unsigned rta_fifo_load(struct program *program, uint32_t src,
 	ret = __rta_map_opcode(src, fifo_load_table,
 			       fifo_load_table_sz[rta_sec_era], &val);
 	if (ret == -1) {
-		pr_debug("FIFO LOAD: Source value is not supported. "
-				"SEC Program Line: %d\n", program->current_pc);
+		pr_debug("FIFO LOAD: Source value is not supported. SEC Program Line: %d\n",
+			 program->current_pc);
 		goto err;
 	}
 	opcode |= val;
@@ -145,7 +146,7 @@ static inline unsigned rta_fifo_load(struct program *program, uint32_t src,
 			program->buffer[program->current_pc] = low_32b(loc);
 			program->current_pc++;
 		} else {
-			uint8_t *tmp = (uint8_t *) &program->buffer[program->current_pc];
+			uint8_t *tmp = (uint8_t *)&program->buffer[program->current_pc];
 
 			for (i = 0; i < length; i++)
 				*tmp++ = ((uint8_t *)(uintptr_t)loc)[i];
@@ -221,8 +222,9 @@ static inline unsigned rta_fifo_store(struct program *program, uint32_t src,
 	if (flags & SEQ) {
 		opcode = CMD_SEQ_FIFO_STORE;
 		is_seq_cmd = 1;
-	} else
+	} else {
 		opcode = CMD_FIFO_STORE;
+	}
 
 	/* Parameter checking */
 	if (is_seq_cmd) {
@@ -250,8 +252,8 @@ static inline unsigned rta_fifo_store(struct program *program, uint32_t src,
 	ret = __rta_map_opcode(src, fifo_store_table,
 			       fifo_store_table_sz[rta_sec_era], &val);
 	if (ret == -1) {
-		pr_debug("FIFO STORE: Source type not supported. "
-				"SEC Program Line: %d\n", program->current_pc);
+		pr_debug("FIFO STORE: Source type not supported. SEC Program Line: %d\n",
+			 program->current_pc);
 		goto err;
 	}
 	opcode |= val;
@@ -260,8 +262,7 @@ static inline unsigned rta_fifo_store(struct program *program, uint32_t src,
 		opcode |= (0x1 << FIFOST_TYPE_SHIFT);
 	if (encrypt_flags & EKT) {
 		if (rta_sec_era == RTA_SEC_ERA_1) {
-			pr_debug("FIFO STORE: AES-CCM source types not "
-				 "supported\n");
+			pr_debug("FIFO STORE: AES-CCM source types not supported\n");
 			goto err;
 		}
 		opcode |= (0x10 << FIFOST_TYPE_SHIFT);

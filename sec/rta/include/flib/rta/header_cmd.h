@@ -49,8 +49,8 @@ static inline unsigned rta_shr_header(struct program *program, uint32_t share,
 		opcode |= HDR_SHARE_WAIT;
 		break;
 	default:
-		pr_debug("SHR_DESC: SHARE VALUE is not supported. "
-				"SEC Program Line: %d\n", program->current_pc);
+		pr_debug("SHR_DESC: SHARE VALUE is not supported. SEC Program Line: %d\n",
+			 program->current_pc);
 		goto err;
 	}
 
@@ -113,14 +113,13 @@ static inline unsigned rta_job_header(struct program *program, uint32_t share,
 		opcode |= HDR_SHARE_DEFER;
 		break;
 	default:
-		pr_debug("JOB_DESC: SHARE VALUE is not supported. "
-				"SEC Program Line: %d\n", program->current_pc);
+		pr_debug("JOB_DESC: SHARE VALUE is not supported. SEC Program Line: %d\n",
+			 program->current_pc);
 		goto err;
 	}
 
 	if ((flags & TD) && (flags & REO)) {
-		pr_debug("JOB_DESC: REO flag not supported for trusted "
-			 "descriptors. SEC Program Line: %d\n",
+		pr_debug("JOB_DESC: REO flag not supported for trusted descriptors. SEC Program Line: %d\n",
 			 program->current_pc);
 		goto err;
 	}

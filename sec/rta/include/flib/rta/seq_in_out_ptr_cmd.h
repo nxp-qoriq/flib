@@ -39,8 +39,7 @@ static inline unsigned rta_seq_in_ptr(struct program *program, uint64_t src,
 		goto err;
 	}
 	if ((flags & SOP) && (flags & (RBS | PRE | RTO | EXT))) {
-		pr_debug("SEQ IN PTR: Invalid usage of SOP and (RBS or PRE or "
-			 "RTO or EXT) flags\n");
+		pr_debug("SEQ IN PTR: Invalid usage of SOP and (RBS or PRE or RTO or EXT) flags\n");
 		goto err;
 	}
 
@@ -61,8 +60,7 @@ static inline unsigned rta_seq_in_ptr(struct program *program, uint64_t src,
 		opcode |= SQIN_SOP;
 	if ((length >> 16) || (flags & EXT)) {
 		if (flags & SOP) {
-			pr_debug("SEQ IN PTR: Invalid usage of SOP and EXT "
-				 "flags\n");
+			pr_debug("SEQ IN PTR: Invalid usage of SOP and EXT flags\n");
 			goto err;
 		}
 
@@ -107,8 +105,7 @@ static inline unsigned rta_seq_out_ptr(struct program *program, uint64_t dst,
 
 	/* Parameters checking */
 	if ((rta_sec_era == RTA_SEC_ERA_1) && (flags & RTO)) {
-		pr_debug("SEQ IN PTR: Restoring output sequences (RTO) not "
-			 "supported\n");
+		pr_debug("SEQ IN PTR: Restoring output sequences (RTO) not supported\n");
 		goto err;
 	}
 	if ((flags & RTO) && (flags & PRE)) {

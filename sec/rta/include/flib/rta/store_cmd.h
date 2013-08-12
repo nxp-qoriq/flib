@@ -69,19 +69,20 @@ static inline unsigned rta_store(struct program *program, uint64_t src,
 	/* parameters check */
 	if ((flags & IMMED) && (flags & SGF)) {
 		pr_debug("STORE: Invalid flag. SEC PC: %d; Instr: %d\n",
-			program->current_pc, program->current_instruction);
+			 program->current_pc, program->current_instruction);
 		goto err;
 	}
 	if ((flags & IMMED) && (offset != 0)) {
 		pr_debug("STORE: Invalid flag. SEC PC: %d; Instr: %d\n",
-			program->current_pc, program->current_instruction);
+			 program->current_pc, program->current_instruction);
 		goto err;
 	}
 
 	if ((flags & SEQ) && ((src == _JOBDESCBUF) || (src == _SHAREDESCBUF) ||
-	    (src == _JOBDESCBUF_EFF) || (src == _SHAREDESCBUF_EFF))) {
+			      (src == _JOBDESCBUF_EFF) ||
+			      (src == _SHAREDESCBUF_EFF))) {
 		pr_debug("STORE: Invalid SRC type. SEC PC: %d; Instr: %d\n",
-			program->current_pc, program->current_instruction);
+			 program->current_pc, program->current_instruction);
 		goto err;
 	}
 
@@ -100,17 +101,18 @@ static inline unsigned rta_store(struct program *program, uint64_t src,
 		ret = __rta_map_opcode((uint32_t)src, store_src_table,
 				       store_src_table_sz[rta_sec_era], &val);
 		if (ret == -1) {
-			pr_debug("STORE: Invalid source. SEC PC: %d; "
-					"Instr: %d\n", program->current_pc,
-					program->current_instruction);
+			pr_debug("STORE: Invalid source. SEC PC: %d; Instr: %d\n",
+				 program->current_pc,
+				 program->current_instruction);
 			goto err;
 		}
 		opcode |= val;
 	}
 
 	/* DESC BUFFER: length / offset values are specified in 4-byte words */
-	if ((src == _DESCBUF) || (src == _JOBDESCBUF) || (src == _SHAREDESCBUF)
-	    || (src == _JOBDESCBUF_EFF) || (src == _SHAREDESCBUF_EFF)) {
+	if ((src == _DESCBUF) || (src == _JOBDESCBUF) ||
+	    (src == _SHAREDESCBUF) || (src == _JOBDESCBUF_EFF) ||
+	    (src == _SHAREDESCBUF_EFF)) {
 		opcode |= (length >> 2);
 		opcode |= ((offset >> 2) << LDST_OFFSET_SHIFT);
 	} else {
@@ -149,7 +151,7 @@ static inline unsigned rta_store(struct program *program, uint64_t src,
 			program->buffer[program->current_pc] = low_32b(src);
 			program->current_pc++;
 		} else {
-			uint8_t *tmp = (uint8_t *) &program->buffer[program->current_pc];
+			uint8_t *tmp = (uint8_t *)&program->buffer[program->current_pc];
 
 			for (i = 0; i < length; i++)
 				*tmp++ = ((uint8_t *)(uintptr_t)src)[i];
