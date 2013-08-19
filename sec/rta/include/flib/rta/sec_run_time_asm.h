@@ -4,18 +4,7 @@
 #define __RTA_SEC_RUN_TIME_ASM_H__
 
 #include "../desc.h"
-#include <stdint.h>
-#include <string.h>
-#include <stdlib.h>
-#include <stdio.h>
-
-#ifndef pr_debug
-#ifdef RTA_DEBUG
-#define pr_debug(fmt, ...)    printf(fmt, ##__VA_ARGS__)
-#else
-#define pr_debug(fmt, ...)
-#endif
-#endif
+#include "../compat.h"
 
 #ifndef high_32b
 #define high_32b(x) ((uint32_t)((x) >> 32))
@@ -23,17 +12,6 @@
 
 #ifndef low_32b
 #define low_32b(x) ((uint32_t)(x))
-#endif
-
-/**
- * ARRAY_SIZE(x) - Returns the number of elements in an array
- */
-#ifndef ARRAY_SIZE
-#define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
-#endif
-
-#ifndef ALIGN
-#define ALIGN(x, a) (((x) + ((typeof(x))(a) - 1)) & ~((typeof(x))(a) - 1))
 #endif
 
 /**
