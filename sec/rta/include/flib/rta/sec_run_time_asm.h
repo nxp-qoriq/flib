@@ -567,6 +567,16 @@ static inline unsigned rta_endian_data(struct program *program, uint8_t *data,
 	return start_pc;
 }
 
+static inline unsigned rta_desc_len(uint32_t *buffer, uint32_t mask)
+{
+	 return *buffer & mask;
+}
+
+static inline unsigned rta_desc_bytes(uint32_t *buffer, uint32_t mask)
+{
+	 return rta_desc_len(buffer, mask) * CAAM_CMD_SZ;
+}
+
 static inline unsigned rta_set_label(struct program *program)
 {
 	return program->current_pc + program->start_pc;

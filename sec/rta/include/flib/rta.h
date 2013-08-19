@@ -136,6 +136,46 @@
 #define ENDIAN_DATA(data, len) rta_endian_data(program, (data), (len))
 
 /**
+ * @def                SHR_DESC_LEN
+ * @details            @b SHR_DESC_LEN determines shared descriptor buffer
+ *                     length in words.
+ *
+ * @param[in] buffer   Shared descriptor buffer (@c uint32_t *).
+ * @return             Shared descriptor buffer length (@c unsigned).
+ */
+#define SHR_DESC_LEN(buffer) rta_desc_len(buffer, HDR_DESCLEN_SHR_MASK)
+
+/**
+ * @def                SHR_DESC_BYTES
+ * @details            @b SHR_DESC_BYTES determines shared descriptor buffer
+ *                     length in bytes.
+ *
+ * @param[in] buffer   Shared descriptor buffer (@c uint32_t *).
+ * @return             Shared descriptor buffer length (@c unsigned).
+ */
+#define SHR_DESC_BYTES(buffer) rta_desc_bytes(buffer, HDR_DESCLEN_SHR_MASK)
+
+/**
+ * @def                JOB_DESC_LEN
+ * @details            @b JOB_DESC_LEN determines job descriptor buffer length
+ *                     in words.
+ *
+ * @param[in] buffer   Job descriptor buffer (@c uint32_t *).
+ * @return             Job descriptor buffer length (@c unsigned).
+ */
+#define JOB_DESC_LEN(buffer) rta_desc_len(buffer, HDR_DESCLEN_MASK)
+
+/**
+ * @def                JOB_DESC_BYTES
+ * @details            @b JOB_DESC_BYTES determines job descriptor buffer length
+ *                     in bytes.
+ *
+ * @param[in] buffer   Job descriptor buffer (@c uint32_t *).
+ * @return             Job descriptor buffer length (@c unsigned).
+ */
+#define JOB_DESC_BYTES(buffer) rta_desc_bytes(buffer, HDR_DESCLEN_MASK)
+
+/**
  * @brief              SEC HW block revision.
  *
  * This *must not be confused with SEC version*:
