@@ -11,6 +11,11 @@
 /* Max size of any SEC descriptor in 32-bit words, inclusive of header */
 #define MAX_CAAM_DESCSIZE	64
 
+#define CAAM_CMD_SZ sizeof(uint32_t)
+#define CAAM_PTR_SZ sizeof(dma_addr_t)
+#define CAAM_DESC_BYTES_MAX (CAAM_CMD_SZ * MAX_CAAM_DESCSIZE)
+#define DESC_JOB_IO_LEN (CAAM_CMD_SZ * 5 + CAAM_PTR_SZ * 3)
+
 /* Block size of any entity covered/uncovered with a KEK/TKEK */
 #define KEK_BLOCKSIZE		16
 
