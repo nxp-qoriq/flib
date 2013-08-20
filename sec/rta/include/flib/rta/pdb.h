@@ -3,81 +3,6 @@
 #ifndef __RTA_PDB_H__
 #define __RTA_PDB_H__
 
-/*
- * IEEE 801.AE MacSEC Protocol Data Block
- */
-#define MACSEC_PDBOPTS_FCS	0x01
-#define MACSEC_PDBOPTS_AR	0x40	/* used in decap only */
-
-struct macsec_encap_pdb {
-	uint16_t aad_len;
-	uint8_t rsvd;
-	uint8_t options;
-	uint32_t sci_hi;
-	uint32_t sci_lo;
-	uint16_t ethertype;
-	uint8_t tci_an;
-	uint8_t rsvd1;
-	/* begin DECO writeback region */
-	uint32_t pn;
-	/* end DECO writeback region */
-};
-
-struct macsec_decap_pdb {
-	uint16_t aad_len;
-	uint8_t rsvd;
-	uint8_t options;
-	uint32_t sci_hi;
-	uint32_t sci_lo;
-	uint8_t rsvd1[3];
-	/* begin DECO writeback region */
-	uint8_t antireplay_len;
-	uint32_t pn;
-	uint32_t antireplay_scorecard_hi;
-	uint32_t antireplay_scorecard_lo;
-	/* end DECO writeback region */
-};
-
-/*
- * IEEE 802.16 WiMAX Protocol Data Block
- */
-/** @addtogroup defines_group
- *  @{
- */
-#define WIMAX_PDBOPTS_FCS       0x01    /**< Options Byte with FCS enabled */
-#define WIMAX_PDBOPTS_AR        0x40    /**< Options Byte with AR enabled */
-/** @}*/
-#define WIMAX_PDB_B0            0x19    /* Initial Block B0 Flags */
-#define WIMAX_PDB_CTR           0x01    /* Counter Block Flags */
-
-struct wimax_encap_pdb {
-	uint8_t rsvd[3];                /* Reserved Bits */
-	uint8_t options;                /* Options Byte */
-	uint32_t nonce;                 /* Nonce Constant */
-	uint8_t b0_flags;               /* Initial Block B0 */
-	uint8_t ctr_flags;              /* Counter Block Flags */
-	uint16_t ctr_init_count;
-	/* begin DECO writeback region */
-	uint32_t pn;                    /* Packet Number */
-	/* end DECO writeback region */
-};
-
-struct wimax_decap_pdb {
-	uint8_t rsvd[3];                /* Reserved Bits */
-	uint8_t options;                /* Options Byte */
-	uint32_t nonce;                 /* Nonce Constant */
-	uint8_t iv_flags;               /* Initialization Vector Flags */
-	uint8_t ctr_flags;              /* Counter Block Flags */
-	uint16_t ctr_init_count;
-	/* begin DECO writeback region */
-	uint32_t pn;                    /* Packet Number */
-	uint8_t rsvd1[2];               /* Reserved Bits */
-	uint16_t antireplay_len;
-	uint32_t antireplay_scorecard_hi;
-	uint32_t antireplay_scorecard_lo;
-	/** end DECO writeback region */
-};
-
 /**
  * @defgroup pdb_group SEC Protocol Data Block Data Structures
  * @ingroup descriptor_lib_group
@@ -277,86 +202,6 @@ struct ipsec_decap_pdb {
 };
 
 /*
- * PDCP Control Plane Protocol Data Blocks
- */
-#define PDCP_C_PLANE_PDB_HFN_SHIFT		5
-#define PDCP_C_PLANE_PDB_BEARER_SHIFT		27
-#define PDCP_C_PLANE_PDB_DIR_SHIFT		26
-#define PDCP_C_PLANE_PDB_HFN_THR_SHIFT		5
-
-#define PDCP_U_PLANE_PDB_OPT_SHORT_SN		0x2
-#define PDCP_U_PLANE_PDB_SHORT_SN_HFN_SHIFT	7
-#define PDCP_U_PLANE_PDB_LONG_SN_HFN_SHIFT	12
-#define PDCP_U_PLANE_PDB_15BIT_SN_HFN_SHIFT	15
-#define PDCP_U_PLANE_PDB_BEARER_SHIFT		27
-#define PDCP_U_PLANE_PDB_DIR_SHIFT		26
-#define PDCP_U_PLANE_PDB_SHORT_SN_HFN_THR_SHIFT	7
-#define PDCP_U_PLANE_PDB_LONG_SN_HFN_THR_SHIFT	12
-#define PDCP_U_PLANE_PDB_15BIT_SN_HFN_THR_SHIFT	15
-
-struct pdcp_pdb {
-	union {
-		uint32_t opt;
-		uint32_t rsvd;
-	}opt_res;
-	uint32_t hfn_res;	/* HyperFrame number,(27, 25 or 21 bits),
-				 * left aligned & right-padded with zeros. */
-	uint32_t bearer_dir_res;/* Bearer(5 bits), packet direction (1 bit),
-				 * left aligned & right-padded with zeros. */
-	uint32_t hfn_thr_res;	/* HyperFrame number threshold (27, 25 or 21
-				 * bits), left aligned & right-padded with
-				 * zeros. */
-};
-
-/*
- * PDCP internal PDB types
- */
-enum pdb_type_e {
-	PDCP_PDB_TYPE_NO_PDB,
-	PDCP_PDB_TYPE_FULL_PDB,
-	PDCP_PDB_TYPE_REDUCED_PDB,
-	PDCP_PDB_TYPE_INVALID
-};
-
-/*
- * SRTP Protocol Data Blocks
- */
-#define SRTP_PDBOPTS_MKI	0x08
-#define SRTP_PDBOPTS_AR		0x40
-#define SRTP_CIPHER_SALT_LEN	14
-
-struct srtp_encap_pdb {
-	uint8_t x_len;			   /* RTP Extension length */
-	uint8_t mki_len;		   /* MKI length */
-	uint8_t n_tag;			   /* ICV length */
-	uint8_t options;		   /* Options Byte */
-	uint32_t cnst0;			   /* Constant Bits */
-	uint8_t rsvd[2];		   /* Reserved Bits */
-	uint16_t cnst1;			   /* Constant Bits */
-	uint8_t salt[SRTP_CIPHER_SALT_LEN];/* Cipher Salt */
-	uint16_t cnst2;			   /* Constant Bits */
-	uint32_t rsvd1;			   /* Reserved Bits */
-	uint32_t roc;			   /* Rollover Counter */
-	uint32_t opt_mki;		   /* MKI */
-};
-
-struct srtp_decap_pdb {
-	uint8_t x_len;			   /* RTP Extension length */
-	uint8_t mki_len;		   /* MKI length */
-	uint8_t n_tag;			   /* ICV length */
-	uint8_t options;		   /* Options Byte */
-	uint32_t cnst0;			   /* Constant Bits */
-	uint8_t rsvd[2];		   /* Reserved Bits */
-	uint16_t cnst1;			   /* Constant Bits */
-	uint8_t salt[SRTP_CIPHER_SALT_LEN];/* Cipher Salt */
-	uint16_t cnst2;			   /* Constant Bits */
-	uint16_t rsvd1;			   /* Reserved Bits */
-	uint16_t seq_num;		   /* Sequence Number */
-	uint32_t roc;			   /* Rollover Counter */
-	uint64_t antireplay_scorecard;	   /* Anti-replay Scorecard */
-};
-
-/*
  * IEEE 802.11 WiFi Protocol Data Block
  */
 #define WIFI_PDBOPTS_FCS	0x01
@@ -423,180 +268,121 @@ struct wifi_decap_pdb {
 	uint16_t ctr_init;	/* CCM Counter block init counter */
 };
 
-/**
- * @defgroup rsa_pdb rsa_pdb
- * @ingroup pdb_group
- * @{
+/*
+ * PDCP Control Plane Protocol Data Blocks
  */
-/** @} end of rsa_pdb */
+#define PDCP_C_PLANE_PDB_HFN_SHIFT		5
+#define PDCP_C_PLANE_PDB_BEARER_SHIFT		27
+#define PDCP_C_PLANE_PDB_DIR_SHIFT		26
+#define PDCP_C_PLANE_PDB_HFN_THR_SHIFT		5
+
+#define PDCP_U_PLANE_PDB_OPT_SHORT_SN		0x2
+#define PDCP_U_PLANE_PDB_SHORT_SN_HFN_SHIFT	7
+#define PDCP_U_PLANE_PDB_LONG_SN_HFN_SHIFT	12
+#define PDCP_U_PLANE_PDB_15BIT_SN_HFN_SHIFT	15
+#define PDCP_U_PLANE_PDB_BEARER_SHIFT		27
+#define PDCP_U_PLANE_PDB_DIR_SHIFT		26
+#define PDCP_U_PLANE_PDB_SHORT_SN_HFN_THR_SHIFT	7
+#define PDCP_U_PLANE_PDB_LONG_SN_HFN_THR_SHIFT	12
+#define PDCP_U_PLANE_PDB_15BIT_SN_HFN_THR_SHIFT	15
+
+struct pdcp_pdb {
+	union {
+		uint32_t opt;
+		uint32_t rsvd;
+	}opt_res;
+	uint32_t hfn_res;	/* HyperFrame number,(27, 25 or 21 bits),
+				 * left aligned & right-padded with zeros. */
+	uint32_t bearer_dir_res;/* Bearer(5 bits), packet direction (1 bit),
+				 * left aligned & right-padded with zeros. */
+	uint32_t hfn_thr_res;	/* HyperFrame number threshold (27, 25 or 21
+				 * bits), left aligned & right-padded with
+				 * zeros. */
+};
 
 /*
- * RSA encryption/decryption PDB definitions.
+ * PDCP internal PDB types
  */
-
-#define RSA_ENC_SGF_SHIFT	28
-#define RSA_ENC_RSV_SHIFT	24
-#define RSA_ENC_E_LEN_SHIFT	12
-
-/**
- * @struct   rsa_encrypt_pdb_64b pdb.h
- * @ingroup  rsa_pdb
- * @details  RSA encryption PDB for 64 bits addresses
- */
-struct rsa_encrypt_pdb_64b {
-	uint32_t header;	/* Contains sgf, rsv, #e, #n fields */
-	uint32_t f_ref_high;	/* Reference to input */
-	uint32_t f_ref_low;
-	uint32_t g_ref_high;	/* Reference to output */
-	uint32_t g_ref_low;
-	uint32_t n_ref_high;	/* Reference to modulus */
-	uint32_t n_ref_low;
-	uint32_t e_ref_high;	/* Reference to public key */
-	uint32_t e_ref_low;
-	uint32_t f_len;		/* Input length */
+enum pdb_type_e {
+	PDCP_PDB_TYPE_NO_PDB,
+	PDCP_PDB_TYPE_FULL_PDB,
+	PDCP_PDB_TYPE_REDUCED_PDB,
+	PDCP_PDB_TYPE_INVALID
 };
 
-/**
- * @struct   rsa_encrypt_pdb pdb.h
- * @ingroup  rsa_pdb
- * @details  RSA encryption PDB for 32 bits addresses
+/*
+ * IEEE 802.16 WiMAX Protocol Data Block
  */
-struct rsa_encrypt_pdb {
-	uint32_t header;	/* Contains sgf, rsv, #e, #n fields */
-	uint32_t f_ref;		/* Reference to input */
-	uint32_t g_ref;		/* Reference to output */
-	uint32_t n_ref;		/* Reference to modulus */
-	uint32_t e_ref;		/* Reference to public key */
-	uint32_t f_len;		/* Input length */
+/** @addtogroup defines_group
+ *  @{
+ */
+#define WIMAX_PDBOPTS_FCS       0x01    /**< Options Byte with FCS enabled */
+#define WIMAX_PDBOPTS_AR        0x40    /**< Options Byte with AR enabled */
+/** @}*/
+#define WIMAX_PDB_B0            0x19    /* Initial Block B0 Flags */
+#define WIMAX_PDB_CTR           0x01    /* Counter Block Flags */
+
+struct wimax_encap_pdb {
+	uint8_t rsvd[3];                /* Reserved Bits */
+	uint8_t options;                /* Options Byte */
+	uint32_t nonce;                 /* Nonce Constant */
+	uint8_t b0_flags;               /* Initial Block B0 */
+	uint8_t ctr_flags;              /* Counter Block Flags */
+	uint16_t ctr_init_count;
+	/* begin DECO writeback region */
+	uint32_t pn;                    /* Packet Number */
+	/* end DECO writeback region */
 };
 
-#define RSA_DEC1_SGF_SHIFT	28
-#define RSA_DEC1_RSV_SHIFT	24
-#define RSA_DEC1_D_LEN_SHIFT	12
-
-/**
- * @struct   rsa_dec_pdb_form1_64b pdb.h
- * @ingroup  rsa_pdb
- * @details  RSA decryption form1 PDB for 64 bits addresses
- */
-struct rsa_dec_pdb_form1_64b {
-	uint32_t header;	/* Contains sgf, rsv, #d, #n fields */
-	uint32_t g_ref_high;	/* Reference to input */
-	uint32_t g_ref_low;
-	uint32_t f_ref_high;	/* Reference to output */
-	uint32_t f_ref_low;
-	uint32_t n_ref_high;	/* Reference to modulus */
-	uint32_t n_ref_low;
-	uint32_t d_ref_high;	/* Reference to private key */
-	uint32_t d_ref_low;
+struct wimax_decap_pdb {
+	uint8_t rsvd[3];                /* Reserved Bits */
+	uint8_t options;                /* Options Byte */
+	uint32_t nonce;                 /* Nonce Constant */
+	uint8_t iv_flags;               /* Initialization Vector Flags */
+	uint8_t ctr_flags;              /* Counter Block Flags */
+	uint16_t ctr_init_count;
+	/* begin DECO writeback region */
+	uint32_t pn;                    /* Packet Number */
+	uint8_t rsvd1[2];               /* Reserved Bits */
+	uint16_t antireplay_len;
+	uint32_t antireplay_scorecard_hi;
+	uint32_t antireplay_scorecard_lo;
+	/** end DECO writeback region */
 };
 
-/**
- * @struct   rsa_dec_pdb_form1 pdb.h
- * @ingroup  rsa_pdb
- * @details  RSA decryption form1 PDB for 32 bits addresses
+/*
+ * IEEE 801.AE MacSEC Protocol Data Block
  */
-struct rsa_dec_pdb_form1 {
-	uint32_t header;	/* Contains sgf, rsv, #d, #n fields */
-	uint32_t g_ref;		/* Reference to input */
-	uint32_t f_ref;		/* Reference to output */
-	uint32_t n_ref;		/* Reference to modulus */
-	uint32_t d_ref;		/* Reference to private key */
+#define MACSEC_PDBOPTS_FCS	0x01
+#define MACSEC_PDBOPTS_AR	0x40	/* used in decap only */
+
+struct macsec_encap_pdb {
+	uint16_t aad_len;
+	uint8_t rsvd;
+	uint8_t options;
+	uint32_t sci_hi;
+	uint32_t sci_lo;
+	uint16_t ethertype;
+	uint8_t tci_an;
+	uint8_t rsvd1;
+	/* begin DECO writeback region */
+	uint32_t pn;
+	/* end DECO writeback region */
 };
 
-#define RSA_DEC2_SGF_SHIFT	25
-#define RSA_DEC2_D_LEN_SHIFT	12
-#define RSA_DEC2_Q_LEN_SHIFT	12
-
-/**
- * @struct   rsa_dec_pdb_form2_64b pdb.h
- * @ingroup  rsa_pdb
- * @details  RSA decryption form2 PDB for 64 bits addresses
- */
-struct rsa_dec_pdb_form2_64b {
-	uint32_t header;	/* Contains sgf, rsv, #d, #n fields */
-	uint32_t g_ref_high;	/* Reference to input */
-	uint32_t g_ref_low;
-	uint32_t f_ref_high;	/* Reference to output */
-	uint32_t f_ref_low;
-	uint32_t d_ref_high;	/* Reference to private key */
-	uint32_t d_ref_low;
-	uint32_t p_ref_high;	/* Reference to prime p */
-	uint32_t p_ref_low;
-	uint32_t q_ref_high;	/* Reference to prime q */
-	uint32_t q_ref_low;
-	uint32_t tmp1_ref_high;	/* Reference to tmp1 */
-	uint32_t tmp1_ref_low;
-	uint32_t tmp2_ref_high;	/* Reference to tmp2 */
-	uint32_t tmp2_ref_low;
-	uint32_t trailer;	/* Contains rsv, #q, #p fields */
-};
-
-/**
- * @struct   rsa_dec_pdb_form2 pdb.h
- * @ingroup  rsa_pdb
- * @details  RSA decryption form2 PDB for 32 bits addresses
- */
-struct rsa_dec_pdb_form2 {
-	uint32_t header;	/* Contains sgf, rsv, #d, #n fields */
-	uint32_t g_ref;		/* Reference to input */
-	uint32_t f_ref;		/* Reference to output */
-	uint32_t d_ref;		/* Reference to private key */
-	uint32_t p_ref;		/* Reference to prime p */
-	uint32_t q_ref;		/* Reference to prime q */
-	uint32_t tmp1_ref;	/* Reference to tmp1 */
-	uint32_t tmp2_ref;	/* Reference to tmp2 */
-	uint32_t trailer;	/* Contains rsv, #q, #p fields */
-};
-
-#define RSA_DEC3_SGF_SHIFT	25
-#define RSA_DEC3_Q_LEN_SHIFT	12
-
-/**
- * @struct   rsa_dec_pdb_form3_64b pdb.h
- * @ingroup  rsa_pdb
- * @details  RSA decryption form3 PDB for 64 bits addresses
- */
-struct rsa_dec_pdb_form3_64b {
-	uint32_t header;	/* Contains sgf, rsv, #n fields */
-	uint32_t g_ref_high;	/* Reference to input */
-	uint32_t g_ref_low;
-	uint32_t f_ref_high;	/* Reference to output */
-	uint32_t f_ref_low;
-	uint32_t c_ref_high;	/* Reference to c */
-	uint32_t c_ref_low;
-	uint32_t p_ref_high;	/* Reference to prime p */
-	uint32_t p_ref_low;
-	uint32_t q_ref_high;	/* Reference to prime q */
-	uint32_t q_ref_low;
-	uint32_t dp_ref_high;	/* Reference to dp */
-	uint32_t dp_ref_low;
-	uint32_t dq_ref_high;	/* Reference to dq */
-	uint32_t dq_ref_low;
-	uint32_t tmp1_ref_high;	/* Reference to tmp1 */
-	uint32_t tmp1_ref_low;
-	uint32_t tmp2_ref_high;	/* Reference to tmp2 */
-	uint32_t tmp2_ref_low;
-	uint32_t trailer;	/* Contains rsv, #q, #p fields */
-};
-
-/**
- * @struct   rsa_dec_pdb_form3 pdb.h
- * @ingroup  rsa_pdb
- * @details  RSA decryption form3 PDB for 32 bits addresses
- */
-struct rsa_dec_pdb_form3 {
-	uint32_t header;	/* Contains sgf, rsv, #n fields */
-	uint32_t g_ref;		/* Reference to input */
-	uint32_t f_ref;		/* Reference to output */
-	uint32_t c_ref;		/* Reference to c */
-	uint32_t p_ref;		/* Reference to prime p */
-	uint32_t q_ref;		/* Reference to prime q */
-	uint32_t dp_ref;	/* Reference to dp */
-	uint32_t dq_ref;	/* Reference to dq */
-	uint32_t tmp1_ref;	/* Reference to tmp1 */
-	uint32_t tmp2_ref;	/* Reference to tmp2 */
-	uint32_t trailer;	/* Contains rsv, #q, #p fields */
+struct macsec_decap_pdb {
+	uint16_t aad_len;
+	uint8_t rsvd;
+	uint8_t options;
+	uint32_t sci_hi;
+	uint32_t sci_lo;
+	uint8_t rsvd1[3];
+	/* begin DECO writeback region */
+	uint8_t antireplay_len;
+	uint32_t pn;
+	uint32_t antireplay_scorecard_hi;
+	uint32_t antireplay_scorecard_lo;
+	/* end DECO writeback region */
 };
 
 /**
@@ -888,6 +674,220 @@ struct tls_ccm_pdb {
 	uint8_t rsvd[3];
 	uint8_t ctr0[3];
 	uint32_t end_index[0];
+};
+
+/*
+ * SRTP Protocol Data Blocks
+ */
+#define SRTP_PDBOPTS_MKI	0x08
+#define SRTP_PDBOPTS_AR		0x40
+#define SRTP_CIPHER_SALT_LEN	14
+
+struct srtp_encap_pdb {
+	uint8_t x_len;			   /* RTP Extension length */
+	uint8_t mki_len;		   /* MKI length */
+	uint8_t n_tag;			   /* ICV length */
+	uint8_t options;		   /* Options Byte */
+	uint32_t cnst0;			   /* Constant Bits */
+	uint8_t rsvd[2];		   /* Reserved Bits */
+	uint16_t cnst1;			   /* Constant Bits */
+	uint8_t salt[SRTP_CIPHER_SALT_LEN];/* Cipher Salt */
+	uint16_t cnst2;			   /* Constant Bits */
+	uint32_t rsvd1;			   /* Reserved Bits */
+	uint32_t roc;			   /* Rollover Counter */
+	uint32_t opt_mki;		   /* MKI */
+};
+
+struct srtp_decap_pdb {
+	uint8_t x_len;			   /* RTP Extension length */
+	uint8_t mki_len;		   /* MKI length */
+	uint8_t n_tag;			   /* ICV length */
+	uint8_t options;		   /* Options Byte */
+	uint32_t cnst0;			   /* Constant Bits */
+	uint8_t rsvd[2];		   /* Reserved Bits */
+	uint16_t cnst1;			   /* Constant Bits */
+	uint8_t salt[SRTP_CIPHER_SALT_LEN];/* Cipher Salt */
+	uint16_t cnst2;			   /* Constant Bits */
+	uint16_t rsvd1;			   /* Reserved Bits */
+	uint16_t seq_num;		   /* Sequence Number */
+	uint32_t roc;			   /* Rollover Counter */
+	uint64_t antireplay_scorecard;	   /* Anti-replay Scorecard */
+};
+
+/**
+ * @defgroup rsa_pdb rsa_pdb
+ * @ingroup pdb_group
+ * @{
+ */
+/** @} end of rsa_pdb */
+
+/*
+ * RSA encryption/decryption PDB definitions.
+ */
+
+#define RSA_ENC_SGF_SHIFT	28
+#define RSA_ENC_RSV_SHIFT	24
+#define RSA_ENC_E_LEN_SHIFT	12
+
+/**
+ * @struct   rsa_encrypt_pdb_64b pdb.h
+ * @ingroup  rsa_pdb
+ * @details  RSA encryption PDB for 64 bits addresses
+ */
+struct rsa_encrypt_pdb_64b {
+	uint32_t header;	/* Contains sgf, rsv, #e, #n fields */
+	uint32_t f_ref_high;	/* Reference to input */
+	uint32_t f_ref_low;
+	uint32_t g_ref_high;	/* Reference to output */
+	uint32_t g_ref_low;
+	uint32_t n_ref_high;	/* Reference to modulus */
+	uint32_t n_ref_low;
+	uint32_t e_ref_high;	/* Reference to public key */
+	uint32_t e_ref_low;
+	uint32_t f_len;		/* Input length */
+};
+
+/**
+ * @struct   rsa_encrypt_pdb pdb.h
+ * @ingroup  rsa_pdb
+ * @details  RSA encryption PDB for 32 bits addresses
+ */
+struct rsa_encrypt_pdb {
+	uint32_t header;	/* Contains sgf, rsv, #e, #n fields */
+	uint32_t f_ref;		/* Reference to input */
+	uint32_t g_ref;		/* Reference to output */
+	uint32_t n_ref;		/* Reference to modulus */
+	uint32_t e_ref;		/* Reference to public key */
+	uint32_t f_len;		/* Input length */
+};
+
+#define RSA_DEC1_SGF_SHIFT	28
+#define RSA_DEC1_RSV_SHIFT	24
+#define RSA_DEC1_D_LEN_SHIFT	12
+
+/**
+ * @struct   rsa_dec_pdb_form1_64b pdb.h
+ * @ingroup  rsa_pdb
+ * @details  RSA decryption form1 PDB for 64 bits addresses
+ */
+struct rsa_dec_pdb_form1_64b {
+	uint32_t header;	/* Contains sgf, rsv, #d, #n fields */
+	uint32_t g_ref_high;	/* Reference to input */
+	uint32_t g_ref_low;
+	uint32_t f_ref_high;	/* Reference to output */
+	uint32_t f_ref_low;
+	uint32_t n_ref_high;	/* Reference to modulus */
+	uint32_t n_ref_low;
+	uint32_t d_ref_high;	/* Reference to private key */
+	uint32_t d_ref_low;
+};
+
+/**
+ * @struct   rsa_dec_pdb_form1 pdb.h
+ * @ingroup  rsa_pdb
+ * @details  RSA decryption form1 PDB for 32 bits addresses
+ */
+struct rsa_dec_pdb_form1 {
+	uint32_t header;	/* Contains sgf, rsv, #d, #n fields */
+	uint32_t g_ref;		/* Reference to input */
+	uint32_t f_ref;		/* Reference to output */
+	uint32_t n_ref;		/* Reference to modulus */
+	uint32_t d_ref;		/* Reference to private key */
+};
+
+#define RSA_DEC2_SGF_SHIFT	25
+#define RSA_DEC2_D_LEN_SHIFT	12
+#define RSA_DEC2_Q_LEN_SHIFT	12
+
+/**
+ * @struct   rsa_dec_pdb_form2_64b pdb.h
+ * @ingroup  rsa_pdb
+ * @details  RSA decryption form2 PDB for 64 bits addresses
+ */
+struct rsa_dec_pdb_form2_64b {
+	uint32_t header;	/* Contains sgf, rsv, #d, #n fields */
+	uint32_t g_ref_high;	/* Reference to input */
+	uint32_t g_ref_low;
+	uint32_t f_ref_high;	/* Reference to output */
+	uint32_t f_ref_low;
+	uint32_t d_ref_high;	/* Reference to private key */
+	uint32_t d_ref_low;
+	uint32_t p_ref_high;	/* Reference to prime p */
+	uint32_t p_ref_low;
+	uint32_t q_ref_high;	/* Reference to prime q */
+	uint32_t q_ref_low;
+	uint32_t tmp1_ref_high;	/* Reference to tmp1 */
+	uint32_t tmp1_ref_low;
+	uint32_t tmp2_ref_high;	/* Reference to tmp2 */
+	uint32_t tmp2_ref_low;
+	uint32_t trailer;	/* Contains rsv, #q, #p fields */
+};
+
+/**
+ * @struct   rsa_dec_pdb_form2 pdb.h
+ * @ingroup  rsa_pdb
+ * @details  RSA decryption form2 PDB for 32 bits addresses
+ */
+struct rsa_dec_pdb_form2 {
+	uint32_t header;	/* Contains sgf, rsv, #d, #n fields */
+	uint32_t g_ref;		/* Reference to input */
+	uint32_t f_ref;		/* Reference to output */
+	uint32_t d_ref;		/* Reference to private key */
+	uint32_t p_ref;		/* Reference to prime p */
+	uint32_t q_ref;		/* Reference to prime q */
+	uint32_t tmp1_ref;	/* Reference to tmp1 */
+	uint32_t tmp2_ref;	/* Reference to tmp2 */
+	uint32_t trailer;	/* Contains rsv, #q, #p fields */
+};
+
+#define RSA_DEC3_SGF_SHIFT	25
+#define RSA_DEC3_Q_LEN_SHIFT	12
+
+/**
+ * @struct   rsa_dec_pdb_form3_64b pdb.h
+ * @ingroup  rsa_pdb
+ * @details  RSA decryption form3 PDB for 64 bits addresses
+ */
+struct rsa_dec_pdb_form3_64b {
+	uint32_t header;	/* Contains sgf, rsv, #n fields */
+	uint32_t g_ref_high;	/* Reference to input */
+	uint32_t g_ref_low;
+	uint32_t f_ref_high;	/* Reference to output */
+	uint32_t f_ref_low;
+	uint32_t c_ref_high;	/* Reference to c */
+	uint32_t c_ref_low;
+	uint32_t p_ref_high;	/* Reference to prime p */
+	uint32_t p_ref_low;
+	uint32_t q_ref_high;	/* Reference to prime q */
+	uint32_t q_ref_low;
+	uint32_t dp_ref_high;	/* Reference to dp */
+	uint32_t dp_ref_low;
+	uint32_t dq_ref_high;	/* Reference to dq */
+	uint32_t dq_ref_low;
+	uint32_t tmp1_ref_high;	/* Reference to tmp1 */
+	uint32_t tmp1_ref_low;
+	uint32_t tmp2_ref_high;	/* Reference to tmp2 */
+	uint32_t tmp2_ref_low;
+	uint32_t trailer;	/* Contains rsv, #q, #p fields */
+};
+
+/**
+ * @struct   rsa_dec_pdb_form3 pdb.h
+ * @ingroup  rsa_pdb
+ * @details  RSA decryption form3 PDB for 32 bits addresses
+ */
+struct rsa_dec_pdb_form3 {
+	uint32_t header;	/* Contains sgf, rsv, #n fields */
+	uint32_t g_ref;		/* Reference to input */
+	uint32_t f_ref;		/* Reference to output */
+	uint32_t c_ref;		/* Reference to c */
+	uint32_t p_ref;		/* Reference to prime p */
+	uint32_t q_ref;		/* Reference to prime q */
+	uint32_t dp_ref;	/* Reference to dp */
+	uint32_t dq_ref;	/* Reference to dq */
+	uint32_t tmp1_ref;	/* Reference to tmp1 */
+	uint32_t tmp2_ref;	/* Reference to tmp2 */
+	uint32_t trailer;	/* Contains rsv, #q, #p fields */
 };
 
 #endif /* __RTA_PDB_H__ */
