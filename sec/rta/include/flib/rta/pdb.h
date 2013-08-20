@@ -202,6 +202,17 @@ struct ipsec_decap_pdb {
 };
 
 /*
+ * IPSec ESP Datapath Protocol Override Register (DPOVRD)
+ */
+struct ipsec_deco_dpovrd {
+#define IPSEC_ENCAP_DECO_DPOVRD_USE 0x80
+	uint8_t ovrd_ecn;
+	uint8_t ip_hdr_len;
+	uint8_t nh_offset;
+	uint8_t next_header; /* reserved if decap */
+};
+
+/*
  * IEEE 802.11 WiFi Protocol Data Block
  */
 #define WIFI_PDBOPTS_FCS	0x01
