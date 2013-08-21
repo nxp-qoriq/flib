@@ -179,6 +179,7 @@ struct alginfo {
 				used */
 	uint64_t key;      /**< Address where algorithm key resides */
 	uint32_t keylen;   /**< Length of the provided key, in bytes */
+	uint32_t key_enc_flags; /**< Key encryption flags */
 };
 
 /**
@@ -271,7 +272,8 @@ static inline void cnstr_shdsc_snow_f8(uint32_t *descbuf, unsigned *bufsize,
 	PROGRAM_CNTXT_INIT(descbuf, 0);
 	SHR_HDR(SHR_ALWAYS, 1, 0);
 	{
-		KEY(KEY1, 0, PTR(cipherdata->key), cipherdata->keylen, IMMED);
+		KEY(KEY1, cipherdata->key_enc_flags, PTR(cipherdata->key),
+		    cipherdata->keylen, IMMED);
 		MATHB(SEQINSZ, SUB, MATH2, VSEQINSZ, SIZE(4), 0);
 		MATHB(SEQINSZ, SUB, MATH2, VSEQOUTSZ, SIZE(4), 0);
 		ALG_OPERATION(OP_ALG_ALGSEL_SNOW_F8, OP_ALG_AAI_F8,
@@ -313,7 +315,8 @@ static inline void cnstr_shdsc_snow_f9(uint32_t *descbuf, unsigned *bufsize,
 	PROGRAM_CNTXT_INIT(descbuf, 0);
 	SHR_HDR(SHR_ALWAYS, 1, 0);
 	{
-		KEY(KEY2, 0, PTR(authdata->key), authdata->keylen, IMMED);
+		KEY(KEY2, authdata->key_enc_flags, PTR(authdata->key),
+		    authdata->keylen, IMMED);
 		MATHB(SEQINSZ, SUB, MATH2, VSEQINSZ, SIZE(4), 0);
 		ALG_OPERATION(OP_ALG_ALGSEL_SNOW_F9, OP_ALG_AAI_F9,
 			      OP_ALG_AS_INITFINAL, 0, dir);
@@ -349,7 +352,8 @@ static inline void cnstr_shdsc_cbc_blkcipher(uint32_t *descbuf,
 	SHR_HDR(SHR_ALWAYS, 1, SC);
 	{
 		/* Insert Key */
-		KEY(KEY1, 0, PTR(cipherdata->key), cipherdata->keylen, IMMED);
+		KEY(KEY1, cipherdata->key_enc_flags, PTR(cipherdata->key),
+		    cipherdata->keylen, IMMED);
 		MATHB(SEQINSZ, SUB, MATH2, VSEQINSZ, SIZE(4), 0);
 		MATHB(SEQINSZ, SUB, MATH2, VSEQOUTSZ, SIZE(4), 0);
 		ALG_OPERATION(cipher, OP_ALG_AAI_CBC, OP_ALG_AS_INIT, 0, dir);
@@ -410,7 +414,8 @@ static inline void cnstr_shdsc_hmac(uint32_t *descbuf, unsigned *bufsize,
 	PROGRAM_CNTXT_INIT(descbuf, 0);
 	SHR_HDR(SHR_ALWAYS, 1, SC);
 	{
-		KEY(KEY2, 0, PTR(authdata->key), storelen, IMMED);
+		KEY(KEY2, authdata->key_enc_flags, PTR(authdata->key),
+		    storelen, IMMED);
 		/* compute sequences */
 		MATHB(SEQINSZ, SUB, MATH2, VSEQINSZ, SIZE(4), 0);
 		MATHB(SEQINSZ, SUB, MATH2, VSEQOUTSZ, SIZE(4), 0);
@@ -451,7 +456,8 @@ static inline void cnstr_shdsc_kasumi_f8(uint32_t *descbuf, unsigned *bufsize,
 	PROGRAM_CNTXT_INIT(descbuf, 0);
 	SHR_HDR(SHR_ALWAYS, 1, 0);
 	{
-		KEY(KEY1, 0, PTR(cipherdata->key), cipherdata->keylen, IMMED);
+		KEY(KEY1, cipherdata->key_enc_flags, PTR(cipherdata->key),
+		    cipherdata->keylen, IMMED);
 		MATHB(SEQINSZ, SUB, MATH2, VSEQINSZ, SIZE(4), 0);
 		MATHB(SEQINSZ, SUB, MATH2, VSEQOUTSZ, SIZE(4), 0);
 		ALG_OPERATION(OP_ALG_ALGSEL_KASUMI, OP_ALG_AAI_F8,
@@ -496,7 +502,8 @@ static inline void cnstr_shdsc_kasumi_f9(uint32_t *descbuf, unsigned *bufsize,
 	PROGRAM_CNTXT_INIT(descbuf, 0);
 	SHR_HDR(SHR_ALWAYS, 1, 0);
 	{
-		KEY(KEY1, 0, PTR(authdata->key), authdata->keylen, IMMED);
+		KEY(KEY1, authdata->key_enc_flags, PTR(authdata->key),
+		    authdata->keylen, IMMED);
 		MATHB(SEQINSZ, SUB, MATH2, VSEQINSZ, SIZE(4), 0);
 		ALG_OPERATION(OP_ALG_ALGSEL_KASUMI, OP_ALG_AAI_F9,
 			      OP_ALG_AS_INITFINAL, 0, dir);
@@ -579,8 +586,8 @@ static inline void cnstr_shdsc_macsec_encap(uint32_t *descbuf,
 		ENDIAN_DATA((uint8_t *)&pdb, sizeof(struct macsec_encap_pdb));
 		pkeyjump = JUMP(IMM(keyjump), LOCAL_JUMP, ALL_TRUE,
 				WITH(SHRD | SELF | BOTH));
-		KEY(KEY1, 0, PTR(cipherdata->key), cipherdata->keylen,
-		    WITH(IMMED));
+		KEY(KEY1, cipherdata->key_enc_flags, PTR(cipherdata->key),
+		    cipherdata->keylen, WITH(IMMED));
 		SET_LABEL(keyjump);
 		PROTOCOL(OP_TYPE_ENCAP_PROTOCOL, OP_PCLID_MACSEC,
 			 WITH(OP_PCL_MACSEC));
@@ -629,8 +636,8 @@ static inline void cnstr_shdsc_macsec_decap(uint32_t *descbuf,
 		ENDIAN_DATA((uint8_t *)&pdb, sizeof(struct macsec_decap_pdb));
 		pkeyjump = JUMP(IMM(keyjump), LOCAL_JUMP, ALL_TRUE,
 				WITH(SHRD | SELF | BOTH));
-		KEY(KEY1, 0, PTR(cipherdata->key), cipherdata->keylen,
-		    WITH(IMMED));
+		KEY(KEY1, cipherdata->key_enc_flags, PTR(cipherdata->key),
+		    cipherdata->keylen, WITH(IMMED));
 		SET_LABEL(keyjump);
 		PROTOCOL(OP_TYPE_DECAP_PROTOCOL, OP_PCLID_MACSEC,
 			 WITH(OP_PCL_MACSEC));
@@ -681,8 +688,10 @@ static inline void cnstr_shdsc_ipsec_encap(uint32_t *descbuf,
 		ENDIAN_DATA(ip_hdr, pdb->ip_hdr_len);
 	SET_LABEL(hdr);
 	pkeyjmp = JUMP(IMM(keyjmp), LOCAL_JUMP, ALL_TRUE, BOTH|SHRD);
-	KEY(MDHA_SPLIT_KEY, ENC, PTR(authdata->key), authdata->keylen, IMMED);
-	KEY(KEY1, 0, PTR(cipherdata->key), cipherdata->keylen, IMMED);
+	KEY(MDHA_SPLIT_KEY, authdata->key_enc_flags, PTR(authdata->key),
+	    authdata->keylen, IMMED);
+	KEY(KEY1, cipherdata->key_enc_flags, PTR(cipherdata->key),
+	    cipherdata->keylen, IMMED);
 	SET_LABEL(keyjmp);
 	PROTOCOL(OP_TYPE_ENCAP_PROTOCOL,
 		 OP_PCLID_IPSEC,
@@ -729,8 +738,10 @@ static inline void cnstr_shdsc_ipsec_decap(uint32_t *descbuf,
 	ENDIAN_DATA((uint8_t *)pdb, sizeof(struct ipsec_decap_pdb));
 	SET_LABEL(hdr);
 	pkeyjmp = JUMP(IMM(keyjmp), LOCAL_JUMP, ALL_TRUE, BOTH|SHRD);
-	KEY(MDHA_SPLIT_KEY, ENC, PTR(authdata->key), authdata->keylen, IMMED);
-	KEY(KEY1, 0, PTR(cipherdata->key), cipherdata->keylen, IMMED);
+	KEY(MDHA_SPLIT_KEY, authdata->key_enc_flags, PTR(authdata->key),
+	    authdata->keylen, IMMED);
+	KEY(KEY1, cipherdata->key_enc_flags, PTR(cipherdata->key),
+	    cipherdata->keylen, IMMED);
 	SET_LABEL(keyjmp);
 	PROTOCOL(OP_TYPE_DECAP_PROTOCOL,
 		 OP_PCLID_IPSEC,
@@ -876,8 +887,8 @@ void cnstr_shdsc_wimax_encap(uint32_t *descbuf, unsigned *bufsize,
 		     CLRW, 0, 4, WITH(0));
 		pkeyjump = JUMP(IMM(keyjump), LOCAL_JUMP, ALL_TRUE,
 				WITH(SHRD | SELF));
-		KEY(KEY1, 0, PTR(cipherdata->key), cipherdata->keylen,
-		    WITH(IMMED));
+		KEY(KEY1, cipherdata->key_enc_flags, PTR(cipherdata->key),
+		    cipherdata->keylen, WITH(IMMED));
 		SET_LABEL(keyjump);
 		seqout_ptr_jump2 = JUMP(IMM(swapped_seqout_ptr), LOCAL_JUMP,
 					ALL_TRUE, WITH(0));
@@ -967,8 +978,8 @@ void cnstr_shdsc_wimax_decap(uint32_t *descbuf, unsigned *bufsize,
 
 		pkeyjump = JUMP(IMM(keyjump), LOCAL_JUMP, ALL_TRUE,
 				WITH(SHRD | SELF));
-		KEY(KEY1, 0, PTR(cipherdata->key), cipherdata->keylen,
-		    WITH(IMMED));
+		KEY(KEY1, cipherdata->key_enc_flags, PTR(cipherdata->key),
+		    cipherdata->keylen, WITH(IMMED));
 		SET_LABEL(keyjump);
 		PROTOCOL(OP_TYPE_DECAP_PROTOCOL, OP_PCLID_WIMAX, protinfo);
 
@@ -1207,8 +1218,8 @@ static inline int pdcp_insert_cplane_int_only_op(struct program *program,
 	switch (authdata->algtype) {
 	case PDCP_AUTH_TYPE_SNOW:
 		/* Insert Auth Key */
-		KEY(KEY2, 0, PTR(authdata->key), authdata->keylen,
-		    0);
+		KEY(KEY2, authdata->key_enc_flags, PTR(authdata->key),
+		    authdata->keylen, 0);
 		SEQLOAD(MATH0, 7, 1, WITH(0));
 		JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, WITH(CALM));
 
@@ -1310,7 +1321,8 @@ static inline int pdcp_insert_cplane_int_only_op(struct program *program,
 
 	case PDCP_AUTH_TYPE_AES:
 		/* Insert Auth Key */
-		KEY(KEY1, 0, PTR(authdata->key), authdata->keylen, WITH(0));
+		KEY(KEY1, authdata->key_enc_flags, PTR(authdata->key),
+		    authdata->keylen, WITH(0));
 		SEQLOAD(MATH0, 7, 1, WITH(0));
 		JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, WITH(CALM));
 		if (rta_sec_era > RTA_SEC_ERA_2 ||
@@ -1411,8 +1423,8 @@ static inline int pdcp_insert_cplane_int_only_op(struct program *program,
 			return -1;
 		}
 		/* Insert Auth Key */
-		KEY(KEY2, 0, PTR(authdata->key), authdata->keylen,
-		    WITH(0));
+		KEY(KEY2, authdata->key_enc_flags, PTR(authdata->key),
+		    authdata->keylen, WITH(0));
 		SEQLOAD(MATH0, 7, 1, WITH(0));
 		JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, WITH(CALM));
 		SEQINPTR(0, 1, WITH(RTO));
@@ -1470,7 +1482,8 @@ static inline int pdcp_insert_cplane_enc_only_op(struct program *program,
 		unsigned char era_2_sw_hfn_override)
 {
 	/* Insert Cipher Key */
-	KEY(KEY1, 0, PTR(cipherdata->key), cipherdata->keylen, WITH(0));
+	KEY(KEY1, cipherdata->key_enc_flags, PTR(cipherdata->key),
+	    cipherdata->keylen, WITH(0));
 	SEQLOAD(MATH0, 7, 1, WITH(0));
 	JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, WITH(CALM));
 	MATHB(MATH0, AND, IMM(PDCP_C_PLANE_SN_MASK), MATH1, SIZE(8), WITH(IFB));
@@ -1579,10 +1592,12 @@ static inline int pdcp_insert_cplane_acc_op(struct program *program,
 		unsigned char era_2_hfn_override)
 {
 	/* Insert Auth Key */
-	KEY(KEY2, 0, PTR(authdata->key), authdata->keylen, WITH(0));
+	KEY(KEY2, authdata->key_enc_flags, PTR(authdata->key), authdata->keylen,
+	    WITH(0));
 
 	/* Insert Cipher Key */
-	KEY(KEY1, 0, PTR(cipherdata->key), cipherdata->keylen, WITH(0));
+	KEY(KEY1, cipherdata->key_enc_flags, PTR(cipherdata->key),
+	    cipherdata->keylen, WITH(0));
 	PROTOCOL(dir, OP_PCLID_LTE_PDCP_CTRL, cipherdata->algtype);
 
 	return 0;
@@ -1621,7 +1636,8 @@ static inline int pdcp_insert_cplane_snow_aes_op(struct program *program,
 			SEQINPTR(0, 5, WITH(RTO));
 			SEQFIFOLOAD(SKIP, 4, WITH(0));
 		}
-		KEY(KEY1, 0, PTR(authdata->key), authdata->keylen, WITH(0));
+		KEY(KEY1, authdata->key_enc_flags, PTR(authdata->key),
+		    authdata->keylen, WITH(0));
 		MOVE(MATH2, 0, IFIFOAB1, 0, IMM(0x08), WITH(0));
 
 		if (rta_sec_era > RTA_SEC_ERA_2) {
@@ -1695,7 +1711,8 @@ static inline int pdcp_insert_cplane_snow_aes_op(struct program *program,
 		if (rta_sec_era <= RTA_SEC_ERA_3)
 			LOAD(IMM(CCTRL_RESET_CHA_ALL), CCTRL, 0, 4, WITH(0));
 
-		KEY(KEY1, 0, PTR(cipherdata->key), cipherdata->keylen, WITH(0));
+		KEY(KEY1, cipherdata->key_enc_flags, PTR(cipherdata->key),
+		    cipherdata->keylen, WITH(0));
 		SET_LABEL(local_offset);
 		MOVE(MATH2, 0, CONTEXT1, 0, IMM(8), WITH(0));
 		SEQINPTR(0, 0, WITH(RTO));
@@ -1775,7 +1792,8 @@ static inline int pdcp_insert_cplane_snow_aes_op(struct program *program,
 		else
 			MOVE(MATH1, 0, DESCBUF, 0, IMM(20), WITH(0));
 
-		KEY(KEY1, 0, PTR(cipherdata->key), cipherdata->keylen, WITH(0));
+		KEY(KEY1, cipherdata->key_enc_flags, PTR(cipherdata->key),
+		    cipherdata->keylen, WITH(0));
 
 		if (rta_sec_era >= RTA_SEC_ERA_5)
 			MOVE(CONTEXT1, 0, CONTEXT2, 0, IMM(8), WITH(0));
@@ -1807,7 +1825,8 @@ static inline int pdcp_insert_cplane_snow_aes_op(struct program *program,
 				 CLRW_CLR_C1MODE),
 			     CLRW, 0, 4, WITH(0));
 
-		KEY(KEY1, 0, PTR(authdata->key), authdata->keylen, WITH(0));
+		KEY(KEY1, authdata->key_enc_flags, PTR(authdata->key),
+		    authdata->keylen, WITH(0));
 		/*
 		 * Placeholder for jump in SD for executing the new SEQ IN PTR
 		 * command (which is actually the old SEQ OUT PTR command
@@ -1884,8 +1903,10 @@ static inline int pdcp_insert_cplane_aes_snow_op(struct program *program,
 	REFERENCE(read_load_nfifo);
 	REFERENCE(write_load_nfifo);
 
-	KEY(KEY1, 0, PTR(cipherdata->key), cipherdata->keylen, WITH(0));
-	KEY(KEY2, 0, PTR(authdata->key), authdata->keylen, WITH(0));
+	KEY(KEY1, cipherdata->key_enc_flags, PTR(cipherdata->key),
+	    cipherdata->keylen, WITH(0));
+	KEY(KEY2, authdata->key_enc_flags, PTR(authdata->key),
+	    authdata->keylen, WITH(0));
 
 	if (rta_sec_era <= RTA_SEC_ERA_2)
 		MATHB(SEQINSZ, SUB, ONE, VSEQINSZ, SIZE(4), WITH(0));
@@ -1989,8 +2010,10 @@ static inline int pdcp_insert_cplane_snow_zuc_op(struct program *program,
 
 	pkeyjump = JUMP(IMM(keyjump), LOCAL_JUMP, ALL_TRUE,
 			WITH(SHRD | SELF | BOTH));
-	KEY(KEY1, 0, PTR(cipherdata->key), cipherdata->keylen, WITH(0));
-	KEY(KEY2, 0, PTR(authdata->key), authdata->keylen, WITH(0));
+	KEY(KEY1, cipherdata->key_enc_flags, PTR(cipherdata->key),
+	    cipherdata->keylen, WITH(0));
+	KEY(KEY2, authdata->key_enc_flags, PTR(authdata->key), authdata->keylen,
+	    WITH(0));
 
 	SET_LABEL(keyjump);
 	SEQLOAD(MATH0, 7, 1, WITH(0));
@@ -2071,8 +2094,10 @@ static inline int pdcp_insert_cplane_aes_zuc_op(struct program *program,
 
 	pkeyjump = JUMP(IMM(keyjump), LOCAL_JUMP, ALL_TRUE,
 			WITH(SHRD | SELF | BOTH));
-	KEY(KEY1, 0, PTR(cipherdata->key), cipherdata->keylen, WITH(0));
-	KEY(KEY2, 0, PTR(authdata->key), authdata->keylen, WITH(0));
+	KEY(KEY1, cipherdata->key_enc_flags, PTR(cipherdata->key),
+	    cipherdata->keylen, WITH(0));
+	KEY(KEY2, authdata->key_enc_flags, PTR(authdata->key), authdata->keylen,
+	    WITH(0));
 
 	SET_LABEL(keyjump);
 	SEQLOAD(MATH0, 7, 1, WITH(0));
@@ -2157,8 +2182,10 @@ static inline int pdcp_insert_cplane_zuc_snow_op(struct program *program,
 
 	pkeyjump = JUMP(IMM(keyjump), LOCAL_JUMP, ALL_TRUE,
 				WITH(SHRD | SELF | BOTH));
-	KEY(KEY1, 0, PTR(cipherdata->key), cipherdata->keylen, WITH(0));
-	KEY(KEY2, 0, PTR(authdata->key), authdata->keylen, WITH(0));
+	KEY(KEY1, cipherdata->key_enc_flags, PTR(cipherdata->key),
+	    cipherdata->keylen, WITH(0));
+	KEY(KEY2, authdata->key_enc_flags, PTR(authdata->key), authdata->keylen,
+	    WITH(0));
 
 	SET_LABEL(keyjump);
 	SEQLOAD(MATH0, 7, 1, WITH(0));
@@ -2250,7 +2277,8 @@ static inline int pdcp_insert_cplane_zuc_aes_op(struct program *program,
 	MATHB(MATH1, OR, MATH2, MATH2, SIZE(8), WITH(0));
 	SEQSTORE(MATH0, 7, 1, WITH(0));
 	if (dir == OP_TYPE_ENCAP_PROTOCOL) {
-		KEY(KEY1, 0, PTR(authdata->key), authdata->keylen, WITH(0));
+		KEY(KEY1, authdata->key_enc_flags, PTR(authdata->key),
+		    authdata->keylen, WITH(0));
 		MOVE(MATH2, 0, IFIFOAB1, 0, IMM(0x08), WITH(0));
 		MOVE(MATH0, 7, IFIFOAB1, 0, IMM(1), WITH(0));
 
@@ -2273,7 +2301,8 @@ static inline int pdcp_insert_cplane_zuc_aes_op(struct program *program,
 			 CLRW_CLR_C1MODE),
 		     CLRW, 0, 4, WITH(0));
 
-		KEY(KEY1, 0, PTR(cipherdata->key), cipherdata->keylen, WITH(0));
+		KEY(KEY1, cipherdata->key_enc_flags, PTR(cipherdata->key),
+		    cipherdata->keylen, WITH(0));
 
 		MOVE(MATH2, 0, CONTEXT1, 0, IMM(8), WITH(0));
 		SEQINPTR(0, PDCP_NULL_MAX_FRAME_LEN, WITH(RTO));
@@ -2299,7 +2328,8 @@ static inline int pdcp_insert_cplane_zuc_aes_op(struct program *program,
 		MATHB(SEQINSZ, SUB, IMM(PDCP_MAC_I_LEN), VSEQOUTSZ, SIZE(4),
 		      WITH(0));
 
-		KEY(KEY1, 0, PTR(cipherdata->key), cipherdata->keylen, WITH(0));
+		KEY(KEY1, cipherdata->key_enc_flags, PTR(cipherdata->key),
+		    cipherdata->keylen, WITH(0));
 
 		MOVE(CONTEXT1, 0, CONTEXT2, 0, IMM(8), WITH(0));
 
@@ -2321,7 +2351,8 @@ static inline int pdcp_insert_cplane_zuc_aes_op(struct program *program,
 			 CLRW_CLR_C1MODE),
 			 CLRW, 0, 4, WITH(0));
 
-		KEY(KEY1, 0, PTR(authdata->key), authdata->keylen, WITH(0));
+		KEY(KEY1, authdata->key_enc_flags, PTR(authdata->key),
+		    authdata->keylen, WITH(0));
 
 /* TODO: Add support in RTA for SOP bit in SEQINPTR command */
 		WORD(0xF0080000);
@@ -2355,7 +2386,8 @@ static inline int pdcp_insert_uplane_15bit_op(struct program *program,
 {
 	int op;
 	/* Insert Cipher Key */
-	KEY(KEY1, 0, PTR(cipherdata->key), cipherdata->keylen, WITH(0));
+	KEY(KEY1, cipherdata->key_enc_flags, PTR(cipherdata->key),
+	    cipherdata->keylen, WITH(0));
 	SEQLOAD(MATH0, 6, 2, WITH(0));
 	JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, WITH(CALM));
 	MATHB(MATH0, AND, IMM(PDCP_U_PLANE_15BIT_SN_MASK), MATH1, SIZE(8),
@@ -2989,8 +3021,9 @@ static inline void cnstr_shdsc_pdcp_u_plane_encap(uint32_t *descbuf,
 		case PDCP_CIPHER_TYPE_AES:
 		case PDCP_CIPHER_TYPE_SNOW:
 			/* Insert Cipher Key */
-			KEY(KEY1, 0, PTR((uint64_t)cipherdata->key),
-			    cipherdata->keylen, WITH(0));
+			KEY(KEY1, cipherdata->key_enc_flags,
+			    PTR((uint64_t)cipherdata->key), cipherdata->keylen,
+			    WITH(0));
 			PROTOCOL(OP_TYPE_ENCAP_PROTOCOL,
 				 OP_PCLID_LTE_PDCP_USER,
 				 cipherdata->algtype);
@@ -3155,8 +3188,8 @@ static inline void cnstr_shdsc_pdcp_u_plane_decap(uint32_t *descbuf,
 		case PDCP_CIPHER_TYPE_AES:
 		case PDCP_CIPHER_TYPE_SNOW:
 			/* Insert Cipher Key */
-			KEY(KEY1, 0, PTR(cipherdata->key), cipherdata->keylen,
-			    WITH(0));
+			KEY(KEY1, cipherdata->key_enc_flags,
+			    PTR(cipherdata->key), cipherdata->keylen, WITH(0));
 			PROTOCOL(OP_TYPE_DECAP_PROTOCOL,
 				 OP_PCLID_LTE_PDCP_USER,
 				 cipherdata->algtype);
@@ -3302,7 +3335,8 @@ static inline void cnstr_shdsc_pdcp_short_mac(uint32_t *descbuf,
 		iv[1] = 0x04000000;
 		iv[2] = 0xF8000000;
 
-		KEY(KEY2, 0, PTR(authdata->key), authdata->keylen, WITH(0));
+		KEY(KEY2, authdata->key_enc_flags, PTR(authdata->key),
+		    authdata->keylen, WITH(0));
 		LOAD(PTR((uintptr_t)&iv), CONTEXT2, 0, SIZE(12), IMMED);
 		ALG_OPERATION(OP_ALG_ALGSEL_SNOW_F9,
 			      OP_ALG_AAI_F9,
@@ -3339,7 +3373,8 @@ static inline void cnstr_shdsc_pdcp_short_mac(uint32_t *descbuf,
 		iv[1] = 0xFC000000;
 		iv[2] = 0x00000000; /* unused */
 
-		KEY(KEY1, 0, PTR(authdata->key), authdata->keylen, WITH(0));
+		KEY(KEY1, authdata->key_enc_flags, PTR(authdata->key),
+		    authdata->keylen, WITH(0));
 		LOAD(PTR((uintptr_t)&iv), MATH0, 0, 8, IMMED);
 		MOVE(MATH0, 0, IFIFOAB1, 0, IMM(8), WITH(0));
 		ALG_OPERATION(OP_ALG_ALGSEL_AES,
@@ -3380,7 +3415,8 @@ static inline void cnstr_shdsc_pdcp_short_mac(uint32_t *descbuf,
 		iv[1] = 0xFC000000;
 		iv[2] = 0x00000000; /* unused */
 
-		KEY(KEY2, 0, PTR(authdata->key), authdata->keylen, WITH(0));
+		KEY(KEY2, authdata->key_enc_flags, PTR(authdata->key),
+		    authdata->keylen, WITH(0));
 		LOAD(PTR((uintptr_t)&iv), CONTEXT2, 0, 12, IMMED);
 		ALG_OPERATION(OP_ALG_ALGSEL_ZUCA,
 			      OP_ALG_AAI_F9,
@@ -3450,8 +3486,10 @@ static inline void cnstr_shdsc_srtp_encap(uint32_t *descbuf,
 	SHR_HDR(SHR_SERIAL, ++startidx, 0);
 	ENDIAN_DATA((uint8_t *)&pdb, sizeof(struct srtp_encap_pdb));
 	pkeyjmp = JUMP(IMM(keyjmp), LOCAL_JUMP, ALL_TRUE, BOTH|SHRD);
-	KEY(MDHA_SPLIT_KEY, ENC, PTR(authdata->key), authdata->keylen, IMMED);
-	KEY(KEY1, 0, PTR(cipherdata->key), cipherdata->keylen, IMMED);
+	KEY(MDHA_SPLIT_KEY, authdata->key_enc_flags, PTR(authdata->key),
+	    authdata->keylen, IMMED);
+	KEY(KEY1, cipherdata->key_enc_flags, PTR(cipherdata->key),
+	    cipherdata->keylen, IMMED);
 	SET_LABEL(keyjmp);
 	PROTOCOL(OP_TYPE_ENCAP_PROTOCOL,
 		 OP_PCLID_SRTP,
@@ -3504,9 +3542,10 @@ static inline void cnstr_shdsc_srtp_decap(uint32_t *descbuf,
 	{
 		ENDIAN_DATA((uint8_t *)&pdb, sizeof(struct srtp_decap_pdb));
 		pkeyjmp = JUMP(IMM(keyjmp), LOCAL_JUMP, ALL_TRUE, BOTH|SHRD);
-		KEY(MDHA_SPLIT_KEY, ENC, PTR(authdata->key), authdata->keylen,
-		    IMMED);
-		KEY(KEY1, 0, PTR(cipherdata->key), cipherdata->keylen, IMMED);
+		KEY(MDHA_SPLIT_KEY, authdata->key_enc_flags, PTR(authdata->key),
+		    authdata->keylen, IMMED);
+		KEY(KEY1, cipherdata->key_enc_flags, PTR(cipherdata->key),
+		    cipherdata->keylen, IMMED);
 		SET_LABEL(keyjmp);
 		PROTOCOL(OP_TYPE_DECAP_PROTOCOL,
 			 OP_PCLID_SRTP,
