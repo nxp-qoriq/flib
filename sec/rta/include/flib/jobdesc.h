@@ -22,7 +22,10 @@
  *
  * @param[out] descbuf pointer to buffer to hold constructed descriptor
  * @param[out] bufsize pointer to size of descriptor once constructed
+ * @param[in] ps       If 36/40bit addressing is desired, this parameter must be
+ *                     non-zero.
  * @param[in] alg_key  Pointer to HMAC key to generate ipad/opad from
+ * @param[in] keylen   HMAC key length.
  * @param[in] cipher   HMAC algorithm selection, one of OP_ALG_ALGSEL_*.
  *           The algorithm determines key size (bytes):
  *      -  OP_ALG_ALGSEL_MD5    - 16
@@ -37,30 +40,31 @@
 
 static inline void cnstr_jobdesc_mdsplitkey(uint32_t *descbuf,
 					    unsigned *bufsize,
+					    unsigned short ps,
 					    uint64_t alg_key,
+					    uint8_t keylen,
 					    uint32_t cipher,
 					    uint64_t padbuf)
 {
-	/* key and split key sizes in bytes */
-	const uint8_t mdkeylen[][2] = {
-		{16, 32},   /* MD5 */
-		{20, 40},   /* SHA1 */
-		{28, 64},   /* SHA224 */
-		{32, 64},   /* SHA256 */
-		{48, 128},  /* SHA384 */
-		{64, 128},  /* SHA512 */
+	/* Sizes for MDHA pads (*not* keys) in bytes */
+	static const uint8_t mdpadlen[] = {
+		16,	/* MD5 */
+		20,	/* SHA1 */
+		32,	/* SHA224 */
+		32,	/* SHA256 */
+		64,	/* SHA384 */
+		64	/* SHA512 */
 	};
-	uint8_t keylen, storelen, idx;
-
+	uint8_t split_key_len, idx;
 	struct program prg;
 	struct program *program = &prg;
 
 	idx = (cipher & OP_ALG_ALGSEL_SUBMASK) >> OP_ALG_ALGSEL_SHIFT;
-	keylen = mdkeylen[idx][0];
-	storelen = mdkeylen[idx][1];
+	split_key_len = mdpadlen[idx] * 2;
 
 	PROGRAM_CNTXT_INIT(descbuf, 0);
-	PROGRAM_SET_36BIT_ADDR();
+	if (ps)
+		PROGRAM_SET_36BIT_ADDR();
 	JOB_HDR(SHR_NEVER, 1, 0, 0);
 	KEY(KEY2, 0, PTR(alg_key), keylen, 0);
 	ALG_OPERATION(cipher,
@@ -70,7 +74,7 @@ static inline void cnstr_jobdesc_mdsplitkey(uint32_t *descbuf,
 		      OP_ALG_DECRYPT);
 	FIFOLOAD(MSG2, PTR(0), 0, LAST2 | IMMED);
 	JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, CLASS2);
-	FIFOSTORE(MDHA_SPLIT_KEY, 0, padbuf, storelen, 0);
+	FIFOSTORE(MDHA_SPLIT_KEY, 0, padbuf, split_key_len, 0);
 	*bufsize = PROGRAM_FINALIZE();
 }
 
