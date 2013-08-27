@@ -119,6 +119,8 @@ static inline unsigned rta_seq_out_ptr(struct program *program, uint64_t dst,
 	}
 
 	/* write flag fields */
+	if (flags & SGF)
+		opcode |= SQOUT_SGF;
 	if (flags & PRE)
 		opcode |= SQOUT_PRE;
 	if (flags & RTO)
