@@ -658,8 +658,6 @@ static inline void cnstr_shdsc_macsec_decap(uint32_t *descbuf,
  *      This structure will be copied inline to the descriptor under
  *      construction. No error checking will be made. Refer to the
  *      block guide for a details of the encapsulation PDB.
- * @param[in] ip_hdr      Optional header to be prepended to an encapsulated
- *      frame. Size of the optional header is defined in pdb.ip_hdr_len.
  * @param[in] cipherdata  Pointer to block cipher transform definitions. Valid
  *      algorithm values: one of OP_PCL_IPSEC_*
  * @param[in] authdata    Pointer to authentication transform definitions. Note
@@ -669,7 +667,6 @@ static inline void cnstr_shdsc_macsec_decap(uint32_t *descbuf,
 static inline void cnstr_shdsc_ipsec_encap(uint32_t *descbuf,
 					   unsigned *bufsize,
 					   struct ipsec_encap_pdb *pdb,
-					   uint8_t *ip_hdr,
 					   struct alginfo *cipherdata,
 					   struct alginfo *authdata)
 {
@@ -683,9 +680,8 @@ static inline void cnstr_shdsc_ipsec_encap(uint32_t *descbuf,
 
 	PROGRAM_CNTXT_INIT(descbuf, 0);
 	phdr = SHR_HDR(SHR_SERIAL, hdr, 0);
-	ENDIAN_DATA((uint8_t *)pdb, sizeof(struct ipsec_encap_pdb));
-	if (pdb->ip_hdr_len)
-		ENDIAN_DATA(ip_hdr, pdb->ip_hdr_len);
+	ENDIAN_DATA((uint8_t *)pdb,
+		    sizeof(struct ipsec_encap_pdb) + pdb->ip_hdr_len);
 	SET_LABEL(hdr);
 	pkeyjmp = JUMP(IMM(keyjmp), LOCAL_JUMP, ALL_TRUE, BOTH|SHRD);
 	KEY(MDHA_SPLIT_KEY, authdata->key_enc_flags, PTR(authdata->key),
