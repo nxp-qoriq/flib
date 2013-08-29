@@ -654,6 +654,8 @@ static inline void cnstr_shdsc_macsec_decap(uint32_t *descbuf,
  * @param[in,out] descbuf    Pointer to buffer used for descriptor construction
  * @param[in,out] bufsize    Pointer to descriptor size to be written back upon
  *      completion
+ * @param [in] ps            If 36/40bit addressing is desired, this parameter
+ *      must be non-zero.
  * @param[in] pdb         Pointer to the PDB to be used with this descriptor.
  *      This structure will be copied inline to the descriptor under
  *      construction. No error checking will be made. Refer to the
@@ -666,6 +668,7 @@ static inline void cnstr_shdsc_macsec_decap(uint32_t *descbuf,
  **/
 static inline void cnstr_shdsc_ipsec_encap(uint32_t *descbuf,
 					   unsigned *bufsize,
+					   unsigned short ps,
 					   struct ipsec_encap_pdb *pdb,
 					   struct alginfo *cipherdata,
 					   struct alginfo *authdata)
@@ -679,6 +682,8 @@ static inline void cnstr_shdsc_ipsec_encap(uint32_t *descbuf,
 	REFERENCE(phdr);
 
 	PROGRAM_CNTXT_INIT(descbuf, 0);
+	if (ps)
+		PROGRAM_SET_36BIT_ADDR();
 	phdr = SHR_HDR(SHR_SERIAL, hdr, 0);
 	ENDIAN_DATA((uint8_t *)pdb,
 		    sizeof(struct ipsec_encap_pdb) + pdb->ip_hdr_len);
@@ -705,6 +710,8 @@ static inline void cnstr_shdsc_ipsec_encap(uint32_t *descbuf,
  * @param[in,out] descbuf    Pointer to buffer used for descriptor construction
  * @param[in,out] bufsize    Pointer to descriptor size to be written back upon
  *      completion
+ * @param [in] ps            If 36/40bit addressing is desired, this parameter
+ *      must be non-zero.
  * @param[in] pdb         Pointer to the PDB to be used with this descriptor.
  *      This structure will be copied inline to the descriptor under
  *      construction. No error checking will be made. Refer to the
@@ -717,6 +724,7 @@ static inline void cnstr_shdsc_ipsec_encap(uint32_t *descbuf,
  **/
 static inline void cnstr_shdsc_ipsec_decap(uint32_t *descbuf,
 					   unsigned *bufsize,
+					   unsigned short ps,
 					   struct ipsec_decap_pdb *pdb,
 					   struct alginfo *cipherdata,
 					   struct alginfo *authdata)
@@ -730,6 +738,8 @@ static inline void cnstr_shdsc_ipsec_decap(uint32_t *descbuf,
 	REFERENCE(phdr);
 
 	PROGRAM_CNTXT_INIT(descbuf, 0);
+	if (ps)
+		PROGRAM_SET_36BIT_ADDR();
 	phdr = SHR_HDR(SHR_SERIAL, hdr, 0);
 	ENDIAN_DATA((uint8_t *)pdb, sizeof(struct ipsec_decap_pdb));
 	SET_LABEL(hdr);
