@@ -185,6 +185,16 @@ struct alginfo {
 };
 
 /**
+ * @struct    protcmd protoshared.h
+ * @details   Container for Protocol Operation Command fields.
+ */
+struct protcmd {
+	uint32_t optype;    /**< Command type. */
+	uint32_t protid;    /**< Protocol Identifier */
+	uint16_t protinfo;  /**< Protocol Information. */
+};
+
+/**
  * @enum      cipher_type_pdcp protoshared.h
  * @details   Type selectors for cipher types in PDCP protocol OP instructions.
  */
@@ -4097,6 +4107,67 @@ static inline void cnstr_shdsc_rsa_decrypt_form3(uint32_t *descbuf,
 		 OP_PCL_RSAPROT_OP_DEC_PQDPDQC);
 
 	PATCH_HDR(phdr, pdbend);
+	*bufsize = PROGRAM_FINALIZE();
+}
+
+/**
+ * @details  TLS family block cipher encapsulation/decapsulation
+ *           shared descriptor.
+ *           The following built-in protocols are supported:
+ *           SSL3.0/TLS1.0/TLS1.1/TLS1.2/DTLS10.
+ * @ingroup sharedesc_group
+ *
+ * @param[in,out] descbuf   Pointer to buffer used for descriptor construction.
+ * @param[in,out] bufsize   Pointer to descriptor size to be written back upon
+ *                          completion.
+ * @param[in] ps            If 36/40bit addressing is desired, this parameter
+ *                          must be non-zero.
+ * @param[in] pdb           Pointer to the PDB to be used in this descriptor.
+ *                          This structure will be copied inline to the
+ *                          descriptor under construction. No error checking
+ *                          will be made. Refer to the block guide for details
+ *                          of the PDB.
+ * @param[in] pdb_len       The length of the Protocol Data Block in bytes.
+ * @param[in] protcmd       Pointer to Protocol Operation Command definitions.
+ * @param[in] cipherdata    Pointer to block cipher transform definitions.
+ * @param[in] authdata      Pointer to authentication transform definitions.
+ **/
+static inline void cnstr_shdsc_tls(uint32_t *descbuf, unsigned *bufsize,
+				   unsigned short ps, uint8_t *pdb,
+				   unsigned pdb_len, struct protcmd *protcmd,
+				   struct alginfo *cipherdata,
+				   struct alginfo *authdata)
+{
+	struct program prg;
+	struct program *program = &prg;
+	unsigned startidx;
+
+	LABEL(keyjmp);
+	REFERENCE(pkeyjmp);
+
+	startidx = pdb_len >> 2;
+	PROGRAM_CNTXT_INIT(descbuf, 0);
+	if (ps)
+		PROGRAM_SET_36BIT_ADDR();
+	SHR_HDR(SHR_SERIAL, ++startidx, 0);
+	ENDIAN_DATA(pdb, pdb_len);
+	pkeyjmp = JUMP(IMM(keyjmp), LOCAL_JUMP, ALL_TRUE, BOTH|SHRD|SELF);
+	/*
+	 * SSL3.0 uses SSL-MAC (SMAC) instead of HMAC, thus MDHA Split Key
+	 * does not apply.
+	 */
+	if (protcmd->protid == OP_PCLID_SSL30)
+		KEY(KEY2, authdata->key_enc_flags, PTR(authdata->key),
+		    authdata->keylen, IMMED);
+	else
+		KEY(MDHA_SPLIT_KEY, authdata->key_enc_flags, PTR(authdata->key),
+		    authdata->keylen, IMMED);
+	KEY(KEY1, cipherdata->key_enc_flags, PTR(cipherdata->key),
+	    cipherdata->keylen, IMMED);
+	SET_LABEL(keyjmp);
+	PROTOCOL(protcmd->optype, protcmd->protid, protcmd->protinfo);
+
+	PATCH_JUMP(pkeyjmp, keyjmp);
 	*bufsize = PROGRAM_FINALIZE();
 }
 

@@ -548,4 +548,295 @@ struct rsa_decrypt_pdb_form3 {
 	uint32_t trailer;	/* Contains rsv, #q, #p fields */
 };
 
+/**
+ * @defgroup tls_pdb tls_pdb
+ * @ingroup pdb_group
+ * @{
+ */
+/** @} end of tls_pdb */
+
+/*
+ * TLS family encapsulation/decapsulation PDB definitions.
+ */
+
+#define DTLS_PDBOPTS_ARS32	0x40	/* DTLS only */
+#define DTLS_PDBOPTS_ARS64	0xc0	/* DTLS only */
+#define TLS_PDBOPTS_OUTFMT	0x08
+#define TLS_PDBOPTS_IV_WRTBK	0x02	/* TLS1.1/TLS1.2/DTLS only */
+#define TLS_PDBOPTS_EXP_RND_IV	0x01	/* TLS1.1/TLS1.2/DTLS only */
+#define TLS_PDBOPTS_TR_ICV	0x10	/* Available starting with SEC ERA 5 */
+
+/**
+ * @struct   tls_block_enc pdb.h
+ * @ingroup  tls_pdb
+ * @details  Type, Version, Options and Sequence Number fields for
+ *           SSL3.0/TLS1.0/TLS1.1/TLS1.2 block encapsulation PDB.
+ */
+struct tls_block_enc {
+	uint8_t type;
+	uint8_t version[2];
+	uint8_t options;
+	uint32_t seq_num[2];
+};
+
+/**
+ * @struct   dtls_block_enc pdb.h
+ * @ingroup  tls_pdb
+ * @details  Type, Version, Options, Epoch and Sequence Number fields for
+ *           DTLS1.0 block encapsulation PDB.
+ */
+struct dtls_block_enc {
+	uint8_t type;
+	uint8_t version[2];
+	uint8_t options;
+	uint16_t epoch;
+	uint16_t seq_num[3];
+};
+
+/**
+ * @struct   tls_block_dec pdb.h
+ * @ingroup  tls_pdb
+ * @details  Options and Sequence Number fields for SSL3.0/TLS1.0/TLS1.1/TLS1.2
+ *           block decapsulation PDB.
+ */
+struct tls_block_dec {
+	uint8_t rsvd[3];
+	uint8_t options;
+	uint32_t seq_num[2];
+};
+
+/**
+ * @struct   dtls_block_enc pdb.h
+ * @ingroup  tls_pdb
+ * @details  Options, Epoch and Sequence Number fields for DTLS1.0 block
+ *           decapsulation PDB.
+ */
+struct dtls_block_dec {
+	uint8_t rsvd[3];
+	uint8_t options;
+	uint16_t epoch;
+	uint16_t seq_num[3];
+};
+
+/**
+ * @struct   tls_block_pdb pdb.h
+ * @ingroup  tls_pdb
+ * @details  SSL3.0/TLS1.0/TLS1.1/TLS1.2/DTLS1.0
+ *           block encapsulation/decapsulation PDB.
+ *           The zero-length array expands with one/two words for the
+ *           Anti-Replay Scorecard if DTLS_PDBOPTS_ARS32/64 is set
+ *           in the DTLS1.0 decapsulation PDB Options byte.
+ *           If SEC ERA is equal or greater than SEC ERA 5 and
+ *           TLS_PDBOPTS_TR_ICV is set in the PDB Options Byte, the last member
+ *           of the tls_block_pdb structure expands for ICVLen.
+ */
+struct tls_block_pdb {
+	union {
+		struct tls_block_enc tls_enc;
+		struct dtls_block_enc dtls_enc;
+		struct tls_block_dec tls_dec;
+		struct dtls_block_dec dtls_dec;
+	};
+	uint32_t iv[4];
+	uint32_t end_index[0];
+};
+
+/**
+ * @struct   tls_stream_enc pdb.h
+ * @ingroup  tls_pdb
+ * @details  Version and Options fields for SSL3.0/TLS1.0/TLS1.1/TLS1.2
+ *           stream encapsulation PDB.
+ */
+struct tls_stream_enc {
+	uint8_t type;
+	uint8_t version[2];
+	uint8_t options;
+};
+
+/**
+ * @struct   tls_stream_enc pdb.h
+ * @ingroup  tls_pdb
+ * @details  Options field for SSL3.0/TLS1.0/TLS1.1/TLS1.2
+ *           stream decapsulation PDB.
+ */
+struct tls_stream_dec {
+	uint8_t rsvd[3];
+	uint8_t options;
+};
+
+/**
+ * @struct   tls_stream_pdb pdb.h
+ * @ingroup  tls_pdb
+ * @details  SSL3.0/TLS1.0/TLS1.1/TLS1.2
+ *           stream encapsulation/decapsulation PDB. The zero-length array
+ *           expands for ICVLen if SEC ERA is equal or greater than SEC ERA 5
+ *           and TLS_PDBOPTS_TR_ICV is set in the PDB Options Byte.
+ */
+struct tls_stream_pdb {
+	union {
+		struct tls_stream_enc enc;
+		struct tls_stream_dec dec;
+	};
+	uint32_t seq_num[2];
+	uint32_t end_index[0];
+};
+
+/**
+ * @struct   tls_ctr_enc pdb.h
+ * @ingroup  tls_pdb
+ * @details  Type, Version, Options and Sequence Number fields for
+ *           TLS1.1/TLS1.2 AES CTR encapsulation PDB.
+ */
+struct tls_ctr_enc {
+	uint8_t type;
+	uint8_t version[2];
+	uint8_t options;
+	uint32_t seq_num[2];
+};
+
+/**
+ * @struct   tls_ctr pdb.h
+ * @ingroup  tls_pdb
+ * @details  Options, Epoch and Sequence Number fields for
+ *           TLS1.1/TLS1.2 AES CTR decapsulation PDB and
+ *           DTLS1.0 AES CTR encapsulation/decapsulation PDB.
+ */
+struct tls_ctr {
+	uint8_t rsvd[3];
+	uint8_t options;
+	uint16_t epoch;
+	uint16_t seq_num[3];
+};
+
+/**
+ * @struct   tls_ctr_pdb pdb.h
+ * @ingroup  tls_pdb
+ * @details  TLS1.1/TLS1.2/DTLS1.0 AES CTR encapsulation/decapsulation PDB.
+ *           TLS1.1/TLS1.2/DTLS1.0 AES CTR encryption processing is supported
+ *           starting with SEC ERA 5.
+ *           The zero-length array expands with one/two words for the
+ *           Anti-Replay Scorecard if DTLS_PDBOPTS_ARS32/64 is set
+ *           in the DTLS1.0 decapsulation PDB Options Byte.
+ *           If TLS_PDBOPTS_TR_ICV is set in the PDB Option Byte,
+ *           the last member of the tls_block_pdb structure expands for ICVLen.
+ */
+struct tls_ctr_pdb {
+	union {
+		struct tls_ctr_enc tls_enc;
+		struct tls_ctr ctr;
+	};
+	uint16_t write_iv[3];
+	uint16_t constant;
+	uint32_t end_index[0];
+};
+
+/**
+ * @struct   tls12_gcm_encap pdb.h
+ * @ingroup  tls_pdb
+ * @details  Type, Version, Options and Sequence Number fields for
+ *           TLS1.2 AES GCM encapsulation PDB.
+ */
+struct tls12_gcm_encap {
+	uint8_t type;
+	uint8_t version[2];
+	uint8_t options;
+	uint32_t seq_num[2];
+};
+
+/**
+ * @struct   tls12_gcm_decap pdb.h
+ * @ingroup  tls_pdb
+ * @details  Options and Sequence Number fields for TLS1.2 AES GCM
+ *           encapsulation PDB.
+ */
+struct tls12_gcm_decap {
+	uint8_t rsvd[3];
+	uint8_t options;
+	uint32_t seq_num[2];
+};
+/**
+ * @struct   dtls_gcm pdb.h
+ * @ingroup  tls_pdb
+ * @details  Options and Epoch fields for DTLS1.0 AES GCM
+ *           encapsulation/decapsulation PDB.
+ */
+struct dtls_gcm {
+	uint8_t rsvd[3];
+	uint8_t options;
+	uint16_t epoch;
+	uint16_t seq_num[3];
+};
+
+/**
+ * @struct   tls_gcm_pdb pdb.h
+ * @ingroup  tls_pdb
+ * @details  TLS1.2/DTLS1.0 AES GCM encapsulation/decapsulation PDB
+ *           The zero-length array expands with one/two words for the
+ *           Anti-Replay Scorecard if DTLS_PDBOPTS_ARS32/64 is set
+ *           in the DTLS1.0 decapsulation PDB Options byte.
+ *           If SEC ERA is equal or greater than SEC ERA 5 and
+ *           TLS_PDBOPTS_TR_ICV is set in the PDB Option Byte,
+ *           the last member of the tls_block_pdb structure expands for ICVLen.
+ */
+struct tls_gcm_pdb {
+	union {
+		struct tls12_gcm_encap tls12_enc;
+		struct tls12_gcm_decap tls12_dec;
+		struct dtls_gcm dtls;
+	};
+	uint32_t salt;
+	uint32_t end_index[0];
+};
+
+/**
+ * @struct   tls12_ccm_encap pdb.h
+ * @ingroup  tls_pdb
+ * @details  Type, Version, Options and Sequence Number fields for
+ *           TLS1.2 AES CCM encapsulation PDB.
+ */
+struct tls12_ccm_encap {
+	uint8_t type;
+	uint8_t version[2];
+	uint8_t options;
+	uint32_t seq_num[2];
+};
+
+/**
+ * @struct   tls_ccm pdb.h
+ * @ingroup  tls_pdb
+ * @details  Options, Epoch and Sequence Number fields for
+ *           TLS12 AES CCM decapsulation PDB and
+ *           DTLS1.0 AES CCM encapsulation/decapsulation PDB.
+ */
+struct tls_ccm {
+	uint8_t rsvd[3];
+	uint8_t options;
+	uint16_t epoch;
+	uint16_t seq_num[3];
+};
+
+/**
+ * @struct   tls_ccm_pdb pdb.h
+ * @ingroup  tls_pdb
+ * @details  TLS1.2/DTLS1.0 AES CCM encapsulation/decapsulation PDB.
+ *           The zero-length array expands with one/two words for the
+ *           Anti-Replay Scorecard if DTLS_PDBOPTS_ARS32/64 is set
+ *           in the DTLS1.0 decapsulation PDB Options byte.
+ *           If SEC ERA is equal or greater than SEC ERA 5 and
+ *           TLS_PDBOPTS_TR_ICV is set in the PDB Option Byte,
+ *           the last member of the tls_block_pdb structure expands for ICVLen.
+ */
+struct tls_ccm_pdb {
+	union {
+		struct tls12_ccm_encap tls12;
+		struct tls_ccm ccm;
+	};
+	uint32_t write_iv;
+	uint8_t b0_flags;
+	uint8_t ctr0_flags;
+	uint8_t rsvd[3];
+	uint8_t ctr0[3];
+	uint32_t end_index[0];
+};
+
 #endif /* __RTA_PDB_H__ */
