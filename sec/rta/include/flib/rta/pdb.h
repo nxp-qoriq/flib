@@ -311,4 +311,72 @@ struct srtp_decap_pdb {
 	uint32_t roc;			   /* Rollover Counter */
 	uint64_t antireplay_scorecard;	   /* Anti-replay Scorecard */
 };
+
+/*
+ * IEEE 802.11 WiFi Protocol Data Block
+ */
+#define WIFI_PDBOPTS_FCS	0x01
+#define WIFI_PDBOPTS_AR		0x40
+
+/**
+ * @def WIFI_B0_FLAGS
+ * The value of B0 flags used for WiFi AES-CCM Context construction.
+ *
+ */
+#define WIFI_B0_FLAGS			0x59
+
+/**
+ * @def WIFI_FRM_CTRL_MASK
+ * The Frame Control Mask value used in computing the additional
+ * authentication data (AAD).
+ */
+#define WIFI_FRM_CTRL_MASK		0x8fc7
+
+/**
+ * @def WIFI_SEQ_CTRL_MASK
+ * The Sequence Control Mask value used in computing the additional
+ * authentication data (AAD). *
+ */
+#define WIFI_SEQ_CTRL_MASK		0x0f00
+
+/**
+ * @def WIFI_CTR_FLAGS
+ * The value of Counter Flags used for CCM Counter block construction.
+ */
+#define WIFI_CTR_FLAGS			0x01
+
+struct wifi_encap_pdb {
+	uint16_t mac_hdr_len;	/* MAC Header Length - 24 or 30 bytes */
+	uint8_t rsvd;		/* Reserver bits */
+	uint8_t options;	/* Options byte */
+	uint8_t b0_flags;	/* CCM B0 block flags */
+	uint8_t pri;		/* Frame Priority */
+	uint16_t pn1;		/* Packet Number MS 16 bits */
+	uint32_t pn2;		/* Packet Number LS 32 bits */
+	uint16_t frm_ctrl_mask; /* Frame Control mask */
+	uint16_t seq_ctrl_mask; /* Sequence Control mask */
+	uint16_t rsvd1;	    /* Reserved bits */
+	uint8_t cnst;		/* CCM Counter block constant - 0x0000 */
+	uint8_t key_id;		/* Key ID*/
+	uint8_t ctr_flags;	/* CCM Counter block flags */
+	uint8_t rsvd2;		/* Reserved bits */
+	uint16_t ctr_init;	/* CCM Counter block init counter */
+};
+
+struct wifi_decap_pdb {
+	uint16_t mac_hdr_len;	/* MAC Header Length - 24 or 30 bytes */
+	uint8_t rsvd;		/* Reserver bits */
+	uint8_t options;	/* Options byte */
+	uint8_t b0_flags;	/* CCM B0 block flags */
+	uint8_t pri;		/* Frame Priority */
+	uint16_t pn1;		/* Packet Number MS 16 bits */
+	uint32_t pn2;		/* Packet Number LS 32 bits */
+	uint16_t frm_ctrl_mask; /* Frame Control mask */
+	uint16_t seq_ctrl_mask; /* Sequence Control mask */
+	uint32_t rsvd1;	    /* Reserved bits */
+	uint8_t ctr_flags;	/* CCM Counter block flags */
+	uint8_t rsvd2;		/* Reserved bits */
+	uint16_t ctr_init;	/* CCM Counter block init counter */
+};
+
 #endif /* __RTA_PDB_H__ */
