@@ -779,14 +779,12 @@ void cnstr_shdsc_wimax_encap(uint32_t *descbuf, unsigned *bufsize,
 	struct program prg;
 	struct program *program = &prg;
 
-	LABEL(crc8);
 	LABEL(hdr);
 	LABEL(out_len);
 	LABEL(keyjump);
 	LABEL(local_offset);
 	LABEL(seqout_ptr);
 	LABEL(swapped_seqout_ptr);
-	REFERENCE(pcrc8);
 	REFERENCE(phdr);
 	REFERENCE(move_seqin_ptr);
 	REFERENCE(move_seqout_ptr);
@@ -870,7 +868,6 @@ void cnstr_shdsc_wimax_encap(uint32_t *descbuf, unsigned *bufsize,
 		 * of the header and insert the result into the sixth
 		 * MATH0 byte field.
 		 */
-		SET_LABEL(crc8);
 		KEY(KEY2, 0, IMM(CRC_8_ATM_POLY), 2, WITH(IMMED));
 		ALG_OPERATION(OP_ALG_ALGSEL_CRC,
 			      OP_ALG_AAI_CUST_POLY | OP_ALG_AAI_DIS,
@@ -916,7 +913,6 @@ void cnstr_shdsc_wimax_encap(uint32_t *descbuf, unsigned *bufsize,
 
 	}
 	PATCH_HDR(phdr, hdr);
-	PATCH_JUMP(pcrc8, crc8);
 	PATCH_JUMP(pkeyjump, keyjump);
 	PATCH_JUMP(seqout_ptr_jump1, swapped_seqout_ptr);
 	PATCH_JUMP(seqout_ptr_jump2, local_offset);
@@ -948,13 +944,11 @@ void cnstr_shdsc_wimax_decap(uint32_t *descbuf, unsigned *bufsize,
 	struct program prg;
 	struct program *program = &prg;
 
-	LABEL(crc8);
 	LABEL(gmh);
 	LABEL(hdr);
 	LABEL(keyjump);
 	REFERENCE(load_gmh);
 	REFERENCE(move_gmh);
-	REFERENCE(pcrc8);
 	REFERENCE(phdr);
 	REFERENCE(pkeyjump);
 
@@ -1015,7 +1009,6 @@ void cnstr_shdsc_wimax_decap(uint32_t *descbuf, unsigned *bufsize,
 		 * of the header and insert the result into the sixth
 		 * MATH0 byte field.
 		 */
-		SET_LABEL(crc8);
 		LOAD(IMM(LDST_SRCDST_WORD_CLRW |
 			 CLRW_CLR_C1MODE |
 			 CLRW_CLR_C2MODE |
@@ -1044,7 +1037,6 @@ void cnstr_shdsc_wimax_decap(uint32_t *descbuf, unsigned *bufsize,
 		gmh += 11;
 	}
 	PATCH_HDR(phdr, hdr);
-	PATCH_JUMP(pcrc8, crc8);
 	PATCH_JUMP(pkeyjump, keyjump);
 	PATCH_LOAD(load_gmh, gmh);
 	PATCH_MOVE(move_gmh, gmh);
