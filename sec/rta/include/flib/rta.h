@@ -150,16 +150,20 @@ extern enum rta_sec_era rta_sec_era;
  * @warning            *Not thread safe*.
  *
  * @param[in] era      SEC Era (<c> enum rta_sec_era</c>).
+ * @return             0 if the ERA was set successfully, -1 otherwise
+ *                     (@c int).
  */
-static inline void rta_set_sec_era(enum rta_sec_era era)
+static inline int rta_set_sec_era(enum rta_sec_era era)
 {
 	if (era > MAX_SEC_ERA) {
 		rta_sec_era = DEFAULT_SEC_ERA;
 		pr_debug("Unsupported SEC ERA. Defaulting to ERA %d\n",
 			 DEFAULT_SEC_ERA + 1);
-	} else {
-		rta_sec_era = era;
+		return -1;
 	}
+
+	rta_sec_era = era;
+	return 0;
 }
 
 /**

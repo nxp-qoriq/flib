@@ -61,6 +61,12 @@ enum rta_sec_era {
  */
 #define USER_SEC_ERA(sec_era)	(sec_era + 1)
 
+/**
+ * @def INTL_SEC_ERA(sec_era)
+ * @details Translates the SEC Era from user representation to internal.
+ */
+#define INTL_SEC_ERA(sec_era)	(sec_era - 1)
+
 /* Convenience macros */
 #define WITH(x) (x)
 #define SIZE(x) (x)
