@@ -3054,6 +3054,9 @@ static inline void cnstr_shdsc_pdcp_u_plane_encap(uint32_t *descbuf,
 			break;
 		}
 		break;
+
+	default:
+		break;
 	}
 
 	PATCH_HDR(0, pdb_end);
@@ -3158,6 +3161,9 @@ static inline void cnstr_shdsc_pdcp_u_plane_decap(uint32_t *descbuf,
 			hfn_threshold<<PDCP_U_PLANE_PDB_15BIT_SN_HFN_THR_SHIFT;
 		break;
 
+	default:
+		pr_debug("Invalid Sequence Number Size setting in PDB\n");
+		return;
 	}
 
 	pdb.bearer_dir_res = (bearer << PDCP_U_PLANE_PDB_BEARER_SHIFT) |
@@ -3219,6 +3225,9 @@ static inline void cnstr_shdsc_pdcp_u_plane_decap(uint32_t *descbuf,
 				return;
 			break;
 		}
+		break;
+
+	default:
 		break;
 	}
 
