@@ -771,9 +771,10 @@ static inline void cnstr_shdsc_ipsec_decap(uint32_t *descbuf,
  * @param[in] cipherdata    Pointer to block cipher transform definitions.
  * @param[in] protinfo      Protocol information: OP_PCL_WIMAX_OFDM/OFDMA.
  */
-void cnstr_shdsc_wimax_encap(uint32_t *descbuf, unsigned *bufsize,
-			     uint8_t pdb_opts, uint32_t pn, uint16_t protinfo,
-			     struct alginfo *cipherdata)
+static inline void cnstr_shdsc_wimax_encap(uint32_t *descbuf, unsigned *bufsize,
+					   uint8_t pdb_opts, uint32_t pn,
+					   uint16_t protinfo,
+					   struct alginfo *cipherdata)
 {
 	struct wimax_encap_pdb pdb;
 	struct program prg;
@@ -936,9 +937,10 @@ void cnstr_shdsc_wimax_encap(uint32_t *descbuf, unsigned *bufsize,
  * @param[in] cipherdata    Pointer to block cipher transform definitions.
  * @param[in] protinfo      Protocol information: OP_PCL_WIMAX_OFDM/OFDMA.
  */
-void cnstr_shdsc_wimax_decap(uint32_t *descbuf, unsigned *bufsize,
-			     uint8_t pdb_opts, uint32_t pn, uint16_t ar_len,
-			     uint16_t protinfo, struct alginfo *cipherdata)
+static inline void cnstr_shdsc_wimax_decap(uint32_t *descbuf, unsigned *bufsize,
+					   uint8_t pdb_opts, uint32_t pn,
+					   uint16_t ar_len, uint16_t protinfo,
+					   struct alginfo *cipherdata)
 {
 	struct wimax_decap_pdb pdb;
 	struct program prg;
@@ -3579,11 +3581,9 @@ static inline void cnstr_shdsc_srtp_decap(uint32_t *descbuf,
  * @param[in] cipherdata     Block cipher transform definitions.
  **/
 
-void cnstr_shdsc_wifi_encap(uint32_t *descbuf, unsigned *bufsize,
-			    unsigned short ps,
-			    uint16_t mac_hdr_len, uint64_t pn,
-			    uint8_t priority, uint8_t key_id,
-			    struct alginfo *cipherdata)
+static inline void cnstr_shdsc_wifi_encap(uint32_t *descbuf, unsigned *bufsize,
+		unsigned short ps, uint16_t mac_hdr_len, uint64_t pn,
+		uint8_t priority, uint8_t key_id, struct alginfo *cipherdata)
 {
 	struct program prg;
 	struct program *program = &prg;
@@ -3707,10 +3707,9 @@ void cnstr_shdsc_wifi_encap(uint32_t *descbuf, unsigned *bufsize,
  * @param[in] priority       PDB Packet priority.
  * @param[in] cipherdata     Block cipher transform definitions.
  **/
-void cnstr_shdsc_wifi_decap(uint32_t *descbuf, unsigned *bufsize,
-				unsigned short ps,
-			    uint16_t mac_hdr_len, uint64_t pn,
-			    uint8_t priority, struct alginfo *cipherdata)
+static inline void cnstr_shdsc_wifi_decap(uint32_t *descbuf, unsigned *bufsize,
+		unsigned short ps, uint16_t mac_hdr_len, uint64_t pn,
+		uint8_t priority, struct alginfo *cipherdata)
 {
 	struct program prg;
 	struct program *program = &prg;
