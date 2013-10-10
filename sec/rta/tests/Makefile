@@ -1,7 +1,7 @@
 CC=$(CROSS_COMPILE)gcc
 INCLUDES=-I../include
 CFLAGS=-Wall -Wshadow -O3 -g $(INCLUDES)
-CPPFLAGS=-DDEBUG
+CPPFLAGS=-DRTA_DEBUG
 check: CPPFLAGS=
 
 ALL_SRCS=$(wildcard *.c)

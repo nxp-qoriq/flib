@@ -8,7 +8,7 @@
 #include <stdio.h>
 
 #ifndef pr_debug
-#ifdef DEBUG
+#ifdef RTA_DEBUG
 #define pr_debug(fmt, ...)    printf(fmt, ##__VA_ARGS__)
 #else
 #define pr_debug(fmt, ...)
