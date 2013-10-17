@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# Copyright 2008-2013 Freescale Semiconductor, Inc.
+#
 # There are, unfortunately, numerous files in CodeWarrior-Eclipse projects that 
 # automatically undergo changes when opened locally by a developer. These 
 # constitute false positives when trying to determine what changes the developer

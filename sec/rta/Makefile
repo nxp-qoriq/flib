@@ -1,3 +1,5 @@
+# Copyright 2008-2013 Freescale Semiconductor, Inc.
+
 prefix=/usr
 includedir=$(prefix)/include
 

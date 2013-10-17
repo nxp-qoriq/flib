@@ -1,3 +1,5 @@
+/* Copyright 2008-2013 Freescale Semiconductor, Inc. */
+
 #ifndef __RTA_JOBDESC_H__
 #define __RTA_JOBDESC_H__
 

@@ -1,3 +1,5 @@
+/* Copyright 2008-2013 Freescale Semiconductor, Inc. */
+
 #include <stdio.h>
 #include "flib/rta.h"
 #include "test_common.h"

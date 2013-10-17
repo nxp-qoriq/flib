@@ -1,3 +1,5 @@
+# Copyright 2008-2013 Freescale Semiconductor, Inc.
+
 PROJECTS = sec/rta
 
 all:

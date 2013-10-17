@@ -1,3 +1,5 @@
+/* Copyright 2008-2013 Freescale Semiconductor, Inc. */
+
 #ifndef __RTA_SEC_RUN_TIME_ASM_H__
 #define __RTA_SEC_RUN_TIME_ASM_H__
 

@@ -1,3 +1,5 @@
+/* Copyright 2008-2013 Freescale Semiconductor, Inc. */
+
 #ifndef __TEST_COMMON_H__
 #define __TEST_COMMON_H__
 

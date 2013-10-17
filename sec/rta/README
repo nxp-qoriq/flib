@@ -1,3 +1,5 @@
+Copyright 2008-2013 Freescale Semiconductor, Inc.
+
 Runtime Assembler provides an easy and flexible runtime method for writing
 SEC descriptors.
 

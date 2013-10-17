@@ -1,6 +1,8 @@
 /*
  * SEC descriptor composition header.
  * Definitions to support SEC descriptor instruction generation
+ *
+ * Copyright 2008-2013 Freescale Semiconductor, Inc.
  */
 
 #ifndef DESC_H

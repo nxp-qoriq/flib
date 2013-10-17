@@ -1,3 +1,5 @@
+# Copyright 2008-2013 Freescale Semiconductor, Inc.
+
 CC=$(CROSS_COMPILE)gcc
 INCLUDES=-I../include
 CFLAGS=-Wall -Wshadow -O3 -g $(INCLUDES)

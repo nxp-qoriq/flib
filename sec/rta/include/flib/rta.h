@@ -1,3 +1,5 @@
+/* Copyright 2008-2013 Freescale Semiconductor, Inc. */
+
 #ifndef __SEC_RTA__
 #define __SEC_RTA__
 
