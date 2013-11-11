@@ -1976,6 +1976,8 @@ static inline int pdcp_insert_cplane_aes_snow_op(struct program *program,
 	} else {
 		SEQFIFOLOAD(MSGOUTSNOOP, 0, WITH(LAST2));
 		SEQFIFOLOAD(MSG1, 4, WITH(LAST1 | FLUSH1));
+		JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, WITH(CLASS1 | NOP | NIFP));
+
 		MOVE(OFIFO, 0, MATH0, 0, IMM(4), WITH(WAITCOMP));
 
 		NFIFOADD(IFIFO, ICV2, 4, WITH(LAST2));
