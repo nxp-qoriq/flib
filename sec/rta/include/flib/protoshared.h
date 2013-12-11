@@ -4076,7 +4076,9 @@ static inline void cnstr_shdsc_wifi_decap(uint32_t *descbuf, unsigned *bufsize,
 }
 
 /**
- * @details                  Function for creating a RSA encryption descriptor
+ * @details                  Function for creating a RSA encryption/decryption
+ *                           shared descriptor.
+ *                           Supports decryption implemented in 3 forms
  * @ingroup                  sharedesc_group
  *
  * @param[in,out] descbuf    Pointer to buffer used for descriptor construction
@@ -4084,22 +4086,17 @@ static inline void cnstr_shdsc_wifi_decap(uint32_t *descbuf, unsigned *bufsize,
  *                           completion
  *
  * @param [in] ps            If 36/40bit addressing is desired, this parameter
- *                           must be non-zero.
- * @param[in] sgf            Scatter/Gather Table Flag
- * @param[in] e_len          Size of the public key in bytes
- * @param[in] n_len          Size of the modulus in bytes
- * @param[in] f_ref          Reference to the value to be encrypted
- * @param[in,out] g_ref      Reference to the encrypted value
- * @param[in] n_ref          Reference to the modulus
- * @param[in] e_ref          Reference to the public key
- * @param[in] f_len          Size of the input in bytes
+ *                           must be non-zero
+ * @param[in] pdb            Pointer to the Protocol Data Block to be used for
+ *                           descriptor construction. Must be mapped over a
+ *                           defined rsa structure
+ *                           The PDB is assumed to be valid
+ * @param[in] pdb_len        Size of the PDB in bytes
+ * @param[in] protcmd        Protocol Operation Command definitions
  **/
-static inline void cnstr_shdsc_rsa_encrypt(uint32_t *descbuf, unsigned *bufsize,
-					unsigned short ps, uint32_t sgf,
-					uint32_t e_len, uint32_t n_len,
-					uint64_t f_ref, uint64_t g_ref,
-					uint64_t n_ref, uint64_t e_ref,
-					uint32_t f_len)
+static inline void cnstr_shdsc_rsa(uint32_t *descbuf, unsigned *bufsize,
+				   unsigned short ps, uint8_t *pdb,
+				   unsigned pdb_len, struct protcmd *protcmd)
 {
 	struct program prg;
 	struct program *program = &prg;
@@ -4108,308 +4105,12 @@ static inline void cnstr_shdsc_rsa_encrypt(uint32_t *descbuf, unsigned *bufsize,
 	REFERENCE(pdbend);
 
 	PROGRAM_CNTXT_INIT(descbuf, 0);
-	if (ps) {
-		struct rsa_encrypt_pdb_64b pdb;
-		memset(&pdb, 0, sizeof(struct rsa_encrypt_pdb_64b));
-		pdb.header = (sgf << RSA_ENC_SGF_SHIFT) |
-			      (e_len << RSA_ENC_E_LEN_SHIFT) |
-			      (n_len);
-		pdb.f_ref_high = high_32b(f_ref);
-		pdb.f_ref_low = low_32b(f_ref);
-		pdb.g_ref_high = high_32b(g_ref);
-		pdb.g_ref_low = low_32b(g_ref);
-		pdb.n_ref_high = high_32b(n_ref);
-		pdb.n_ref_low = low_32b(n_ref);
-		pdb.e_ref_high = high_32b(e_ref);
-		pdb.e_ref_low = low_32b(e_ref);
-		pdb.f_len = f_len;
+	if (ps)
 		PROGRAM_SET_36BIT_ADDR();
-		phdr = SHR_HDR(SHR_SERIAL, pdbend, WITH(0));
-		ENDIAN_DATA((uint8_t *)&pdb,
-			    sizeof(struct rsa_encrypt_pdb_64b));
-	} else {
-		struct rsa_encrypt_pdb pdb;
-		memset(&pdb, 0, sizeof(struct rsa_encrypt_pdb));
-		pdb.header = (sgf << RSA_ENC_SGF_SHIFT) |
-			      (e_len << RSA_ENC_E_LEN_SHIFT) |
-			      (n_len);
-		pdb.f_ref = low_32b(f_ref);
-		pdb.g_ref = low_32b(g_ref);
-		pdb.n_ref = low_32b(n_ref);
-		pdb.e_ref = low_32b(e_ref);
-		pdb.f_len = f_len;
-		phdr = SHR_HDR(SHR_SERIAL, pdbend, WITH(0));
-		ENDIAN_DATA((uint8_t *)&pdb, sizeof(struct rsa_encrypt_pdb));
-	}
+	phdr = SHR_HDR(SHR_SERIAL, pdbend, WITH(0));
+	ENDIAN_DATA(pdb, pdb_len);
 	SET_LABEL(pdbend);
-	PROTOCOL(OP_TYPE_UNI_PROTOCOL,
-		 OP_PCLID_RSAENCRYPT,
-		 OP_PCL_RSAPROT_OP_ENC_F_IN);
-
-	PATCH_HDR(phdr, pdbend);
-	*bufsize = PROGRAM_FINALIZE();
-}
-
-/**
- * @details                  Function for creating a RSA decryption form1
- *                           descriptor
- * @ingroup                  sharedesc_group
- *
- * @param[in,out] descbuf    Pointer to buffer used for descriptor construction
- * @param[in,out] bufsize    Pointer to descriptor size to be written back upon
- *                           completion
- *
- * @param [in] ps            If 36/40bit addressing is desired, this parameter
- *                           must be non-zero.
- * @param[in] sgf            Scatter/Gather Table Flag
- * @param[in] d_len          Size of the private key in bytes
- * @param[in] n_len          Size of the modulus in bytes
- * @param[in] g_ref          Reference to the value to be decrypted
- * @param[in,out] f_ref      Reference to the decrypted value
- * @param[in] n_ref          Reference to the modulus
- * @param[in] d_ref          Reference to the private key
- **/
-static inline void cnstr_shdsc_rsa_decrypt_form1(uint32_t *descbuf,
-					unsigned *bufsize, unsigned short ps,
-					uint32_t sgf, uint32_t d_len,
-					uint32_t n_len, uint64_t g_ref,
-					uint64_t f_ref, uint64_t n_ref,
-					uint64_t d_ref)
-{
-	struct program prg;
-	struct program *program = &prg;
-
-	LABEL(phdr);
-	REFERENCE(pdbend);
-
-	PROGRAM_CNTXT_INIT(descbuf, 0);
-	if (ps) {
-		struct rsa_decrypt_pdb_form1_64b pdb;
-		memset(&pdb, 0, sizeof(struct rsa_decrypt_pdb_form1_64b));
-		pdb.header = (sgf << RSA_DEC1_SGF_SHIFT) |
-			      (d_len << RSA_DEC1_D_LEN_SHIFT) |
-			      (n_len);
-		pdb.g_ref_high = high_32b(g_ref);
-		pdb.g_ref_low = low_32b(g_ref);
-		pdb.f_ref_high = high_32b(f_ref);
-		pdb.f_ref_low = low_32b(f_ref);
-		pdb.n_ref_high = high_32b(n_ref);
-		pdb.n_ref_low = low_32b(n_ref);
-		pdb.d_ref_high = high_32b(d_ref);
-		pdb.d_ref_low = low_32b(d_ref);
-		PROGRAM_SET_36BIT_ADDR();
-		phdr = SHR_HDR(SHR_SERIAL, pdbend, WITH(0));
-		ENDIAN_DATA((uint8_t *)&pdb,
-			    sizeof(struct rsa_decrypt_pdb_form1_64b));
-	} else {
-		struct rsa_decrypt_pdb_form1 pdb;
-		memset(&pdb, 0, sizeof(struct rsa_decrypt_pdb_form1));
-		pdb.header = (sgf << RSA_DEC1_SGF_SHIFT) |
-			      (d_len << RSA_DEC1_D_LEN_SHIFT) |
-			      (n_len);
-		pdb.g_ref = low_32b(g_ref);
-		pdb.f_ref = low_32b(f_ref);
-		pdb.n_ref = low_32b(n_ref);
-		pdb.d_ref = low_32b(d_ref);
-		phdr = SHR_HDR(SHR_SERIAL, pdbend, WITH(0));
-		ENDIAN_DATA((uint8_t *)&pdb,
-			    sizeof(struct rsa_decrypt_pdb_form1));
-	}
-	SET_LABEL(pdbend);
-	PROTOCOL(OP_TYPE_UNI_PROTOCOL,
-		 OP_PCLID_RSADECRYPT,
-		 OP_PCL_RSAPROT_OP_DEC_ND);
-
-	PATCH_HDR(phdr, pdbend);
-	*bufsize = PROGRAM_FINALIZE();
-}
-
-/**
- * @details                  Function for creating a RSA decryption form2
- *                           descriptor
- * @ingroup                  sharedesc_group
- *
- * @param[in,out] descbuf    Pointer to buffer used for descriptor construction
- * @param[in,out] bufsize    Pointer to descriptor size to be written back upon
- *                           completion
- *
- * @param [in] ps            If 36/40bit addressing is desired, this parameter
- *                           must be non-zero.
- * @param[in] sgf            Scatter/Gather Table Flag
- * @param[in] d_len          Size of the private key in bytes
- * @param[in] n_len          Size of the modulus in bytes
- * @param[in] g_ref          Reference to the value to be decrypted
- * @param[in,out] f_ref      Reference to the decrypted value
- * @param[in] d_ref          Reference to the private key
- * @param[in] p_ref          Reference to p
- * @param[in] q_ref          Reference to q
- * @param[in] tmp1_ref       Reference to tmp1
- * @param[in] tmp2_ref       Reference to tmp2
- * @param[in] q_len          Size of p in bytes
- * @param[in] p_len          Size of q in bytes
- **/
-static inline void cnstr_shdsc_rsa_decrypt_form2(uint32_t *descbuf,
-					unsigned *bufsize, unsigned short ps,
-					uint32_t sgf, uint32_t d_len,
-					uint32_t n_len, uint64_t g_ref,
-					uint64_t f_ref, uint64_t d_ref,
-					uint64_t p_ref, uint64_t q_ref,
-					uint64_t tmp1_ref, uint64_t tmp2_ref,
-					uint32_t q_len, uint32_t p_len)
-{
-	struct program prg;
-	struct program *program = &prg;
-
-	LABEL(phdr);
-	REFERENCE(pdbend);
-
-	PROGRAM_CNTXT_INIT(descbuf, 0);
-	if (ps) {
-		struct rsa_decrypt_pdb_form2_64b pdb;
-		memset(&pdb, 0, sizeof(struct rsa_decrypt_pdb_form2_64b));
-		pdb.header = (sgf << RSA_DEC2_SGF_SHIFT) |
-			       (d_len << RSA_DEC2_D_LEN_SHIFT) |
-			       (n_len);
-		pdb.g_ref_high = high_32b(g_ref);
-		pdb.g_ref_low = low_32b(g_ref);
-		pdb.f_ref_high = high_32b(f_ref);
-		pdb.f_ref_low = low_32b(f_ref);
-		pdb.d_ref_high = high_32b(d_ref);
-		pdb.d_ref_low = low_32b(d_ref);
-		pdb.p_ref_high = high_32b(p_ref);
-		pdb.p_ref_low = low_32b(p_ref);
-		pdb.q_ref_high = high_32b(q_ref);
-		pdb.q_ref_low = low_32b(q_ref);
-		pdb.tmp1_ref_high = high_32b(tmp1_ref);
-		pdb.tmp1_ref_low = low_32b(tmp1_ref);
-		pdb.tmp2_ref_high = high_32b(tmp2_ref);
-		pdb.tmp2_ref_low = low_32b(tmp2_ref);
-		pdb.trailer = (q_len << RSA_DEC2_Q_LEN_SHIFT) | (p_len);
-		PROGRAM_SET_36BIT_ADDR();
-		phdr = SHR_HDR(SHR_SERIAL, pdbend, WITH(0));
-		ENDIAN_DATA((uint8_t *)&pdb,
-			    sizeof(struct rsa_decrypt_pdb_form2_64b));
-	} else {
-		struct rsa_decrypt_pdb_form2 pdb;
-		memset(&pdb, 0, sizeof(struct rsa_decrypt_pdb_form2));
-		pdb.header = (sgf << RSA_DEC2_SGF_SHIFT) |
-			       (d_len << RSA_DEC2_D_LEN_SHIFT) |
-			       (n_len);
-		pdb.g_ref = low_32b(g_ref);
-		pdb.f_ref = low_32b(f_ref);
-		pdb.d_ref = low_32b(d_ref);
-		pdb.p_ref = low_32b(p_ref);
-		pdb.q_ref = low_32b(q_ref);
-		pdb.tmp1_ref = low_32b(tmp1_ref);
-		pdb.tmp2_ref = low_32b(tmp2_ref);
-		pdb.trailer = (q_len << RSA_DEC2_Q_LEN_SHIFT) | (p_len);
-		phdr = SHR_HDR(SHR_SERIAL, pdbend, WITH(0));
-		ENDIAN_DATA((uint8_t *)&pdb,
-			    sizeof(struct rsa_decrypt_pdb_form2));
-	}
-	SET_LABEL(pdbend);
-
-	PROTOCOL(OP_TYPE_UNI_PROTOCOL,
-		 OP_PCLID_RSADECRYPT,
-		 OP_PCL_RSAPROT_OP_DEC_PQD);
-
-	PATCH_HDR(phdr, pdbend);
-	*bufsize = PROGRAM_FINALIZE();
-}
-
-/**
- * @details                  Function for creating a RSA decryption form3
- *                           descriptor (Chinese remainder algorithm)
- * @ingroup                  sharedesc_group
- *
- * @param[in,out] descbuf    Pointer to buffer used for descriptor construction
- * @param[in,out] bufsize    Pointer to descriptor size to be written back upon
- *                           completion
- *
- * @param [in] ps            If 36/40bit addressing is desired, this parameter
- *                           must be non-zero.
- * @param[in] sgf            Scatter/Gather Table Flag
- * @param[in] n_len          Size of the modulus in bytes
- * @param[in] g_ref          Reference to the value to be decrypted
- * @param[in,out] f_ref      Reference to the decrypted value
- * @param[in] c_ref          Reference to c
- * @param[in] p_ref          Reference to p
- * @param[in] q_ref          Reference to q
- * @param[in] dp_ref         Reference to dp
- * @param[in] dq_ref         Reference to dq
- * @param[in] tmp1_ref       Reference to tmp1
- * @param[in] tmp2_ref       Reference to tmp2
- * @param[in] q_len          Size of prime number p in bytes
- * @param[in] p_len          Size of prime number q in bytes
- **/
-static inline void cnstr_shdsc_rsa_decrypt_form3(uint32_t *descbuf,
-					unsigned *bufsize, unsigned short ps,
-					uint32_t sgf, uint32_t n_len,
-					uint64_t g_ref, uint64_t f_ref,
-					uint64_t c_ref, uint64_t p_ref,
-					uint64_t q_ref, uint64_t dp_ref,
-					uint64_t dq_ref, uint64_t tmp1_ref,
-					uint64_t tmp2_ref, uint32_t q_len,
-					uint32_t p_len)
-{
-	struct program prg;
-	struct program *program = &prg;
-
-	LABEL(phdr);
-	REFERENCE(pdbend);
-
-	PROGRAM_CNTXT_INIT(descbuf, 0);
-	if (ps) {
-		struct rsa_decrypt_pdb_form3_64b pdb;
-		memset(&pdb, 0, sizeof(struct rsa_decrypt_pdb_form3_64b));
-		pdb.header = (sgf << RSA_DEC3_SGF_SHIFT) | (n_len);
-		pdb.g_ref_high = high_32b(g_ref);
-		pdb.g_ref_low = low_32b(g_ref);
-		pdb.f_ref_high = high_32b(f_ref);
-		pdb.f_ref_low = low_32b(f_ref);
-		pdb.c_ref_high = high_32b(c_ref);
-		pdb.c_ref_low = low_32b(c_ref);
-		pdb.p_ref_high = high_32b(p_ref);
-		pdb.p_ref_low = low_32b(p_ref);
-		pdb.q_ref_high = high_32b(q_ref);
-		pdb.q_ref_low = low_32b(q_ref);
-		pdb.dp_ref_high = high_32b(dp_ref);
-		pdb.dp_ref_low = low_32b(dp_ref);
-		pdb.dq_ref_high = high_32b(dq_ref);
-		pdb.dq_ref_low = low_32b(dq_ref);
-		pdb.tmp1_ref_high = high_32b(tmp1_ref);
-		pdb.tmp1_ref_low = low_32b(tmp1_ref);
-		pdb.tmp2_ref_high = high_32b(tmp2_ref);
-		pdb.tmp2_ref_low = low_32b(tmp2_ref);
-		pdb.trailer = (q_len << RSA_DEC3_Q_LEN_SHIFT) | (p_len);
-		PROGRAM_SET_36BIT_ADDR();
-		phdr = SHR_HDR(SHR_SERIAL, pdbend, WITH(0));
-		ENDIAN_DATA((uint8_t *)&pdb,
-			    sizeof(struct rsa_decrypt_pdb_form3_64b));
-	} else {
-		struct rsa_decrypt_pdb_form3 pdb;
-		memset(&pdb, 0, sizeof(struct rsa_decrypt_pdb_form3));
-		pdb.header = (sgf << RSA_DEC3_SGF_SHIFT) | (n_len);
-		pdb.g_ref = low_32b(g_ref);
-		pdb.f_ref = low_32b(f_ref);
-		pdb.c_ref = low_32b(c_ref);
-		pdb.p_ref = low_32b(p_ref);
-		pdb.q_ref = low_32b(q_ref);
-		pdb.dp_ref = low_32b(dp_ref);
-		pdb.dq_ref = low_32b(dq_ref);
-		pdb.tmp1_ref = low_32b(tmp1_ref);
-		pdb.tmp2_ref = low_32b(tmp2_ref);
-		pdb.trailer = (q_len << RSA_DEC3_Q_LEN_SHIFT) | (p_len);
-		phdr = SHR_HDR(SHR_SERIAL, pdbend, WITH(0));
-		ENDIAN_DATA((uint8_t *)&pdb,
-			    sizeof(struct rsa_decrypt_pdb_form3));
-	}
-	SET_LABEL(pdbend);
-
-	PROTOCOL(OP_TYPE_UNI_PROTOCOL,
-		 OP_PCLID_RSADECRYPT,
-		 OP_PCL_RSAPROT_OP_DEC_PQDPDQC);
-
+	PROTOCOL(protcmd->optype, protcmd->protid, protcmd->protinfo);
 	PATCH_HDR(phdr, pdbend);
 	*bufsize = PROGRAM_FINALIZE();
 }

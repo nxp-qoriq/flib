@@ -423,10 +423,26 @@ struct wifi_decap_pdb {
 	uint16_t ctr_init;	/* CCM Counter block init counter */
 };
 
+/**
+ * @defgroup rsa_pdb rsa_pdb
+ * @ingroup pdb_group
+ * @{
+ */
+/** @} end of rsa_pdb */
+
+/*
+ * RSA encryption/decryption PDB definitions.
+ */
+
 #define RSA_ENC_SGF_SHIFT	28
 #define RSA_ENC_RSV_SHIFT	24
 #define RSA_ENC_E_LEN_SHIFT	12
 
+/**
+ * @struct   rsa_encrypt_pdb_64b pdb.h
+ * @ingroup  rsa_pdb
+ * @details  RSA encryption PDB for 64 bits addresses
+ */
 struct rsa_encrypt_pdb_64b {
 	uint32_t header;	/* Contains sgf, rsv, #e, #n fields */
 	uint32_t f_ref_high;	/* Reference to input */
@@ -440,6 +456,11 @@ struct rsa_encrypt_pdb_64b {
 	uint32_t f_len;		/* Input length */
 };
 
+/**
+ * @struct   rsa_encrypt_pdb pdb.h
+ * @ingroup  rsa_pdb
+ * @details  RSA encryption PDB for 32 bits addresses
+ */
 struct rsa_encrypt_pdb {
 	uint32_t header;	/* Contains sgf, rsv, #e, #n fields */
 	uint32_t f_ref;		/* Reference to input */
@@ -449,11 +470,16 @@ struct rsa_encrypt_pdb {
 	uint32_t f_len;		/* Input length */
 };
 
-#define RSA_DEC1_SGF_SHIFT		28
-#define RSA_DEC1_RSV_SHIFT		24
+#define RSA_DEC1_SGF_SHIFT	28
+#define RSA_DEC1_RSV_SHIFT	24
 #define RSA_DEC1_D_LEN_SHIFT	12
 
-struct rsa_decrypt_pdb_form1_64b {
+/**
+ * @struct   rsa_dec_pdb_form1_64b pdb.h
+ * @ingroup  rsa_pdb
+ * @details  RSA decryption form1 PDB for 64 bits addresses
+ */
+struct rsa_dec_pdb_form1_64b {
 	uint32_t header;	/* Contains sgf, rsv, #d, #n fields */
 	uint32_t g_ref_high;	/* Reference to input */
 	uint32_t g_ref_low;
@@ -465,7 +491,12 @@ struct rsa_decrypt_pdb_form1_64b {
 	uint32_t d_ref_low;
 };
 
-struct rsa_decrypt_pdb_form1 {
+/**
+ * @struct   rsa_dec_pdb_form1 pdb.h
+ * @ingroup  rsa_pdb
+ * @details  RSA decryption form1 PDB for 32 bits addresses
+ */
+struct rsa_dec_pdb_form1 {
 	uint32_t header;	/* Contains sgf, rsv, #d, #n fields */
 	uint32_t g_ref;		/* Reference to input */
 	uint32_t f_ref;		/* Reference to output */
@@ -473,11 +504,16 @@ struct rsa_decrypt_pdb_form1 {
 	uint32_t d_ref;		/* Reference to private key */
 };
 
-#define RSA_DEC2_SGF_SHIFT		25
+#define RSA_DEC2_SGF_SHIFT	25
 #define RSA_DEC2_D_LEN_SHIFT	12
 #define RSA_DEC2_Q_LEN_SHIFT	12
 
-struct rsa_decrypt_pdb_form2_64b {
+/**
+ * @struct   rsa_dec_pdb_form2_64b pdb.h
+ * @ingroup  rsa_pdb
+ * @details  RSA decryption form2 PDB for 64 bits addresses
+ */
+struct rsa_dec_pdb_form2_64b {
 	uint32_t header;	/* Contains sgf, rsv, #d, #n fields */
 	uint32_t g_ref_high;	/* Reference to input */
 	uint32_t g_ref_low;
@@ -496,7 +532,12 @@ struct rsa_decrypt_pdb_form2_64b {
 	uint32_t trailer;	/* Contains rsv, #q, #p fields */
 };
 
-struct rsa_decrypt_pdb_form2 {
+/**
+ * @struct   rsa_dec_pdb_form2 pdb.h
+ * @ingroup  rsa_pdb
+ * @details  RSA decryption form2 PDB for 32 bits addresses
+ */
+struct rsa_dec_pdb_form2 {
 	uint32_t header;	/* Contains sgf, rsv, #d, #n fields */
 	uint32_t g_ref;		/* Reference to input */
 	uint32_t f_ref;		/* Reference to output */
@@ -508,10 +549,15 @@ struct rsa_decrypt_pdb_form2 {
 	uint32_t trailer;	/* Contains rsv, #q, #p fields */
 };
 
-#define RSA_DEC3_SGF_SHIFT		25
-#define RSA_DEC3_Q_LEN_SHIFT	24
+#define RSA_DEC3_SGF_SHIFT	25
+#define RSA_DEC3_Q_LEN_SHIFT	12
 
-struct rsa_decrypt_pdb_form3_64b {
+/**
+ * @struct   rsa_dec_pdb_form3_64b pdb.h
+ * @ingroup  rsa_pdb
+ * @details  RSA decryption form3 PDB for 64 bits addresses
+ */
+struct rsa_dec_pdb_form3_64b {
 	uint32_t header;	/* Contains sgf, rsv, #n fields */
 	uint32_t g_ref_high;	/* Reference to input */
 	uint32_t g_ref_low;
@@ -534,7 +580,12 @@ struct rsa_decrypt_pdb_form3_64b {
 	uint32_t trailer;	/* Contains rsv, #q, #p fields */
 };
 
-struct rsa_decrypt_pdb_form3 {
+/**
+ * @struct   rsa_dec_pdb_form3 pdb.h
+ * @ingroup  rsa_pdb
+ * @details  RSA decryption form3 PDB for 32 bits addresses
+ */
+struct rsa_dec_pdb_form3 {
 	uint32_t header;	/* Contains sgf, rsv, #n fields */
 	uint32_t g_ref;		/* Reference to input */
 	uint32_t f_ref;		/* Reference to output */
