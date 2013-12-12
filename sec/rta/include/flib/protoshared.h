@@ -1606,8 +1606,12 @@ static inline void cnstr_shdsc_wimax_encap(uint32_t *descbuf, unsigned *bufsize,
 		KEY(KEY1, cipherdata->key_enc_flags, PTR(cipherdata->key),
 		    cipherdata->keylen, WITH(IMMED));
 		SET_LABEL(keyjump);
+		/*
+		 * Wait for the updated header to be written into memory, then
+		 * rewind and reset the sequence output pointer and length.
+		 */
 		seqout_ptr_jump2 = JUMP(IMM(swapped_seqout_ptr), LOCAL_JUMP,
-					ALL_TRUE, WITH(0));
+					ALL_TRUE, WITH(CALM));
 		PROTOCOL(OP_TYPE_ENCAP_PROTOCOL, OP_PCLID_WIMAX, protinfo);
 /*
  * TODO: RTA currently doesn't support adding labels in or after Job Descriptor.
