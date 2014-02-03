@@ -20,7 +20,7 @@ unsigned test_load_op(uint32_t *buff)
 	void *descwords = (int *)0xaabbccddeeull;
 	uint8_t *ctx = (uint8_t *) 0x10288;
 	int ctxoff = 5;
-	uintptr_t foo = (uintptr_t) 0x00000000abacbdcedeull;
+	uintptr_t foo = (uintptr_t) 0x000000abacbdcedeull;
 	int word_size = sizeof(uint32_t);
 	int here = 32;
 	int where = 24;
