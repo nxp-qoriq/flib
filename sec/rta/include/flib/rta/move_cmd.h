@@ -170,8 +170,8 @@ static inline unsigned rta_move(struct program *program, uint64_t src,
 			break;
 		}
 	}
-	program->buffer[program->current_pc] = opcode;
-	program->current_pc++;
+
+	__rta_out32(program, opcode);
 	program->current_instruction++;
 
 	return start_pc;

@@ -540,10 +540,8 @@ static inline unsigned rta_proto_operation(struct program *program,
 		goto err;
 	}
 
-	program->buffer[program->current_pc] = opcode | optype | protid
-						      | protoinfo;
+	__rta_out32(program, opcode | optype | protid | protoinfo);
 	program->current_instruction++;
-	program->current_pc++;
 	return start_pc;
 
  err:

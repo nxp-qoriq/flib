@@ -211,6 +211,9 @@ static inline unsigned rta_load(struct program *program, uint64_t src,
 	else
 		opcode = CMD_LOAD;
 
+	if (src_type == IMM_DATA)
+		flags |= IMMED;
+
 	if ((length & 0xffffff00) || (offset & 0xffffff00)) {
 		pr_debug("LOAD: Bad length/offset passed. Should be 8 bits\n");
 		goto err;
@@ -233,7 +236,7 @@ static inline unsigned rta_load(struct program *program, uint64_t src,
 		goto err;
 	}
 
-	if ((src_type == IMM_DATA) || (flags & IMMED)) {
+	if (flags & IMMED) {
 		if (load_dst[pos].imm_src == IMM_NO) {
 			pr_debug("LOAD: Invalid source type. SEC Program Line: %d\n",
 				 program->current_pc);
@@ -263,49 +266,24 @@ static inline unsigned rta_load(struct program *program, uint64_t src,
 		opcode |= (offset << LDST_OFFSET_SHIFT);
 	}
 
-	program->buffer[program->current_pc] = opcode;
-	program->current_pc++;
+	__rta_out32(program, opcode);
 	program->current_instruction++;
 
 	/* DECO COTROL: skip writing pointer of imm data */
 	if (dst == _DCTRL)
 		return start_pc;
 
-	/* For data copy, 3 possible ways to specify how to copy data:
+	/*
+	 * For data copy, 3 possible ways to specify how to copy data:
 	 *  - src_type is IMM: copy data directly from src( max 8 bytes)
 	 *  - src_type is PTR, but data should be immed: copy the data imm
 	 *    from the location specified by user
-	 *  - src_type is PTR and is not SEQ cmd: copy the address */
-	if (src_type == IMM_DATA) {
-		if (length > BYTES_4) {
-			program->buffer[program->current_pc] = high_32b(src);
-			program->current_pc++;
-		}
-
-		program->buffer[program->current_pc] = low_32b(src);
-		program->current_pc++;
-	}
-
-	if ((src_type == PTR_DATA) && (flags & IMMED)) {
-		uint8_t *tmp =
-			(uint8_t *)&program->buffer[program->current_pc];
-
-		for (i = 0; i < length; i++)
-			*tmp++ = ((uint8_t *)(uintptr_t)src)[i];
-		program->current_pc += ((length + 3) / 4);
-
-		return start_pc;
-	}
-
-	if ((src_type == PTR_DATA) && (!(flags & SEQ))) {
-		if (program->ps == 1) {
-			program->buffer[program->current_pc] = high_32b(src);
-			program->current_pc++;
-		}
-
-		program->buffer[program->current_pc] = low_32b(src);
-		program->current_pc++;
-	}
+	 *  - src_type is PTR and is not SEQ cmd: copy the address
+	 */
+	if (flags & IMMED)
+		__rta_inline_data(program, src, src_type, length);
+	else if (!(flags & SEQ))
+		__rta_out64(program, program->ps, src);
 
 	return start_pc;
 

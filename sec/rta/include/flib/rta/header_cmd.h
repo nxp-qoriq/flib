@@ -68,9 +68,8 @@ static inline unsigned rta_shr_header(struct program *program, uint32_t share,
 	if (flags & RIF)
 		opcode |= HDR_RIF;
 
-	program->buffer[program->current_pc] = opcode;
+	__rta_out32(program, opcode);
 	program->current_instruction++;
-	program->current_pc++;
 
 	if (program->current_instruction == 1)
 		program->shrhdr = program->buffer;
@@ -140,24 +139,14 @@ static inline unsigned rta_job_header(struct program *program, uint32_t share,
 	if (flags & SHR)
 		opcode |= HDR_SHARED;
 
-	program->buffer[program->current_pc] = opcode;
-	program->current_pc++;
+	__rta_out32(program, opcode);
 	program->current_instruction++;
 
 	if (program->current_instruction == 1) {
 		program->jobhdr = program->buffer;
 
-		if (opcode & HDR_SHARED) {
-			if (program->ps == 1) {
-				program->buffer[program->current_pc] =
-					high_32b(shr_desc);
-				program->current_pc++;
-			}
-
-			program->buffer[program->current_pc] =
-				low_32b(shr_desc);
-			program->current_pc++;
-		}
+		if (opcode & HDR_SHARED)
+			__rta_out64(program, program->ps, shr_desc);
 	}
 
 	/* Note: descriptor length is set in program_finalize routine */

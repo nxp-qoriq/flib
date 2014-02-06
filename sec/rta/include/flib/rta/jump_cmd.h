@@ -94,21 +94,11 @@ static inline unsigned rta_jump(struct program *program, uint64_t address,
 	    (jump_type == HALT_STATUS))
 		opcode |= (uint32_t)(address & JUMP_OFFSET_MASK);
 
-	program->buffer[program->current_pc] = opcode;
-	program->current_pc++;
+	__rta_out32(program, opcode);
 	program->current_instruction++;
 
-	if (jump_type == FAR_JUMP) {
-		if (program->ps == 1) {
-			program->buffer[program->current_pc] =
-				high_32b(address);
-			program->current_pc++;
-		}
-
-		program->buffer[program->current_pc] =
-			low_32b(address);
-		program->current_pc++;
-	}
+	if (jump_type == FAR_JUMP)
+		__rta_out64(program, program->ps, address);
 
 	return start_pc;
 

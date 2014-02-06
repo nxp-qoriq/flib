@@ -196,32 +196,19 @@ static inline unsigned rta_math(struct program *program, uint64_t operand1,
 		goto err;
 	}
 
-	program->buffer[program->current_pc] = opcode;
-	program->current_pc++;
+	__rta_out32(program, opcode);
 	program->current_instruction++;
 
 	/* Write immediate value */
 	if ((type_op1 == IMM_DATA) && (type_op2 != IMM_DATA)) {
-		if ((length > 4) && !(options & IFB)) {
-			program->buffer[program->current_pc] =
-				high_32b(operand1);
-			program->current_pc++;
-		}
-		program->buffer[program->current_pc] = low_32b(operand1);
-		program->current_pc++;
+		__rta_out64(program, (length > 4) && !(options & IFB),
+			    operand1);
 	} else if ((type_op2 == IMM_DATA) && (type_op1 != IMM_DATA)) {
-		if ((length > 4) && !(options & IFB)) {
-			program->buffer[program->current_pc] =
-				high_32b(operand2);
-			program->current_pc++;
-		}
-		program->buffer[program->current_pc] = low_32b(operand2);
-		program->current_pc++;
+		__rta_out64(program, (length > 4) && !(options & IFB),
+			    operand2);
 	} else if ((type_op1 == IMM_DATA) && (type_op2 == IMM_DATA)) {
-		program->buffer[program->current_pc] = low_32b(operand1);
-		program->current_pc++;
-		program->buffer[program->current_pc] = low_32b(operand2);
-		program->current_pc++;
+		__rta_out32(program, low_32b(operand1));
+		__rta_out32(program, low_32b(operand2));
 	}
 
 	return start_pc;

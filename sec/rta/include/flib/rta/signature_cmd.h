@@ -22,8 +22,8 @@ static inline unsigned rta_signature(struct program *program,
 		pr_debug("SIGNATURE Command: Invalid type selection\n");
 		goto err;
 	}
-	program->buffer[program->current_pc] = opcode;
-	program->current_pc++;
+
+	__rta_out32(program, opcode);
 	program->current_instruction++;
 
 	return start_pc;

@@ -530,12 +530,25 @@ static inline unsigned rta_program_set_36bit_addr(struct program *program)
 	return program->current_pc;
 }
 
+static inline void __rta_out32(struct program *program, uint32_t val)
+{
+	program->buffer[program->current_pc] = val;
+	program->current_pc++;
+}
+
+static inline void __rta_out64(struct program *program, int ext, uint64_t val)
+{
+	if (ext)
+		__rta_out32(program, high_32b(val));
+
+	__rta_out32(program, low_32b(val));
+}
+
 static inline unsigned rta_word(struct program *program, uint32_t val)
 {
 	unsigned start_pc = program->current_pc;
 
-	program->buffer[program->current_pc] = val;
-	program->current_pc++;
+	__rta_out32(program, val);
 
 	return start_pc;
 }
@@ -544,11 +557,7 @@ static inline unsigned rta_dword(struct program *program, uint64_t val)
 {
 	unsigned start_pc = program->current_pc;
 
-	program->buffer[program->current_pc] = high_32b(val);
-	program->current_pc++;
-
-	program->buffer[program->current_pc] = low_32b(val);
-	program->current_pc++;
+	__rta_out64(program, 1, val);
 
 	return start_pc;
 }
@@ -565,6 +574,21 @@ static inline unsigned rta_endian_data(struct program *program, uint8_t *data,
 	program->current_pc += (length + 3) / 4;
 
 	return start_pc;
+}
+
+static inline void __rta_inline_data(struct program *program, uint64_t data,
+				     int data_type, uint32_t length)
+{
+	if (data_type == IMM_DATA) {
+		__rta_out64(program, length > BYTES_4, data);
+	} else {
+		uint8_t *tmp = (uint8_t *)&program->buffer[program->current_pc];
+		uint32_t i;
+
+		for (i = 0; i < length; i++)
+			*tmp++ = ((uint8_t *)(uintptr_t)data)[i];
+		program->current_pc += ((length + 3) / 4);
+	}
 }
 
 static inline unsigned rta_desc_len(uint32_t *buffer, uint32_t mask)

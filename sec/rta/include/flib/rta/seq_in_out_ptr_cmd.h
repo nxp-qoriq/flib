@@ -69,25 +69,16 @@ static inline unsigned rta_seq_in_ptr(struct program *program, uint64_t src,
 		opcode |= length & SQIN_LEN_MASK;
 	}
 
-	program->buffer[program->current_pc] = opcode;
-	program->current_pc++;
+	__rta_out32(program, opcode);
 	program->current_instruction++;
 
 	/* write pointer or immediate data field */
-	if (!(opcode & (SQIN_PRE | SQIN_RTO))) {
-		if (program->ps == 1) {
-			program->buffer[program->current_pc] = high_32b(src);
-			program->current_pc++;
-		}
+	if (!(opcode & (SQIN_PRE | SQIN_RTO)))
+		__rta_out64(program, program->ps, src);
 
-		program->buffer[program->current_pc] = low_32b(src);
-		program->current_pc++;
-	}
 	/* write extended length field */
-	if (opcode & SQIN_EXT) {
-		program->buffer[program->current_pc] = length;
-		program->current_pc++;
-	}
+	if (opcode & SQIN_EXT)
+		__rta_out32(program, length);
 
 	return start_pc;
 
@@ -129,26 +120,16 @@ static inline unsigned rta_seq_out_ptr(struct program *program, uint64_t dst,
 	else
 		opcode |= length & SQOUT_LEN_MASK;
 
-	program->buffer[program->current_pc] = opcode;
-	program->current_pc++;
+	__rta_out32(program, opcode);
 	program->current_instruction++;
 
 	/* write pointer or immediate data field */
-	if (!(opcode & (SQOUT_PRE | SQOUT_RTO))) {
-		if (program->ps == 1) {
-			program->buffer[program->current_pc] = high_32b(dst);
-			program->current_pc++;
-		}
-
-		program->buffer[program->current_pc] = low_32b(dst);
-		program->current_pc++;
-	}
+	if (!(opcode & (SQOUT_PRE | SQOUT_RTO)))
+		__rta_out64(program, program->ps, dst);
 
 	/* write extended length field */
-	if (opcode & SQOUT_EXT) {
-		program->buffer[program->current_pc] = length;
-		program->current_pc++;
-	}
+	if (opcode & SQOUT_EXT)
+		__rta_out32(program, length);
 
 	return start_pc;
 

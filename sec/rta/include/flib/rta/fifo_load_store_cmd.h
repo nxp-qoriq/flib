@@ -44,7 +44,7 @@ static inline unsigned rta_fifo_load(struct program *program, uint32_t src,
 {
 	uint32_t opcode = 0;
 	uint32_t ext_length = 0, val = 0;
-	int ret, is_seq_cmd = 0, i;
+	int ret, is_seq_cmd = 0;
 	unsigned start_pc = program->current_pc;
 
 	/* write command type field */
@@ -130,43 +130,18 @@ static inline unsigned rta_fifo_load(struct program *program, uint32_t src,
 	}
 	opcode |= (uint16_t) length;
 
-	program->buffer[program->current_pc] = opcode;
-	program->current_pc++;
+	__rta_out32(program, opcode);
 	program->current_instruction++;
 
 	/* write pointer or immediate data field */
-	if (flags & IMMED) {
-		if (type_loc == IMM_DATA) {
-			if (length > BYTES_4) {
-				program->buffer[program->current_pc] =
-					high_32b(loc);
-				program->current_pc++;
-			}
-
-			program->buffer[program->current_pc] = low_32b(loc);
-			program->current_pc++;
-		} else {
-			uint8_t *tmp = (uint8_t *)&program->buffer[program->current_pc];
-
-			for (i = 0; i < length; i++)
-				*tmp++ = ((uint8_t *)(uintptr_t)loc)[i];
-			program->current_pc += ((length + 3) / 4);
-		}
-	} else if (!is_seq_cmd) {
-		if (program->ps == 1) {
-			program->buffer[program->current_pc] = high_32b(loc);
-			program->current_pc++;
-		}
-
-		program->buffer[program->current_pc] = low_32b(loc);
-		program->current_pc++;
-	}
+	if (flags & IMMED)
+		__rta_inline_data(program, loc, type_loc, length);
+	else if (!is_seq_cmd)
+		__rta_out64(program, program->ps, loc);
 
 	/* write extended length field */
-	if (opcode & FIFOLDST_EXT) {
-		program->buffer[program->current_pc] = ext_length;
-		program->current_pc++;
-	}
+	if (opcode & FIFOLDST_EXT)
+		__rta_out32(program, ext_length);
 
 	return start_pc;
 
@@ -289,26 +264,16 @@ static inline unsigned rta_fifo_store(struct program *program, uint32_t src,
 	else
 		opcode |= (uint16_t) length;
 
-	program->buffer[program->current_pc] = opcode;
-	program->current_pc++;
+	__rta_out32(program, opcode);
 	program->current_instruction++;
 
 	/* write pointer field */
-	if ((!is_seq_cmd) && (dst)) {
-		if (program->ps == 1) {
-			program->buffer[program->current_pc] = high_32b(dst);
-			program->current_pc++;
-		}
-
-		program->buffer[program->current_pc] = low_32b(dst);
-		program->current_pc++;
-	}
+	if ((!is_seq_cmd) && (dst))
+		__rta_out64(program, program->ps, dst);
 
 	/* write extended length field */
-	if (opcode & FIFOLDST_EXT) {
-		program->buffer[program->current_pc] = length;
-		program->current_pc++;
-	}
+	if (opcode & FIFOLDST_EXT)
+		__rta_out32(program, length);
 
 	return start_pc;
 

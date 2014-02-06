@@ -132,16 +132,12 @@ static inline unsigned rta_nfifo_load(struct program *program, uint32_t src,
 				nfifo_pad_flags_sz[rta_sec_era], &opcode);
 
 	/* write LOAD command first */
-	program->buffer[program->current_pc] = load_cmd;
-	program->current_pc++;
-	program->buffer[program->current_pc] = opcode;
-	program->current_pc++;
+	__rta_out32(program, load_cmd);
+	__rta_out32(program, opcode);
 
-	if (flags & EXT) {
-		program->buffer[program->current_pc] =
-		    length & NFIFOENTRY_DLEN_MASK;
-		program->current_pc++;
-	}
+	if (flags & EXT)
+		__rta_out32(program, length & NFIFOENTRY_DLEN_MASK);
+
 	program->current_instruction++;
 
 	return start_pc;

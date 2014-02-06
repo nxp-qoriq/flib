@@ -283,8 +283,7 @@ static inline unsigned rta_operation(struct program *program,
 		goto err;
 	}
 
-	program->buffer[program->current_pc] = opcode;
-	program->current_pc++;
+	__rta_out32(program, opcode);
 	program->current_instruction++;
 	return start_pc;
 
@@ -516,8 +515,7 @@ static inline unsigned rta_pkha_operation(struct program *program,
 
 	opcode |= op_pkha;
 
-	program->buffer[program->current_pc] = opcode;
-	program->current_pc++;
+	__rta_out32(program, opcode);
 	program->current_instruction++;
 	return start_pc;
 

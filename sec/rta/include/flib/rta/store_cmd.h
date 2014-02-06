@@ -55,7 +55,7 @@ static inline unsigned rta_store(struct program *program, uint64_t src,
 				 int type_dst, uint32_t length, uint32_t flags)
 {
 	uint32_t opcode = 0, val;
-	int ret, i;
+	int ret;
 	unsigned start_pc = program->current_pc;
 
 	if (flags & SEQ)
@@ -120,8 +120,7 @@ static inline unsigned rta_store(struct program *program, uint64_t src,
 		opcode |= (offset << LDST_OFFSET_SHIFT);
 	}
 
-	program->buffer[program->current_pc] = opcode;
-	program->current_pc++;
+	__rta_out32(program, opcode);
 	program->current_instruction++;
 
 	if ((src == _JOBDESCBUF) || (src == _SHAREDESCBUF) ||
@@ -129,35 +128,12 @@ static inline unsigned rta_store(struct program *program, uint64_t src,
 		return start_pc;
 
 	/* for STORE, a pointer to where the data will be stored is needed */
-	if (!(flags & SEQ)) {
-		if (program->ps == 1) {
-			program->buffer[program->current_pc] = high_32b(dst);
-			program->current_pc++;
-		}
-
-		program->buffer[program->current_pc] = low_32b(dst);
-		program->current_pc++;
-	}
+	if (!(flags & SEQ))
+		__rta_out64(program, program->ps, dst);
 
 	/* for imm data, place the data here */
-	if (flags & IMMED) {
-		if (type_src == IMM_DATA) {
-			if (length > BYTES_4) {
-				program->buffer[program->current_pc] =
-					high_32b(src);
-				program->current_pc++;
-			}
-
-			program->buffer[program->current_pc] = low_32b(src);
-			program->current_pc++;
-		} else {
-			uint8_t *tmp = (uint8_t *)&program->buffer[program->current_pc];
-
-			for (i = 0; i < length; i++)
-				*tmp++ = ((uint8_t *)(uintptr_t)src)[i];
-			program->current_pc += ((length + 3) / 4);
-		}
-	}
+	if (flags & IMMED)
+		__rta_inline_data(program, src, type_src, length);
 
 	return start_pc;
 
