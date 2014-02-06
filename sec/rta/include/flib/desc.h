@@ -71,6 +71,11 @@
  */
 
 /*
+ * Extended Job Descriptor Header
+ */
+#define HDR_EXT			0x01000000
+
+/*
  * Read input frame as soon as possible (SHR HDR)
  */
 #define HDR_RIF			0x02000000
@@ -126,6 +131,9 @@
 
 /* Propagate DNR property to SharedDesc */
 #define HDR_PROP_DNR		0x00000800
+
+/* DECO Select Valid */
+#define HDR_EXT_DSEL_VALID	0x00000080
 
 /* JobDesc/SharedDesc share property */
 #define HDR_SD_SHARE_MASK	0x03

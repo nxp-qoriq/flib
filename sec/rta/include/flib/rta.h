@@ -265,7 +265,33 @@ static inline unsigned rta_get_sec_era(void)
  *                     output.
  */
 #define JOB_HDR(share, start_idx, share_desc, flags) \
-	rta_job_header(program, share, start_idx, share_desc, flags)
+	rta_job_header(program, share, start_idx, share_desc, flags, 0)
+
+/**
+ * @def                JOB_HDR_EXT
+ * @details            Configures JOB Descriptor @b HEADER command.
+ *
+ * @param[in] share    Descriptor share state:@n @li <em>SHR_ALWAYS,
+ *                     SHR_SERIAL, SHR_NEVER, SHR_WAIT, SHR_DEFER</em>.
+ * @param[in] start_idx Index in descriptor buffer where the execution of the
+ *                     Job Descriptor should start (@c unsigned).
+ *                     In case SHR bit is present in flags, this will be the
+ *                     shared descriptor length.
+ * @param[in] share_desc Pointer to shared descriptor, in case @em SHR bit is
+ *                     set (@c uint64_t).
+ * @param[in] flags    Operational flags:@n @li <em>RSMS, DNR, TD, MTD, REO,
+ *                     SHR</em>.
+ * @param[in] ext_flags Extended header flags: @n @li <em>DSV (DECO Select
+ *                     Valid), DECO Id (limited by DSEL_MASK)</em>.
+ * @return             @li On success, descriptor buffer offset where this
+ *                     command is inserted (@c unsigned).
+ *                     @li First error program counter will be incremented on
+ *                     error; in debug mode, a log message will be shown at
+ *                     output.
+ */
+#define JOB_HDR_EXT(share, start_idx, share_desc, flags, ext_flags) \
+	rta_job_header(program, share, start_idx, share_desc, flags | EXT, \
+		       ext_flags)
 
 /**
  * @def                MOVE

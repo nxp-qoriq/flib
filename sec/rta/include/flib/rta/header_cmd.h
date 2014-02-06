@@ -84,9 +84,10 @@ static inline unsigned rta_shr_header(struct program *program, uint32_t share,
 
 static inline unsigned rta_job_header(struct program *program, uint32_t share,
 				      unsigned start_idx, uint64_t shr_desc,
-				      uint32_t flags)
+				      uint32_t flags, uint32_t ext_flags)
 {
 	uint32_t opcode = CMD_DESC_HDR;
+	uint32_t hdr_ext = 0;
 	unsigned start_pc = program->current_pc;
 
 	if (flags & ~job_header_flags[rta_sec_era]) {
@@ -123,9 +124,23 @@ static inline unsigned rta_job_header(struct program *program, uint32_t share,
 		goto err;
 	}
 
+	if ((flags & EXT) && !(flags & SHR) && (start_idx < 2)) {
+		pr_debug("JOB_DESC: Start index must be >= 2 in case of no SHR and EXT. SEC Program Line: %d\n",
+			 program->current_pc);
+		goto err;
+	}
+
 	opcode |= HDR_ONE;
 	opcode |= ((start_idx << HDR_START_IDX_SHIFT) & HDR_START_IDX_MASK);
 
+	if (flags & EXT) {
+		opcode |= HDR_EXT;
+
+		if (ext_flags & DSV) {
+			hdr_ext = HDR_EXT_DSEL_VALID;
+			hdr_ext |= ext_flags & DSEL_MASK;
+		}
+	}
 	if (flags & RSMS)
 		opcode |= HDR_RSLS;
 	if (flags & DNR)
@@ -148,6 +163,9 @@ static inline unsigned rta_job_header(struct program *program, uint32_t share,
 		if (opcode & HDR_SHARED)
 			__rta_out64(program, program->ps, shr_desc);
 	}
+
+	if (flags & EXT)
+		__rta_out32(program, hdr_ext);
 
 	/* Note: descriptor length is set in program_finalize routine */
 	return start_pc;
