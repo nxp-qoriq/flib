@@ -269,7 +269,7 @@ static inline unsigned rta_load(struct program *program, uint64_t src,
 
 	/* DECO COTROL: skip writing pointer of imm data */
 	if (dst == _DCTRL)
-		return program->current_pc;
+		return start_pc;
 
 	/* For data copy, 3 possible ways to specify how to copy data:
 	 *  - src_type is IMM: copy data directly from src( max 8 bytes)
@@ -294,7 +294,7 @@ static inline unsigned rta_load(struct program *program, uint64_t src,
 			*tmp++ = ((uint8_t *)(uintptr_t)src)[i];
 		program->current_pc += ((length + 3) / 4);
 
-		return program->current_pc;
+		return start_pc;
 	}
 
 	if ((src_type == PTR_DATA) && (!(flags & SEQ))) {
