@@ -457,9 +457,9 @@ static inline unsigned rta_get_sec_era(void)
  * @param[in] dst      Starting address for Output Sequence (@c uint64_t).
  * @param[in] length   Number of bytes in (or to be added to) Output Sequence
  *                     (@c uint32_t).
- * @param[in] flags    Operational flags:@n @li <em>SGF, PRE, EXT, RTO</em>.
- *                     (when @e PRE or @e RTO are set, @e dst parameter must
- *                     be 0).
+ * @param[in] flags    Operational flags:@n @li <em>SGF, PRE, EXT, RTO, RST, EWS
+ *                     </em> (when @e PRE or @e RTO are set, @e dst parameter
+ *                     must be 0).
  * @return             @li On success, descriptor buffer offset where this
  *                     command is inserted (@c unsigned).
  *                     @li First error program counter will be incremented on

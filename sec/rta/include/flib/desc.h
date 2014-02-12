@@ -2104,6 +2104,16 @@
 /* Restore sequence with pointer/length */
 #define SQOUT_RTO	0x00200000
 
+/*
+ * Ignore length field, add current output frame length back to SOL register.
+ * Reset tracking length of bytes written to output frame.
+ * Must be used together with SQOUT_RTO.
+ */
+#define SQOUT_RST	0x00100000
+
+/* Allow "write safe" transactions for this Output Sequence */
+#define SQOUT_EWS	0x00080000
+
 /* Use extended length following pointer */
 #define SQOUT_EXT	0x00400000
 

@@ -14,6 +14,15 @@ static const uint32_t seq_in_ptr_flags[] = {
 	RBS | INL | SGF | PRE | EXT | RTO | RJD | SOP
 };
 
+/* Allowed SEQ OUT PTR flags for each SEC Era. */
+static const uint32_t seq_out_ptr_flags[] = {
+	SGF | PRE | EXT,
+	SGF | PRE | EXT | RTO,
+	SGF | PRE | EXT | RTO,
+	SGF | PRE | EXT | RTO,
+	SGF | PRE | EXT | RTO | RST | EWS
+};
+
 static inline unsigned rta_seq_in_ptr(struct program *program, uint64_t src,
 				      uint32_t length, uint32_t flags)
 {
@@ -95,8 +104,9 @@ static inline unsigned rta_seq_out_ptr(struct program *program, uint64_t dst,
 	unsigned start_pc = program->current_pc;
 
 	/* Parameters checking */
-	if ((rta_sec_era == RTA_SEC_ERA_1) && (flags & RTO)) {
-		pr_debug("SEQ IN PTR: Restoring output sequences (RTO) not supported\n");
+	if (flags & ~seq_out_ptr_flags[rta_sec_era]) {
+		pr_debug("SEQ OUT PTR: Flag(s) not supported by SEC Era %d\n",
+			 USER_SEC_ERA(rta_sec_era));
 		goto err;
 	}
 	if ((flags & RTO) && (flags & PRE)) {
@@ -107,6 +117,10 @@ static inline unsigned rta_seq_out_ptr(struct program *program, uint64_t dst,
 		pr_debug("SEQ OUT PTR: Invalid usage of RTO or PRE flag\n");
 		goto err;
 	}
+	if ((flags & RST) && !(flags & RTO)) {
+		pr_debug("SEQ OUT PTR: RST flag must be used with RTO flag\n");
+		goto err;
+	}
 
 	/* write flag fields */
 	if (flags & SGF)
@@ -115,6 +129,10 @@ static inline unsigned rta_seq_out_ptr(struct program *program, uint64_t dst,
 		opcode |= SQOUT_PRE;
 	if (flags & RTO)
 		opcode |= SQOUT_RTO;
+	if (flags & RST)
+		opcode |= SQOUT_RST;
+	if (flags & EWS)
+		opcode |= SQOUT_EWS;
 	if ((length >> 16) || (flags & EXT))
 		opcode |= SQOUT_EXT;
 	else

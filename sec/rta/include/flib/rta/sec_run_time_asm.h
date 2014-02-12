@@ -420,6 +420,8 @@ enum rta_sec_era {
 #define RTO             0x00080000
 #define RJD             0x00100000
 #define SOP		0x00200000
+#define RST		0x00400000
+#define EWS		0x00800000
 
 #define ENC             0x00004000	/* Encrypted Key */
 #define EKT             0x00008000	/* AES CCM Encryption */
