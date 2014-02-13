@@ -8,10 +8,10 @@ extern enum rta_sec_era rta_sec_era;
 /* Allowed length and offset masks for each SEC Era in case DST = _DCTRL */
 static const uint32_t load_len_mask_allowed[] = {
 	0x000000ee,
-	0x000000ef,
-	0x000000ef,
-	0x000000ef,
-	0x000000ef
+	0x000000fe,
+	0x000000fe,
+	0x000000fe,
+	0x000000fe
 };
 
 static const uint32_t load_off_mask_allowed[] = {
