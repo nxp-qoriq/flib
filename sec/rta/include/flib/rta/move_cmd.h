@@ -3,10 +3,14 @@
 #ifndef __RTA_MOVE_CMD_H__
 #define __RTA_MOVE_CMD_H__
 
-#define MOVE_SET_AUX_SRC  1
-#define MOVE_SET_AUX_DST  2
-#define MOVE_SET_AUX_LS   3
-#define MOVE_SET_LEN_16b  4
+#define MOVE_SET_AUX_SRC	0x01
+#define MOVE_SET_AUX_DST	0x02
+#define MOVE_SET_AUX_LS		0x03
+#define MOVE_SET_LEN_16b	0x04
+
+#define MOVE_SET_AUX_MATH	0x10
+#define MOVE_SET_AUX_MATH_SRC	(MOVE_SET_AUX_SRC & MOVE_SET_AUX_MATH)
+#define MOVE_SET_AUX_MATH_DST	(MOVE_SET_AUX_DST & MOVE_SET_AUX_MATH)
 
 #define MASK_16b  0xFF
 
@@ -64,6 +68,7 @@ static inline int set_move_offset(struct program *program, uint64_t src,
 				  uint16_t dst_offset, uint16_t *offset,
 				  uint16_t *opt);
 
+static inline int math_offset(uint16_t offset);
 
 static inline unsigned rta_move(struct program *program, uint64_t src,
 				int type_src, uint16_t src_offset, uint64_t dst,
@@ -118,6 +123,10 @@ static inline unsigned rta_move(struct program *program, uint64_t src,
 		opcode |= ((dst_offset / 16) << MOVE_AUX_SHIFT) & MOVE_AUX_MASK;
 	else if (opt == MOVE_SET_AUX_LS)
 		opcode |= MOVE_AUX_LS;
+	else if (opt & MOVE_SET_AUX_MATH_SRC)
+		opcode |= math_offset(src_offset);
+	else if (opt & MOVE_SET_AUX_MATH_DST)
+		opcode |= math_offset(dst_offset);
 
 	/* write source field */
 	ret = __rta_map_opcode((uint32_t)src, move_src_table,
@@ -207,13 +216,17 @@ static inline int set_move_offset(struct program *program, uint64_t src,
 				*offset = src_offset;
 			}
 		} else {
-			if (((dst == _OFIFO) || (dst == _ALTSOURCE)) &&
+			if ((dst == _MATH0) || (dst == _MATH1) ||
+			    (dst == _MATH2) || (dst == _MATH3)) {
+				*opt = MOVE_SET_AUX_MATH_DST;
+			} else if (((dst == _OFIFO) || (dst == _ALTSOURCE)) &&
 			    (src_offset % 4)) {
 				pr_debug("MOVE: Bad offset alignment. SEC PC: %d; Instr: %d\n",
 					 program->current_pc,
 					 program->current_instruction);
 				goto err;
 			}
+
 			*offset = src_offset;
 		}
 		break;
@@ -239,21 +252,22 @@ static inline int set_move_offset(struct program *program, uint64_t src,
 	case (_DESCBUF):
 		if ((dst == _CONTEXT1) || (dst == _CONTEXT2)) {
 			*opt = MOVE_SET_AUX_DST;
-			*offset = src_offset;
-		}
-		if (dst == _DESCBUF) {
+		} else if ((dst == _MATH0) || (dst == _MATH1) ||
+			   (dst == _MATH2) || (dst == _MATH3)) {
+			*opt = MOVE_SET_AUX_MATH_DST;
+		} else if (dst == _DESCBUF) {
 			pr_debug("MOVE: Invalid DST. SEC PC: %d; Instr: %d\n",
 				 program->current_pc,
 				 program->current_instruction);
 			goto err;
-		}
-		if (((dst == _OFIFO) || (dst == _ALTSOURCE)) &&
+		} else if (((dst == _OFIFO) || (dst == _ALTSOURCE)) &&
 		    (src_offset % 4)) {
 			pr_debug("MOVE: Invalid offset alignment. SEC PC: %d; Instr %d\n",
 				 program->current_pc,
 				 program->current_instruction);
 			goto err;
 		}
+
 		*offset = src_offset;
 		break;
 
@@ -269,12 +283,18 @@ static inline int set_move_offset(struct program *program, uint64_t src,
 				goto err;
 			}
 			*offset = src_offset;
+		} else if ((dst == _IFIFOAB1) || (dst == _IFIFOAB2) ||
+			   (dst == _IFIFO) || (dst == _PKA)) {
+			*offset = src_offset;
 		} else {
-			if ((dst == _IFIFOAB1) || (dst == _IFIFOAB2) ||
-			    (dst == _IFIFO) || (dst == _PKA))
-				*offset = src_offset;
-			else
-				*offset = dst_offset;
+			*offset = dst_offset;
+
+			/*
+			 * This condition is basically the negation of:
+			 * dst in { _CONTEXT[1-2], _MATH[0-3] }
+			 */
+			if ((dst != _KEY1) && (dst != _KEY2))
+				*opt = MOVE_SET_AUX_MATH_SRC;
 		}
 		break;
 
@@ -311,6 +331,21 @@ static inline int set_move_offset(struct program *program, uint64_t src,
 	return 0;
  err:
 	return -1;
+}
+
+static inline int math_offset(uint16_t offset)
+{
+	if (offset == 0)
+		return 0;
+
+	if (offset == 4)
+		return MOVE_AUX_LS;
+
+	if (offset == 6)
+		return MOVE_AUX_MS;
+
+	if (offset == 7)
+		return MOVE_AUX_LS | MOVE_AUX_MS;
 }
 
 #endif /* __RTA_MOVE_CMD_H__ */
