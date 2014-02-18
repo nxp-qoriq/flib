@@ -420,8 +420,10 @@ static inline unsigned rta_get_sec_era(void)
  *                     NWB</em>.
  * @param[in] src      Pointer or actual data in case of immediate load
  *                     (@c uint64_t).
- * @param[in] length   Number of bytes to load (@c uint32_t).
- * @param[in] flags    Operational flags:@n @li <em>SGF, IMMED, SEQ</em>.
+ * @param[in] length   Number of bytes to load; can be set to 0 for SEQ command
+ *                     w/ @e VLF set (@c uint32_t).
+ * @param[in] flags    Operational flags:@n @li for KEY: <em>SGF, IMMED</em>.
+ *                     @li for SEQKEY: <em>SEQ, VLF, AIDF</em>.
  * @return             @li On success, descriptor buffer offset where this
  *                     command is inserted (@c unsigned).
  *                     @li First error program counter will be incremented on

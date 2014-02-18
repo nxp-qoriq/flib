@@ -406,6 +406,7 @@ enum rta_sec_era {
 #define EXT             0x00000040
 #define CONT            0x00000080
 #define SEQ             0x00000100
+#define AIDF		0x00000200
 #define FLUSH2          0x00000400
 
 #define CLASS1          0x00000800

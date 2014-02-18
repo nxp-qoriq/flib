@@ -169,6 +169,12 @@
 #define KEY_IMM			0x00800000
 
 /*
+ * Already in Input Data FIFO - the Input Data Sequence is not read, since it is
+ * already in the Input Data FIFO.
+ */
+#define KEY_AIDF		0x00800000
+
+/*
  * Encrypted - Key is encrypted either with the KEK, or
  * with the TDKEK if this descriptor is trusted
  */

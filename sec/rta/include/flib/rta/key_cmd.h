@@ -40,16 +40,34 @@ static inline unsigned rta_key(struct program *program, uint32_t key_dst,
 		flags |= IMMED;
 
 	/* check parameters */
-	if ((flags & IMMED) && (is_seq_cmd)) {
-		pr_debug("KEY: Invalid flag. SEC PC: %d; Instr: %d\n",
-			 program->current_pc, program->current_instruction);
-		goto err;
+	if (is_seq_cmd) {
+		if ((flags & IMMED) || (flags & SGF)) {
+			pr_debug("SEQKEY: Invalid flag. SEC PC: %d; Instr: %d\n",
+				 program->current_pc,
+				 program->current_instruction);
+			goto err;
+		}
+		if ((rta_sec_era <= RTA_SEC_ERA_5) &&
+		    ((flags & VLF) || (flags & AIDF))) {
+			pr_debug("SEQKEY: Flag(s) not supported by SEC Era %d\n",
+				 USER_SEC_ERA(rta_sec_era));
+			goto err;
+		}
+	} else {
+		if ((flags & AIDF) || (flags & VLF)) {
+			pr_debug("KEY: Invalid flag. SEC PC: %d; Instr: %d\n",
+				 program->current_pc,
+				 program->current_instruction);
+			goto err;
+		}
+		if ((flags & SGF) && (flags & IMMED)) {
+			pr_debug("KEY: Invalid flag. SEC PC: %d; Instr: %d\n",
+				 program->current_pc,
+				 program->current_instruction);
+			goto err;
+		}
 	}
-	if ((flags & SGF) && ((flags & IMMED) || (is_seq_cmd))) {
-		pr_debug("KEY: Invalid flag. SEC PC: %d; Instr: %d\n",
-			 program->current_pc, program->current_instruction);
-		goto err;
-	}
+
 	if ((key_dst == _AFHA_SBOX) && (flags & IMMED)) {
 		pr_debug("KEY: Invalid flag. SEC PC: %d; Instr: %d\n",
 			 program->current_pc, program->current_instruction);
@@ -110,10 +128,17 @@ static inline unsigned rta_key(struct program *program, uint32_t key_dst,
 		opcode |= KEY_NWB;
 
 	/* write general command flags */
-	if (flags & IMMED)
-		opcode |= KEY_IMM;
-	if (flags & SGF)
-		opcode |= KEY_SGF;
+	if (!is_seq_cmd) {
+		if (flags & IMMED)
+			opcode |= KEY_IMM;
+		if (flags & SGF)
+			opcode |= KEY_SGF;
+	} else {
+		if (flags & AIDF)
+			opcode |= KEY_AIDF;
+		if (flags & VLF)
+			opcode |= KEY_VLF;
+	}
 
 	__rta_out32(program, opcode);
 	program->current_instruction++;
