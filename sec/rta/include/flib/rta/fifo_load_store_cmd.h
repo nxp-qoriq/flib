@@ -60,8 +60,13 @@ static inline unsigned rta_fifo_load(struct program *program, uint32_t src,
 
 	/* Parameters checking */
 	if (is_seq_cmd) {
-		if (flags & IMMED) {
+		if ((flags & IMMED) || (flags & SGF)) {
 			pr_debug("SEQ FIFO LOAD: Invalid command\n");
+			goto err;
+		}
+		if ((rta_sec_era <= RTA_SEC_ERA_5) && (flags & AIDF)) {
+			pr_debug("SEQ FIFO LOAD: Flag(s) not supported by SEC Era %d\n",
+				 USER_SEC_ERA(rta_sec_era));
 			goto err;
 		}
 		if ((flags & VLF) && ((flags & EXT) || (length >> 16))) {
@@ -71,6 +76,10 @@ static inline unsigned rta_fifo_load(struct program *program, uint32_t src,
 	} else {
 		if (src == _SKIP) {
 			pr_debug("FIFO LOAD: Invalid src\n");
+			goto err;
+		}
+		if ((flags & AIDF) || (flags & VLF)) {
+			pr_debug("FIFO LOAD: Invalid command\n");
 			goto err;
 		}
 		if ((flags & IMMED) && (flags & SGF)) {
@@ -107,12 +116,17 @@ static inline unsigned rta_fifo_load(struct program *program, uint32_t src,
 		opcode |= FIFOLD_TYPE_LAST1;
 	if (flags & LAST2)
 		opcode |= FIFOLD_TYPE_LAST2;
-	if (flags & SGF)
-		opcode |= FIFOLDST_SGF;
-	if (flags & VLF)
-		opcode |= FIFOLDST_VLF;
-	if (flags & IMMED)
-		opcode |= FIFOLD_IMM;
+	if (!is_seq_cmd) {
+		if (flags & SGF)
+			opcode |= FIFOLDST_SGF;
+		if (flags & IMMED)
+			opcode |= FIFOLD_IMM;
+	} else {
+		if (flags & VLF)
+			opcode |= FIFOLDST_VLF;
+		if (flags & AIDF)
+			opcode |= FIFOLD_AIDF;
+	}
 
 	/*
 	 * Verify if extended length is required. In case of BITDATA, calculate

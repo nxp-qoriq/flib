@@ -437,10 +437,15 @@
 #define FIFOLDST_SGF		(1 << FIFOLDST_SGF_SHIFT)
 #define FIFOLDST_VLF		(1 << FIFOLDST_SGF_SHIFT)
 
-/* Immediate - Data follows command in descriptor */
+/*
+ * Immediate - Data follows command in descriptor
+ * AIDF - Already in Input Data FIFO
+ */
 #define FIFOLD_IMM_SHIFT	23
 #define FIFOLD_IMM_MASK		(1 << FIFOLD_IMM_SHIFT)
+#define FIFOLD_AIDF_MASK	(1 << FIFOLD_IMM_SHIFT)
 #define FIFOLD_IMM		(1 << FIFOLD_IMM_SHIFT)
+#define FIFOLD_AIDF		(1 << FIFOLD_IMM_SHIFT)
 
 #define FIFOST_IMM_SHIFT	23
 #define FIFOST_IMM_MASK		(1 << FIFOST_IMM_SHIFT)

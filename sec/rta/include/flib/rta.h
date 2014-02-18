@@ -354,7 +354,7 @@ static inline unsigned rta_get_sec_era(void)
  * @param[in] length   Number of bytes to load; can be set to 0 for SEQ command
  *                     w/ @e VLF set (@c uint32_t).
  * @param[in] flags    Operational flags:@n @li <em>VLF, CLASS1, CLASS2, BOTH,
- *                     FLUSH1, LAST1, LAST2</em>.
+ *                     FLUSH1, LAST1, LAST2, AIDF</em>.
  * @return             @li On success, descriptor buffer offset where this
  *                     command is inserted (@c unsigned).
  *                     @li First error program counter will be incremented on
