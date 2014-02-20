@@ -135,6 +135,9 @@
 /* DECO Select Valid */
 #define HDR_EXT_DSEL_VALID	0x00000080
 
+/* Fake trusted descriptor */
+#define HDR_EXT_FTD		0x00000100
+
 /* JobDesc/SharedDesc share property */
 #define HDR_SD_SHARE_MASK	0x03
 #define HDR_SD_SHARE_SHIFT	8

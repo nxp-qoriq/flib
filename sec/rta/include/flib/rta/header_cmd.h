@@ -143,8 +143,18 @@ static inline unsigned rta_job_header(struct program *program, uint32_t share,
 		opcode |= HDR_EXT;
 
 		if (ext_flags & DSV) {
-			hdr_ext = HDR_EXT_DSEL_VALID;
+			hdr_ext |= HDR_EXT_DSEL_VALID;
 			hdr_ext |= ext_flags & DSEL_MASK;
+		}
+
+		if (ext_flags & FTD) {
+			if (rta_sec_era <= RTA_SEC_ERA_5) {
+				pr_debug("JOB_DESC: Fake trusted descriptor not supported by SEC Era %d\n",
+					 USER_SEC_ERA(rta_sec_era));
+				goto err;
+			}
+
+			hdr_ext |= HDR_EXT_FTD;
 		}
 	}
 	if (flags & RSMS)

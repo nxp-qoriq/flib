@@ -445,7 +445,8 @@ enum rta_sec_era {
 #define SC		0x02000000
 /* Extended HEADER specific flags */
 #define DSV		0x00000080
-#define DSEL_MASK	0x00000003	/* DECO Select */
+#define DSEL_MASK	0x00000007	/* DECO Select */
+#define FTD		0x00000100
 
 /* JUMP Command specific flags */
 #define NIFP            0x00100000
