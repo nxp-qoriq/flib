@@ -78,12 +78,14 @@ enum rta_sec_era {
 #define NFU         MATH_NFU
 #define STL         MATH_STL
 
-#define LOCAL_JUMP  (0x00 | JUMP_TYPE)
-#define FAR_JUMP    (0x01 | JUMP_TYPE)
-#define HALT        (0x02 | JUMP_TYPE)
-#define HALT_STATUS (0x03 | JUMP_TYPE)
-#define GOSUB       (0x04 | JUMP_TYPE)
-#define RETURN      (0x05 | JUMP_TYPE)
+#define LOCAL_JUMP	(0x00 | JUMP_TYPE)
+#define FAR_JUMP	(0x01 | JUMP_TYPE)
+#define HALT		(0x02 | JUMP_TYPE)
+#define HALT_STATUS	(0x03 | JUMP_TYPE)
+#define GOSUB		(0x04 | JUMP_TYPE)
+#define RETURN		(0x05 | JUMP_TYPE)
+#define LOCAL_JUMP_INC	(0x06 | JUMP_TYPE)
+#define LOCAL_JUMP_DEC	(0x07 | JUMP_TYPE)
 
 #define SHR_NEVER   (0x00 | SHARE_TYPE)
 #define SHR_WAIT    (0x01 | SHARE_TYPE)

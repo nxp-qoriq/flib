@@ -554,7 +554,49 @@ static inline unsigned rta_get_sec_era(void)
  *                     output.
  */
 #define JUMP(addr, jump_type, test_type, cond) \
-	rta_jump(program, addr, jump_type, test_type, cond)
+	rta_jump(program, addr, jump_type, test_type, cond, _NONE, 0)
+
+/**
+ * @def                JUMP_INC
+ * @details            Configures @b JUMP_INC command.
+ *
+ * @param[in] addr     Local offset; @b IMM or @b PTR macros must be used to
+ *                     indicate type.
+ * @param[in] test_type Defines how jump conditions are evaluated:@n @li
+ *                     <em>ALL_TRUE, ALL_FALSE, ANY_TRUE, ANY_FALSE</em>.
+ * @param[in] cond     Jump conditions:@n @li Math status conditions
+ *                     (@e JSL = 0): <em>Z, N, NV, C</em>.
+ * @param[in] src_dst  Register to increment / decrement:@n @li <em>MATH0-MATH3,
+ *                     DPOVRD, SEQINSZ, SEQOUTSZ, VSEQINSZ, VSEQOUTSZ</em>.
+ * @return             @li On success, descriptor buffer offset where this
+ *                     command is inserted (@c unsigned).
+ *                     @li First error program counter will be incremented on
+ *                     error; in debug mode, a log message will be shown at
+ *                     output.
+ */
+#define JUMP_INC(addr, test_type, cond, src_dst) \
+	rta_jump(program, addr, LOCAL_JUMP_INC, test_type, cond, src_dst)
+
+/**
+ * @def                JUMP_DEC
+ * @details            Configures @b JUMP_DEC command.
+ *
+ * @param[in] addr     Local offset; @b IMM or @b PTR macros must be used to
+ *                     indicate type.
+ * @param[in] test_type Defines how jump conditions are evaluated:@n @li
+ *                     <em>ALL_TRUE, ALL_FALSE, ANY_TRUE, ANY_FALSE</em>.
+ * @param[in] cond     Jump conditions:@n @li Math status conditions
+ *                     (@e JSL = 0): <em>Z, N, NV, C</em>.
+ * @param[in] src_dst  Register to increment / decrement:@n @li <em>MATH0-MATH3,
+ *                     DPOVRD, SEQINSZ, SEQOUTSZ, VSEQINSZ, VSEQOUTSZ</em>.
+ * @return             @li On success, descriptor buffer offset where this
+ *                     command is inserted (@c unsigned).
+ *                     @li First error program counter will be incremented on
+ *                     error; in debug mode, a log message will be shown at
+ *                     output.
+ */
+#define JUMP_DEC(addr, test_type, cond, src_dst) \
+	rta_jump(program, addr, LOCAL_JUMP_DEC, test_type, cond, src_dst)
 
 /**
  * @def                LOAD
