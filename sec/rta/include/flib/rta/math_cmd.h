@@ -24,7 +24,7 @@ static const uint32_t math_op1[][2] = {
  * Allowed MATH op1 sources for each SEC Era.
  * Values represent the number of entries from math_op1[] that are supported.
  */
-static const unsigned math_op1_sz[] = {10, 10, 12, 12, 12};
+static const unsigned math_op1_sz[] = {10, 10, 12, 12, 12, 12};
 
 static const uint32_t math_op2[][2] = {
 /*1*/	{ _MATH0,     MATH_SRC1_REG0 },
@@ -46,7 +46,7 @@ static const uint32_t math_op2[][2] = {
  * Allowed MATH op2 sources for each SEC Era.
  * Values represent the number of entries from math_op2[] that are supported.
  */
-static const unsigned math_op2_sz[] = {8, 9, 13, 13, 13};
+static const unsigned math_op2_sz[] = {8, 9, 13, 13, 13, 13};
 
 static const uint32_t math_result[][2] = {
 /*1*/	{ _MATH0,     MATH_DEST_REG0 },
@@ -66,7 +66,7 @@ static const uint32_t math_result[][2] = {
  * Values represent the number of entries from math_result[] that are
  * supported.
  */
-static const unsigned math_result_sz[] = {9, 9, 10, 10, 10};
+static const unsigned math_result_sz[] = {9, 9, 10, 10, 10, 10};
 
 static inline unsigned rta_math(struct program *program, uint64_t operand1,
 				int type_op1, uint32_t op, uint64_t operand2,

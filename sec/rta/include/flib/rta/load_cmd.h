@@ -11,11 +11,13 @@ static const uint32_t load_len_mask_allowed[] = {
 	0x000000fe,
 	0x000000fe,
 	0x000000fe,
+	0x000000fe,
 	0x000000fe
 };
 
 static const uint32_t load_off_mask_allowed[] = {
 	0x0000000f,
+	0x000000ff,
 	0x000000ff,
 	0x000000ff,
 	0x000000ff,
@@ -126,7 +128,7 @@ static const struct load_map load_dst[] = {
  * Allowed LOAD destinations for each SEC Era.
  * Values represent the number of entries from load_dst[] that are supported.
  */
-static const unsigned load_dst_sz[] = { 31, 34, 34, 40, 40 };
+static const unsigned load_dst_sz[] = { 31, 34, 34, 40, 40, 40 };
 
 static inline int load_check_len_offset(int pos, uint32_t length,
 					uint32_t offset)

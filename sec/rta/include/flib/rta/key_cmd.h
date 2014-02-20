@@ -12,6 +12,7 @@ static const uint32_t key_enc_flags[] = {
 	ENC | NWB | EKT | TK,
 	ENC | NWB | EKT | TK,
 	ENC | NWB | EKT | TK,
+	ENC | NWB | EKT | TK
 };
 
 static inline unsigned rta_key(struct program *program, uint32_t key_dst,

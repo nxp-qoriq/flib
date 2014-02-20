@@ -209,7 +209,7 @@ static const struct alg_aai_map alg_table[] = {
  * Allowed OPERATION algorithms for each SEC Era.
  * Values represent the number of entries from alg_table[] that are supported.
  */
-static const unsigned alg_table_sz[] = {14, 15, 15, 15, 17};
+static const unsigned alg_table_sz[] = {14, 15, 15, 15, 17, 17};
 
 static inline unsigned rta_operation(struct program *program,
 				     uint32_t cipher_algo, uint16_t aai,

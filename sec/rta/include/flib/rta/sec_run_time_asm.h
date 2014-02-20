@@ -24,7 +24,8 @@ enum rta_sec_era {
 	RTA_SEC_ERA_3,
 	RTA_SEC_ERA_4,
 	RTA_SEC_ERA_5,
-	MAX_SEC_ERA = RTA_SEC_ERA_5 /**< Maximum SEC HW block revision
+	RTA_SEC_ERA_6,
+	MAX_SEC_ERA = RTA_SEC_ERA_6 /**< Maximum SEC HW block revision
 					 supported by RTA library */
 };
 

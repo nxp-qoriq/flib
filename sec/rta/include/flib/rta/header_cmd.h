@@ -11,6 +11,7 @@ static const uint32_t job_header_flags[] = {
 	DNR | TD | MTD | SHR | REO | RSMS,
 	DNR | TD | MTD | SHR | REO | RSMS,
 	DNR | TD | MTD | SHR | REO | RSMS,
+	DNR | TD | MTD | SHR | REO | RSMS | EXT,
 	DNR | TD | MTD | SHR | REO | RSMS | EXT
 };
 
@@ -19,6 +20,7 @@ static const uint32_t shr_header_flags[] = {
 	DNR | SC | PD,
 	DNR | SC | PD | CIF,
 	DNR | SC | PD | CIF,
+	DNR | SC | PD | CIF | RIF,
 	DNR | SC | PD | CIF | RIF,
 	DNR | SC | PD | CIF | RIF
 };
