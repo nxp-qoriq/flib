@@ -248,6 +248,11 @@ static inline unsigned rta_fifo_store(struct program *program, uint32_t src,
 			goto err;
 		}
 	}
+	if ((rta_sec_era == RTA_SEC_ERA_7) && (src == _AFHA_SBOX)) {
+		pr_debug("FIFO STORE: AFHA S-box not supported by SEC Era %d\n",
+			 USER_SEC_ERA(rta_sec_era));
+		goto err;
+	}
 
 	/* write output data type field */
 	ret = __rta_map_opcode(src, fifo_store_table,
