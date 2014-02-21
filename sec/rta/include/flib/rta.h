@@ -417,7 +417,7 @@ static inline unsigned rta_get_sec_era(void)
  * @param[in] key_dst  Key store location:@n @li <em>KEY1, KEY2, PKE,
  *                     AFHA_SBOX, MDHA_SPLIT_KEY</em>.
  * @param[in] encrypt_flags  Key encryption mode:@n @li <em>ENC, EKT, TK,
- *                     NWB</em>.
+ *                     NWB, PTS</em>.
  * @param[in] src      Pointer or actual data in case of immediate load
  *                     (@c uint64_t).
  * @param[in] length   Number of bytes to load; can be set to 0 for SEQ command

@@ -29,6 +29,7 @@ enum rta_sec_era {
 	RTA_SEC_ERA_4,
 	RTA_SEC_ERA_5,
 	RTA_SEC_ERA_6,
+	RTA_SEC_ERA_7,
 	MAX_SEC_ERA = RTA_SEC_ERA_6 /**< Maximum SEC HW block revision
 					 supported by RTA library */
 };
@@ -436,6 +437,7 @@ enum rta_sec_era {
 #define NWB             0x00020000	/* No Write Back Key */
 #define NRM             0x00040000	/* AES ECB Encryption */
 #define JDK             0x00080000	/* Job Descriptor Key */
+#define PTS             0x00100000	/* Plaintext Store */
 
 /* HEADER Command specific flags */
 #define RIF             0x00010000
