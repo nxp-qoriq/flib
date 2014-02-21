@@ -40,7 +40,9 @@ static const uint32_t store_src_table[][2] = {
 /*32*/	{ _JOBDESCBUF_EFF,   LDST_CLASS_DECO |
 		LDST_SRCDST_WORD_DESCBUF_JOB_WE },
 	{ _SHAREDESCBUF_EFF, LDST_CLASS_DECO |
-		LDST_SRCDST_WORD_DESCBUF_SHARED_WE }
+		LDST_SRCDST_WORD_DESCBUF_SHARED_WE },
+/*34*/	{ _GTR,          LDST_CLASS_DECO | LDST_SRCDST_WORD_GTR },
+	{ _STR,          LDST_CLASS_DECO | LDST_SRCDST_WORD_STR }
 };
 
 /*
@@ -48,7 +50,7 @@ static const uint32_t store_src_table[][2] = {
  * Values represent the number of entries from source_src_table[] that are
  * supported.
  */
-static const unsigned store_src_table_sz[] = {29, 31, 33, 33, 33, 33};
+static const unsigned store_src_table_sz[] = {29, 31, 33, 33, 33, 33, 35};
 
 static inline unsigned rta_store(struct program *program, uint64_t src,
 				 int type_src, uint16_t offset, uint64_t dst,
