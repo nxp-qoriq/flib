@@ -199,6 +199,11 @@
 #define KEY_TK			0x00008000
 
 /*
+ * Plaintext Store
+ */
+#define KEY_PTS			0x00004000
+
+/*
  * KDEST - Key Destination: 0 - class key register,
  * 1 - PKHA 'e', 2 - AFHA Sbox, 3 - MDHA split key
  */

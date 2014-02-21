@@ -12,7 +12,8 @@ static const uint32_t key_enc_flags[] = {
 	ENC | NWB | EKT | TK,
 	ENC | NWB | EKT | TK,
 	ENC | NWB | EKT | TK,
-	ENC | NWB | EKT | TK
+	ENC | NWB | EKT | TK,
+	ENC | NWB | EKT | TK | PTS
 };
 
 static inline unsigned rta_key(struct program *program, uint32_t key_dst,
@@ -69,15 +70,39 @@ static inline unsigned rta_key(struct program *program, uint32_t key_dst,
 		}
 	}
 
-	if ((key_dst == _AFHA_SBOX) && (flags & IMMED)) {
-		pr_debug("KEY: Invalid flag. SEC PC: %d; Instr: %d\n",
-			 program->current_pc, program->current_instruction);
+	if ((encrypt_flags & PTS) &&
+	    ((encrypt_flags & ENC) || (encrypt_flags & NWB) ||
+	     (key_dst == _PKE))) {
+		pr_debug("KEY: Invalid flag / destination. SEC PC: %d; Instr: %d\n",
+			 program->current_pc,
+			 program->current_instruction);
 		goto err;
 	}
-	if ((key_dst == _AFHA_SBOX) && (length != 258)) {
-		pr_debug("KEY: Invalid flag. SEC PC: %d; Instr: %d\n",
-			 program->current_pc, program->current_instruction);
-		goto err;
+
+	if (key_dst == _AFHA_SBOX) {
+		if (rta_sec_era == RTA_SEC_ERA_7) {
+			pr_debug("KEY: AFHA S-box not supported by SEC Era %d\n",
+				 USER_SEC_ERA(rta_sec_era));
+			goto err;
+		}
+
+		if (flags & IMMED) {
+			pr_debug("KEY: Invalid flag. SEC PC: %d; Instr: %d\n",
+				 program->current_pc,
+				 program->current_instruction);
+			goto err;
+		}
+
+		/*
+		 * Sbox data loaded into the ARC-4 processor must be exactly
+		 * 258 bytes long, or else a data sequence error is generated.
+		 */
+		if (length != 258) {
+			pr_debug("KEY: Invalid length. SEC PC: %d; Instr: %d\n",
+				 program->current_pc,
+				 program->current_instruction);
+			goto err;
+		}
 	}
 
 	/* write key destination and class fields */
@@ -127,6 +152,8 @@ static inline unsigned rta_key(struct program *program, uint32_t key_dst,
 	}
 	if (encrypt_flags & NWB)
 		opcode |= KEY_NWB;
+	if (encrypt_flags & PTS)
+		opcode |= KEY_PTS;
 
 	/* write general command flags */
 	if (!is_seq_cmd) {
