@@ -310,7 +310,7 @@ static inline unsigned rta_get_sec_era(void)
  *                     specified using @b IMM macro; @li for @b MOVE_LEN
  *                     should be specified using @e MATH0-MATH3.
  * @param[in] opt      Operational flags:@n @li <em>WAITCOMP, FLUSH1, FLUSH2,
- *                     LAST1, LAST2</em>.
+ *                     LAST1, LAST2, SIZE_WORD, SIZE_BYTE, SIZE_DWORD</em>.
  * @return             @li On success, descriptor buffer offset where this
  *                     command is inserted (@c unsigned).
  *                     @li First error program counter will be incremented on error;

@@ -178,6 +178,16 @@ static inline unsigned rta_move(struct program *program, uint64_t src,
 			opcode |= MOVELEN_MRSEL_MATH3;
 			break;
 		}
+
+		/* write size */
+		if (rta_sec_era >= RTA_SEC_ERA_7) {
+			if (flags & SIZE_WORD)
+				opcode |= MOVELEN_SIZE_WORD;
+			else if (flags & SIZE_BYTE)
+				opcode |= MOVELEN_SIZE_BYTE;
+			else if (flags & SIZE_DWORD)
+				opcode |= MOVELEN_SIZE_DWORD;
+		}
 	}
 
 	__rta_out32(program, opcode);
