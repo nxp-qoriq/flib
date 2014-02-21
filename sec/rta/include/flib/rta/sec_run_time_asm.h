@@ -496,6 +496,9 @@ enum rta_sec_era {
 
 /* MOVE Command specific flags */
 #define WAITCOMP        0x00010000
+#define SIZE_WORD	0x00020000
+#define SIZE_BYTE	0x00040000
+#define SIZE_DWORD	0x00080000
 
 /**
  * @struct    program sec_run_time_asm.h
