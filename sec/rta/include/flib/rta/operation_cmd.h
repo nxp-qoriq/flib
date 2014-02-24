@@ -340,6 +340,7 @@ static inline int __rta_pkha_mod_arithmetic(uint32_t pkha_op)
 	case (OP_ALG_PKMODE_MOD_CRT_CNST):
 	case (OP_ALG_PKMODE_MOD_GCD):
 	case (OP_ALG_PKMODE_MOD_PRIMALITY):
+	case (OP_ALG_PKMODE_MOD_SML_EXP):
 	case (OP_ALG_PKMODE_F2M_ADD):
 	case (OP_ALG_PKMODE_F2M_MUL):
 	case (OP_ALG_PKMODE_F2M_MUL_IM):
@@ -350,6 +351,7 @@ static inline int __rta_pkha_mod_arithmetic(uint32_t pkha_op)
 	case (OP_ALG_PKMODE_F2M_INV):
 	case (OP_ALG_PKMODE_F2M_R2):
 	case (OP_ALG_PKMODE_F2M_GCD):
+	case (OP_ALG_PKMODE_F2M_SML_EXP):
 	case (OP_ALG_PKMODE_ECC_F2M_ADD):
 	case (OP_ALG_PKMODE_ECC_F2M_ADD_IM_OM_PROJ):
 	case (OP_ALG_PKMODE_ECC_F2M_DBL):
@@ -491,6 +493,7 @@ static inline unsigned rta_pkha_operation(struct program *program,
 	case (OP_ALG_PKMODE_MOD_CRT_CNST):
 	case (OP_ALG_PKMODE_MOD_GCD):
 	case (OP_ALG_PKMODE_MOD_PRIMALITY):
+	case (OP_ALG_PKMODE_MOD_SML_EXP):
 	case (OP_ALG_PKMODE_ECC_MOD_ADD):
 	case (OP_ALG_PKMODE_ECC_MOD_DBL):
 	case (OP_ALG_PKMODE_ECC_MOD_MUL):

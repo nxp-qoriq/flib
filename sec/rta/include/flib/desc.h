@@ -1608,6 +1608,7 @@
 #define OP_ALG_PKMODE_MOD_CRT_CNST   0x00d
 #define OP_ALG_PKMODE_MOD_GCD	     0x00e
 #define OP_ALG_PKMODE_MOD_PRIMALITY  0x00f
+#define OP_ALG_PKMODE_MOD_SML_EXP    0x016
 
 /*
  * PKHA mode modular-arithmetic F2m functions
@@ -1627,6 +1628,7 @@
 #define OP_ALG_PKMODE_F2M_INV	     (0x008 | OP_ALG_PKMODE_MOD_F2M)
 #define OP_ALG_PKMODE_F2M_R2	     (0x00c | OP_ALG_PKMODE_MOD_F2M)
 #define OP_ALG_PKMODE_F2M_GCD	     (0x00e | OP_ALG_PKMODE_MOD_F2M)
+#define OP_ALG_PKMODE_F2M_SML_EXP    (0x016 | OP_ALG_PKMODE_MOD_F2M)
 
 /*
  * PKHA mode ECC Integer arithmetic functions
