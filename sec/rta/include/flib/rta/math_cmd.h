@@ -86,6 +86,24 @@ static inline unsigned rta_math(struct program *program, uint64_t operand1,
 		goto err;
 	}
 
+	if (options & SWP) {
+		if (rta_sec_era < RTA_SEC_ERA_7) {
+			pr_debug("MATH: operation not supported by SEC Era %d. SEC PC: %d; Instr: %d\n",
+				 USER_SEC_ERA(rta_sec_era), program->current_pc,
+				 program->current_instruction);
+			goto err;
+		}
+
+		if ((options & IFB) ||
+		    ((type_op1 != IMM_DATA) && (type_op2 != IMM_DATA)) ||
+		    ((type_op1 == IMM_DATA) && (type_op2 == IMM_DATA))) {
+			pr_debug("MATH: SWP - invalid configuration. SEC PC: %d; Instr: %d\n",
+				 program->current_pc,
+				 program->current_instruction);
+			goto err;
+		}
+	}
+
 	/*
 	 * SHLD operation is different from others and we
 	 * assume that we can have _NONE as first operand

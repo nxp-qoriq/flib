@@ -771,7 +771,7 @@ static inline unsigned rta_get_sec_era(void)
  *                     VSEQOUTSZ</em>.
  * @param[in] length   Length in bytes of the operation and the immediate
  *                     value, if there is one (@c int).
- * @param[in] opt      Operational flags: @e SGF.
+ * @param[in] opt      Operational flags: @e IFB, NFU, STL, SWP.
  * @return             @li On success, descriptor buffer offset where this
  *                     command is inserted (@c unsigned).
  *                     @li First error program counter will be incremented on
@@ -796,7 +796,7 @@ static inline unsigned rta_get_sec_era(void)
  *                     VSEQOUTSZ</em>.
  * @param[in] length   Length in bytes of the operation and the immediate
  *                     value, if there is one (@c int).
- * @param[in] opt      Operational flags: @e SGF.
+ * @param[in] opt      Operational flags: @e NFU, STL, SWP.
  * @return             @li On success, descriptor buffer offset where this
  *                     command is inserted (@c unsigned).
  *                     @li First error program counter will be incremented on
