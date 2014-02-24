@@ -189,7 +189,6 @@ static const struct alg_aai_map alg_table[] = {
 /*1*/	{ OP_ALG_ALGSEL_AES,      __rta_alg_aai_aes,    OP_TYPE_CLASS1_ALG },
 	{ OP_ALG_ALGSEL_DES,      __rta_alg_aai_des,    OP_TYPE_CLASS1_ALG },
 	{ OP_ALG_ALGSEL_3DES,     __rta_alg_aai_des,    OP_TYPE_CLASS1_ALG },
-	{ OP_ALG_ALGSEL_ARC4,     NULL,                 OP_TYPE_CLASS1_ALG },
 	{ OP_ALG_ALGSEL_MD5,      __rta_alg_aai_md5,    OP_TYPE_CLASS2_ALG },
 	{ OP_ALG_ALGSEL_SHA1,     __rta_alg_aai_md5,    OP_TYPE_CLASS2_ALG },
 	{ OP_ALG_ALGSEL_SHA224,   __rta_alg_aai_sha,    OP_TYPE_CLASS2_ALG },
@@ -197,9 +196,10 @@ static const struct alg_aai_map alg_table[] = {
 	{ OP_ALG_ALGSEL_SHA384,   __rta_alg_aai_sha,    OP_TYPE_CLASS2_ALG },
 	{ OP_ALG_ALGSEL_SHA512,   __rta_alg_aai_sha,    OP_TYPE_CLASS2_ALG },
 	{ OP_ALG_ALGSEL_RNG,      __rta_alg_aai_rng,    OP_TYPE_CLASS1_ALG },
+/*11*/	{ OP_ALG_ALGSEL_CRC,      __rta_alg_aai_crc,    OP_TYPE_CLASS2_ALG },
+	{ OP_ALG_ALGSEL_ARC4,     NULL,                 OP_TYPE_CLASS1_ALG },
 	{ OP_ALG_ALGSEL_SNOW_F8,  __rta_alg_aai_snow_f8, OP_TYPE_CLASS1_ALG },
-	{ OP_ALG_ALGSEL_KASUMI,   __rta_alg_aai_kasumi, OP_TYPE_CLASS1_ALG },
-/*14*/	{ OP_ALG_ALGSEL_CRC,      __rta_alg_aai_crc,    OP_TYPE_CLASS2_ALG },
+/*14*/	{ OP_ALG_ALGSEL_KASUMI,   __rta_alg_aai_kasumi, OP_TYPE_CLASS1_ALG },
 	{ OP_ALG_ALGSEL_SNOW_F9,  __rta_alg_aai_snow_f9, OP_TYPE_CLASS2_ALG },
 	{ OP_ALG_ALGSEL_ZUCE,     __rta_alg_aai_zuce,   OP_TYPE_CLASS1_ALG },
 /*17*/	{ OP_ALG_ALGSEL_ZUCA,     __rta_alg_aai_zuca,   OP_TYPE_CLASS2_ALG }
@@ -209,7 +209,7 @@ static const struct alg_aai_map alg_table[] = {
  * Allowed OPERATION algorithms for each SEC Era.
  * Values represent the number of entries from alg_table[] that are supported.
  */
-static const unsigned alg_table_sz[] = {14, 15, 15, 15, 17, 17};
+static const unsigned alg_table_sz[] = {14, 15, 15, 15, 17, 17, 11};
 
 static inline unsigned rta_operation(struct program *program,
 				     uint32_t cipher_algo, uint16_t aai,
