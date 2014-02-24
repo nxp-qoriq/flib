@@ -83,6 +83,7 @@ enum rta_sec_era {
 #define IFB         MATH_IFB
 #define NFU         MATH_NFU
 #define STL         MATH_STL
+#define SWP         MATH_SWP
 
 #define LOCAL_JUMP	(0x00 | JUMP_TYPE)
 #define FAR_JUMP	(0x01 | JUMP_TYPE)

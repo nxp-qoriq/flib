@@ -2246,6 +2246,10 @@
 #define MATH_STL_MASK		(1 << MATH_STL_SHIFT)
 #define MATH_STL		(1 << MATH_STL_SHIFT)
 
+#define MATH_SWP_SHIFT		0
+#define MATH_SWP_MASK		(1 << MATH_SWP_SHIFT)
+#define MATH_SWP		(1 << MATH_SWP_SHIFT)
+
 /* Function selectors */
 #define MATH_FUN_SHIFT		20
 #define MATH_FUN_MASK		(0x0f << MATH_FUN_SHIFT)
