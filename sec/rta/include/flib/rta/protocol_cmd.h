@@ -11,6 +11,24 @@ static inline int __rta_ssl_proto(uint16_t protoinfo)
 	case OP_PCL_SSL30_RC4_40_MD5_2:
 	case OP_PCL_SSL30_RC4_128_MD5_2:
 	case OP_PCL_SSL30_RC4_128_SHA_5:
+	case OP_PCL_SSL30_RC4_40_MD5_3:
+	case OP_PCL_SSL30_RC4_128_MD5_3:
+	case OP_PCL_SSL30_RC4_128_SHA:
+	case OP_PCL_SSL30_RC4_128_MD5:
+	case OP_PCL_SSL30_RC4_40_SHA:
+	case OP_PCL_SSL30_RC4_40_MD5:
+	case OP_PCL_SSL30_RC4_128_SHA_2:
+	case OP_PCL_SSL30_RC4_128_SHA_3:
+	case OP_PCL_SSL30_RC4_128_SHA_4:
+	case OP_PCL_SSL30_RC4_128_SHA_6:
+	case OP_PCL_SSL30_RC4_128_SHA_7:
+	case OP_PCL_SSL30_RC4_128_SHA_8:
+	case OP_PCL_SSL30_RC4_128_SHA_9:
+	case OP_PCL_SSL30_RC4_128_SHA_10:
+	case OP_PCL_TLS_ECDHE_PSK_RC4_128_SHA:
+		if (rta_sec_era == RTA_SEC_ERA_7)
+			return -1;
+		/* fall through if not Era 7 */
 	case OP_PCL_SSL30_DES40_CBC_SHA:
 	case OP_PCL_SSL30_DES_CBC_SHA_2:
 	case OP_PCL_SSL30_3DES_EDE_CBC_SHA_5:
@@ -26,21 +44,15 @@ static inline int __rta_ssl_proto(uint16_t protoinfo)
 	case OP_PCL_SSL30_DES40_CBC_SHA_5:
 	case OP_PCL_SSL30_DES_CBC_SHA_6:
 	case OP_PCL_SSL30_3DES_EDE_CBC_SHA_9:
-	case OP_PCL_SSL30_RC4_40_MD5_3:
-	case OP_PCL_SSL30_RC4_128_MD5_3:
 	case OP_PCL_SSL30_DES40_CBC_SHA_6:
 	case OP_PCL_SSL30_DES_CBC_SHA_7:
 	case OP_PCL_SSL30_3DES_EDE_CBC_SHA_10:
 	case OP_PCL_SSL30_DES_CBC_SHA:
 	case OP_PCL_SSL30_3DES_EDE_CBC_SHA:
-	case OP_PCL_SSL30_RC4_128_SHA:
 	case OP_PCL_SSL30_DES_CBC_MD5:
 	case OP_PCL_SSL30_3DES_EDE_CBC_MD5:
-	case OP_PCL_SSL30_RC4_128_MD5:
 	case OP_PCL_SSL30_DES40_CBC_SHA_7:
-	case OP_PCL_SSL30_RC4_40_SHA:
 	case OP_PCL_SSL30_DES40_CBC_MD5:
-	case OP_PCL_SSL30_RC4_40_MD5:
 	case OP_PCL_SSL30_AES_128_CBC_SHA:
 	case OP_PCL_SSL30_AES_128_CBC_SHA_2:
 	case OP_PCL_SSL30_AES_128_CBC_SHA_3:
@@ -63,15 +75,12 @@ static inline int __rta_ssl_proto(uint16_t protoinfo)
 	case OP_PCL_TLS12_AES_256_CBC_SHA256_5:
 	case OP_PCL_TLS12_AES_128_CBC_SHA256_6:
 	case OP_PCL_TLS12_AES_256_CBC_SHA256_6:
-	case OP_PCL_SSL30_RC4_128_SHA_2:
 	case OP_PCL_SSL30_3DES_EDE_CBC_SHA_2:
 	case OP_PCL_SSL30_AES_128_CBC_SHA_7:
 	case OP_PCL_SSL30_AES_256_CBC_SHA_7:
-	case OP_PCL_SSL30_RC4_128_SHA_3:
 	case OP_PCL_SSL30_3DES_EDE_CBC_SHA_3:
 	case OP_PCL_SSL30_AES_128_CBC_SHA_8:
 	case OP_PCL_SSL30_AES_256_CBC_SHA_8:
-	case OP_PCL_SSL30_RC4_128_SHA_4:
 	case OP_PCL_SSL30_3DES_EDE_CBC_SHA_4:
 	case OP_PCL_SSL30_AES_128_CBC_SHA_9:
 	case OP_PCL_SSL30_AES_256_CBC_SHA_9:
@@ -99,23 +108,18 @@ static inline int __rta_ssl_proto(uint16_t protoinfo)
 	case OP_PCL_TLS_DHE_PSK_AES_256_CBC_SHA384:
 	case OP_PCL_TLS_RSA_PSK_AES_128_CBC_SHA256:
 	case OP_PCL_TLS_RSA_PSK_AES_256_CBC_SHA384:
-	case OP_PCL_SSL30_RC4_128_SHA_6:
 	case OP_PCL_SSL30_3DES_EDE_CBC_SHA_11:
 	case OP_PCL_SSL30_AES_128_CBC_SHA_10:
 	case OP_PCL_SSL30_AES_256_CBC_SHA_10:
-	case OP_PCL_SSL30_RC4_128_SHA_7:
 	case OP_PCL_SSL30_3DES_EDE_CBC_SHA_12:
 	case OP_PCL_SSL30_AES_128_CBC_SHA_11:
 	case OP_PCL_SSL30_AES_256_CBC_SHA_11:
-	case OP_PCL_SSL30_RC4_128_SHA_8:
 	case OP_PCL_SSL30_AES_128_CBC_SHA_12:
 	case OP_PCL_SSL30_3DES_EDE_CBC_SHA_13:
 	case OP_PCL_SSL30_AES_256_CBC_SHA_12:
-	case OP_PCL_SSL30_RC4_128_SHA_9:
 	case OP_PCL_SSL30_3DES_EDE_CBC_SHA_14:
 	case OP_PCL_SSL30_AES_128_CBC_SHA_13:
 	case OP_PCL_SSL30_AES_256_CBC_SHA_13:
-	case OP_PCL_SSL30_RC4_128_SHA_10:
 	case OP_PCL_SSL30_3DES_EDE_CBC_SHA_15:
 	case OP_PCL_SSL30_AES_128_CBC_SHA_14:
 	case OP_PCL_SSL30_AES_256_CBC_SHA_14:
@@ -144,7 +148,6 @@ static inline int __rta_ssl_proto(uint16_t protoinfo)
 	case OP_PCL_TLS_ECDHE_RSA_AES_256_GCM_SHA384:
 	case OP_PCL_TLS_ECDH_RSA_AES_128_GCM_SHA256:
 	case OP_PCL_TLS_ECDH_RSA_AES_256_GCM_SHA384:
-	case OP_PCL_TLS_ECDHE_PSK_RC4_128_SHA:
 	case OP_PCL_TLS_ECDHE_PSK_3DES_EDE_CBC_SHA:
 	case OP_PCL_TLS_ECDHE_PSK_AES_128_CBC_SHA:
 	case OP_PCL_TLS_ECDHE_PSK_AES_256_CBC_SHA:
@@ -423,6 +426,9 @@ static inline int __rta_rsa_dec_proto(uint16_t protoinfo)
 
 static inline int __rta_3g_dcrc_proto(uint16_t protoinfo)
 {
+	if (rta_sec_era == RTA_SEC_ERA_7)
+		return -1;
+
 	switch (protoinfo) {
 	case OP_PCL_3G_DCRC_CRC7:
 	case OP_PCL_3G_DCRC_CRC11:
@@ -434,6 +440,9 @@ static inline int __rta_3g_dcrc_proto(uint16_t protoinfo)
 
 static inline int __rta_3g_rlc_proto(uint16_t protoinfo)
 {
+	if (rta_sec_era == RTA_SEC_ERA_7)
+		return -1;
+
 	switch (protoinfo) {
 	case OP_PCL_3G_RLC_NULL:
 	case OP_PCL_3G_RLC_KASUMI:
@@ -446,6 +455,9 @@ static inline int __rta_3g_rlc_proto(uint16_t protoinfo)
 
 static inline int __rta_lte_pdcp_proto(uint16_t protoinfo)
 {
+	if (rta_sec_era == RTA_SEC_ERA_7)
+		return -1;
+
 	switch (protoinfo) {
 	case OP_PCL_LTE_ZUC:
 		if (rta_sec_era < RTA_SEC_ERA_5)
@@ -494,14 +506,16 @@ static const struct proto_map proto_table[] = {
 	{OP_TYPE_DECAP_PROTOCOL, OP_PCLID_3G_RLC_PDU,    __rta_3g_rlc_proto},
 	{OP_TYPE_DECAP_PROTOCOL, OP_PCLID_3G_RLC_SDU,    __rta_3g_rlc_proto},
 	{OP_TYPE_DECAP_PROTOCOL, OP_PCLID_LTE_PDCP_USER, __rta_lte_pdcp_proto},
-/*29*/	{OP_TYPE_DECAP_PROTOCOL, OP_PCLID_LTE_PDCP_CTRL, __rta_lte_pdcp_proto}
+/*29*/	{OP_TYPE_DECAP_PROTOCOL, OP_PCLID_LTE_PDCP_CTRL, __rta_lte_pdcp_proto},
+	{OP_TYPE_DECAP_PROTOCOL, OP_PCLID_PUBLICKEYPAIR, __rta_dlc_proto},
+/*31*/	{OP_TYPE_DECAP_PROTOCOL, OP_PCLID_DSASIGN,	 __rta_dlc_proto}
 };
 
 /*
  * Allowed OPERATION protocols for each SEC Era.
  * Values represent the number of entries from proto_table[] that are supported.
  */
-static const unsigned proto_table_sz[] = {21, 29, 29, 29, 29, 29};
+static const unsigned proto_table_sz[] = {21, 29, 29, 29, 29, 29, 31};
 
 static inline unsigned rta_proto_operation(struct program *program,
 					   uint32_t optype, uint32_t protid,
