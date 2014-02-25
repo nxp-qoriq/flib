@@ -830,7 +830,8 @@ static inline unsigned rta_get_sec_era(void)
  *                     command to write to iNfo FIFO.
  *
  * @param[in] src      Source for the input data in Alignment Block:@n @li
- *                     <em>IFIFO, OFIFO, PAD, MSGOUTSNOOP, ALTSOURCE</em>.
+ *                     <em>IFIFO, OFIFO, PAD, MSGOUTSNOOP, ALTSOURCE,
+ *                     OFIFO_SYNC, MSGOUTSNOOP_ALT</em>.
  * @param[in] data     Type of data that is going through the Input Data FIFO:
  *                     @n @li <em>MSG, MSG1, MSG2, IV1, IV2, ICV1, ICV2, SAD1,
  *                     AAD1, AAD2, AFHA_SBOX, SKIP, PKHA registers, AB1, AB2,

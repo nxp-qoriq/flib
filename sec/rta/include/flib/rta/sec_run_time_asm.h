@@ -411,6 +411,12 @@ enum rta_sec_era {
 #define _STR		(0x66 | REGISTER)
 #define STR		_STR, REG_TYPE
 
+#define _OFIFO_SYNC     (0x67 | FIFO)
+#define OFIFO_SYNC      _OFIFO_SYNC, REG_TYPE
+
+#define _MSGOUTSNOOP_ALT (0x68 | REGISTER)
+#define MSGOUTSNOOP_ALT  _MSGOUTSNOOP_ALT, REG_TYPE
+
 /* Command flags */
 #define FLUSH1          0x00000001
 #define LAST1           0x00000002
