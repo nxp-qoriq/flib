@@ -12,6 +12,7 @@ static const uint32_t seq_in_ptr_flags[] = {
 	RBS | INL | SGF | PRE | EXT | RTO | RJD,
 	RBS | INL | SGF | PRE | EXT | RTO | RJD,
 	RBS | INL | SGF | PRE | EXT | RTO | RJD | SOP,
+	RBS | INL | SGF | PRE | EXT | RTO | RJD | SOP,
 	RBS | INL | SGF | PRE | EXT | RTO | RJD | SOP
 };
 
@@ -21,6 +22,7 @@ static const uint32_t seq_out_ptr_flags[] = {
 	SGF | PRE | EXT | RTO,
 	SGF | PRE | EXT | RTO,
 	SGF | PRE | EXT | RTO,
+	SGF | PRE | EXT | RTO | RST | EWS,
 	SGF | PRE | EXT | RTO | RST | EWS,
 	SGF | PRE | EXT | RTO | RST | EWS
 };

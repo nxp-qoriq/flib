@@ -36,7 +36,7 @@ static const uint32_t fifo_load_table[][2] = {
  * Values represent the number of entries from fifo_load_table[] that are
  * supported.
  */
-static const unsigned fifo_load_table_sz[] = {22, 22, 23, 23, 23, 23};
+static const unsigned fifo_load_table_sz[] = {22, 22, 23, 23, 23, 23, 23};
 
 static inline unsigned rta_fifo_load(struct program *program, uint32_t src,
 				     int type_src, uint64_t loc, int type_loc,
@@ -201,7 +201,7 @@ static const uint32_t fifo_store_table[][2] = {
  * Values represent the number of entries from fifo_store_table[] that are
  * supported.
  */
-static const unsigned fifo_store_table_sz[] = {21, 21, 21, 21, 22, 22};
+static const unsigned fifo_store_table_sz[] = {21, 21, 21, 21, 22, 22, 22};
 
 static inline unsigned rta_fifo_store(struct program *program, uint32_t src,
 				      int type_src, uint32_t encrypt_flags,
