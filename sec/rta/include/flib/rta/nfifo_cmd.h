@@ -10,14 +10,16 @@ static const uint32_t nfifo_src[][2] = {
 	{ _OFIFO,       NFIFOENTRY_STYPE_OFIFO },
 	{ _PAD,         NFIFOENTRY_STYPE_PAD },
 /*4*/	{ _MSGOUTSNOOP, NFIFOENTRY_STYPE_SNOOP | NFIFOENTRY_DEST_BOTH },
-	{ _ALTSOURCE,   NFIFOENTRY_STYPE_ALTSOURCE }
+/*5*/	{ _ALTSOURCE,   NFIFOENTRY_STYPE_ALTSOURCE },
+	{ _OFIFO_SYNC,  NFIFOENTRY_STYPE_OFIFO_SYNC },
+/*7*/	{ _MSGOUTSNOOP_ALT, NFIFOENTRY_STYPE_SNOOP_ALT | NFIFOENTRY_DEST_BOTH }
 };
 
 /*
  * Allowed NFIFO LOAD sources for each SEC Era.
  * Values represent the number of entries from nfifo_src[] that are supported.
  */
-static const unsigned nfifo_src_sz[] = {4, 5, 5, 5, 5, 5, 5};
+static const unsigned nfifo_src_sz[] = {4, 5, 5, 5, 5, 5, 5, 7};
 
 static const uint32_t nfifo_data[][2] = {
 	{ _MSG,   NFIFOENTRY_DTYPE_MSG },
