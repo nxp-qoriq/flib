@@ -496,6 +496,11 @@ enum rta_sec_era {
 #define SIZE_BYTE	0x00040000
 #define SIZE_DWORD	0x00080000
 
+/* MOVE command type */
+#define __MOVE		1
+#define __MOVEB		2
+#define __MOVEDW	3
+
 /**
  * @struct    program sec_run_time_asm.h
  * @details   Descriptor buffer management structure
