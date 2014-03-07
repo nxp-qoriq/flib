@@ -317,7 +317,68 @@ static inline unsigned rta_get_sec_era(void)
  *                     In debug mode, a log message will be shown at output.
  */
 #define MOVE(src, src_offset, dst, dst_offset, length, opt) \
-	rta_move(program, src, src_offset, dst, dst_offset, length, opt)
+	rta_move(program, __MOVE, src, src_offset, dst, dst_offset, length, opt)
+
+/**
+ * @def                MOVEB
+ * @details            Configures @b MOVEB command. Identical with @b MOVE
+ *                     command if byte swapping not enabled; else - when src/dst
+ *                     is descriptor buffer or MATH registers, data type is
+ *                     byte array when MOVE data type is 4-byte array and
+ *                     vice versa.
+ *
+ * @param[in] src      Internal source of data that will be moved:@n @li
+ *                     <em>CONTEXT1, CONTEXT2, OFIFO, DESCBUF, MATH0-MATH3,
+ *                     IFIFOABD, IFIFOAB1, IFIFOAB2, AB1, AB2, ABD</em>.
+ * @param[in] src_offset Offset in source data (@c uint16_t).
+ * @param[in] dst      Internal destination of data that will be moved:@n @li
+ *                     <em>CONTEXT1, CONTEXT2, OFIFO, DESCBUF, MATH0-MATH3,
+ *                     IFIFOAB1, IFIFOAB2, IFIFO, PKA, KEY1, KEY2,
+ *                     ALTSOURCE</em>.
+ * @param[in] dst_offset Offset in destination data (@c uint16_t).
+ * @param[in] length   Size of data to be moved:@n @li for @b MOVE should be
+ *                     specified using @b IMM macro; @li for @b MOVE_LEN
+ *                     should be specified using @e MATH0-MATH3.
+ * @param[in] opt      Operational flags:@n @li <em>WAITCOMP, FLUSH1, FLUSH2,
+ *                     LAST1, LAST2, SIZE_WORD, SIZE_BYTE, SIZE_DWORD</em>.
+ * @return             @li On success, descriptor buffer offset where this
+ *                     command is inserted (@c unsigned).
+ *                     @li First error program counter will be incremented on error;
+ *                     In debug mode, a log message will be shown at output.
+ */
+#define MOVEB(src, src_offset, dst, dst_offset, length, opt) \
+	rta_move(program, __MOVEB, src, src_offset, dst, dst_offset, length, \
+		 opt)
+
+/**
+ * @def                MOVEDW
+ * @details            Configures @b MOVEDW command. Identical with @b MOVE
+ *                     command, with the following differences:@n @li data type
+ *                     is 8-byte array. @li word swapping is performed when SEC
+ *                     is programmed in little endian mode.
+ *
+ * @param[in] src      Internal source of data that will be moved:@n @li
+ *                     <em>CONTEXT1, CONTEXT2, OFIFO, DESCBUF, MATH0-MATH3,
+ *                     IFIFOABD, IFIFOAB1, IFIFOAB2, AB1, AB2, ABD</em>.
+ * @param[in] src_offset Offset in source data (@c uint16_t).
+ * @param[in] dst      Internal destination of data that will be moved:@n @li
+ *                     <em>CONTEXT1, CONTEXT2, OFIFO, DESCBUF, MATH0-MATH3,
+ *                     IFIFOAB1, IFIFOAB2, IFIFO, PKA, KEY1, KEY2,
+ *                     ALTSOURCE</em>.
+ * @param[in] dst_offset Offset in destination data (@c uint16_t).
+ * @param[in] length   Size of data to be moved:@n @li for @b MOVE should be
+ *                     specified using @b IMM macro; @li for @b MOVE_LEN
+ *                     should be specified using @e MATH0-MATH3.
+ * @param[in] opt      Operational flags:@n @li <em>WAITCOMP, FLUSH1, FLUSH2,
+ *                     LAST1, LAST2, SIZE_WORD, SIZE_BYTE, SIZE_DWORD</em>.
+ * @return             @li On success, descriptor buffer offset where this
+ *                     command is inserted (@c unsigned).
+ *                     @li First error program counter will be incremented on error;
+ *                     In debug mode, a log message will be shown at output.
+ */
+#define MOVEDW(src, src_offset, dst, dst_offset, length, opt) \
+	rta_move(program, __MOVEDW, src, src_offset, dst, dst_offset, length, \
+		 opt)
 
 /**
  * @def                FIFOLOAD

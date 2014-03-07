@@ -70,9 +70,9 @@ static inline int set_move_offset(struct program *program, uint64_t src,
 
 static inline int math_offset(uint16_t offset);
 
-static inline unsigned rta_move(struct program *program, uint64_t src,
-				int type_src, uint16_t src_offset, uint64_t dst,
-				int type_dst, uint16_t dst_offset,
+static inline unsigned rta_move(struct program *program, int cmd_type,
+				uint64_t src, int type_src, uint16_t src_offset,
+				uint64_t dst, int type_dst, uint16_t dst_offset,
 				uint32_t length, int type_length,
 				uint32_t flags)
 {
@@ -88,8 +88,19 @@ static inline unsigned rta_move(struct program *program, uint64_t src,
 		goto err;
 	}
 
+	if ((rta_sec_era < RTA_SEC_ERA_7) && (cmd_type != __MOVE)) {
+		pr_debug("MOVE: MOVEB / MOVEDW not supported by SEC Era %d. SEC PC: %d; Instr: %d\n",
+			 USER_SEC_ERA(rta_sec_era), program->current_pc,
+			 program->current_instruction);
+		goto err;
+	}
+
 	/* write command type */
-	if (type_length == REG_TYPE) {
+	if (cmd_type == __MOVEB) {
+		opcode = CMD_MOVEB;
+	} else if (cmd_type == __MOVEDW) {
+		opcode = CMD_MOVEDW;
+	} else if (type_length == REG_TYPE) {
 		if (rta_sec_era < RTA_SEC_ERA_3) {
 			pr_debug("MOVE: MOVE_LEN not supported by SEC Era %d. SEC PC: %d; Instr: %d\n",
 				 USER_SEC_ERA(rta_sec_era), program->current_pc,
