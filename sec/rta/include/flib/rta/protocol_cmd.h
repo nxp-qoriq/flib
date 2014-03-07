@@ -541,7 +541,7 @@ static const struct proto_map proto_table[] = {
  * Allowed OPERATION protocols for each SEC Era.
  * Values represent the number of entries from proto_table[] that are supported.
  */
-static const unsigned proto_table_sz[] = {21, 29, 29, 29, 29, 29, 31};
+static const unsigned proto_table_sz[] = {21, 29, 29, 29, 29, 29, 31, 33};
 
 static inline unsigned rta_proto_operation(struct program *program,
 					   uint32_t optype, uint32_t protid,
