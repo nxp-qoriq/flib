@@ -50,7 +50,7 @@ static const uint32_t store_src_table[][2] = {
  * Values represent the number of entries from source_src_table[] that are
  * supported.
  */
-static const unsigned store_src_table_sz[] = {29, 31, 33, 33, 33, 33, 35};
+static const unsigned store_src_table_sz[] = {29, 31, 33, 33, 33, 33, 35, 35};
 
 static inline unsigned rta_store(struct program *program, uint64_t src,
 				 int type_src, uint16_t offset, uint64_t dst,

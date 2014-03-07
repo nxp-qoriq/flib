@@ -72,7 +72,7 @@ static const uint32_t nfifo_flags[][2] = {
  * Allowed NFIFO LOAD flags for each SEC Era.
  * Values represent the number of entries from nfifo_flags[] that are supported.
  */
-static const unsigned nfifo_flags_sz[] = {12, 14, 14, 14, 14, 14, 14};
+static const unsigned nfifo_flags_sz[] = {12, 14, 14, 14, 14, 14, 14, 14};
 
 static const uint32_t nfifo_pad_flags[][2] = {
 	{ BM, NFIFOENTRY_BM },
@@ -85,7 +85,7 @@ static const uint32_t nfifo_pad_flags[][2] = {
  * Values represent the number of entries from nfifo_pad_flags[] that are
  * supported.
  */
-static const unsigned nfifo_pad_flags_sz[] = {2, 2, 2, 2, 3, 3, 3};
+static const unsigned nfifo_pad_flags_sz[] = {2, 2, 2, 2, 3, 3, 3, 3};
 
 static inline unsigned rta_nfifo_load(struct program *program, uint32_t src,
 				      int type_src, uint32_t data,

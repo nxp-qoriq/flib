@@ -37,7 +37,7 @@ static const uint32_t move_src_table[][2] = {
  * Values represent the number of entries from move_src_table[] that are
  * supported.
  */
-static const unsigned move_src_table_sz[] = {9, 11, 14, 14, 14, 14, 14};
+static const unsigned move_src_table_sz[] = {9, 11, 14, 14, 14, 14, 14, 14};
 
 static const uint32_t move_dst_table[][2] = {
 /*1*/	{ _CONTEXT1,  MOVE_DEST_CLASS1CTX },
@@ -61,7 +61,7 @@ static const uint32_t move_dst_table[][2] = {
  * Values represent the number of entries from move_dst_table[] that are
  * supported.
  */
-static const unsigned move_dst_table_sz[] = {13, 14, 14, 15, 15, 15, 15};
+static const unsigned move_dst_table_sz[] = {13, 14, 14, 15, 15, 15, 15, 15};
 
 static inline int set_move_offset(struct program *program, uint64_t src,
 				  uint16_t src_offset, uint64_t dst,

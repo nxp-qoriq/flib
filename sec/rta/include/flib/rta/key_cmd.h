@@ -13,6 +13,7 @@ static const uint32_t key_enc_flags[] = {
 	ENC | NWB | EKT | TK,
 	ENC | NWB | EKT | TK,
 	ENC | NWB | EKT | TK,
+	ENC | NWB | EKT | TK | PTS,
 	ENC | NWB | EKT | TK | PTS
 };
 
