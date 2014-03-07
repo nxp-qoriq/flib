@@ -132,7 +132,7 @@ static inline unsigned rta_job_header(struct program *program, uint32_t share,
 		goto err;
 	}
 
-	if ((flags & MTD) && !(flags & TD)) {
+	if ((rta_sec_era < RTA_SEC_ERA_7) && (flags & MTD) && !(flags & TD)) {
 		pr_debug("JOB_DESC: Trying to MTD a descriptor that is not a TD. SEC Program Line: %d\n",
 			 program->current_pc);
 		goto err;
