@@ -225,6 +225,7 @@ static inline int __rta_ipsec_proto(uint16_t protoinfo)
 	case OP_PCL_IPSEC_DES:
 	case OP_PCL_IPSEC_3DES:
 	case OP_PCL_IPSEC_AES_CBC:
+	case OP_PCL_IPSEC_AES_CTR:
 		break;
 	default:
 		return -1;
@@ -533,6 +534,7 @@ static const struct proto_map proto_table[] = {
 	{OP_TYPE_DECAP_PROTOCOL, OP_PCLID_PUBLICKEYPAIR, __rta_dlc_proto},
 /*31*/	{OP_TYPE_DECAP_PROTOCOL, OP_PCLID_DSASIGN,	 __rta_dlc_proto},
 /*32*/	{OP_TYPE_DECAP_PROTOCOL, OP_PCLID_LTE_PDCP_CTRL_MIXED, __rta_lte_pdcp_mixed_proto},
+	{OP_TYPE_DECAP_PROTOCOL, OP_PCLID_IPSEC_NEW,     __rta_ipsec_proto},
 };
 
 /*

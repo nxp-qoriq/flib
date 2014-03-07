@@ -29,23 +29,43 @@
  */
 /* General IPSec ESP encap / decap PDB options */
 #define PDBOPTS_ESP_ESN		0x10   /**< extended sequence included */
-#define PDBOPTS_ESP_IPVSN	0x02   /**< process IPv6 header */
-#define PDBOPTS_ESP_TUNNEL	0x01   /**< tunnel mode next-header byte */
+#define PDBOPTS_ESP_IPVSN	0x02   /**< process IPv6 header
+					    valid only for IPsec legacy mode */
+#define PDBOPTS_ESP_TUNNEL	0x01   /**< tunnel mode next-header byte
+					    valid only for IPsec legacy mode */
 
 /* IPSec ESP Encap PDB options */
-#define PDBOPTS_ESP_UPDATE_CSUM 0x80   /**< update ip header checksum */
-#define PDBOPTS_ESP_DIFFSERV	0x40   /**< copy TOS/TC from inner iphdr */
+#define PDBOPTS_ESP_UPDATE_CSUM 0x80   /**< update ip header checksum
+					    valid only for IPsec legacy mode */
+#define PDBOPTS_ESP_DIFFSERV	0x40   /**< copy TOS/TC from inner iphdr
+					    valid only for IPsec legacy mode */
 #define PDBOPTS_ESP_IVSRC	0x20   /**< IV comes from internal random gen */
 #define PDBOPTS_ESP_IPHDRSRC	0x08   /**< IP header comes from PDB */
 #define PDBOPTS_ESP_INCIPHDR	0x04   /**< prepend IP header to output frame */
+#define PDBOPTS_ESP_NAT		0x02   /**< enable RFC 3948 UDP-encapsulated-ESP
+					    valid only for IPsec new mode */
+#define PDBOPTS_ESP_NUC		0x01   /**< enable NAT UDP Checksum
+					    valid only for IPsec new mode */
 
 /* IPSec ESP Decap PDB options */
 #define PDBOPTS_ESP_ARSNONE	0x00   /**< no antireplay window */
 #define PDBOPTS_ESP_ARS64	0xc0   /**< 64-entry antireplay window */
+#define PDBOPTS_ESP_ARS128	0x80   /**< 128-entry antireplay window
+					    valid only for IPsec new mode */
 #define PDBOPTS_ESP_ARS32	0x40   /**< 32-entry antireplay window */
-#define PDBOPTS_ESP_VERIFY_CSUM 0x20   /**< validate ip header checksum */
-#define PDBOPTS_ESP_OUTFMT	0x08   /**< output only decapsulation */
-#define PDBOPTS_ESP_AOFL	0x04   /**< adjust out frame len (SEC>=5.3) */
+#define PDBOPTS_ESP_VERIFY_CSUM 0x20   /**< validate ip header checksum
+					    valid only for IPsec legacy mode */
+#define PDBOPTS_ESP_TECN	0x20   /**< implement RRFC6040 ECN tunneling
+					    from outer header to inner header;
+					    valid only for IPsec new mode */
+#define PDBOPTS_ESP_OUTFMT	0x08   /**< output only decapsulation
+					    valid only for IPsec legacy mode */
+#define PDBOPTS_ESP_AOFL	0x04   /**< adjust out frame len (SEC>=5.3)
+					    valid only for IPsec legacy mode */
+#define PDBOPTS_ESP_ETU		0x01   /**< EtherType Update - add corresponding
+					    ethertype (0x0800 for IPv4, 0x86dd
+					    for IPv6) in the output frame;
+					    valid only for IPsec new mode */
 
 #define PDBHMO_ESP_DECAP_SHIFT	12
 #define PDBHMO_ESP_ENCAP_SHIFT	4
@@ -61,6 +81,14 @@
  * from the outer IP header to the inner IP header.
  */
 #define PDBHMO_ESP_DIFFSERV	(0x01 << PDBHMO_ESP_DECAP_SHIFT)
+
+/**
+ * Encap - Sequence Number Rollover control
+ * Valid only for IPsec new mode.
+ * Configures behaviour in case of SN / ESN rollover:
+ * error if SNR = 1, rollover allowed if SNR = 0.
+ */
+#define PDBHMO_ESP_SNR		(0x01 << PDBHMO_ESP_ENCAP_SHIFT)
 
 /**
  * Encap - Copy DF bit - if an IPv4 tunnel mode outer IP header is coming from
@@ -136,8 +164,15 @@ struct ipsec_encap_gcm {
  */
 struct ipsec_encap_pdb {
 	uint8_t hmo;
-	uint8_t ip_nh;
-	uint8_t ip_nh_offset;
+	union {
+		uint8_t ip_nh;	/* next header for legacy mode */
+		uint8_t rsvd;	/* reserved for new mode */
+	};
+	union {
+		uint8_t ip_nh_offset;	/* next header offset for legacy mode */
+		uint8_t aoipho;		/* actual outer IP header offset for
+					 * new mode */
+	};
 	uint8_t options;
 	uint32_t seq_num_ext_hi;
 	uint32_t seq_num;
@@ -148,7 +183,7 @@ struct ipsec_encap_pdb {
 		struct ipsec_encap_gcm gcm;
 	};
 	uint32_t spi;
-	uint16_t rsvd;
+	uint16_t rsvd2;
 	uint16_t ip_hdr_len;
 	uint32_t ip_hdr[0]; /* optional IP Header content */
 };
@@ -200,8 +235,13 @@ struct ipsec_decap_gcm {
  * @details   Container for decapsulation PDB
  */
 struct ipsec_decap_pdb {
-	uint16_t ip_hdr_len;
-	uint8_t ip_nh_offset;
+	uint16_t ip_hdr_len;		/* HMO (upper nibble) + IP header length
+	 	 	 	 	 * (lower 3 nibbles) */
+	union {
+		uint8_t ip_nh_offset;	/* next header offset for legacy mode */
+		uint8_t aoipho;		/* actual outer IP header offset for
+					 * new mode */
+	};
 	uint8_t options;
 	union {
 		struct ipsec_decap_cbc cbc;
@@ -218,12 +258,35 @@ struct ipsec_decap_pdb {
 /*
  * IPSec ESP Datapath Protocol Override Register (DPOVRD)
  */
+
+#define IPSEC_DECO_DPOVRD_USE		0x80
+
 struct ipsec_deco_dpovrd {
-#define IPSEC_ENCAP_DECO_DPOVRD_USE 0x80
 	uint8_t ovrd_ecn;
 	uint8_t ip_hdr_len;
 	uint8_t nh_offset;
-	uint8_t next_header; /* reserved if decap */
+	union {
+		uint8_t next_header;	/* next header if encap */
+		uint8_t rsvd;		/* reserved if decap */
+	};
+};
+
+struct ipsec_new_encap_deco_dpovrd {
+#define IPSEC_NEW_ENCAP_DECO_DPOVRD_USE	0x8000
+	uint16_t ovrd_ip_hdr_len;	/* OVRD + outer IP header material
+					 * length */
+#define IPSEC_NEW_ENCAP_OIMIF		0x80
+	uint8_t oimif_aoipho;		/* OIMIF + actual outer IP header
+					 * offset */
+	uint8_t rsvd;
+};
+
+struct ipsec_new_decap_deco_dpovrd {
+	uint8_t ovrd;
+	uint8_t aoipho_hi;		/* upper nibble of actual outer IP
+					 * header */
+	uint16_t aoipho_lo_ip_hdr_len;	/* lower nibble of actual outer IP
+					 * header + outer IP header material */
 };
 
 /*
