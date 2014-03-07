@@ -126,8 +126,8 @@ static inline unsigned rta_job_header(struct program *program, uint32_t share,
 		goto err;
 	}
 
-	if ((flags & TD) && (flags & MTD)) {
-		pr_debug("JOB_DESC: Trying to MTD a descriptor that is already TD. SEC Program Line: %d\n",
+	if ((flags & MTD) && !(flags & TD)) {
+		pr_debug("JOB_DESC: Trying to MTD a descriptor that is not a TD. SEC Program Line: %d\n",
 			 program->current_pc);
 		goto err;
 	}
