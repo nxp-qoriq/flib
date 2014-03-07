@@ -471,6 +471,29 @@ static inline int __rta_lte_pdcp_proto(uint16_t protoinfo)
 	return -1;
 }
 
+static inline int __rta_lte_pdcp_mixed_proto(uint16_t protoinfo)
+{
+	switch (protoinfo & OP_PCL_LTE_MIXED_AUTH_MASK) {
+	case OP_PCL_LTE_MIXED_AUTH_NULL:
+	case OP_PCL_LTE_MIXED_AUTH_SNOW:
+	case OP_PCL_LTE_MIXED_AUTH_AES:
+	case OP_PCL_LTE_MIXED_AUTH_ZUC:
+		break;
+	default:
+		return -1;
+	}
+
+	switch (protoinfo & OP_PCL_LTE_MIXED_ENC_MASK) {
+	case OP_PCL_LTE_MIXED_ENC_NULL:
+	case OP_PCL_LTE_MIXED_ENC_SNOW:
+	case OP_PCL_LTE_MIXED_ENC_AES:
+	case OP_PCL_LTE_MIXED_ENC_ZUC:
+		return 0;
+	}
+
+	return -1;
+}
+
 struct proto_map {
 	uint32_t optype;
 	uint32_t protid;
@@ -508,7 +531,8 @@ static const struct proto_map proto_table[] = {
 	{OP_TYPE_DECAP_PROTOCOL, OP_PCLID_LTE_PDCP_USER, __rta_lte_pdcp_proto},
 /*29*/	{OP_TYPE_DECAP_PROTOCOL, OP_PCLID_LTE_PDCP_CTRL, __rta_lte_pdcp_proto},
 	{OP_TYPE_DECAP_PROTOCOL, OP_PCLID_PUBLICKEYPAIR, __rta_dlc_proto},
-/*31*/	{OP_TYPE_DECAP_PROTOCOL, OP_PCLID_DSASIGN,	 __rta_dlc_proto}
+/*31*/	{OP_TYPE_DECAP_PROTOCOL, OP_PCLID_DSASIGN,	 __rta_dlc_proto},
+/*32*/	{OP_TYPE_DECAP_PROTOCOL, OP_PCLID_LTE_PDCP_CTRL_MIXED, __rta_lte_pdcp_mixed_proto},
 };
 
 /*
