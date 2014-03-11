@@ -68,6 +68,20 @@
  */
 #define PDBHMO_ESP_DFBIT	(0x04 << PDBHMO_ESP_ENCAP_SHIFT)
 
+/**
+ * Decap - DF bit value
+ * Valid only from SEC Era 5 onwards.
+ * If ODF = 1, DF bit in output frame is replaced by DFV.
+ */
+#define PDBHMO_ESP_DFV		(0x04 << PDBHMO_ESP_DECAP_SHIFT)
+
+/**
+ * Decap - Override DF bit in IPv4 header of decapsulated output frame
+ * If ODF = 1, DF is replaced with the value of DFV bit.
+ * Valid only from SEC Era 5 onwards.
+ */
+#define PDBHMO_ESP_ODF		(0x08 << PDBHMO_ESP_DECAP_SHIFT)
+
 /** @} */ /* end of defines_group */
 
 /**
