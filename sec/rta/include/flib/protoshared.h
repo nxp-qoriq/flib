@@ -1884,7 +1884,8 @@ static inline int pdcp_insert_cplane_enc_only_op(struct program *program,
 			      OP_ALG_AAI_F8,
 			      OP_ALG_AS_INITFINAL,
 			      ICV_CHECK_DISABLE,
-			      dir);
+			      dir == OP_TYPE_ENCAP_PROTOCOL ?
+					OP_ALG_ENCRYPT : OP_ALG_DECRYPT);
 		break;
 
 	default:
