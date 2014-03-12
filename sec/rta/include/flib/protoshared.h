@@ -1464,6 +1464,156 @@ static inline void cnstr_shdsc_wimax_encap_era5(uint32_t *descbuf,
 	*bufsize = PROGRAM_FINALIZE();
 }
 
+/*
+ * @details  IPSec new mode ESP encapsulation protocol-level shared descriptor.
+ *           If an authentication key is required by the protocol,
+ *           it must be a MDHA split key.
+ * @ingroup sharedesc_group
+ *
+ * @param[in,out] descbuf Pointer to buffer used for descriptor construction
+ * @param[in,out] bufsize Pointer to descriptor size to be written back upon
+ *      completion
+ * @param [in] ps         If 36/40bit addressing is desired, this parameter
+ *      must be non-zero.
+ * @param[in] pdb         Pointer to the PDB to be used with this descriptor.
+ *      This structure will be copied inline to the descriptor under
+ *      construction. No error checking will be made. Refer to the
+ *      block guide for details about the encapsulation PDB.
+ * @param[in] cipherdata  Pointer to block cipher transform definitions. Valid
+ *      algorithm values: one of OP_PCL_IPSEC_*
+ * @param[in] authdata    Pointer to authentication transform definitions. Note
+ *      that since a split key is to be used, the size of the split key itself
+ *      is specified. Valid algorithm values: one of OP_PCL_IPSEC_*
+ */
+static inline void cnstr_shdsc_ipsec_new_encap(uint32_t *descbuf,
+					       unsigned *bufsize,
+					       unsigned short ps,
+					       struct ipsec_encap_pdb *pdb,
+					       struct alginfo *cipherdata,
+					       struct alginfo *authdata)
+{
+	struct program prg;
+	struct program *program = &prg;
+
+	LABEL(keyjmp);
+	REFERENCE(pkeyjmp);
+	LABEL(hdr);
+	REFERENCE(phdr);
+
+	if (rta_sec_era < RTA_SEC_ERA_8) {
+		pr_debug("IPsec new mode encap: available only for Era %d or above\n",
+			 USER_SEC_ERA(RTA_SEC_ERA_8));
+		*bufsize = 0;
+		return;
+	}
+
+	PROGRAM_CNTXT_INIT(descbuf, 0);
+	PROGRAM_SET_BSWAP();
+	if (ps)
+		PROGRAM_SET_36BIT_ADDR();
+	phdr = SHR_HDR(SHR_SERIAL, hdr, 0);
+
+	switch (pdb->options & PDBOPTS_ESP_OIHI_MASK) {
+	case PDBOPTS_ESP_OIHI_PDB_INL:
+		ENDIAN_DATA((uint8_t *)pdb,
+			    sizeof(struct ipsec_encap_pdb) + pdb->ip_hdr_len);
+		break;
+	case PDBOPTS_ESP_OIHI_PDB_REF:
+		if (ps)
+			ENDIAN_DATA((uint8_t *)pdb,
+				    sizeof(struct ipsec_encap_pdb) + BYTES_8);
+		else
+			ENDIAN_DATA((uint8_t *)pdb,
+				    sizeof(struct ipsec_encap_pdb) + BYTES_4);
+		break;
+	default:
+		ENDIAN_DATA((uint8_t *)pdb, sizeof(struct ipsec_encap_pdb));
+		break;
+	}
+	SET_LABEL(hdr);
+
+	pkeyjmp = JUMP(IMM(keyjmp), LOCAL_JUMP, ALL_TRUE, SHRD);
+	if (authdata->keylen)
+		KEY(MDHA_SPLIT_KEY, authdata->key_enc_flags, PTR(authdata->key),
+		    authdata->keylen, 0);
+	if (cipherdata->keylen)
+		KEY(KEY1, cipherdata->key_enc_flags, PTR(cipherdata->key),
+		    cipherdata->keylen, 0);
+	SET_LABEL(keyjmp);
+	PROTOCOL(OP_TYPE_ENCAP_PROTOCOL,
+		 OP_PCLID_IPSEC_NEW,
+		 (uint16_t)(cipherdata->algtype | authdata->algtype));
+	PATCH_JUMP(pkeyjmp, keyjmp);
+	PATCH_HDR(phdr, hdr);
+	*bufsize = PROGRAM_FINALIZE();
+}
+
+/**
+ * @details IPSec new mode ESP decapsulation protocol-level shared descriptor.
+ *           If an authentication key is required by the protocol,
+ *           it must be a MDHA split key.
+ * @ingroup sharedesc_group
+ *
+ * @param[in,out] descbuf Pointer to buffer used for descriptor construction
+ * @param[in,out] bufsize Pointer to descriptor size to be written back upon
+ *      completion
+ * @param [in] ps         If 36/40bit addressing is desired, this parameter
+ *      must be non-zero.
+ * @param[in] pdb         Pointer to the PDB to be used with this descriptor.
+ *      This structure will be copied inline to the descriptor under
+ *      construction. No error checking will be made. Refer to the
+ *      block guide for details about the decapsulation PDB.
+ * @param[in] cipherdata  Pointer to block cipher transform definitions. Valid
+ *      algorithm values: one of OP_PCL_IPSEC_*
+ * @param[in] authdata    Pointer to authentication transform definitions. Note
+ *      that since a split key is to be used, the size of the split key itself
+ *      is specified. Valid algorithm values: one of OP_PCL_IPSEC_*
+ */
+static inline void cnstr_shdsc_ipsec_new_decap(uint32_t *descbuf,
+					       unsigned *bufsize,
+					       unsigned short ps,
+					       struct ipsec_decap_pdb *pdb,
+					       struct alginfo *cipherdata,
+					       struct alginfo *authdata)
+{
+	struct program prg;
+	struct program *program = &prg;
+
+	LABEL(keyjmp);
+	REFERENCE(pkeyjmp);
+	LABEL(hdr);
+	REFERENCE(phdr);
+
+	if (rta_sec_era < RTA_SEC_ERA_8) {
+		pr_debug("IPsec new mode decap: available only for Era %d or above\n",
+			 USER_SEC_ERA(RTA_SEC_ERA_8));
+		*bufsize = 0;
+		return;
+	}
+
+	PROGRAM_CNTXT_INIT(descbuf, 0);
+	PROGRAM_SET_BSWAP();
+	if (ps)
+		PROGRAM_SET_36BIT_ADDR();
+	phdr = SHR_HDR(SHR_SERIAL, hdr, 0);
+	ENDIAN_DATA((uint8_t *)pdb, sizeof(struct ipsec_decap_pdb));
+	SET_LABEL(hdr);
+	pkeyjmp = JUMP(IMM(keyjmp), LOCAL_JUMP, ALL_TRUE, SHRD);
+	if (authdata->keylen)
+		KEY(MDHA_SPLIT_KEY, authdata->key_enc_flags, PTR(authdata->key),
+		    authdata->keylen, 0);
+	if (cipherdata->keylen)
+		KEY(KEY1, cipherdata->key_enc_flags, PTR(cipherdata->key),
+		    cipherdata->keylen, 0);
+	SET_LABEL(keyjmp);
+	PROTOCOL(OP_TYPE_DECAP_PROTOCOL,
+		 OP_PCLID_IPSEC_NEW,
+		 (uint16_t)(cipherdata->algtype | authdata->algtype));
+	PATCH_JUMP(pkeyjmp, keyjmp);
+	PATCH_HDR(phdr, hdr);
+	*bufsize = PROGRAM_FINALIZE();
+}
+
 /**
  * @details                 WiMAX(802.16) encapsulation
  * @ingroup                 sharedesc_group
