@@ -1085,6 +1085,76 @@ static inline void cnstr_shdsc_ipsec_decap_des_aes_xcbc(uint32_t *descbuf,
 }
 
 /**
+ * @details  IPSec new mode ESP encapsulation protocol-level shared descriptor.
+ *           Requires a MDHA split key.
+ * @ingroup sharedesc_group
+ *
+ * @param[in,out] descbuf    Pointer to buffer used for descriptor construction
+ * @param[in,out] bufsize    Pointer to descriptor size to be written back upon
+ *      completion
+ * @param[in] pdb         Pointer to the PDB to be used with this descriptor.
+ *      This structure will be copied inline to the descriptor under
+ *      construction. No error checking will be made. Refer to the
+ *      block guide for details about the encapsulation PDB.
+ * @param[in] cipherdata  Pointer to block cipher transform definitions. Valid
+ *      algorithm values: one of OP_PCL_IPSEC_*
+ * @param[in] authdata    Pointer to authentication transform definitions. Note
+ *      that since a split key is to be used, the size of the split key itself
+ *      is specified. Valid algorithm values: one of OP_PCL_IPSEC_*
+ */
+static inline void cnstr_shdsc_ipsec_new_encap(uint32_t *descbuf,
+					       unsigned *bufsize,
+					       struct ipsec_encap_pdb *pdb,
+					       struct alginfo *cipherdata,
+					       struct alginfo *authdata)
+{
+	if (rta_sec_era < RTA_SEC_ERA_8) {
+		pr_debug("IPsec new mode encap: available only for Era %d or above\n",
+			 USER_SEC_ERA(RTA_SEC_ERA_8));
+		*bufsize = 0;
+		return;
+	}
+
+	/* Dummy behaviour - until descriptor is ready */
+	*bufsize = 0;
+}
+
+/**
+ * @details IPSec new mode ESP decapsulation protocol-level shared descriptor.
+ *          Requires a MDHA split key.
+ * @ingroup sharedesc_group
+ *
+ * @param[in,out] descbuf    Pointer to buffer used for descriptor construction
+ * @param[in,out] bufsize    Pointer to descriptor size to be written back upon
+ *      completion
+ * @param[in] pdb         Pointer to the PDB to be used with this descriptor.
+ *      This structure will be copied inline to the descriptor under
+ *      construction. No error checking will be made. Refer to the
+ *      block guide for details about the decapsulation PDB.
+ * @param[in] cipherdata  Pointer to block cipher transform definitions. Valid
+ *      algorithm values: one of OP_PCL_IPSEC_*
+ * @param[in] authdata    Pointer to authentication transform definitions. Note
+ *      that since a split key is to be used, the size of the split key itself
+ *      is specified. Valid algorithm values: one of OP_PCL_IPSEC_*
+ */
+static inline void cnstr_shdsc_ipsec_new_decap(uint32_t *descbuf,
+					       unsigned *bufsize,
+					       struct ipsec_decap_pdb *pdb,
+					       struct alginfo *cipherdata,
+					       struct alginfo *authdata)
+{
+	if (rta_sec_era < RTA_SEC_ERA_8) {
+		pr_debug("IPsec new mode decap: available only for Era %d or above\n",
+			 USER_SEC_ERA(RTA_SEC_ERA_8));
+		*bufsize = 0;
+		return;
+	}
+
+	/* Dummy behaviour - until descriptor is ready */
+	*bufsize = 0;
+}
+
+/**
  * @details                 WiMAX(802.16) encapsulation
  * @ingroup                 sharedesc_group
  * @warning                 Descriptor valid on platforms
