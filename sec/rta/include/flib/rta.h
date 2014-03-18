@@ -1,7 +1,7 @@
 /* Copyright 2008-2013 Freescale Semiconductor, Inc. */
 
-#ifndef __SEC_RTA__
-#define __SEC_RTA__
+#ifndef __RTA_RTA_H__
+#define __RTA_RTA_H__
 
 #include "rta/sec_run_time_asm.h"
 #include "rta/fifo_load_store_cmd.h"
@@ -1058,4 +1058,4 @@ static inline unsigned rta_get_sec_era(void)
 /** @} */ /* end of refcode_group */
 
 
-#endif
+#endif /* __RTA_RTA_H__ */
