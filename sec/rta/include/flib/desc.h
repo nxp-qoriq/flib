@@ -5,8 +5,8 @@
  * Copyright 2008-2013 Freescale Semiconductor, Inc.
  */
 
-#ifndef DESC_H
-#define DESC_H
+#ifndef __RTA_DESC_H__
+#define __RTA_DESC_H__
 
 /* flib/compat.h is not delivered in kernel */
 #ifndef __KERNEL__
@@ -2480,4 +2480,4 @@
 /* Frame Descriptor Command for Replacement Job Descriptor */
 #define FD_CMD_REPLACE_JOB_DESC				0x20000000
 
-#endif /* DESC_H */
+#endif /* __RTA_DESC_H__ */
