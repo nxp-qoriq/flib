@@ -511,8 +511,8 @@ static inline unsigned rta_get_sec_era(void)
  * @param[in] length   Number of bytes in (or to be added to) Input Sequence
  *                     (@c uint32_t).
  * @param[in] flags    Operational flags:@n @li <em>RBS, INL, SGF, PRE, EXT,
- *                     RTO, RJD, SOP</em> (when @e PRE or @e RTO are set, @e src
- *                     parameter must be 0).
+ *                     RTO, RJD, SOP</em> (when @e PRE, @e RTO or @e SOP are
+ *                     set, @e src parameter must be 0).
  * @return             @li On success, descriptor buffer offset where this
  *                     command is inserted (@c unsigned).
  *                     @li First error program counter will be incremented on
