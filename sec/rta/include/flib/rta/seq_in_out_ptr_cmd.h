@@ -45,7 +45,7 @@ static inline unsigned rta_seq_in_ptr(struct program *program, uint64_t src,
 		pr_debug("SEQ IN PTR: Invalid usage of INL and RJD flags\n");
 		goto err;
 	}
-	if ((src) && (flags & (RTO | PRE))) {
+	if ((src) && (flags & (SOP | RTO | PRE))) {
 		pr_debug("SEQ IN PTR: Invalid usage of RTO or PRE flag\n");
 		goto err;
 	}
@@ -84,7 +84,7 @@ static inline unsigned rta_seq_in_ptr(struct program *program, uint64_t src,
 	program->current_instruction++;
 
 	/* write pointer or immediate data field */
-	if (!(opcode & (SQIN_PRE | SQIN_RTO)))
+	if (!(opcode & (SQIN_PRE | SQIN_RTO | SQIN_SOP)))
 		__rta_out64(program, program->ps, src);
 
 	/* write extended length field */
