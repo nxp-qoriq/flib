@@ -99,6 +99,15 @@
 #define PROGRAM_SET_36BIT_ADDR() rta_program_set_36bit_addr(program)
 
 /**
+ * @def                PROGRAM_SET_BSWAP
+ * @details            @b PROGRAM_SET_BSWAP must be called to enable byte
+ *                     swapping. Byte swapping on a 4-byte boundary will be
+ *                     performed at the end - when calling PROGRAM_FINALIZE().
+ * @return             Current size of the descriptor in words (@c unsigned).
+ */
+#define PROGRAM_SET_BSWAP() rta_program_set_bswap(program)
+
+/**
  * @def                WORD
  * @details            @b WORD must be called to insert in descriptor buffer a
  *                     32bits value.
@@ -904,7 +913,7 @@ static inline unsigned rta_get_sec_era(void)
  *                     For @b JUMP command, the value represents the offset
  *                     field (in words).
  */
-#define PATCH_JUMP(line, new_ref) rta_patch_jmp(program, line, new_ref)
+#define PATCH_JUMP(line, new_ref) rta_patch_jmp(program, line, new_ref, 0)
 
 /**
  * @def                PATCH_JUMP_NON_LOCAL
@@ -924,7 +933,7 @@ static inline unsigned rta_get_sec_era(void)
  *                     field (in words).
  */
 #define PATCH_JUMP_NON_LOCAL(src_program, line, new_ref) \
-	rta_patch_jmp(src_program, line, new_ref)
+	rta_patch_jmp(src_program, line, new_ref, 1)
 
 /**
  * @def                PATCH_MOVE
@@ -941,7 +950,7 @@ static inline unsigned rta_get_sec_era(void)
  *                     For @b MOVE command, the value represents the offset
  *                     field (in words).
  */
-#define PATCH_MOVE(line, new_ref) rta_patch_move(program, line, new_ref)
+#define PATCH_MOVE(line, new_ref) rta_patch_move(program, line, new_ref, 0)
 
 /**
  * @def                PATCH_MOVE_NON_LOCAL
@@ -961,7 +970,7 @@ static inline unsigned rta_get_sec_era(void)
  *                     field (in words).
  */
 #define PATCH_MOVE_NON_LOCAL(src_program, line, new_ref) \
-	rta_patch_move(src_program, line, new_ref)
+	rta_patch_move(src_program, line, new_ref, 1)
 
 /**
  * @def                PATCH_LOAD
@@ -995,7 +1004,7 @@ static inline unsigned rta_get_sec_era(void)
  *                     For @b STORE command, the value represents the offset
  *                     field (in words).
  */
-#define PATCH_STORE(line, new_ref) rta_patch_store(program, line, new_ref)
+#define PATCH_STORE(line, new_ref) rta_patch_store(program, line, new_ref, 0)
 
 /**
  * @def                PATCH_STORE_NON_LOCAL
@@ -1015,7 +1024,7 @@ static inline unsigned rta_get_sec_era(void)
  *                     field (in words).
  */
 #define PATCH_STORE_NON_LOCAL(src_program, line, new_ref) \
-	rta_patch_store(src_program, line, new_ref)
+	rta_patch_store(src_program, line, new_ref, 1)
 
 /**
  * @def                PATCH_HDR
@@ -1032,7 +1041,7 @@ static inline unsigned rta_get_sec_era(void)
  *                     For @b HEADER command, the value represents the start
  *                     index field.
  */
-#define PATCH_HDR(line, new_ref) rta_patch_header(program, line, new_ref)
+#define PATCH_HDR(line, new_ref) rta_patch_header(program, line, new_ref, 0)
 
 /**
  * @def                PATCH_HDR_NON_LOCAL
@@ -1053,7 +1062,7 @@ static inline unsigned rta_get_sec_era(void)
  *
  */
 #define PATCH_HDR_NON_LOCAL(src_program, line, new_ref) \
-	rta_patch_header(src_program, line, new_ref)
+	rta_patch_header(src_program, line, new_ref, 1)
 
 /** @} */ /* end of refcode_group */
 
