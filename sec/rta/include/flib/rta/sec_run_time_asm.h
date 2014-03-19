@@ -529,6 +529,8 @@ struct program {
 				    pointers will be 36bits in length; if ps
 				    is set to 0, pointers will be 32bits in
 				    length. */
+	unsigned short bswap;	 /**< If set, perform byte swap on a 4-byte
+				      boundary.*/
 };
 
 static inline void rta_program_cntxt_init(struct program *program,
@@ -542,6 +544,15 @@ static inline void rta_program_cntxt_init(struct program *program,
 	program->shrhdr = NULL;
 	program->jobhdr = NULL;
 	program->ps = 0;
+	program->bswap = 0;
+}
+
+static inline void __rta__desc_bswap(uint32_t *buff, unsigned buff_len)
+{
+	unsigned i;
+
+	for (i = 0; i < buff_len; i++)
+		buff[i] = swab32(buff[i]);
 }
 
 static inline unsigned rta_program_finalize(struct program *program)
@@ -555,11 +566,15 @@ static inline unsigned rta_program_finalize(struct program *program)
 		pr_debug("Descriptor creation error\n");
 
 	/* Update descriptor length in shared and job descriptor headers */
-	if (program->shrhdr != NULL)
+	if (program->shrhdr != NULL) {
 		*program->shrhdr |= program->current_pc;
-
-	if (program->jobhdr != NULL)
+		if (program->bswap)
+			__rta__desc_bswap(program->shrhdr, program->current_pc);
+	} else if (program->jobhdr != NULL) {
 		*program->jobhdr |= program->current_pc;
+		if (program->bswap)
+			__rta__desc_bswap(program->jobhdr, program->current_pc);
+	}
 
 	return program->current_pc;
 }
@@ -567,6 +582,12 @@ static inline unsigned rta_program_finalize(struct program *program)
 static inline unsigned rta_program_set_36bit_addr(struct program *program)
 {
 	program->ps = 1;
+	return program->current_pc;
+}
+
+static inline unsigned rta_program_set_bswap(struct program *program)
+{
+	program->bswap = 1;
 	return program->current_pc;
 }
 
@@ -662,33 +683,42 @@ static inline unsigned rta_set_label(struct program *program)
 
 
 static inline void rta_patch_move(struct program *program, unsigned line,
-				  unsigned new_ref)
+				  unsigned new_ref, unsigned check_swap)
 {
-	uint32_t opcode = program->buffer[line];
+	uint32_t opcode;
+	unsigned bswap = check_swap && program->bswap;
+
+	opcode = bswap ? swab32(program->buffer[line]) : program->buffer[line];
 
 	opcode &= (uint32_t)~MOVE_OFFSET_MASK;
 	opcode |= (new_ref << (MOVE_OFFSET_SHIFT + 2)) & MOVE_OFFSET_MASK;
-	program->buffer[line] = opcode;
+	program->buffer[line] = bswap ? swab32(opcode) : opcode;
 }
 
 static inline void rta_patch_jmp(struct program *program, unsigned line,
-				 unsigned new_ref)
+				 unsigned new_ref, unsigned check_swap)
 {
-	uint32_t opcode = program->buffer[line];
+	uint32_t opcode;
+	unsigned bswap = check_swap && program->bswap;
+
+	opcode = bswap ? swab32(program->buffer[line]) : program->buffer[line];
 
 	opcode &= (uint32_t)~JUMP_OFFSET_MASK;
 	opcode |= (new_ref - (line + program->start_pc)) & JUMP_OFFSET_MASK;
-	program->buffer[line] = opcode;
+	program->buffer[line] = bswap ? swab32(opcode) : opcode;
 }
 
 static inline void rta_patch_header(struct program *program, unsigned line,
-				    unsigned new_ref)
+				    unsigned new_ref, unsigned check_swap)
 {
-	uint32_t opcode = program->buffer[line];
+	uint32_t opcode;
+	unsigned bswap = check_swap && program->bswap;
+
+	opcode = bswap ? swab32(program->buffer[line]) : program->buffer[line];
 
 	opcode &= (uint32_t)~HDR_START_IDX_MASK;
 	opcode |= (new_ref << HDR_START_IDX_SHIFT) & HDR_START_IDX_MASK;
-	program->buffer[line] = opcode;
+	program->buffer[line] = bswap ? swab32(opcode) : opcode;
 }
 
 static inline void rta_patch_load(struct program *program, unsigned line,
@@ -708,9 +738,12 @@ static inline void rta_patch_load(struct program *program, unsigned line,
 }
 
 static inline void rta_patch_store(struct program *program, unsigned line,
-				   unsigned new_ref)
+				   unsigned new_ref, unsigned check_swap)
 {
-	uint32_t opcode = program->buffer[line];
+	uint32_t opcode;
+	unsigned bswap = check_swap && program->bswap;
+
+	opcode = bswap ? swab32(program->buffer[line]) : program->buffer[line];
 
 	opcode &= (uint32_t)~LDST_OFFSET_MASK;
 
@@ -727,7 +760,7 @@ static inline void rta_patch_store(struct program *program, unsigned line,
 			  LDST_OFFSET_MASK;
 	}
 
-	program->buffer[line] = opcode;
+	program->buffer[line] = bswap ? swab32(opcode) : opcode;
 }
 
 static inline void rta_patch_raw(struct program *program, unsigned line,
