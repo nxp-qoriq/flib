@@ -217,7 +217,7 @@ static inline unsigned rta_operation(struct program *program,
 				     int enc)
 {
 	uint32_t opcode = CMD_OPERATION;
-	int i, found = 0;
+	unsigned i, found = 0;
 	unsigned start_pc = program->current_pc;
 
 	for (i = 0; i < alg_table_sz[rta_sec_era]; i++) {
@@ -261,7 +261,10 @@ static inline unsigned rta_operation(struct program *program,
 
 	switch (icv_checking) {
 	case ICV_CHECK_DISABLE:
-		opcode |= OP_ALG_ICV_OFF;
+		/*
+		 * opcode |= OP_ALG_ICV_OFF;
+		 * OP_ALG_ICV_OFF is 0
+		 */
 		break;
 	case ICV_CHECK_ENABLE:
 		opcode |= OP_ALG_ICV_ON;
@@ -273,7 +276,10 @@ static inline unsigned rta_operation(struct program *program,
 
 	switch (enc) {
 	case OP_ALG_DECRYPT:
-		opcode |= OP_ALG_DECRYPT;
+		/*
+		 * opcode |= OP_ALG_DECRYPT;
+		 * OP_ALG_DECRYPT is 0
+		 */
 		break;
 	case OP_ALG_ENCRYPT:
 		opcode |= OP_ALG_ENCRYPT;
@@ -321,7 +327,7 @@ static inline int __rta_pkha_clearmem(uint32_t pkha_op)
 
 static inline int __rta_pkha_mod_arithmetic(uint32_t pkha_op)
 {
-	pkha_op &= ~OP_ALG_PKMODE_OUT_A;
+	pkha_op &= (uint32_t)~OP_ALG_PKMODE_OUT_A;
 
 	switch (pkha_op) {
 	case (OP_ALG_PKMODE_MOD_ADD):

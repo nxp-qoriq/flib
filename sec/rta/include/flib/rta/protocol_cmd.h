@@ -508,13 +508,13 @@ static inline unsigned rta_proto_operation(struct program *program,
 					   uint16_t protoinfo)
 {
 	uint32_t opcode = CMD_OPERATION;
-	int i, found = 0;
+	unsigned i, found = 0;
 	uint32_t optype_tmp = optype;
 	unsigned start_pc = program->current_pc;
 
 	for (i = 0; i < proto_table_sz[rta_sec_era]; i++) {
 		/* clear last bit in optype to match also decap proto */
-		optype_tmp &= ~(1 << OP_TYPE_SHIFT);
+		optype_tmp &= (uint32_t)~(1 << OP_TYPE_SHIFT);
 		if (optype_tmp == proto_table[i].optype) {
 			if (proto_table[i].protid == protid) {
 				/* nothing else to verify */

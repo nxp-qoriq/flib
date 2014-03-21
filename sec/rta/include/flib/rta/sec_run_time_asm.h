@@ -577,7 +577,7 @@ static inline unsigned rta_dword(struct program *program, uint64_t val)
 static inline unsigned rta_endian_data(struct program *program, uint8_t *data,
 				       unsigned length)
 {
-	int i;
+	unsigned i;
 	unsigned start_pc = program->current_pc;
 	uint8_t *tmp = (uint8_t *)&program->buffer[program->current_pc];
 
@@ -610,7 +610,7 @@ static inline unsigned rta_desc_len(uint32_t *buffer, uint32_t mask)
 
 static inline unsigned rta_desc_bytes(uint32_t *buffer, uint32_t mask)
 {
-	 return rta_desc_len(buffer, mask) * CAAM_CMD_SZ;
+	 return (unsigned)(rta_desc_len(buffer, mask) * CAAM_CMD_SZ);
 }
 
 static inline unsigned rta_set_label(struct program *program)
@@ -638,7 +638,7 @@ static inline void rta_patch_move(struct program *program, unsigned line,
 {
 	uint32_t opcode = program->buffer[line];
 
-	opcode &= ~MOVE_OFFSET_MASK;
+	opcode &= (uint32_t)~MOVE_OFFSET_MASK;
 	opcode |= (new_ref << (MOVE_OFFSET_SHIFT + 2)) & MOVE_OFFSET_MASK;
 	program->buffer[line] = opcode;
 }
@@ -648,7 +648,7 @@ static inline void rta_patch_jmp(struct program *program, unsigned line,
 {
 	uint32_t opcode = program->buffer[line];
 
-	opcode &= ~JUMP_OFFSET_MASK;
+	opcode &= (uint32_t)~JUMP_OFFSET_MASK;
 	opcode |= (new_ref - (line + program->start_pc)) & JUMP_OFFSET_MASK;
 	program->buffer[line] = opcode;
 }
@@ -658,7 +658,7 @@ static inline void rta_patch_header(struct program *program, unsigned line,
 {
 	uint32_t opcode = program->buffer[line];
 
-	opcode &= ~HDR_START_IDX_MASK;
+	opcode &= (uint32_t)~HDR_START_IDX_MASK;
 	opcode |= (new_ref << HDR_START_IDX_SHIFT) & HDR_START_IDX_MASK;
 	program->buffer[line] = opcode;
 }
@@ -668,7 +668,7 @@ static inline void rta_patch_load(struct program *program, unsigned line,
 {
 	uint32_t opcode = program->buffer[line];
 
-	opcode &= ~LDST_OFFSET_MASK;
+	opcode &= (uint32_t)~LDST_OFFSET_MASK;
 
 	if (opcode & (LDST_SRCDST_WORD_DESCBUF | LDST_CLASS_DECO))
 		opcode |= (new_ref << LDST_OFFSET_SHIFT) & LDST_OFFSET_MASK;
@@ -684,7 +684,7 @@ static inline void rta_patch_store(struct program *program, unsigned line,
 {
 	uint32_t opcode = program->buffer[line];
 
-	opcode &= ~LDST_OFFSET_MASK;
+	opcode &= (uint32_t)~LDST_OFFSET_MASK;
 
 	switch (opcode & LDST_SRCDST_MASK) {
 	case LDST_SRCDST_WORD_DESCBUF:

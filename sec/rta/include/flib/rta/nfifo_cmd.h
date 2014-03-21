@@ -96,6 +96,12 @@ static inline unsigned rta_nfifo_load(struct program *program, uint32_t src,
 			    LDST_SRCDST_WORD_INFO_FIFO;
 	unsigned start_pc = program->current_pc;
 
+	if ((type_src != REG_TYPE) || (type_data != REG_TYPE)) {
+		pr_debug("NFIFO: Incorrect src / data type. SEC PC: %d; Instr: %d\n",
+			 program->current_pc, program->current_instruction);
+		goto err;
+	}
+
 	/* write source field */
 	ret = __rta_map_opcode(src, nfifo_src, nfifo_src_sz[rta_sec_era], &val);
 	if (ret == -1) {

@@ -45,7 +45,10 @@ static inline unsigned rta_shr_header(struct program *program, uint32_t share,
 		opcode |= HDR_SHARE_SERIAL;
 		break;
 	case SHR_NEVER:
-		opcode |= HDR_SHARE_NEVER;
+		/*
+		 * opcode |= HDR_SHARE_NEVER;
+		 * HDR_SHARE_NEVER is 0
+		 */
 		break;
 	case SHR_WAIT:
 		opcode |= HDR_SHARE_WAIT;
@@ -106,7 +109,10 @@ static inline unsigned rta_job_header(struct program *program, uint32_t share,
 		opcode |= HDR_SHARE_SERIAL;
 		break;
 	case SHR_NEVER:
-		opcode |= HDR_SHARE_NEVER;
+		/*
+		 * opcode |= HDR_SHARE_NEVER;
+		 * HDR_SHARE_NEVER is 0
+		 */
 		break;
 	case SHR_WAIT:
 		opcode |= HDR_SHARE_WAIT;

@@ -82,6 +82,12 @@ static inline unsigned rta_move(struct program *program, uint64_t src,
 	int ret, is_move_len_cmd = 0;
 	unsigned start_pc = program->current_pc;
 
+	if ((type_src != REG_TYPE) || (type_dst != REG_TYPE)) {
+		pr_debug("MOVE: Incorrect src / dst type. SEC PC: %d; Instr: %d\n",
+			 program->current_pc, program->current_instruction);
+		goto err;
+	}
+
 	/* write command type */
 	if (type_length == REG_TYPE) {
 		if (rta_sec_era < RTA_SEC_ERA_3) {
@@ -123,10 +129,18 @@ static inline unsigned rta_move(struct program *program, uint64_t src,
 		opcode |= ((dst_offset / 16) << MOVE_AUX_SHIFT) & MOVE_AUX_MASK;
 	else if (opt == MOVE_SET_AUX_LS)
 		opcode |= MOVE_AUX_LS;
-	else if (opt & MOVE_SET_AUX_MATH_SRC)
-		opcode |= math_offset(src_offset);
-	else if (opt & MOVE_SET_AUX_MATH_DST)
-		opcode |= math_offset(dst_offset);
+	else if ((opt & MOVE_SET_AUX_MATH_SRC) ||
+		 (opt & MOVE_SET_AUX_MATH_DST)) {
+		ret = math_offset(offset);
+		if (ret == -1) {
+			pr_debug("MOVE: Invalid offset in MATH register. SEC PC: %d; Instr: %d\n",
+				 program->current_pc,
+				 program->current_instruction);
+			goto err;
+		}
+
+		opcode |= (uint32_t)ret;
+	}
 
 	/* write source field */
 	ret = __rta_map_opcode((uint32_t)src, move_src_table,
@@ -166,7 +180,10 @@ static inline unsigned rta_move(struct program *program, uint64_t src,
 		/* write mrsel */
 		switch (length) {
 		case (_MATH0):
-			opcode |= MOVELEN_MRSEL_MATH0;
+			/*
+			 * opcode |= MOVELEN_MRSEL_MATH0;
+			 * MOVELEN_MRSEL_MATH0 is 0
+			 */
 			break;
 		case (_MATH1):
 			opcode |= MOVELEN_MRSEL_MATH1;
@@ -335,17 +352,18 @@ static inline int set_move_offset(struct program *program, uint64_t src,
 
 static inline int math_offset(uint16_t offset)
 {
-	if (offset == 0)
+	switch (offset) {
+	case 0:
 		return 0;
-
-	if (offset == 4)
+	case 4:
 		return MOVE_AUX_LS;
-
-	if (offset == 6)
+	case 6:
 		return MOVE_AUX_MS;
-
-	if (offset == 7)
+	case 7:
 		return MOVE_AUX_LS | MOVE_AUX_MS;
+	}
+
+	return -1;
 }
 
 #endif /* __RTA_MOVE_CMD_H__ */

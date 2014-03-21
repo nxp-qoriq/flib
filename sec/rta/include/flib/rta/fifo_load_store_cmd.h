@@ -47,6 +47,12 @@ static inline unsigned rta_fifo_load(struct program *program, uint32_t src,
 	int ret, is_seq_cmd = 0;
 	unsigned start_pc = program->current_pc;
 
+	if (type_src != REG_TYPE) {
+		pr_debug("SEQ FIFO LOAD: Incorrect data type. SEC Program Line: %d\n",
+			 program->current_pc);
+		goto err;
+	}
+
 	/* write command type field */
 	if (flags & SEQ) {
 		opcode = CMD_SEQ_FIFO_LOAD;
@@ -207,6 +213,12 @@ static inline unsigned rta_fifo_store(struct program *program, uint32_t src,
 	int ret, is_seq_cmd = 0;
 	unsigned start_pc = program->current_pc;
 
+	if (type_src != REG_TYPE) {
+		pr_debug("SEQ FIFO STORE: Incorrect data type. SEC Program Line: %d\n",
+			 program->current_pc);
+		goto err;
+	}
+
 	/* write command type field */
 	if (flags & SEQ) {
 		opcode = CMD_SEQ_FIFO_STORE;
@@ -255,7 +267,7 @@ static inline unsigned rta_fifo_store(struct program *program, uint32_t src,
 			goto err;
 		}
 		opcode |= (0x10 << FIFOST_TYPE_SHIFT);
-		opcode &= ~(0x20 << FIFOST_TYPE_SHIFT);
+		opcode &= (uint32_t)~(0x20 << FIFOST_TYPE_SHIFT);
 	}
 
 	/* write flags fields */
