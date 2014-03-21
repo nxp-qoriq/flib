@@ -25,6 +25,12 @@ static inline unsigned rta_key(struct program *program, uint32_t key_dst,
 	uint32_t opcode = 0, is_seq_cmd = 0;
 	unsigned start_pc = program->current_pc;
 
+	if (key_type != REG_TYPE) {
+		pr_debug("KEY: Incorrect key type. SEC PC: %d; Instr: %d\n",
+			 program->current_pc, program->current_instruction);
+		goto err;
+	}
+
 	if (encrypt_flags & ~key_enc_flags[rta_sec_era]) {
 		pr_debug("KEY: Flag(s) not supported by SEC Era %d\n",
 			 USER_SEC_ERA(rta_sec_era));

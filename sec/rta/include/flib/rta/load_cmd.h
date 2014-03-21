@@ -209,8 +209,14 @@ static inline unsigned rta_load(struct program *program, uint64_t src,
 				uint32_t flags)
 {
 	uint32_t opcode = 0;
-	int pos = -1, i;
-	unsigned start_pc = program->current_pc;
+	int pos = -1;
+	unsigned start_pc = program->current_pc, i;
+
+	if (dst_type != REG_TYPE) {
+		pr_debug("LOAD: Invalid dst type. SEC Program Line: %d\n",
+			 program->current_pc);
+		goto err;
+	}
 
 	if (flags & SEQ)
 		opcode = CMD_SEQ_LOAD;
@@ -233,7 +239,7 @@ static inline unsigned rta_load(struct program *program, uint64_t src,
 	/* check load destination, length and offset and source type */
 	for (i = 0; i < load_dst_sz[rta_sec_era]; i++)
 		if (dst == load_dst[i].dst) {
-			pos = i;
+			pos = (int)i;
 			break;
 		}
 	if (-1 == pos) {

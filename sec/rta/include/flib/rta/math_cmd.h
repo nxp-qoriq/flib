@@ -78,6 +78,12 @@ static inline unsigned rta_math(struct program *program, uint64_t operand1,
 	int ret;
 	unsigned start_pc = program->current_pc;
 
+	if (type_res != REG_TYPE) {
+		pr_debug("MATH: Incorrect result type. SEC PC: %d; Instr: %d\n",
+			 program->current_pc, program->current_instruction);
+		goto err;
+	}
+
 	if (((op == BSWAP) && (rta_sec_era < RTA_SEC_ERA_4)) ||
 	    ((op == ZBYTE) && (rta_sec_era < RTA_SEC_ERA_2))) {
 		pr_debug("MATH: operation not supported by SEC Era %d. SEC PC: %d; Instr: %d\n",

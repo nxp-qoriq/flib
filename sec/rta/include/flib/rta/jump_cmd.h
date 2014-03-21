@@ -53,6 +53,11 @@ static inline unsigned rta_jump(struct program *program, uint64_t address,
 	uint32_t opcode = CMD_JUMP;
 	unsigned start_pc = program->current_pc;
 
+	if ((address_type != IMM_DATA) && (address_type != PTR_DATA)) {
+		pr_debug("JUMP: Address must be either IMM or PTR\n");
+		goto err;
+	}
+
 	if (((jump_type == GOSUB) || (jump_type == RETURN)) &&
 	    (rta_sec_era < RTA_SEC_ERA_4)) {
 		pr_debug("JUMP: Jump type not supported by SEC Era %d\n",
@@ -69,7 +74,10 @@ static inline unsigned rta_jump(struct program *program, uint64_t address,
 
 	switch (jump_type) {
 	case (LOCAL_JUMP):
-		opcode |= JUMP_TYPE_LOCAL;
+		/*
+		 * opcode |= JUMP_TYPE_LOCAL;
+		 * JUMP_TYPE_LOCAL is 0
+		 */
 		break;
 	case (HALT):
 		opcode |= JUMP_TYPE_HALT;
@@ -100,7 +108,10 @@ static inline unsigned rta_jump(struct program *program, uint64_t address,
 
 	switch (test_type) {
 	case (ALL_TRUE):
-		opcode |= JUMP_TEST_ALL;
+		/*
+		 * opcode |= JUMP_TEST_ALL;
+		 * JUMP_TEST_ALL is 0
+		 */
 		break;
 	case (ALL_FALSE):
 		opcode |= JUMP_TEST_INVALL;
@@ -125,6 +136,13 @@ static inline unsigned rta_jump(struct program *program, uint64_t address,
 	} else {
 		uint32_t val = 0;
 		int ret;
+
+		if (type_src_dst != REG_TYPE) {
+			pr_debug("JUMP_INCDEC: Incorrect SRC_DST type. SEC PC: %d; Instr: %d\n",
+				 program->current_pc,
+				 program->current_instruction);
+			goto err;
+		}
 
 		ret = __rta_map_opcode(src_dst, jump_src_dst,
 				       ARRAY_SIZE(jump_src_dst), &val);

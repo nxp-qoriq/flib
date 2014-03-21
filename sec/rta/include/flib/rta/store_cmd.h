@@ -116,10 +116,10 @@ static inline unsigned rta_store(struct program *program, uint64_t src,
 	    (src == _SHAREDESCBUF) || (src == _JOBDESCBUF_EFF) ||
 	    (src == _SHAREDESCBUF_EFF)) {
 		opcode |= (length >> 2);
-		opcode |= ((offset >> 2) << LDST_OFFSET_SHIFT);
+		opcode |= (uint32_t)((offset >> 2) << LDST_OFFSET_SHIFT);
 	} else {
 		opcode |= length;
-		opcode |= (offset << LDST_OFFSET_SHIFT);
+		opcode |= (uint32_t)(offset << LDST_OFFSET_SHIFT);
 	}
 
 	__rta_out32(program, opcode);
@@ -130,8 +130,15 @@ static inline unsigned rta_store(struct program *program, uint64_t src,
 		return start_pc;
 
 	/* for STORE, a pointer to where the data will be stored is needed */
-	if (!(flags & SEQ))
+	if (!(flags & SEQ)) {
+		if (type_dst != PTR_DATA) {
+			pr_debug("STORE: Invalid dst type. SEC PC: %d; Instr: %d\n",
+				 program->current_pc,
+				 program->current_instruction);
+			goto err;
+		}
 		__rta_out64(program, program->ps, dst);
+	}
 
 	/* for imm data, place the data here */
 	if (flags & IMMED)
