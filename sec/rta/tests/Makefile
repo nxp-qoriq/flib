@@ -2,7 +2,7 @@
 
 CC=$(CROSS_COMPILE)gcc
 INCLUDES=-I../include
-CFLAGS=-Wall -Wshadow -O3 -g $(INCLUDES)
+CFLAGS=-Wall -Wshadow -g -O0 $(INCLUDES)
 CPPFLAGS=-DRTA_DEBUG
 check: CPPFLAGS=
 
