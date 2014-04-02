@@ -867,7 +867,7 @@ static inline void cnstr_shdsc_ipsec_encap(uint32_t *descbuf,
 	SET_LABEL(keyjmp);
 	PROTOCOL(OP_TYPE_ENCAP_PROTOCOL,
 		 OP_PCLID_IPSEC,
-		 cipherdata->algtype | authdata->algtype);
+		 (uint16_t)(cipherdata->algtype | authdata->algtype));
 	PATCH_JUMP(pkeyjmp, keyjmp);
 	PATCH_HDR(phdr, hdr);
 	*bufsize = PROGRAM_FINALIZE();
@@ -922,7 +922,7 @@ static inline void cnstr_shdsc_ipsec_decap(uint32_t *descbuf,
 	SET_LABEL(keyjmp);
 	PROTOCOL(OP_TYPE_DECAP_PROTOCOL,
 		 OP_PCLID_IPSEC,
-		 cipherdata->algtype | authdata->algtype);
+		 (uint16_t)(cipherdata->algtype | authdata->algtype));
 	PATCH_JUMP(pkeyjmp, keyjmp);
 	PATCH_HDR(phdr, hdr);
 	*bufsize = PROGRAM_FINALIZE();
@@ -1004,7 +1004,7 @@ static inline void cnstr_shdsc_ipsec_encap_des_aes_xcbc(uint32_t *descbuf,
 	KEY(KEY1, cipherdata->key_enc_flags, PTR(cipherdata->key),
 	    cipherdata->keylen, 0);
 	PROTOCOL(OP_TYPE_ENCAP_PROTOCOL, OP_PCLID_IPSEC,
-		 cipherdata->algtype | OP_PCL_IPSEC_HMAC_MD5_96);
+		 (uint16_t)(cipherdata->algtype | OP_PCL_IPSEC_HMAC_MD5_96));
 	/* Swap SEQINPTR to SEQOUTPTR. */
 	move_seqout_ptr = MOVE(DESCBUF, 0, MATH1, 0, IMM(16), WAITCOMP);
 	MATHB(MATH1, AND, IMM(~(CMD_SEQ_IN_PTR ^ CMD_SEQ_OUT_PTR)), MATH1,
@@ -1024,7 +1024,8 @@ static inline void cnstr_shdsc_ipsec_encap_des_aes_xcbc(uint32_t *descbuf,
 	     CLRW, 0, 4, 0);
 	SEQOUTPTR(0, 65535, RTO);
 	move_outlen = MOVE(DESCBUF, 0, MATH0, 4, IMM(8), WAITCOMP);
-	MATHB(MATH0, SUB, IMM(pdb->ip_hdr_len + IPSEC_ICV_MD5_TRUNC_SIZE),
+	MATHB(MATH0, SUB,
+	      IMM((uint64_t)(pdb->ip_hdr_len + IPSEC_ICV_MD5_TRUNC_SIZE)),
 	      VSEQINSZ, SIZE(4), 0);
 	MATHB(MATH0, SUB, IMM(IPSEC_ICV_MD5_TRUNC_SIZE), VSEQOUTSZ, SIZE(4), 0);
 	KEY(KEY1, authdata->key_enc_flags, PTR(authdata->key), authdata->keylen,
@@ -1140,7 +1141,8 @@ static inline void cnstr_shdsc_ipsec_decap_des_aes_xcbc(uint32_t *descbuf,
 	     CLRW, 0, 4, 0);
 	KEY(KEY1, authdata->key_enc_flags, PTR(authdata->key), authdata->keylen,
 	    0);
-	MATHB(SEQINSZ, SUB, IMM(pdb->ip_hdr_len + IPSEC_ICV_MD5_TRUNC_SIZE),
+	MATHB(SEQINSZ, SUB,
+	      IMM((uint64_t)(pdb->ip_hdr_len + IPSEC_ICV_MD5_TRUNC_SIZE)),
 	      MATH0, SIZE(4), 0);
 	MATHB(MATH0, SUB, ZERO, VSEQINSZ, SIZE(4), 0);
 	ALG_OPERATION(OP_ALG_ALGSEL_MD5, OP_ALG_AAI_HMAC_PRECOMP,
@@ -1188,12 +1190,13 @@ static inline void cnstr_shdsc_ipsec_decap_des_aes_xcbc(uint32_t *descbuf,
 		 CLRW_CLR_C2DATAS | CLRW_CLR_C2CTX | CLRW_RESET_CLS1_CHA),
 	     CLRW, 0, 4, 0);
 	SEQINPTR(0, 65535, RTO);
-	MATHB(MATH0, ADD, IMM(pdb->ip_hdr_len + IPSEC_ICV_MD5_TRUNC_SIZE),
+	MATHB(MATH0, ADD,
+	      IMM((uint64_t)(pdb->ip_hdr_len + IPSEC_ICV_MD5_TRUNC_SIZE)),
 	      SEQINSZ, SIZE(4), 0);
 	KEY(KEY1, cipherdata->key_enc_flags, PTR(cipherdata->key),
 	    cipherdata->keylen, 0);
 	PROTOCOL(OP_TYPE_DECAP_PROTOCOL, OP_PCLID_IPSEC,
-		 cipherdata->algtype | OP_PCL_IPSEC_HMAC_MD5_96);
+		 (uint16_t)(cipherdata->algtype | OP_PCL_IPSEC_HMAC_MD5_96));
 /*
  * TODO: RTA currently doesn't support adding labels in or after Job Descriptor.
  * To be changed when proper support is added in RTA.
@@ -2066,7 +2069,7 @@ static inline int pdcp_insert_cplane_acc_op(struct program *program,
 	/* Insert Cipher Key */
 	KEY(KEY1, cipherdata->key_enc_flags, PTR(cipherdata->key),
 	    cipherdata->keylen, WITH(0));
-	PROTOCOL(dir, OP_PCLID_LTE_PDCP_CTRL, cipherdata->algtype);
+	PROTOCOL(dir, OP_PCLID_LTE_PDCP_CTRL, (uint16_t)cipherdata->algtype);
 
 	return 0;
 }
@@ -2933,7 +2936,7 @@ static inline int pdcp_insert_hfn_ov_op(struct program *program,
 		unsigned char era_2_sw_hfn_override)
 {
 	uint32_t imm = 0x80000000;
-	uint32_t hfn_pdb_offset;
+	uint16_t hfn_pdb_offset;
 
 	if (rta_sec_era == RTA_SEC_ERA_2 && !era_2_sw_hfn_override)
 		return 0;
@@ -3028,8 +3031,8 @@ static inline enum pdb_type_e cnstr_pdcp_c_plane_pdb(struct program *program,
 
 	case PDCP_PDB_TYPE_REDUCED_PDB:
 		WORD((hfn << PDCP_C_PLANE_PDB_HFN_SHIFT));
-		WORD((bearer << PDCP_C_PLANE_PDB_BEARER_SHIFT) |
-			(direction << PDCP_C_PLANE_PDB_DIR_SHIFT));
+		WORD((uint32_t)((bearer << PDCP_C_PLANE_PDB_BEARER_SHIFT) |
+			(direction << PDCP_C_PLANE_PDB_DIR_SHIFT)));
 		break;
 
 	case PDCP_PDB_TYPE_FULL_PDB:
@@ -3042,9 +3045,9 @@ static inline enum pdb_type_e cnstr_pdcp_c_plane_pdb(struct program *program,
 
 		/* Copy relevant information from user to PDB */
 		pdb.hfn_res = hfn << PDCP_C_PLANE_PDB_HFN_SHIFT;
-		pdb.bearer_dir_res =
-			(bearer << PDCP_C_PLANE_PDB_BEARER_SHIFT) |
-			(direction << PDCP_C_PLANE_PDB_DIR_SHIFT);
+		pdb.bearer_dir_res = (uint32_t)
+			((bearer << PDCP_C_PLANE_PDB_BEARER_SHIFT) |
+			 (direction << PDCP_C_PLANE_PDB_DIR_SHIFT));
 		pdb.hfn_thr_res =
 			hfn_threshold << PDCP_C_PLANE_PDB_HFN_THR_SHIFT;
 
@@ -3108,8 +3111,8 @@ static inline void cnstr_shdsc_pdcp_c_plane_encap(uint32_t *descbuf,
 		unsigned *bufsize,
 		unsigned short ps,
 		uint32_t hfn,
-		unsigned short bearer,
-		unsigned short direction,
+		unsigned char bearer,
+		unsigned char direction,
 		uint32_t hfn_threshold,
 		struct alginfo *cipherdata,
 		struct alginfo *authdata,
@@ -3261,8 +3264,8 @@ static inline void cnstr_shdsc_pdcp_c_plane_decap(uint32_t *descbuf,
 		unsigned *bufsize,
 		unsigned short ps,
 		uint32_t hfn,
-		unsigned short bearer,
-		unsigned short direction,
+		unsigned char bearer,
+		unsigned char direction,
 		uint32_t hfn_threshold,
 		struct alginfo *cipherdata,
 		struct alginfo *authdata,
@@ -3451,14 +3454,14 @@ static inline void cnstr_shdsc_pdcp_u_plane_encap(uint32_t *descbuf,
 		break;
 
 	case PDCP_SN_SIZE_12:
-		pdb.opt_res.opt &= ~PDCP_U_PLANE_PDB_OPT_SHORT_SN;
+		pdb.opt_res.opt &= (uint32_t)(~PDCP_U_PLANE_PDB_OPT_SHORT_SN);
 		pdb.hfn_res = hfn << PDCP_U_PLANE_PDB_LONG_SN_HFN_SHIFT;
 		pdb.hfn_thr_res =
 			hfn_threshold<<PDCP_U_PLANE_PDB_LONG_SN_HFN_THR_SHIFT;
 		break;
 
 	case PDCP_SN_SIZE_15:
-		pdb.opt_res.opt &= ~PDCP_U_PLANE_PDB_OPT_SHORT_SN;
+		pdb.opt_res.opt &= (uint32_t)(~PDCP_U_PLANE_PDB_OPT_SHORT_SN);
 		pdb.hfn_res = hfn << PDCP_U_PLANE_PDB_15BIT_SN_HFN_SHIFT;
 		pdb.hfn_thr_res =
 			hfn_threshold<<PDCP_U_PLANE_PDB_15BIT_SN_HFN_THR_SHIFT;
@@ -3469,8 +3472,9 @@ static inline void cnstr_shdsc_pdcp_u_plane_encap(uint32_t *descbuf,
 		return;
 	}
 
-	pdb.bearer_dir_res = (bearer << PDCP_U_PLANE_PDB_BEARER_SHIFT) |
-				(direction << PDCP_U_PLANE_PDB_DIR_SHIFT);
+	pdb.bearer_dir_res = (uint32_t)
+				((bearer << PDCP_U_PLANE_PDB_BEARER_SHIFT) |
+				 (direction << PDCP_U_PLANE_PDB_DIR_SHIFT));
 
 	/* copy PDB in descriptor*/
 	ENDIAN_DATA((uint8_t *)&pdb, sizeof(struct pdcp_pdb));
@@ -3500,7 +3504,7 @@ static inline void cnstr_shdsc_pdcp_u_plane_encap(uint32_t *descbuf,
 			    WITH(0));
 			PROTOCOL(OP_TYPE_ENCAP_PROTOCOL,
 				 OP_PCLID_LTE_PDCP_USER,
-				 cipherdata->algtype);
+				 (uint16_t)cipherdata->algtype);
 			break;
 		case PDCP_CIPHER_TYPE_NULL:
 			pdcp_insert_uplane_null_op(program,
@@ -3624,14 +3628,14 @@ static inline void cnstr_shdsc_pdcp_u_plane_decap(uint32_t *descbuf,
 		break;
 
 	case PDCP_SN_SIZE_12:
-		pdb.opt_res.opt &= ~PDCP_U_PLANE_PDB_OPT_SHORT_SN;
+		pdb.opt_res.opt &= (uint32_t)(~PDCP_U_PLANE_PDB_OPT_SHORT_SN);
 		pdb.hfn_res = hfn << PDCP_U_PLANE_PDB_LONG_SN_HFN_SHIFT;
 		pdb.hfn_thr_res =
 			hfn_threshold<<PDCP_U_PLANE_PDB_LONG_SN_HFN_THR_SHIFT;
 		break;
 
 	case PDCP_SN_SIZE_15:
-		pdb.opt_res.opt &= ~PDCP_U_PLANE_PDB_OPT_SHORT_SN;
+		pdb.opt_res.opt &= (uint32_t)(~PDCP_U_PLANE_PDB_OPT_SHORT_SN);
 		pdb.hfn_res = hfn << PDCP_U_PLANE_PDB_15BIT_SN_HFN_SHIFT;
 		pdb.hfn_thr_res =
 			hfn_threshold<<PDCP_U_PLANE_PDB_15BIT_SN_HFN_THR_SHIFT;
@@ -3642,8 +3646,9 @@ static inline void cnstr_shdsc_pdcp_u_plane_decap(uint32_t *descbuf,
 		return;
 	}
 
-	pdb.bearer_dir_res = (bearer << PDCP_U_PLANE_PDB_BEARER_SHIFT) |
-				(direction << PDCP_U_PLANE_PDB_DIR_SHIFT);
+	pdb.bearer_dir_res = (uint32_t)
+				((bearer << PDCP_U_PLANE_PDB_BEARER_SHIFT) |
+				 (direction << PDCP_U_PLANE_PDB_DIR_SHIFT));
 
 	/* copy PDB in descriptor*/
 	ENDIAN_DATA((uint8_t *)&pdb, sizeof(struct pdcp_pdb));
@@ -3672,7 +3677,7 @@ static inline void cnstr_shdsc_pdcp_u_plane_decap(uint32_t *descbuf,
 			    PTR(cipherdata->key), cipherdata->keylen, WITH(0));
 			PROTOCOL(OP_TYPE_DECAP_PROTOCOL,
 				 OP_PCLID_LTE_PDCP_USER,
-				 cipherdata->algtype);
+				 (uint16_t)cipherdata->algtype);
 			break;
 		case PDCP_CIPHER_TYPE_NULL:
 			pdcp_insert_uplane_null_op(program,
@@ -4335,9 +4340,7 @@ static inline void cnstr_shdsc_mbms_type0(uint32_t *descbuf,
 	LABEL(seq_in_ptr);
 	LABEL(rto);
 	LABEL(crc_pass);
-	LABEL(start_desc);
 	LABEL(keyjmp);
-	REFERENCE(xfer_hdrs);
 	REFERENCE(jump_write_crc);
 	REFERENCE(phdr);
 	REFERENCE(seq_in_address);
@@ -4524,7 +4527,6 @@ static inline unsigned cnstr_shdsc_mbms_type1_3(uint32_t *descbuf,
 						enum mbms_pdu_type pdu_type)
 {
 	struct program part1_prg;
-	struct program part2_prg;
 	struct program *program = &part1_prg;
 	struct mbms_type_1_3_pdb pdb;
 
@@ -4534,8 +4536,6 @@ static inline unsigned cnstr_shdsc_mbms_type1_3(uint32_t *descbuf,
 	LABEL(sd_ptr);
 	LABEL(hdr_crc_pass);
 	LABEL(all_crc_pass);
-	LABEL(start_desc);
-	REFERENCE(xfer_hdrs);
 	REFERENCE(jump_chk_payload_crc);
 	REFERENCE(jump_start_of_desc);
 	REFERENCE(load_2nd_part);
@@ -4903,7 +4903,7 @@ static inline unsigned cnstr_shdsc_mbms_type1_3(uint32_t *descbuf,
 	 * This is a temporary workaround till RTA has support for
 	 * patching the length of the SD.
 	 */
-	*program->shrhdr &= ~0x7F;
+	*program->shrhdr &= (uint32_t)(~0x7F);
 	*program->shrhdr |= end_of_sd;
 
 	return end_of_sd;

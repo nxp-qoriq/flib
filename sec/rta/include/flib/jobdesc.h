@@ -57,12 +57,12 @@ static inline void cnstr_jobdesc_mdsplitkey(uint32_t *descbuf,
 		64,	/* SHA384 */
 		64	/* SHA512 */
 	};
-	uint8_t split_key_len, idx;
+	uint32_t split_key_len, idx;
 	struct program prg;
 	struct program *program = &prg;
 
 	idx = (cipher & OP_ALG_ALGSEL_SUBMASK) >> OP_ALG_ALGSEL_SHIFT;
-	split_key_len = mdpadlen[idx] * 2;
+	split_key_len = (uint32_t)(mdpadlen[idx] * 2);
 
 	PROGRAM_CNTXT_INIT(descbuf, 0);
 	if (ps)
