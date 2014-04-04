@@ -4883,7 +4883,7 @@ static inline unsigned cnstr_shdsc_mbms_type1_3(uint32_t *descbuf,
 	MOVE(CONTEXT1, 16, MATH2, 0, IMM(8), WITH(0));
 
 	/* Align the Calculated Payload CRC to be written properly */
-	MATHB(MATH3, RSHIFT, IMM(6), MATH3, SIZE(8), WITH(0));
+	MATHB(MATH3, RSHIFT, IMM(6), MATH3, SIZE(8), WITH(IFB));
 
 	/* Bytes to write in output memory =  MAC/VLAN/IP/UDP/GTP/MBMS */
 	MATHB(MATH1, SUB, ZERO, VSEQOUTSZ, SIZE(4), WITH(0));
