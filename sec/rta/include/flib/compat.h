@@ -82,7 +82,8 @@ typedef unsigned char			_Bool;
 #endif
 
 #ifndef ALIGN
-#define ALIGN(x, a) (((x) + ((typeof(x))(a) - 1)) & ~((typeof(x))(a) - 1))
+#define ALIGN(x, a) (((x) + ((__typeof__(x))(a) - 1)) & \
+			~((__typeof__(x))(a) - 1))
 #endif
 
 #ifndef BIT
