@@ -44,6 +44,8 @@
 					    valid only for IPsec legacy mode */
 #define PDBOPTS_ESP_INCIPHDR	0x04   /**< prepend IP header to output frame
 					    valid only for IPsec legacy mode */
+#define PDBOPTS_ESP_OIHI_MASK	0x0c	/**< Mask for Outer IP Header Included
+					     valid only for IPsec new mode */
 #define PDBOPTS_ESP_OIHI_PDB_INL 0x0c   /**< prepend IP header to output frame
 					    from PDB (where it is inlined)
 					    valid only for IPsec new mode */
