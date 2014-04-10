@@ -208,8 +208,8 @@ static inline int rta_set_sec_era(enum rta_sec_era era)
 {
 	if (era > MAX_SEC_ERA) {
 		rta_sec_era = DEFAULT_SEC_ERA;
-		pr_debug("Unsupported SEC ERA. Defaulting to ERA %d\n",
-			 DEFAULT_SEC_ERA + 1);
+		pr_err("Unsupported SEC ERA. Defaulting to ERA %d\n",
+		       DEFAULT_SEC_ERA + 1);
 		return -1;
 	}
 

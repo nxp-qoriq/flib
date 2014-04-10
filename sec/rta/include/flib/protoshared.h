@@ -746,7 +746,7 @@ static inline void cnstr_shdsc_macsec_encap(uint32_t *descbuf,
 
 	if ((cipherdata->algtype == MACSEC_CIPHER_TYPE_GMAC) &&
 	    (rta_sec_era < RTA_SEC_ERA_5))
-		pr_debug("MACsec GMAC available only for Era 5 or above\n");
+		pr_err("MACsec GMAC available only for Era 5 or above\n");
 
 	memset(&pdb, 0x00, sizeof(struct macsec_encap_pdb));
 	pdb.sci_hi = high_32b(sci);
@@ -798,7 +798,7 @@ static inline void cnstr_shdsc_macsec_decap(uint32_t *descbuf,
 
 	if ((cipherdata->algtype == MACSEC_CIPHER_TYPE_GMAC) &&
 	    (rta_sec_era < RTA_SEC_ERA_5))
-		pr_debug("MACsec GMAC available only for Era 5 or above\n");
+		pr_err("MACsec GMAC available only for Era 5 or above\n");
 
 	memset(&pdb, 0x00, sizeof(struct macsec_decap_pdb));
 	pdb.sci_hi = high_32b(sci);
@@ -1271,8 +1271,8 @@ static inline void cnstr_shdsc_ipsec_new_encap(uint32_t *descbuf,
 	REFERENCE(phdr);
 
 	if (rta_sec_era < RTA_SEC_ERA_8) {
-		pr_debug("IPsec new mode encap: available only for Era %d or above\n",
-			 USER_SEC_ERA(RTA_SEC_ERA_8));
+		pr_err("IPsec new mode encap: available only for Era %d or above\n",
+		       USER_SEC_ERA(RTA_SEC_ERA_8));
 		*bufsize = 0;
 		return;
 	}
@@ -1355,8 +1355,8 @@ static inline void cnstr_shdsc_ipsec_new_decap(uint32_t *descbuf,
 	REFERENCE(phdr);
 
 	if (rta_sec_era < RTA_SEC_ERA_8) {
-		pr_debug("IPsec new mode decap: available only for Era %d or above\n",
-			 USER_SEC_ERA(RTA_SEC_ERA_8));
+		pr_err("IPsec new mode decap: available only for Era %d or above\n",
+		       USER_SEC_ERA(RTA_SEC_ERA_8));
 		*bufsize = 0;
 		return;
 	}
@@ -2045,7 +2045,7 @@ static inline int pdcp_insert_cplane_int_only_op(struct program *program,
 
 	case PDCP_AUTH_TYPE_ZUC:
 		if (rta_sec_era < RTA_SEC_ERA_5) {
-			pr_debug("Invalid era for selected algorithm\n");
+			pr_err("Invalid era for selected algorithm\n");
 			return -1;
 		}
 		/* Insert Auth Key */
@@ -2087,9 +2087,8 @@ static inline int pdcp_insert_cplane_int_only_op(struct program *program,
 		break;
 
 	default:
-		pr_debug("%s: Invalid integrity algorithm selected: %d\n",
-			 "pdcp_insert_cplane_int_only_op",
-			 authdata->algtype);
+		pr_err("%s: Invalid integrity algorithm selected: %d\n",
+		       "pdcp_insert_cplane_int_only_op", authdata->algtype);
 		return -1;
 	}
 
@@ -2166,7 +2165,7 @@ static inline int pdcp_insert_cplane_enc_only_op(struct program *program,
 
 	case PDCP_CIPHER_TYPE_ZUC:
 		if (rta_sec_era < RTA_SEC_ERA_5) {
-			pr_debug("Invalid era for selected algorithm\n");
+			pr_err("Invalid era for selected algorithm\n");
 			return -1;
 		}
 
@@ -2189,9 +2188,8 @@ static inline int pdcp_insert_cplane_enc_only_op(struct program *program,
 		break;
 
 	default:
-		pr_debug("%s: Invalid encrypt algorithm selected: %d\n",
-			 "pdcp_insert_cplane_enc_only_op",
-			 cipherdata->algtype);
+		pr_err("%s: Invalid encrypt algorithm selected: %d\n",
+		       "pdcp_insert_cplane_enc_only_op", cipherdata->algtype);
 		return -1;
 	}
 
@@ -2637,7 +2635,7 @@ static inline int pdcp_insert_cplane_snow_zuc_op(struct program *program,
 	REFERENCE(pkeyjump);
 
 	if (rta_sec_era < RTA_SEC_ERA_5) {
-		pr_debug("Invalid era for selected algorithm\n");
+		pr_err("Invalid era for selected algorithm\n");
 		return -1;
 	}
 
@@ -2721,7 +2719,7 @@ static inline int pdcp_insert_cplane_aes_zuc_op(struct program *program,
 	REFERENCE(pkeyjump);
 
 	if (rta_sec_era < RTA_SEC_ERA_5) {
-		pr_debug("Invalid era for selected algorithm\n");
+		pr_err("Invalid era for selected algorithm\n");
 		return -1;
 	}
 
@@ -2809,7 +2807,7 @@ static inline int pdcp_insert_cplane_zuc_snow_op(struct program *program,
 	REFERENCE(pkeyjump);
 
 	if (rta_sec_era < RTA_SEC_ERA_5) {
-		pr_debug("Invalid era for selected algorithm\n");
+		pr_err("Invalid era for selected algorithm\n");
 		return -1;
 	}
 
@@ -2898,7 +2896,7 @@ static inline int pdcp_insert_cplane_zuc_aes_op(struct program *program,
 		unsigned char era_2_sw_hfn_override)
 {
 	if (rta_sec_era < RTA_SEC_ERA_5) {
-		pr_debug("Invalid era for selected algorithm\n");
+		pr_err("Invalid era for selected algorithm\n");
 		return -1;
 	}
 
@@ -3057,7 +3055,7 @@ static inline int pdcp_insert_uplane_15bit_op(struct program *program,
 
 	case PDCP_CIPHER_TYPE_ZUC:
 		if (rta_sec_era < RTA_SEC_ERA_5) {
-			pr_debug("Invalid era for selected algorithm\n");
+			pr_err("Invalid era for selected algorithm\n");
 			return -1;
 		}
 		MOVE(MATH2, 0, CONTEXT1, 0, IMM(0x08), WITH(0));
@@ -3071,9 +3069,8 @@ static inline int pdcp_insert_uplane_15bit_op(struct program *program,
 		break;
 
 	default:
-		pr_debug("%s: Invalid encrypt algorithm selected: %d\n",
-			 "pdcp_insert_uplane_15bit_op",
-			 cipherdata->algtype);
+		pr_err("%s: Invalid encrypt algorithm selected: %d\n",
+		       "pdcp_insert_uplane_15bit_op", cipherdata->algtype);
 		return -1;
 	}
 
@@ -3336,7 +3333,7 @@ static inline void cnstr_shdsc_pdcp_c_plane_encap(uint32_t *descbuf,
 	LABEL(pdb_end);
 
 	if (rta_sec_era != RTA_SEC_ERA_2 && era_2_sw_hfn_override) {
-		pr_debug("Cannot select SW HFN override for other era than 2");
+		pr_err("Cannot select SW HFN override for other era than 2");
 		return;
 	}
 
@@ -3489,7 +3486,7 @@ static inline void cnstr_shdsc_pdcp_c_plane_decap(uint32_t *descbuf,
 	LABEL(pdb_end);
 
 	if (rta_sec_era != RTA_SEC_ERA_2 && era_2_sw_hfn_override) {
-		pr_debug("Cannot select SW HFN override for other era than 2");
+		pr_err("Cannot select SW HFN override for other era than 2");
 		return;
 	}
 
@@ -3584,7 +3581,7 @@ static inline void cnstr_shdsc_pdcp_u_plane_encap(uint32_t *descbuf,
 	LABEL(pdb_end);
 
 	if (rta_sec_era != RTA_SEC_ERA_2 && era_2_sw_hfn_override) {
-		pr_debug("Cannot select SW HFN override for other era than 2");
+		pr_err("Cannot select SW HFN override for other era than 2");
 		return;
 	}
 
@@ -3624,7 +3621,7 @@ static inline void cnstr_shdsc_pdcp_u_plane_encap(uint32_t *descbuf,
 		break;
 
 	default:
-		pr_debug("Invalid Sequence Number Size setting in PDB\n");
+		pr_err("Invalid Sequence Number Size setting in PDB\n");
 		return;
 	}
 
@@ -3649,7 +3646,7 @@ static inline void cnstr_shdsc_pdcp_u_plane_encap(uint32_t *descbuf,
 		switch (cipherdata->algtype) {
 		case PDCP_CIPHER_TYPE_ZUC:
 			if (rta_sec_era < RTA_SEC_ERA_5) {
-				pr_debug("Invalid era for selected algorithm\n");
+				pr_err("Invalid era for selected algorithm\n");
 				return;
 			}
 		case PDCP_CIPHER_TYPE_AES:
@@ -3668,9 +3665,9 @@ static inline void cnstr_shdsc_pdcp_u_plane_encap(uint32_t *descbuf,
 						   OP_TYPE_ENCAP_PROTOCOL);
 			break;
 		default:
-			pr_debug("%s: Invalid encrypt algorithm selected: %d\n",
-				 "cnstr_pcl_shdsc_pdcp_u_plane_decap",
-				 cipherdata->algtype);
+			pr_err("%s: Invalid encrypt algorithm selected: %d\n",
+			       "cnstr_pcl_shdsc_pdcp_u_plane_decap",
+			       cipherdata->algtype);
 			return;
 		}
 		break;
@@ -3758,7 +3755,7 @@ static inline void cnstr_shdsc_pdcp_u_plane_decap(uint32_t *descbuf,
 	LABEL(pdb_end);
 
 	if (rta_sec_era != RTA_SEC_ERA_2 && era_2_sw_hfn_override) {
-		pr_debug("Cannot select SW HFN override for other era than 2");
+		pr_err("Cannot select SW HFN override for other era than 2");
 		return;
 	}
 
@@ -3798,7 +3795,7 @@ static inline void cnstr_shdsc_pdcp_u_plane_decap(uint32_t *descbuf,
 		break;
 
 	default:
-		pr_debug("Invalid Sequence Number Size setting in PDB\n");
+		pr_err("Invalid Sequence Number Size setting in PDB\n");
 		return;
 	}
 
@@ -3823,7 +3820,7 @@ static inline void cnstr_shdsc_pdcp_u_plane_decap(uint32_t *descbuf,
 		switch (cipherdata->algtype) {
 		case PDCP_CIPHER_TYPE_ZUC:
 			if (rta_sec_era < RTA_SEC_ERA_5) {
-				pr_debug("Invalid era for selected algorithm\n");
+				pr_err("Invalid era for selected algorithm\n");
 				return;
 			}
 		case PDCP_CIPHER_TYPE_AES:
@@ -3841,9 +3838,9 @@ static inline void cnstr_shdsc_pdcp_u_plane_decap(uint32_t *descbuf,
 						   OP_TYPE_DECAP_PROTOCOL);
 			break;
 		default:
-			pr_debug("%s: Invalid encrypt algorithm selected: %d\n",
-				 "cnstr_pcl_shdsc_pdcp_u_plane_decap",
-				 cipherdata->algtype);
+			pr_err("%s: Invalid encrypt algorithm selected: %d\n",
+			       "cnstr_pcl_shdsc_pdcp_u_plane_decap",
+			       cipherdata->algtype);
 			return;
 		}
 		break;
@@ -4052,7 +4049,7 @@ static inline void cnstr_shdsc_pdcp_short_mac(uint32_t *descbuf,
 
 	case PDCP_AUTH_TYPE_ZUC:
 		if (rta_sec_era < RTA_SEC_ERA_5) {
-			pr_debug("Invalid era for selected algorithm\n");
+			pr_err("Invalid era for selected algorithm\n");
 			return;
 		}
 		iv[0] = 0xFFFFFFFF;
@@ -4075,9 +4072,8 @@ static inline void cnstr_shdsc_pdcp_short_mac(uint32_t *descbuf,
 		break;
 
 	default:
-		pr_debug("%s: Invalid integrity algorithm selected: %d\n",
-			 "cnstr_shdsc_pdcp_short_mac",
-			 authdata->algtype);
+		pr_err("%s: Invalid integrity algorithm selected: %d\n",
+		       "cnstr_shdsc_pdcp_short_mac", authdata->algtype);
 		return;
 	}
 
@@ -5143,7 +5139,7 @@ static inline void cnstr_shdsc_mbms(uint32_t *descbuf,
 		break;
 
 	default:
-		pr_debug("Invalid MBMS PDU Type selected %d\n", pdu_type);
+		pr_err("Invalid MBMS PDU Type selected %d\n", pdu_type);
 		return;
 	}
 }
