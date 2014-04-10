@@ -4,7 +4,7 @@ CC=$(CROSS_COMPILE)gcc
 INCLUDES=-I../include
 CFLAGS=-Wall -Wshadow -g -O0 $(INCLUDES)
 CPPFLAGS=-DRTA_DEBUG
-check: CPPFLAGS=
+check: CPPFLAGS=-DSUPPRESS_PRINTS
 
 ALL_SRCS=$(wildcard *.c)
 LIB_SRCS=test_common.c

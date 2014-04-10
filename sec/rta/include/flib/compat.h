@@ -22,12 +22,20 @@
 #endif
 
 #ifndef pr_debug
-#ifdef RTA_DEBUG
+#if !defined(SUPPRESS_PRINTS) && defined(RTA_DEBUG)
 #define pr_debug(fmt, ...)    printf(fmt, ##__VA_ARGS__)
 #else
 #define pr_debug(fmt, ...)
 #endif
+#endif /* pr_debug */
+
+#ifndef pr_err
+#if !defined(SUPPRESS_PRINTS)
+#define pr_err(fmt, ...)    printf(fmt, ##__VA_ARGS__)
+#else
+#define pr_err(fmt, ...)
 #endif
+#endif /* pr_err */
 
 /**
  * ARRAY_SIZE(x) - Returns the number of elements in an array
