@@ -212,7 +212,6 @@ struct ipsec_decap_pdb {
 	uint32_t seq_num_ext_hi;
 	uint32_t seq_num;
 	uint32_t anti_replay[2];
-	uint32_t end_index[0];
 };
 
 /*
