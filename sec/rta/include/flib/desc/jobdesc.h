@@ -1,13 +1,15 @@
 /* Copyright 2008-2013 Freescale Semiconductor, Inc. */
 
-#ifndef __RTA_JOBDESC_H__
-#define __RTA_JOBDESC_H__
+#ifndef __DESC_JOBDESC_H__
+#define __DESC_JOBDESC_H__
 
-#include "rta.h"
+#include "common.h"
+#include "flib/rta.h"
 
 /**
  * @file                 jobdesc.h
  * @brief                SEC Job Descriptor Construction Library
+ *                       Job Descriptor Constructors
  */
 
 /**
@@ -82,4 +84,4 @@ static inline void cnstr_jobdesc_mdsplitkey(uint32_t *descbuf,
 
 /** @} end of jobdesc_group */
 
-#endif /* __RTA_JOBDESC_H__ */
+#endif /* __DESC_JOBDESC_H__ */

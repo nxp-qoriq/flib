@@ -13,7 +13,6 @@
 #include "rta/move_cmd.h"
 #include "rta/nfifo_cmd.h"
 #include "rta/operation_cmd.h"
-#include "rta/pdb.h"
 #include "rta/protocol_cmd.h"
 #include "rta/seq_in_out_ptr_cmd.h"
 #include "rta/signature_cmd.h"

@@ -30,13 +30,13 @@ intend to build your application there as well.
 
 Using RTA
 ---------
-RTA can be used in an application just by including two header files:
+RTA can be used in an application just by including the following header file:
 
 	#include flib/rta.h
-	#include flib/desc.h
 
-The file protoshared.h contains several real-world descriptors written with
-RTA. You can use them as-is or adapt them to your needs.
+The files in sec/rta/include/flib/desc directory contain several real-world
+descriptors written with RTA. You can use them as-is or adapt them to your
+needs.
 
 RTA routines assume that your code defines a local variable named "program":
 
@@ -66,8 +66,8 @@ to be created.
 RTA components
 --------------
 The content of the package is split mainly in two components:
-- descriptor builder API (rta.h, desc.h)
-- ready to use RTA descriptors (protoshared.h)
+- descriptor builder API (rta.h)
+- ready to use RTA descriptors (sec/rta/include/flib/desc/*.h)
 
 These are the main building blocks of descriptors:
 - buffer management: init & finalize
