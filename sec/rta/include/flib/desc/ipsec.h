@@ -7,146 +7,231 @@
 #include "common.h"
 
 /**
- * @file                 ipsec.h
- * @brief                SEC Descriptor Construction Library Protocol-level
- *                       IPsec Shared Descriptor Constructors
- */
-
-/**
- * @defgroup descriptor_lib_group RTA Descriptors Library
- * @{
- */
-/** @} end of descriptor_lib_group */
-
-/**
- * @defgroup pdb_group SEC Protocol Data Block Data Structures
- * @ingroup descriptor_lib_group
- * @{
- */
-/** @} end of pdb_group */
-
-/**
- * @defgroup ipsec_encap_pdb ipsec_encap_pdb
- * @ingroup pdb_group
- * @{
- */
-/** @} end of ipsec_encap_pdb */
-
-/**
- * @defgroup ipsec_decap_pdb ipsec_decap_pdb
- * @ingroup pdb_group
- * @{
- */
-/** @} end of ipsec_decap_pdb */
-
-/**
- * @defgroup defines_group Auxiliary Defines
- * @ingroup descriptor_lib_group
- * @{
+ * DOC: IPsec Shared Descriptor Constructors
+ *
+ * Shared descriptors for IPsec protocol.
  */
 
 /* General IPSec ESP encap / decap PDB options */
-#define PDBOPTS_ESP_ESN		0x10   /**< extended sequence included */
-#define PDBOPTS_ESP_IPVSN	0x02   /**< process IPv6 header
-					    valid only for IPsec legacy mode */
-#define PDBOPTS_ESP_TUNNEL	0x01   /**< tunnel mode next-header byte
-					    valid only for IPsec legacy mode */
+
+/**
+ * PDBOPTS_ESP_ESN - Extended sequence included
+ */
+#define PDBOPTS_ESP_ESN		0x10
+
+/**
+ * PDBOPTS_ESP_IPVSN - Process IPv6 header
+ *
+ * Valid only for IPsec legacy mode.
+ */
+#define PDBOPTS_ESP_IPVSN	0x02
+
+/**
+ * PDBOPTS_ESP_TUNNEL - Tunnel mode next-header byte
+ *
+ * Valid only for IPsec legacy mode.
+ */
+#define PDBOPTS_ESP_TUNNEL	0x01
 
 /* IPSec ESP Encap PDB options */
-#define PDBOPTS_ESP_UPDATE_CSUM 0x80   /**< update ip header checksum
-					    valid only for IPsec legacy mode */
-#define PDBOPTS_ESP_DIFFSERV	0x40   /**< copy TOS/TC from inner iphdr
-					    valid only for IPsec legacy mode */
-#define PDBOPTS_ESP_IVSRC	0x20   /**< IV comes from internal random gen */
-#define PDBOPTS_ESP_IPHDRSRC	0x08   /**< IP header comes from PDB
-					    valid only for IPsec legacy mode */
-#define PDBOPTS_ESP_INCIPHDR	0x04   /**< prepend IP header to output frame
-					    valid only for IPsec legacy mode */
-#define PDBOPTS_ESP_OIHI_MASK	0x0c	/**< Mask for Outer IP Header Included
-					     valid only for IPsec new mode */
-#define PDBOPTS_ESP_OIHI_PDB_INL 0x0c   /**< prepend IP header to output frame
-					    from PDB (where it is inlined)
-					    valid only for IPsec new mode */
-#define PDBOPTS_ESP_OIHI_PDB_REF 0x08   /**< prepend IP header to output frame
-					    from PDB (referenced by pointer)
-					    valid only for IPsec new mode */
-#define PDBOPTS_ESP_OIHI_IF	0x04   /**< prepend IP header to output frame
-					    from input frame
-					    valid only for IPsec new mode */
-#define PDBOPTS_ESP_NAT		0x02   /**< enable RFC 3948 UDP-encapsulated-ESP
-					    valid only for IPsec new mode */
-#define PDBOPTS_ESP_NUC		0x01   /**< enable NAT UDP Checksum
-					    valid only for IPsec new mode */
+
+/**
+ * PDBOPTS_ESP_UPDATE_CSUM - Update ip header checksum
+ *
+ * Valid only for IPsec legacy mode.
+ */
+#define PDBOPTS_ESP_UPDATE_CSUM 0x80
+
+/**
+ * PDBOPTS_ESP_DIFFSERV - Copy TOS/TC from inner iphdr
+ *
+ * Valid only for IPsec legacy mode.
+ */
+#define PDBOPTS_ESP_DIFFSERV	0x40
+
+/**
+ * PDBOPTS_ESP_IVSRC - IV comes from internal random gen
+ */
+#define PDBOPTS_ESP_IVSRC	0x20
+
+/**
+ * PDBOPTS_ESP_IPHDRSRC - IP header comes from PDB
+ *
+ * Valid only for IPsec legacy mode.
+ */
+#define PDBOPTS_ESP_IPHDRSRC	0x08
+
+/**
+ * PDBOPTS_ESP_INCIPHDR - Prepend IP header to output frame
+ *
+ * Valid only for IPsec legacy mode.
+ */
+#define PDBOPTS_ESP_INCIPHDR	0x04
+
+/**
+ * PDBOPTS_ESP_OIHI_MASK - Mask for Outer IP Header Included
+ *
+ * Valid only for IPsec new mode.
+ */
+#define PDBOPTS_ESP_OIHI_MASK	0x0c
+
+/**
+ * PDBOPTS_ESP_OIHI_PDB_INL - Prepend IP header to output frame from PDB (where
+ *                            it is inlined).
+ *
+ * Valid only for IPsec new mode.
+ */
+#define PDBOPTS_ESP_OIHI_PDB_INL 0x0c
+
+/**
+ * PDBOPTS_ESP_OIHI_PDB_REF - Prepend IP header to output frame from PDB
+ *                            (referenced by pointer).
+ *
+ * Vlid only for IPsec new mode.
+ */
+#define PDBOPTS_ESP_OIHI_PDB_REF 0x08
+
+/**
+ * PDBOPTS_ESP_OIHI_IF - Prepend IP header to output frame from input frame
+ *
+ * Valid only for IPsec new mode.
+ */
+#define PDBOPTS_ESP_OIHI_IF	0x04
+
+/**
+ * PDBOPTS_ESP_NAT - Enable RFC 3948 UDP-encapsulated-ESP
+ *
+ * Valid only for IPsec new mode.
+ */
+#define PDBOPTS_ESP_NAT		0x02
+
+/**
+ * PDBOPTS_ESP_NUC - Enable NAT UDP Checksum
+ *
+ * Valid only for IPsec new mode.
+ */
+#define PDBOPTS_ESP_NUC		0x01
 
 /* IPSec ESP Decap PDB options */
-#define PDBOPTS_ESP_ARSNONE	0x00   /**< no antireplay window */
-#define PDBOPTS_ESP_ARS64	0xc0   /**< 64-entry antireplay window */
-#define PDBOPTS_ESP_ARS128	0x80   /**< 128-entry antireplay window
-					    valid only for IPsec new mode */
-#define PDBOPTS_ESP_ARS32	0x40   /**< 32-entry antireplay window */
-#define PDBOPTS_ESP_VERIFY_CSUM 0x20   /**< validate ip header checksum
-					    valid only for IPsec legacy mode */
-#define PDBOPTS_ESP_TECN	0x20   /**< implement RRFC6040 ECN tunneling
-					    from outer header to inner header;
-					    valid only for IPsec new mode */
-#define PDBOPTS_ESP_OUTFMT	0x08   /**< output only decapsulation
-					    valid only for IPsec legacy mode */
-#define PDBOPTS_ESP_AOFL	0x04   /**< adjust out frame len (SEC>=5.3)
-					    valid only for IPsec legacy mode */
-#define PDBOPTS_ESP_ETU		0x01   /**< EtherType Update - add corresponding
-					    ethertype (0x0800 for IPv4, 0x86dd
-					    for IPv6) in the output frame;
-					    valid only for IPsec new mode */
+
+/**
+ * PDBOPTS_ESP_ARSNONE - No antireplay window
+ */
+#define PDBOPTS_ESP_ARSNONE	0x00
+
+/**
+ * PDBOPTS_ESP_ARS64 - 64-entry antireplay window
+ */
+#define PDBOPTS_ESP_ARS64	0xc0
+
+/**
+ * PDBOPTS_ESP_ARS128 - 128-entry antireplay window
+ *
+ * Valid only for IPsec new mode.
+ */
+#define PDBOPTS_ESP_ARS128	0x80
+
+/**
+ * PDBOPTS_ESP_ARS32 - 32-entry antireplay window
+ */
+#define PDBOPTS_ESP_ARS32	0x40
+
+/**
+ * PDBOPTS_ESP_VERIFY_CSUM - Validate ip header checksum
+ *
+ * Valid only for IPsec legacy mode.
+ */
+#define PDBOPTS_ESP_VERIFY_CSUM 0x20
+
+/**
+ * PDBOPTS_ESP_TECN - Implement RRFC6040 ECN tunneling from outer header to
+ *                    inner header.
+ *
+ * Valid only for IPsec new mode.
+ */
+#define PDBOPTS_ESP_TECN	0x20
+
+/**
+ * PDBOPTS_ESP_OUTFMT - Output only decapsulation
+ *
+ * Valid only for IPsec legacy mode.
+ */
+#define PDBOPTS_ESP_OUTFMT	0x08
+
+/**
+ * PDBOPTS_ESP_AOFL - Adjust out frame len
+ *
+ * Valid only for IPsec legacy mode and for SEC >= 5.3.
+ */
+#define PDBOPTS_ESP_AOFL	0x04
+
+/**
+ * PDBOPTS_ESP_ETU - EtherType Update
+ *
+ * Add corresponding ethertype (0x0800 for IPv4, 0x86dd for IPv6) in the output
+ * frame.
+ * Valid only for IPsec new mode.
+ */
+#define PDBOPTS_ESP_ETU		0x01
 
 #define PDBHMO_ESP_DECAP_SHIFT	12
 #define PDBHMO_ESP_ENCAP_SHIFT	4
 
 /**
- * IPsec ESP decrement TTL (IPv4) / Hop limit (IPv6) HMO option
+ * PDBHMO_ESP_DECAP_DTTL - IPsec ESP decrement TTL (IPv4) / Hop limit (IPv6)
+ *                         HMO option.
  */
 #define PDBHMO_ESP_DECAP_DTTL	(0x02 << PDBHMO_ESP_DECAP_SHIFT)
+
+/**
+ * PDBHMO_ESP_ENCAP_DTTL - IPsec ESP increment TTL (IPv4) / Hop limit (IPv6)
+ *                         HMO option.
+ */
 #define PDBHMO_ESP_ENCAP_DTTL	(0x02 << PDBHMO_ESP_ENCAP_SHIFT)
 
 /**
- * Decap - DiffServ Copy - Copy the IPv4 TOS or IPv6 Traffic Class byte
- * from the outer IP header to the inner IP header.
+ * PDBHMO_ESP_DIFFSERV - (Decap) DiffServ Copy - Copy the IPv4 TOS or IPv6
+ *                       Traffic Class byte from the outer IP header to the
+ *                       inner IP header.
  */
 #define PDBHMO_ESP_DIFFSERV	(0x01 << PDBHMO_ESP_DECAP_SHIFT)
 
 /**
- * Encap - Sequence Number Rollover control
- * Valid only for IPsec new mode.
+ * PDBHMO_ESP_SNR - (Encap) - Sequence Number Rollover control
+ *
  * Configures behaviour in case of SN / ESN rollover:
  * error if SNR = 1, rollover allowed if SNR = 0.
+ * Valid only for IPsec new mode.
  */
 #define PDBHMO_ESP_SNR		(0x01 << PDBHMO_ESP_ENCAP_SHIFT)
 
 /**
- * Encap - Copy DF bit - if an IPv4 tunnel mode outer IP header is coming from
- * the PDB, copy the DF bit from the inner IP header to the outer IP header.
+ * PDBHMO_ESP_DFBIT - (Encap) Copy DF bit - if an IPv4 tunnel mode outer IP
+ *                    header is coming from the PDB, copy the DF bit from the
+ *                    inner IP header to the outer IP header.
  */
 #define PDBHMO_ESP_DFBIT	(0x04 << PDBHMO_ESP_ENCAP_SHIFT)
 
 /**
- * Decap - DF bit value
- * Valid only from SEC Era 5 onwards.
+ * PDBHMO_ESP_DFV - (Decap) - DF bit value
+ *
  * If ODF = 1, DF bit in output frame is replaced by DFV.
+ * Valid only from SEC Era 5 onwards.
  */
 #define PDBHMO_ESP_DFV		(0x04 << PDBHMO_ESP_DECAP_SHIFT)
 
 /**
- * Decap - Override DF bit in IPv4 header of decapsulated output frame
+ * PDBHMO_ESP_ODF - (Decap) Override DF bit in IPv4 header of decapsulated
+ *                  output frame.
+ *
  * If ODF = 1, DF is replaced with the value of DFV bit.
  * Valid only from SEC Era 5 onwards.
  */
 #define PDBHMO_ESP_ODF		(0x08 << PDBHMO_ESP_DECAP_SHIFT)
 
-/** @} */ /* end of defines_group */
-
 /**
- * @struct    ipsec_encap_cbc ipsec.h
- * @ingroup   ipsec_encap_pdb
- * @details   IV field for IPsec CBC encapsulation
+ * struct ipsec_encap_cbc - PDB part for IPsec CBC encapsulation
+ * @iv: initialization vector
  */
 struct ipsec_encap_cbc {
 	uint32_t iv[4];
@@ -154,9 +239,10 @@ struct ipsec_encap_cbc {
 
 
 /**
- * @struct    ipsec_encap_ctr ipsec.h
- * @ingroup   ipsec_encap_pdb
- * @details   Nonce and IV fields for IPsec CTR encapsulation
+ * struct ipsec_encap_ctr - PDB part for IPsec CTR encapsulation
+ * @ctr_nonce: 4-byte nonce
+ * @ctr_initial: initial count constant
+ * @iv: initialization vector
  */
 struct ipsec_encap_ctr {
 	uint32_t ctr_nonce;
@@ -165,12 +251,15 @@ struct ipsec_encap_ctr {
 };
 
 /**
- * @struct    ipsec_encap_ccm ipsec.h
- * @ingroup   ipsec_encap_pdb
- * @details   Salt and IV fields for IPsec CCM encapsulation
+ * struct ipsec_encap_ccm - PDB part for IPsec CCM encapsulation
+ * @salt: 3-byte salt (lower 24 bits)
+ * @b0_flags: CCM B0; managed by SEC
+ * @ctr_flags: counter flags; constant equal to 0x3
+ * @ctr_initial: initial count constant
+ * @iv: initialization vector
  */
 struct ipsec_encap_ccm {
-	uint32_t salt; /* lower 24 bits */
+	uint32_t salt;
 	uint8_t b0_flags;
 	uint8_t ctr_flags;
 	uint16_t ctr_initial;
@@ -178,20 +267,27 @@ struct ipsec_encap_ccm {
 };
 
 /**
- * @struct    ipsec_encap_gcm ipsec.h
- * @ingroup   ipsec_encap_pdb
- * @details   Salt and IV fields for IPsec GCM encapsulation
+ * struct ipsec_encap_gcm - PDB part for IPsec GCM encapsulation
+ * @salt: 3-byte salt (lower 24 bits)
+ * @rsvd1: reserved, do not use
+ * @iv: initialization vector
  */
 struct ipsec_encap_gcm {
-	uint32_t salt; /* lower 24 bits */
+	uint32_t salt;
 	uint32_t rsvd1;
 	uint32_t iv[2];
 };
 
 /**
- * @struct    ipsec_encap_pdb ipsec.h
- * @ingroup   ipsec_encap_pdb
- * @details   Container for encapsulation PDB
+ * struct ipsec_encap_pdb - PDB for IPsec encapsulation
+ * @hmo: header manipulation options
+ * @options: option flags; depend on selected algorithm
+ * @seq_num_ext_hi: (optional) IPsec Extended Sequence Number (ESN)
+ * @seq_num: IPsec sequence number
+ * @spi: IPsec SPI (Security Parameters Index)
+ * @rsvd2: reserved, do not use
+ * @ip_hdr_len: optional IP Header length (in bytes)
+ * @ip_hdr: optional IP Header content (only for IPsec legacy mode)
  */
 struct ipsec_encap_pdb {
 	uint8_t hmo;
@@ -216,22 +312,21 @@ struct ipsec_encap_pdb {
 	uint32_t spi;
 	uint16_t rsvd2;
 	uint16_t ip_hdr_len;
-	uint32_t ip_hdr[0]; /* optional IP Header content (for legacy mode) */
+	uint32_t ip_hdr[0];
 };
 
 /**
- * @struct    ipsec_decap_cbc ipsec.h
- * @ingroup   ipsec_decap_pdb
- * @details   Placeholder for reserved words
+ * struct ipsec_decap_cbc - PDB part for IPsec CBC decapsulation
+ * @rsvd: reserved, do not use
  */
 struct ipsec_decap_cbc {
 	uint32_t rsvd[2];
 };
 
 /**
- * @struct    ipsec_decap_ctr ipsec.h
- * @ingroup   ipsec_decap_pdb
- * @details   Salt and counter fields for IPsec CTR decapsulation
+ * struct ipsec_decap_ctr - PDB part for IPsec CTR decapsulation
+ * @salt: 4-byte salt
+ * @ctr_initial: initial count constant
  */
 struct ipsec_decap_ctr {
 	uint32_t salt;
@@ -239,9 +334,11 @@ struct ipsec_decap_ctr {
 };
 
 /**
- * @struct    ipsec_decap_ctr ipsec.h
- * @ingroup   ipsec_decap_pdb
- * @details   Salt, counter and flag fields for IPsec CCM decapsulation
+ * struct ipsec_decap_ccm - PDB part for IPsec CCM decapsulation
+ * @salt: 3-byte salt (lower 24 bits)
+ * @iv_flags: TBD
+ * @ctr_flags: counter flags
+ * @ctr_initial: initial count constant
  */
 struct ipsec_decap_ccm {
 	uint32_t salt;
@@ -251,9 +348,9 @@ struct ipsec_decap_ccm {
 };
 
 /**
- * @struct    ipsec_decap_gcm ipsec.h
- * @ingroup   ipsec_decap_pdb
- * @details   Salt field for IPsec GCM decapsulation
+ * struct ipsec_decap_gcm - PDB part for IPsec GCN decapsulation
+ * @salt: 4-byte salt
+ * @resvd: reserved, do not used
  */
 struct ipsec_decap_gcm {
 	uint32_t salt;
@@ -261,13 +358,15 @@ struct ipsec_decap_gcm {
 };
 
 /**
- * @struct    ipsec_decap_pdb ipsec.h
- * @ingroup   ipsec_decap_pdb
- * @details   Container for decapsulation PDB
+ * struct ipsec_decap_pdb - PDB for IPsec decapsulation
+ * @ip_hdr_len: HMO (upper nibble) + IP header length (lower 3 nibbles)
+ * @options: option flags; depend on selected algorithm
+ * @seq_num_ext_hi: (optional) IPsec Extended Sequence Number (ESN)
+ * @seq_num: IPsec sequence number
+ * @anti_replay: Anti-replay window bits array
  */
 struct ipsec_decap_pdb {
-	uint16_t ip_hdr_len;		/* HMO (upper nibble) + IP header length
-					 * (lower 3 nibbles) */
+	uint16_t ip_hdr_len;
 	union {
 		uint8_t ip_nh_offset;	/* next header offset for legacy mode */
 		uint8_t aoipho;		/* actual outer IP header offset for
@@ -286,21 +385,14 @@ struct ipsec_decap_pdb {
 };
 
 /**
- * @defgroup typedefs_group Auxiliary Data Structures
- * @ingroup descriptor_lib_group
- * @{
- */
-
-/**
- * @enum      ipsec_icv_size ipsec.h
- * @details   Type selectors for icv size in IPsec protocol.
+ * enum ipsec_icv_size - Type selectors for icv size in IPsec protocol
+ * @IPSEC_ICV_MD5_SIZE: full-length MD5 ICV
+ * @IPSEC_ICV_MD5_TRUNC_SIZE: truncated MD5 ICV
  */
 enum ipsec_icv_size {
 	IPSEC_ICV_MD5_SIZE = 16,
 	IPSEC_ICV_MD5_TRUNC_SIZE = 12
 };
-
-/** @} */ /* end of typedefs_group */
 
 /*
  * IPSec ESP Datapath Protocol Override Register (DPOVRD)
@@ -337,32 +429,21 @@ struct ipsec_new_decap_deco_dpovrd {
 };
 
 /**
- * @defgroup sharedesc_group Shared Descriptor Example Routines
- * @ingroup descriptor_lib_group
- * @{
+ * cnstr_shdsc_ipsec_encap - IPSec ESP encapsulation protocol-level shared
+ *                           descriptor. Requires an MDHA split key.
+ * @descbuf: pointer to buffer used for descriptor construction
+ * @bufsize: pointer to descriptor size to be written back upon completion
+ * @ps: if 36/40bit addressing is desired, this parameter must be non-zero
+ * @pdb: pointer to the PDB to be used with this descriptor
+ *       This structure will be copied inline to the descriptor under
+ *       construction. No error checking will be made. Refer to the
+ *       block guide for a details of the encapsulation PDB.
+ * @cipherdata: pointer to block cipher transform definitions
+ *              Valid algorithm values - one of OP_PCL_IPSEC_*
+ * @authdata: pointer to authentication transform definitions. Note that since a
+ *            split key is to be used, the size of the split key itself is
+ *            specified. Valid algorithm values - one of OP_PCL_IPSEC_*
  */
-/** @} end of sharedesc_group */
-
-/**
- * @details  IPSec ESP encapsulation protocol-level shared descriptor.
- *           Requires an MDHA split key.
- * @ingroup sharedesc_group
- *
- * @param[in,out] descbuf    Pointer to buffer used for descriptor construction
- * @param[in,out] bufsize    Pointer to descriptor size to be written back upon
- *      completion
- * @param [in] ps            If 36/40bit addressing is desired, this parameter
- *      must be non-zero.
- * @param[in] pdb         Pointer to the PDB to be used with this descriptor.
- *      This structure will be copied inline to the descriptor under
- *      construction. No error checking will be made. Refer to the
- *      block guide for a details of the encapsulation PDB.
- * @param[in] cipherdata  Pointer to block cipher transform definitions. Valid
- *      algorithm values: one of OP_PCL_IPSEC_*
- * @param[in] authdata    Pointer to authentication transform definitions. Note
- *      that since a split key is to be used, the size of the split key itself
- *      is specified. Valid algorithm values: one of OP_PCL_IPSEC_*
- **/
 static inline void cnstr_shdsc_ipsec_encap(uint32_t *descbuf,
 					   unsigned *bufsize,
 					   unsigned short ps,
@@ -400,25 +481,21 @@ static inline void cnstr_shdsc_ipsec_encap(uint32_t *descbuf,
 }
 
 /**
- * @details IPSec ESP decapsulation protocol-level sharedesc
- *          Requires an MDHA split key.
- * @ingroup sharedesc_group
- *
- * @param[in,out] descbuf    Pointer to buffer used for descriptor construction
- * @param[in,out] bufsize    Pointer to descriptor size to be written back upon
- *      completion
- * @param [in] ps            If 36/40bit addressing is desired, this parameter
- *      must be non-zero.
- * @param[in] pdb         Pointer to the PDB to be used with this descriptor.
- *      This structure will be copied inline to the descriptor under
- *      construction. No error checking will be made. Refer to the
- *      block guide for details about the decapsulation PDB.
- * @param[in] cipherdata  Pointer to block cipher transform definitions. Valid
- *      algorithm values: one of OP_PCL_IPSEC_*
- * @param[in] authdata    Pointer to authentication transform definitions. Note
- *      that since a split key is to be used, the size of the split key itself
- *      is specified. Valid algorithm values: one of OP_PCL_IPSEC_*
- **/
+ * cnstr_shdsc_ipsec_decap - IPSec ESP decapsulation protocol-level sharedesc
+ *                           Requires an MDHA split key.
+ * @descbuf: pointer to buffer used for descriptor construction
+ * @bufsize: pointer to descriptor size to be written back upon completion
+ * @ps: if 36/40bit addressing is desired, this parameter must be non-zero
+ * @pdb: pointer to the PDB to be used with this descriptor
+ *       This structure will be copied inline to the descriptor under
+ *       construction. No error checking will be made. Refer to the
+ *       block guide for details about the decapsulation PDB.
+ * @cipherdata: pointer to block cipher transform definitions.
+ *              Valid algorithm values - one of OP_PCL_IPSEC_*
+ * @authdata: pointer to authentication transform definitions. Note that since a
+ *            split key is to be used, the size of the split key itself is
+ *            specified. Valid algorithm values - one of OP_PCL_IPSEC_*
+ */
 static inline void cnstr_shdsc_ipsec_decap(uint32_t *descbuf,
 					   unsigned *bufsize,
 					   unsigned short ps,
@@ -455,11 +532,22 @@ static inline void cnstr_shdsc_ipsec_decap(uint32_t *descbuf,
 }
 
 /**
- * @details  IPSec DES-CBC/3DES-CBC & AES-XCBC-MAC-96 ESP encapsulation
- * shared descriptor. Supported only for platforms with 32-bit address pointers,
- * and SEC ERA 4 or higher. The tunnel/transport mode of the IPsec ESP
- * is supported only if the Outer/Transport IP Header is present in
- * the encapsulation output packet.
+ * cnstr_shdsc_ipsec_encap_des_aes_xcbc - IPSec DES-CBC/3DES-CBC and
+ *     AES-XCBC-MAC-96 ESP encapsulation shared descriptor.
+ * @descbuf: pointer to buffer used for descriptor construction
+ * @bufsize: pointer to descriptor size to be written back upon completion
+ * @pdb: pointer to the PDB to be used with this descriptor
+ *       This structure will be copied inline to the descriptor under
+ *       construction. No error checking will be made. Refer to the
+ *       block guide for a details of the encapsulation PDB.
+ * @cipherdata: pointer to block cipher transform definitions
+ *              Valid algorithm values - OP_PCL_IPSEC_DES, OP_PCL_IPSEC_3DES.
+ * @authdata: pointer to authentication transform definitions
+ *            Valid algorithm value: OP_PCL_IPSEC_AES_XCBC_MAC_96.
+ *
+ * Supported only for platforms with 32-bit address pointers and SEC ERA 4 or
+ * higher. The tunnel/transport mode of the IPsec ESP is supported only if the
+ * Outer/Transport IP Header is present in the encapsulation output packet.
  * The descriptor performs DES-CBC/3DES-CBC & HMAC-MD5-96 and then rereads
  * the input packet to do the AES-XCBC-MAC-96 calculation and to overwrite
  * the MD5 ICV.
@@ -471,20 +559,7 @@ static inline void cnstr_shdsc_ipsec_decap(uint32_t *descbuf,
  * Warning: The user must allocate at least 32 bytes for the authentication key
  * (in order to use it also with HMAC-MD5-96),even when using a shorter key
  * for the AES-XCBC-MAC-96.
- * @ingroup sharedesc_group
- *
- * @param[in,out] descbuf    Pointer to buffer used for descriptor construction
- * @param[in,out] bufsize    Pointer to descriptor size to be written back upon
- *      completion
- * @param[in] pdb            Pointer to the PDB to be used with this descriptor.
- *      This structure will be copied inline to the descriptor under
- *      construction. No error checking will be made. Refer to the
- *      block guide for a details of the encapsulation PDB.
- * @param[in] cipherdata     Pointer to block cipher transform definitions.
- *      Valid algorithm values: OP_PCL_IPSEC_DES, OP_PCL_IPSEC_3DES.
- * @param[in] authdata       Pointer to authentication transform definition.
- *      Valid algorithm value: OP_PCL_IPSEC_AES_XCBC_MAC_96.
- **/
+ */
 static inline void cnstr_shdsc_ipsec_encap_des_aes_xcbc(uint32_t *descbuf,
 		unsigned *bufsize, struct ipsec_encap_pdb *pdb,
 		struct alginfo *cipherdata, struct alginfo *authdata)
@@ -589,11 +664,22 @@ static inline void cnstr_shdsc_ipsec_encap_des_aes_xcbc(uint32_t *descbuf,
 }
 
 /**
- * @details  IPSec DES-CBC/3DES-CBC & AES-XCBC-MAC-96 ESP decapsulation
- * shared descriptor. Supported only for platforms with 32-bit address pointers,
- * and SEC ERA 4 or higher. The tunnel/transport mode of the IPsec ESP
- * is supported only if the Outer/Transport IP Header is present in
- * the decapsulation input packet.
+ * cnstr_shdsc_ipsec_decap_des_aes_xcbc - IPSec DES-CBC/3DES-CBC and
+ *     AES-XCBC-MAC-96 ESP decapsulation shared descriptor.
+ * @descbuf: pointer to buffer used for descriptor construction
+ * @bufsize: pointer to descriptor size to be written back upon completion
+ * @pdb: pointer to the PDB to be used with this descriptor
+ *       This structure will be copied inline to the descriptor under
+ *       construction. No error checking will be made. Refer to the
+ *       block guide for a details of the encapsulation PDB.
+ * @cipherdata: pointer to block cipher transform definitions
+ *              Valid algorithm values - OP_PCL_IPSEC_DES, OP_PCL_IPSEC_3DES.
+ * @authdata: pointer to authentication transform definitions
+ *            Valid algorithm value: OP_PCL_IPSEC_AES_XCBC_MAC_96.
+ *
+ * Supported only for platforms with 32-bit address pointers and SEC ERA 4 or
+ * higher. The tunnel/transport mode of the IPsec ESP is supported only if the
+ * Outer/Transport IP Header is present in the decapsulation input packet.
  * The descriptor computes the AES-XCBC-MAC-96 to check if the received ICV
  * is correct, rereads the input packet to compute the MD5 ICV, overwrites
  * the XCBC ICV, and then sends the modified input packet to the
@@ -606,20 +692,7 @@ static inline void cnstr_shdsc_ipsec_encap_des_aes_xcbc(uint32_t *descbuf,
  * Warning: The user must allocate at least 32 bytes for the authentication key
  * (in order to use it also with HMAC-MD5-96),even when using a shorter key
  * for the AES-XCBC-MAC-96.
- * @ingroup sharedesc_group
- *
- * @param[in,out] descbuf    Pointer to buffer used for descriptor construction
- * @param[in,out] bufsize    Pointer to descriptor size to be written back upon
- *      completion
- * @param[in] pdb            Pointer to the PDB to be used with this descriptor.
- *      This structure will be copied inline to the descriptor under
- *      construction. No error checking will be made. Refer to the
- *      block guide for a details of the encapsulation PDB.
- * @param[in] cipherdata     Pointer to block cipher transform definitions.
- *      Valid algorithm values: OP_PCL_IPSEC_DES, OP_PCL_IPSEC_3DES.
- * @param[in] authdata       Pointer to authentication transform definition.
- *      Valid algorithm value: OP_PCL_IPSEC_AES_XCBC_MAC_96.
- **/
+ */
 static inline void cnstr_shdsc_ipsec_decap_des_aes_xcbc(uint32_t *descbuf,
 		unsigned *bufsize, struct ipsec_decap_pdb *pdb,
 		struct alginfo *cipherdata, struct alginfo *authdata)
@@ -755,33 +828,28 @@ static inline void cnstr_shdsc_ipsec_decap_des_aes_xcbc(uint32_t *descbuf,
 }
 
 /**
- * @details  IPSec new mode ESP encapsulation protocol-level shared descriptor.
- *           If an authentication key is required by the protocol,
- *           it must be a MDHA split key.
- * @ingroup sharedesc_group
- *
- * @param[in,out] descbuf Pointer to buffer used for descriptor construction
- * @param[in,out] bufsize Pointer to descriptor size to be written back upon
- *      completion
- * @param [in] ps         If 36/40bit addressing is desired, this parameter
- *      must be non-zero.
- * @param[in] pdb         Pointer to the PDB to be used with this descriptor.
- *      This structure will be copied inline to the descriptor under
- *      construction. No error checking will be made. Refer to the
- *      block guide for details about the encapsulation PDB.
- * @param[in] opt_ip_hdr  Pointer to Optional IP Header.
- *       if OIHI = PDBOPTS_ESP_OIHI_PDB_INL, opt_ip_hdr points to the buffer to
- *       be inlined in the PDB. Number of bytes (buffer size) copied is provided
- *       in pdb->ip_hdr_len.
- *       if OIHI = PDBOPTS_ESP_OIHI_PDB_REF, opt_ip_hdr points to the address of
- *       the Optional IP Header. The address will be inlined in the PDB
- *       verbatim.
- *       For other values of OIHI options field, opt_ip_hdr is not used.
- * @param[in] cipherdata  Pointer to block cipher transform definitions. Valid
- *      algorithm values: one of OP_PCL_IPSEC_*
- * @param[in] authdata    Pointer to authentication transform definitions. Note
- *      that since a split key is to be used, the size of the split key itself
- *      is specified. Valid algorithm values: one of OP_PCL_IPSEC_*
+ * cnstr_shdsc_ipsec_new_encap -  IPSec new mode ESP encapsulation
+ *     protocol-level shared descriptor. If an authentication key is required by
+ *     the protocol, it must be a MDHA split key.
+ * @descbuf: pointer to buffer used for descriptor construction
+ * @bufsize: pointer to descriptor size to be written back upon completion
+ * @ps: if 36/40bit addressing is desired, this parameter must be non-zero
+ * @pdb: pointer to the PDB to be used with this descriptor
+ *       This structure will be copied inline to the descriptor under
+ *       construction. No error checking will be made. Refer to the
+ *       block guide for details about the encapsulation PDB.
+ * @opt_ip_hdr:  pointer to Optional IP Header
+ *     -if OIHI = PDBOPTS_ESP_OIHI_PDB_INL, opt_ip_hdr points to the buffer to
+ *     be inlined in the PDB. Number of bytes (buffer size) copied is provided
+ *     in pdb->ip_hdr_len.
+ *     -if OIHI = PDBOPTS_ESP_OIHI_PDB_REF, opt_ip_hdr points to the address of
+ *     the Optional IP Header. The address will be inlined in the PDB verbatim.
+ *     -for other values of OIHI options field, opt_ip_hdr is not used.
+ * @cipherdata: pointer to block cipher transform definitions
+ *              Valid algorithm values - one of OP_PCL_IPSEC_*
+ * @authdata: pointer to authentication transform definitions. Note that since a
+ *            split key is to be used, the size of the split key itself is
+ *            specified. Valid algorithm values - one of OP_PCL_IPSEC_*
  */
 static inline void cnstr_shdsc_ipsec_new_encap(uint32_t *descbuf,
 					       unsigned *bufsize,
@@ -846,25 +914,21 @@ static inline void cnstr_shdsc_ipsec_new_encap(uint32_t *descbuf,
 }
 
 /**
- * @details IPSec new mode ESP decapsulation protocol-level shared descriptor.
- *           If an authentication key is required by the protocol,
- *           it must be a MDHA split key.
- * @ingroup sharedesc_group
- *
- * @param[in,out] descbuf Pointer to buffer used for descriptor construction
- * @param[in,out] bufsize Pointer to descriptor size to be written back upon
- *      completion
- * @param [in] ps         If 36/40bit addressing is desired, this parameter
- *      must be non-zero.
- * @param[in] pdb         Pointer to the PDB to be used with this descriptor.
- *      This structure will be copied inline to the descriptor under
- *      construction. No error checking will be made. Refer to the
- *      block guide for details about the decapsulation PDB.
- * @param[in] cipherdata  Pointer to block cipher transform definitions. Valid
- *      algorithm values: one of OP_PCL_IPSEC_*
- * @param[in] authdata    Pointer to authentication transform definitions. Note
- *      that since a split key is to be used, the size of the split key itself
- *      is specified. Valid algorithm values: one of OP_PCL_IPSEC_*
+ * cnstr_shdsc_ipsec_new_decap - IPSec new mode ESP decapsulation protocol-level
+ *     shared descriptor. If an authentication key is required by the protocol,
+ *     it must be a MDHA split key.
+ * @descbuf: pointer to buffer used for descriptor construction
+ * @bufsize: pointer to descriptor size to be written back upon completion
+ * @ps: if 36/40bit addressing is desired, this parameter must be non-zero
+ * @pdb: pointer to the PDB to be used with this descriptor
+ *       This structure will be copied inline to the descriptor under
+ *       construction. No error checking will be made. Refer to the
+ *       block guide for details about the decapsulation PDB.
+ * @cipherdata: pointer to block cipher transform definitions
+ *              Valid algorithm values 0 one of OP_PCL_IPSEC_*
+ * @authdata: pointer to authentication transform definitions. Note that since a
+ *            split key is to be used, the size of the split key itself is
+ *            specified. Valid algorithm values - one of OP_PCL_IPSEC_*
  */
 static inline void cnstr_shdsc_ipsec_new_decap(uint32_t *descbuf,
 					       unsigned *bufsize,

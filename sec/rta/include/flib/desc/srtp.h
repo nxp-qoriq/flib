@@ -7,9 +7,9 @@
 #include "common.h"
 
 /**
- * @file                 srtp.h
- * @brief                SEC Descriptor Construction Library Protocol-level
- *                       SRTP Shared Descriptor Constructors
+ * DOC: SRTP Shared Descriptor Constructors
+ *
+ * Shared descriptors for SRTP protocol.
  */
 
 /*
@@ -51,26 +51,16 @@ struct srtp_decap_pdb {
 };
 
 /**
- * @defgroup sharedesc_group Shared Descriptor Example Routines
- * @ingroup descriptor_lib_group
- * @{
+ * cnstr_shdsc_srtp_encap - Function for creating a SRTP encapsulation
+ *                          descriptor.
+ * @descbuf: pointer to buffer used for descriptor construction
+ * @bufsize: pointer to descriptor size to be written back upon completion
+ * @authdata: pointer to authentication transform definitions
+ * @cipherdata: pointer to block cipher transform definitions
+ * @n_tag: value of ICV length
+ * @roc: Rollover Counter
+ * @cipher_salt: salt value
  */
-/** @} end of sharedesc_group */
-
-/**
- * @details                  Function for creating a SRTP encapsulation
- *			     descriptor.
- * @ingroup                  sharedesc_group
- *
- * @param[in,out] descbuf    Pointer to buffer used for descriptor construction
- * @param[in,out] bufsize    Pointer to descriptor size to be written back upon
- *                           completion
- * @param[in] authdata       Pointer to authentication transform definitions.
- * @param[in] cipherdata     Pointer to block cipher transform definitions.
- * @param[in] n_tag          n_tag - value of ICV length
- * @param[in] roc            Rollover Counter
- * @param[in] cipher_salt    Salt value
- **/
 static inline void cnstr_shdsc_srtp_encap(uint32_t *descbuf,
 					  unsigned *bufsize,
 					  struct alginfo *authdata,
@@ -110,20 +100,17 @@ static inline void cnstr_shdsc_srtp_encap(uint32_t *descbuf,
 }
 
 /**
- * @details                  Function for creating a SRTP decapsulation
- *			     descriptor.
- * @ingroup                  sharedesc_group
- *
- * @param[in,out] descbuf    Pointer to buffer used for descriptor construction
- * @param[in,out] bufsize    Pointer to descriptor size to be written back upon
- *                           completion
- * @param[in] authdata       Pointer to authentication transform definitions.
- * @param[in] cipherdata     Pointer to block cipher transform definitions.
- * @param[in] n_tag          n_tag - value of ICV length
- * @param[in] roc            Rollover Counter
- * @param[in] seq_num        Sequence Number
- * @param[in] cipher_salt    Salt value
- **/
+ * cnstr_shdsc_srtp_decap - Function for creating a SRTP decapsulation
+ *                          descriptor.
+ * @descbuf: pointer to buffer used for descriptor construction
+ * @bufsize: pointer to descriptor size to be written back upon completion
+ * @authdata: pointer to authentication transform definitions
+ * @cipherdata: pointer to block cipher transform definitions
+ * @n_tag: value of ICV length
+ * @roc: Rollover Counter
+ * @seq_num: sequence number
+ * @cipher_salt: salt value
+ */
 static inline void cnstr_shdsc_srtp_decap(uint32_t *descbuf,
 					  unsigned *bufsize,
 					  struct alginfo *authdata,

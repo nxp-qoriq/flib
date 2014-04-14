@@ -7,67 +7,48 @@
 #include "common.h"
 
 /**
- * @file                 wimax.h
- * @brief                SEC Descriptor Construction Library Protocol-level
- *                       WiMAX Shared Descriptor Constructors
+ * DOC: WiMAX Shared Descriptor Constructors
+ *
+ * Shared descriptors for WiMAX (802.16) protocol.
  */
 
 /**
- * @defgroup descriptor_lib_group RTA Descriptors Library
- * @{
- */
-/** @} end of descriptor_lib_group */
-
-/**
- * @defgroup defines_group Auxiliary Defines
- * @ingroup descriptor_lib_group
- * @{
- */
-
-/**
- * @def CRC_8_ATM_POLY
- * This CRC Polynomial is used for the GMH Header Check Sequence.
+ * CRC_8_ATM_POLY - This CRC Polynomial is used for the GMH Header Check
+ *                  Sequence.
  */
 #define CRC_8_ATM_POLY			0x07000000
 
 /**
- * @def WIMAX_GMH_EC_MASK
- * This mask is used in the WiMAX encapsulation/decapsulation descriptor
- * for setting/clearing the Encryption Control bit from the Generic Mac Header.
+ * WIMAX_GMH_EC_MASK - This mask is used in the WiMAX encapsulation /
+ *                     decapsulation descriptor for setting / clearing the
+ *                     Encryption Control bit from the Generic Mac Header.
  */
 #define WIMAX_GMH_EC_MASK		0x4000000000000000ull
 
 /**
- * @def WIMAX_ICV_LEN
- * The length of the Integrity Check Value for WiMAX.
+ * WIMAX_ICV_LEN - The length of the Integrity Check Value for WiMAX
  */
 #define WIMAX_ICV_LEN			0x0000000000000008ull
 
 /**
- * @def WIMAX_FCS_LEN
- * The length of the Frame Check Sequence for WiMAX.
+ * WIMAX_FCS_LEN - The length of the Frame Check Sequence for WiMAX
  */
 #define WIMAX_FCS_LEN			0x00000000000000004ull
 
 /**
- * @def WIMAX_PN_LEN
- * The length of the Packet Number for WiMAX.
+ * WIMAX_PN_LEN - The length of the Packet Number for WiMAX
  */
 #define WIMAX_PN_LEN			0x0000000000000004ull
 
 /**
- * @def WIMAX_PDBOPTS_FCS
- * Options Byte with FCS enabled.
+ * WIMAX_PDBOPTS_FCS - Options Byte with FCS enabled
  */
 #define WIMAX_PDBOPTS_FCS		0x01
 
 /**
- * @def WIMAX_PDBOPTS_AR
- * Options Byte with AR enabled.
+ * WIMAX_PDBOPTS_AR - Options Byte with AR enabled
  */
 #define WIMAX_PDBOPTS_AR		0x40
-
-/** @} */ /* end of defines_group */
 
 /*
  * IEEE 802.16 WiMAX Protocol Data Block
@@ -105,34 +86,29 @@ struct wimax_decap_pdb {
 };
 
 /**
- * @details                WiMAX(802.16) encapsulation descriptor for platforms
- *          with SEC ERA >= 5.
- *          This descriptor addreses the prefetch problem when modifying the
- *          header of the input frame by invalidating the prefetch mechanism.
+ * cnstr_shdsc_wimax_encap_era5 - WiMAX(802.16) encapsulation descriptor for
+ *                                platforms with SEC ERA >= 5.
+ * @descbuf: pointer to descriptor-under-construction buffer
+ * @bufsize: points to size to be updated at completion
+ * @pdb_opts: PDB Options Byte
+ * @pn: PDB Packet Number
+ * @cipherdata: pointer to block cipher transform definitions
+ * @protinfo: protocol information: OP_PCL_WIMAX_OFDM/OFDMA
  *
- *          For performance reasons (due to the long read latencies),
- *          the JQ will prefetch the input frame if a job cannot go immediately
- *          into a DECO. As a result, the rewind is rewinding into the prefetch
- *          buffer, not into memory. Therefore, in those cases where prefetch
- *          is done, an unaware descriptor would update the memory but read
- *          from the prefetched buffer and, as a result, it would not get
- *          the updated header.
+ * This descriptor addreses the prefetch problem when modifying the header of
+ * the input frame by invalidating the prefetch mechanism.
  *
- *          This descriptor invalidates the prefetch data and reads the updated
- *          header from memory. The descriptor reads enough data to read to the
- *          end of the prefetched data, dumps that data, rewinds the input frame
- *          and just starts reading from the beginning again.
+ * For performance reasons (due to the long read latencies), the JQ will
+ * prefetch the input frame if a job cannot go immediately into a DECO. As a
+ * result, the rewind is rewinding into the prefetch buffer, not into memory.
+ * Therefore, in those cases where prefetch is done, an unaware descriptor would
+ * update the memory but read from the prefetched buffer and, as a result, it
+ * would not get the updated header.
  *
- * @ingroup                sharedesc_group
- * @warning                Descriptor valid on platforms
- *                         with support for SEC ERA 5 or higher.
- *
- * @param[in,out] descbuf  Pointer to descriptor-under-construction buffer.
- * @param[in,out] bufsize  Points to size to be updated at completion.
- * @param[in] pdb_opts     PDB Options Byte.
- * @param[in] pn           PDB Packet Number.
- * @param[in] cipherdata   Pointer to block cipher transform definitions.
- * @param[in] protinfo     Protocol information: OP_PCL_WIMAX_OFDM/OFDMA.
+ * This descriptor invalidates the prefetch data and reads the updated header
+ * from memory. The descriptor reads enough data to read to the end of the
+ * prefetched data, dumps that data, rewinds the input frame and just starts
+ * reading from the beginning again.
  */
 static inline void cnstr_shdsc_wimax_encap_era5(uint32_t *descbuf,
 		unsigned *bufsize, uint8_t pdb_opts, uint32_t pn,
@@ -306,24 +282,17 @@ static inline void cnstr_shdsc_wimax_encap_era5(uint32_t *descbuf,
 }
 
 /**
- * @defgroup sharedesc_group Shared Descriptor Example Routines
- * @ingroup descriptor_lib_group
- * @{
- */
-/** @} end of sharedesc_group */
-
-/**
- * @details                 WiMAX(802.16) encapsulation
- * @ingroup                 sharedesc_group
- * @warning                 Descriptor valid on platforms
- *                          with support for SEC ERA 4.
+ * cnstr_shdsc_wimax_encap - WiMAX(802.16) encapsulation
+ * @descbuf: pointer to descriptor-under-construction buffer
+ * @bufsize: points to size to be updated at completion
+ * @pdb_opts: PDB Options Byte
+ * @pn: PDB Packet Number
+ * @cipherdata: pointer to block cipher transform definitions
+ * @protinfo: protocol information: OP_PCL_WIMAX_OFDM/OFDMA
  *
- * @param[in,out] descbuf   Pointer to descriptor-under-construction buffer.
- * @param[in,out] bufsize   Points to size to be updated at completion.
- * @param[in] pdb_opts      PDB Options Byte.
- * @param[in] pn            PDB Packet Number.
- * @param[in] cipherdata    Pointer to block cipher transform definitions.
- * @param[in] protinfo      Protocol information: OP_PCL_WIMAX_OFDM/OFDMA.
+ * Note: Descriptor is valid on platforms with support for SEC ERA 4.
+ * On platforms with SEC ERA 5 or above, cnstr_shdsc_wimax_encap_era5 is
+ * automatically called.
  */
 static inline void cnstr_shdsc_wimax_encap(uint32_t *descbuf, unsigned *bufsize,
 					   uint8_t pdb_opts, uint32_t pn,
@@ -489,17 +458,16 @@ static inline void cnstr_shdsc_wimax_encap(uint32_t *descbuf, unsigned *bufsize,
 }
 
 /**
- * @details                 WiMAX(802.16) decapsulation
- * @ingroup                 sharedesc_group
- * @warning                 Descriptor valid on platforms
- *                          with support for SEC ERA 4.
+ * cnstr_shdsc_wimax_decap - WiMAX(802.16) decapsulation
+ * @descbuf: pointer to descriptor-under-construction buffer
+ * @bufsize: points to size to be updated at completion
+ * @pdb_opts: PDB Options Byte
+ * @pn: PDB Packet Number
+ * @cipherdata: pointer to block cipher transform definitions
+ * @ar_len: anti-replay window length
+ * @protinfo: protocol information: OP_PCL_WIMAX_OFDM/OFDMA
  *
- * @param[in,out] descbuf   Pointer to descriptor-under-construction buffer.
- * @param[in,out] bufsize   Points to size to be updated at completion.
- * @param[in] pdb_opts      PDB Options Byte.
- * @param[in] pn            PDB Packet Number.
- * @param[in] cipherdata    Pointer to block cipher transform definitions.
- * @param[in] protinfo      Protocol information: OP_PCL_WIMAX_OFDM/OFDMA.
+ * Note: Descriptor valid on platforms with support for SEC ERA 4.
  */
 static inline void cnstr_shdsc_wimax_decap(uint32_t *descbuf, unsigned *bufsize,
 					   uint8_t pdb_opts, uint32_t pn,

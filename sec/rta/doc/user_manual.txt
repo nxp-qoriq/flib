@@ -1,4 +1,4 @@
-User Manual                         {#userman}
+User Manual
 ===========
 
 Introduction
@@ -8,8 +8,7 @@ descriptors.
 
 RTA gives users the ability to write descriptors in a human readable form
 by using C code instead of low level machine code.
-It also gives the advantage that it verifies the correctness of the
-descriptors.
+It also gives the advantage that it verifies the correctness of the descriptors.
 RTA has, over the other code translators, the advantage that it gives shorter
 and more readable code.
 
@@ -18,8 +17,8 @@ user application.
 
 
 Installation
-----------------
-The library can be installed by running 'make' inside the root of the package.
+------------
+The library can be installed by running 'make' inside the root of the package:
 
     $ make install
 
@@ -55,9 +54,9 @@ PROGRAM_FINALIZE.
 
 PROGRAM_CNTXT_INIT will initialze the members of 'program' structure with
 user information (pointer to user's buffer, and the SEC subversion).
-The FINALIZE call verifies the descriptor's validity.
+The PROGRAM_FINALIZE call checks the descriptor's validity.
 
-The program length is limitted to the size of buffer descriptor which can be
+The program length is limited to the size of buffer descriptor which can be
 maximum 64 words (256 bytes). However, a JUMP command can cause loading and
 execution of another Job Descriptor; this allows for much larger programs
 to be created.
