@@ -40,7 +40,8 @@
 #endif /* pr_err */
 
 /**
- * ARRAY_SIZE(x) - Returns the number of elements in an array
+ * ARRAY_SIZE - returns the number of elements in an array
+ * @x: array
  */
 #ifndef ARRAY_SIZE
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))

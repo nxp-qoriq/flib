@@ -7,33 +7,20 @@
 #include "common.h"
 
 /**
- * @file                 macsec.h
- * @brief                SEC Descriptor Construction Library Protocol-level
- *                       MACsec Shared Descriptor Constructors
+ * DOC: MACsec Shared Descriptor Constructors
+ *
+ * Shared descriptors for MACsec protocol.
  */
 
 /**
- * @defgroup descriptor_lib_group RTA Descriptors Library
- * @{
- */
-/** @} end of descriptor_lib_group */
-
-/**
- * @defgroup defines_group Auxiliary Defines
- * @ingroup descriptor_lib_group
- * @{
- */
-
-/**
- * @enum      cipher_type_macsec macsec.h
- * @details   Type selectors for cipher types in MACSEC protocol.
+ * enum cipher_type_macsec - Type selectors for cipher types in MACSEC protocol
+ * @MACSEC_CIPHER_TYPE_GCM: MACsec to use GCM as algorithm
+ * @MACSEC_CIPHER_TYPE_GMAC: MACsec to use GMAC as algorithm
  */
 enum cipher_type_macsec {
 	MACSEC_CIPHER_TYPE_GCM,
 	MACSEC_CIPHER_TYPE_GMAC
 };
-
-/** @} */ /* end of defines_group */
 
 /*
  * IEEE 801.AE MacSEC Protocol Data Block
@@ -71,25 +58,16 @@ struct macsec_decap_pdb {
 };
 
 /**
- * @defgroup sharedesc_group Shared Descriptor Example Routines
- * @ingroup descriptor_lib_group
- * @{
+ * cnstr_shdsc_macsec_encap - MACsec(802.1AE) encapsulation
+ * @descbuf: pointer to descriptor-under-construction buffer
+ * @bufsize: points to size to be updated at completion
+ * @cipherdata: pointer to block cipher transform definitions
+ * @sci: PDB Secure Channel Identifier
+ * @ethertype: PDB EtherType
+ * @tci_an: TAG Control Information and Association Number are treated as a
+ *          single field of 8 bits in PDB.
+ * @pn: PDB Packet Number
  */
-/** @} end of sharedesc_group */
-
-/**
- * @details                 MACsec(802.1AE) encapsulation
- * @ingroup                 sharedesc_group
- *
- * @param[in,out] descbuf   Pointer to descriptor-under-construction buffer.
- * @param[in,out] bufsize   Points to size to be updated at completion.
- * @param[in] cipherdata    Pointer to block cipher transform definitions.
- * @param[in] sci           PDB Secure Channel Identifier.
- * @param[in] ethertype     PDB EtherType.
- * @param[in] tci_an        TAG Control Information and Association Number
- *                          are treated as a single field of 8 bits in PDB.
- * @param[in] pn            PDB Packet Number.
- **/
 static inline void cnstr_shdsc_macsec_encap(uint32_t *descbuf,
 					    unsigned *bufsize,
 					    struct alginfo *cipherdata,
@@ -134,15 +112,13 @@ static inline void cnstr_shdsc_macsec_encap(uint32_t *descbuf,
 }
 
 /**
- * @details                 MACsec(802.1AE) decapsulation
- * @ingroup                 sharedesc_group
- *
- * @param[in,out] descbuf   Pointer to descriptor-under-construction buffer.
- * @param[in,out] bufsize   Points to size to be updated at completion.
- * @param[in] cipherdata    Pointer to block cipher transform definitions.
- * @param[in] sci           PDB Secure Channel Identifier.
- * @param[in] pn            PDB Packet Number.
- **/
+ * cnstr_shdsc_macsec_decap - MACsec(802.1AE) decapsulation
+ * @descbuf: pointer to descriptor-under-construction buffer
+ * @bufsize: points to size to be updated at completion
+ * @cipherdata: pointer to block cipher transform definitions
+ * @sci: PDB Secure Channel Identifier
+ * @pn: PDB Packet Number
+ */
 static inline void cnstr_shdsc_macsec_decap(uint32_t *descbuf,
 					    unsigned *bufsize,
 					    struct alginfo *cipherdata,

@@ -7,9 +7,9 @@
 #include "common.h"
 
 /**
- * @file                 wifi.h
- * @brief                SEC Descriptor Construction Library Protocol-level
- *                       WiFi Shared Descriptor Constructors
+ * DOC: WiFi Shared Descriptor Constructors
+ *
+ * Shared descriptors for WiFi (802.11i) protocol.
  */
 
 /*
@@ -19,29 +19,26 @@
 #define WIFI_PDBOPTS_AR		0x40
 
 /**
- * @def WIFI_B0_FLAGS
- * The value of B0 flags used for WiFi AES-CCM Context construction.
- *
+ * WIFI_B0_FLAGS - The value of B0 flags used for WiFi AES-CCM Context
+ *                 construction.
  */
 #define WIFI_B0_FLAGS			0x59
 
 /**
- * @def WIFI_FRM_CTRL_MASK
- * The Frame Control Mask value used in computing the additional
- * authentication data (AAD).
+ * WIFI_FRM_CTRL_MASK - The Frame Control Mask value used in computing the
+ *                      additional authentication data (AAD).
  */
 #define WIFI_FRM_CTRL_MASK		0x8fc7
 
 /**
- * @def WIFI_SEQ_CTRL_MASK
- * The Sequence Control Mask value used in computing the additional
- * authentication data (AAD). *
+ * WIFI_SEQ_CTRL_MASK - The Sequence Control Mask value used in computing the
+ *                      additional authentication data (AAD).
  */
 #define WIFI_SEQ_CTRL_MASK		0x0f00
 
 /**
- * @def WIFI_CTR_FLAGS
- * The value of Counter Flags used for CCM Counter block construction.
+ * WIFI_CTR_FLAGS - The value of Counter Flags used for CCM Counter block
+ *                  construction.
  */
 #define WIFI_CTR_FLAGS			0x01
 
@@ -80,29 +77,16 @@ struct wifi_decap_pdb {
 };
 
 /**
- * @defgroup sharedesc_group Shared Descriptor Example Routines
- * @ingroup descriptor_lib_group
- * @{
+ * cnstr_shdsc_wifi_encap - IEEE 802.11i WiFi encapsulation
+ * @descbuf: pointer to descriptor-under-construction buffer
+ * @bufsize: pointer to descriptor size, updated at completion
+ * @ps: if 36/40bit addressing is desired, this parameter must be non-zero
+ * @mac_hdr_len: PDB MAC header length (24 or 28 bytes)
+ * @pn: PDB Packet Number
+ * @priority: PDB Packet priority
+ * @key_id: PDB Key ID
+ * @cipherdata: block cipher transform definitions
  */
-/** @} end of sharedesc_group */
-
-/**
- * @details                  IEEE 802.11i WiFi encapsulation
- *
- * @ingroup                  sharedesc_group
- *
- * @param[in, out] descbuf   Pointer to descriptor-under-construction buffer.
- * @param[in, out] bufsize   Pointer to descriptor size, updated at completion.
- *
- * @param [in] ps            If 36/40bit addressing is desired, this parameter
- *      must be non-zero.
- * @param[in] mac_hdr_len    PDB MAC header length (24 or 28 bytes).
- * @param[in] pn             PDB Packet Number.
- * @param[in] priority       PDB Packet priority.
- * @param[in] key_id         PDB Key ID.
- * @param[in] cipherdata     Block cipher transform definitions.
- **/
-
 static inline void cnstr_shdsc_wifi_encap(uint32_t *descbuf, unsigned *bufsize,
 		unsigned short ps, uint16_t mac_hdr_len, uint64_t pn,
 		uint8_t priority, uint8_t key_id, struct alginfo *cipherdata)
@@ -216,19 +200,14 @@ static inline void cnstr_shdsc_wifi_encap(uint32_t *descbuf, unsigned *bufsize,
 }
 
 /**
- * @details                  IEEE 802.11 WiFi decapsulation
- *
- * @ingroup                  sharedesc_group
- *
- * @param[in, out] descbuf   Pointer to descriptor-under-construction buffer.
- * @param[in, out] bufsize   Pointer to descriptor size, updated at completion.
- *
- * @param [in] ps            If 36/40bit addressing is desired, this parameter
- *      must be non-zero.
- * @param[in] mac_hdr_len    PDB MAC header length (24 or 28 bytes).
- * @param[in] pn             PDB Packet Number.
- * @param[in] priority       PDB Packet priority.
- * @param[in] cipherdata     Block cipher transform definitions.
+ * cnstr_shdsc_wifi_decap - IEEE 802.11 WiFi decapsulation
+ * @descbuf: pointer to descriptor-under-construction buffer
+ * @bufsize: pointer to descriptor size, updated at completion
+ * @ps: if 36/40bit addressing is desired, this parameter must be non-zero
+ * @mac_hdr_len: PDB MAC header length (24 or 28 bytes)
+ * @pn: PDB Packet Number
+ * @priority: PDB Packet priority
+ * @cipherdata: block cipher transform definitions
  **/
 static inline void cnstr_shdsc_wifi_decap(uint32_t *descbuf, unsigned *bufsize,
 		unsigned short ps, uint16_t mac_hdr_len, uint64_t pn,

@@ -7,30 +7,20 @@
 #include "common.h"
 
 /**
- * @file                 algo.h
- * @brief                SEC Descriptor Construction Library Protocol-level
- *                       Algorithms - Shared Descriptor Constructors
+ * DOC: Algorithms - Shared Descriptor Constructors
+ *
+ * Shared descriptors for algorithms (i.e. not for protocols).
  */
 
 /**
- * @defgroup sharedesc_group Shared Descriptor Example Routines
- * @ingroup descriptor_lib_group
- * @{
- */
-/** @} end of sharedesc_group */
-
-/**
- * @details                  SNOW/f8 (UEA2) as a shared descriptor.
- * @ingroup                  sharedesc_group
- *
- * @param [in,out] descbuf   Pointer to descriptor-under-construction buffer.
- * @param [in,out] bufsize   Points to size to be updated at completion.
- * @param [in] cipherdata    Pointer to block cipher transform definitions.
- * @param [in] dir           Cipher direction (DIR_ENCRYPT/DIR_DECRYPT).
- * @param [in] count         UEA2 count value (32 bits).
- * @param [in] bearer        UEA2 bearer ID (5 bits).
- * @param [in] direction     UEA2 direction (1 bit).
- *
+ * cnstr_shdsc_snow_f8 - SNOW/f8 (UEA2) as a shared descriptor
+ * @descbuf: pointer to descriptor-under-construction buffer
+ * @bufsize: points to size to be updated at completion
+ * @cipherdata: pointer to block cipher transform definitions
+ * @dir: Cipher direction (DIR_ENCRYPT/DIR_DECRYPT)
+ * @count: UEA2 count value (32 bits)
+ * @bearer: UEA2 bearer ID (5 bits)
+ * @direction: UEA2 direction (1 bit)
  */
 static inline void cnstr_shdsc_snow_f8(uint32_t *descbuf, unsigned *bufsize,
 			 struct alginfo *cipherdata, uint8_t dir,
@@ -60,17 +50,15 @@ static inline void cnstr_shdsc_snow_f8(uint32_t *descbuf, unsigned *bufsize,
 }
 
 /**
- * @details                 SNOW/f9 (UIA2) as a shared descriptor.
- * @ingroup                 sharedesc_group
- *
- * @param[in,out] descbuf   Pointer to descriptor-under-construction buffer.
- * @param[in,out] bufsize   Points to size to be updated at completion.
- * @param[in] authdata      Pointer to authentication transform definitions.
- * @param[in] dir           Cipher direction (DIR_ENCRYPT/DIR_DECRYPT).
- * @param[in] count         UEA2 count value (32 bits).
- * @param[in] fresh         UEA2 fresh value ID (32 bits).
- * @param[in] direction     UEA2 direction (1 bit).
- * @param[in] datalen       Size of data.
+ * cnstr_shdsc_snow_f9 - SNOW/f9 (UIA2) as a shared descriptor
+ * @descbuf: pointer to descriptor-under-construction buffer
+ * @bufsize: points to size to be updated at completion
+ * @authdata: pointer to authentication transform definitions
+ * @dir: cipher direction (DIR_ENCRYPT/DIR_DECRYPT)
+ * @count: UEA2 count value (32 bits)
+ * @fresh: UEA2 fresh value ID (32 bits)
+ * @direction: UEA2 direction (1 bit)
+ * @datalen: size of data
  */
 static inline void cnstr_shdsc_snow_f9(uint32_t *descbuf, unsigned *bufsize,
 			 struct alginfo *authdata, uint8_t dir, uint32_t count,
@@ -103,16 +91,14 @@ static inline void cnstr_shdsc_snow_f9(uint32_t *descbuf, unsigned *bufsize,
 }
 
 /**
- * @details                 CBC block cipher
- * @ingroup                 sharedesc_group
- *
- * @param[in,out] descbuf   Pointer to descriptor-under-construction buffer.
- * @param[in,out] bufsize   Limit/returned descriptor buffer size.
- * @param[in] cipherdata    Pointer to block cipher transform definitions.
- * @param[in] iv            IV data.
- * @param[in] ivlen         IV length.
- * @param[in] dir           DIR_ENCRYPT/DIR_DECRYPT.
- * @param[in] cipher        OP_ALG_ALGSEL_AES/DES/3DES.
+ * cnstr_shdsc_cbc_blkcipher - CBC block cipher
+ * @descbuf: pointer to descriptor-under-construction buffer
+ * @bufsize: limit/returned descriptor buffer size
+ * @cipherdata: pointer to block cipher transform definitions
+ * @iv: IV data
+ * @ivlen: IV length
+ * @dir: DIR_ENCRYPT/DIR_DECRYPT
+ * @cipher: OP_ALG_ALGSEL_AES/DES/3DES
  */
 static inline void cnstr_shdsc_cbc_blkcipher(uint32_t *descbuf,
 			       unsigned *bufsize, struct alginfo *cipherdata,
@@ -141,15 +127,12 @@ static inline void cnstr_shdsc_cbc_blkcipher(uint32_t *descbuf,
 }
 
 /**
- * @details                HMAC shared
- * @ingroup                sharedesc_group
- *
- * @param[in,out] descbuf  Pointer to descriptor-under-construction buffer.
- * @param[in,out] bufsize  Limit/returned descriptor buffer size.
- * @param[in] authdata     Pointer to authentication transform definitions.
- *                         Message digest algorithm: OP_ALG_ALGSEL_MD5/
- *                         SHA1-512.
- * @param[in] icv          HMAC comparison for ICV, NULL if no check desired.
+ * cnstr_shdsc_hmac - HMAC shared
+ * @descbuf: pointer to descriptor-under-construction buffer
+ * @bufsize: limit/returned descriptor buffer size
+ * @authdata: pointer to authentication transform definitions;
+ *            message digest algorithm: OP_ALG_ALGSEL_MD5/ SHA1-512.
+ * @icv: HMAC comparison for ICV, NULL if no check desired
  */
 static inline void cnstr_shdsc_hmac(uint32_t *descbuf, unsigned *bufsize,
 		      struct alginfo *authdata, uint8_t *icv)
@@ -204,17 +187,15 @@ static inline void cnstr_shdsc_hmac(uint32_t *descbuf, unsigned *bufsize,
 }
 
 /**
- * @details                 KASUMI F8 (Confidentiality) as a shared descriptor
- *                          (ETSI "Document 1: f8 and f9 specification").
- * @ingroup                 sharedesc_group
- *
- * @param[in,out] descbuf   Pointer to descriptor-under-construction buffer.
- * @param[in,out] bufsize   Points to size to be updated at completion.
- * @param[in] cipherdata    Pointer to block cipher transform definitions.
- * @param[in] dir           Cipher direction (DIR_ENCRYPT/DIR_DECRYPT).
- * @param[in] count         Count value (32 bits).
- * @param[in] bearer        Bearer ID (5 bits).
- * @param[in] direction     Direction (1 bit).
+ * cnstr_shdsc_kasumi_f8 - KASUMI F8 (Confidentiality) as a shared descriptor
+ *                         (ETSI "Document 1: f8 and f9 specification")
+ * @descbuf: pointer to descriptor-under-construction buffer
+ * @bufsize: points to size to be updated at completion
+ * @cipherdata: pointer to block cipher transform definitions
+ * @dir: cipher direction (DIR_ENCRYPT/DIR_DECRYPT)
+ * @count: count value (32 bits)
+ * @bearer: bearer ID (5 bits)
+ * @direction: direction (1 bit)
  */
 static inline void cnstr_shdsc_kasumi_f8(uint32_t *descbuf, unsigned *bufsize,
 			   struct alginfo *cipherdata, uint8_t dir,
@@ -244,18 +225,16 @@ static inline void cnstr_shdsc_kasumi_f8(uint32_t *descbuf, unsigned *bufsize,
 }
 
 /**
- * @details                 KASUMI F9 (Integrity) as a shared descriptor
- *                          (ETSI "Document 1: f8 and f9 specification").
- * @ingroup                 sharedesc_group
- *
- * @param[in,out] descbuf   Pointer to descriptor-under-construction buffer.
- * @param[in,out] bufsize   Points to size to be updated at completion.
- * @param[in] authdata      Pointer to authentication transform definitions.
- * @param[in] dir           Cipher direction (DIR_ENCRYPT/DIR_DECRYPT).
- * @param[in] count         Count value (32 bits).
- * @param[in] fresh         Fresh value ID (32 bits).
- * @param[in] direction     Direction (1 bit).
- * @param[in] datalen       Size of data.
+ * cnstr_shdsc_kasumi_f9 -  KASUMI F9 (Integrity) as a shared descriptor
+ *                          (ETSI "Document 1: f8 and f9 specification")
+ * @descbuf: pointer to descriptor-under-construction buffer
+ * @bufsize: points to size to be updated at completion
+ * @authdata: pointer to authentication transform definitions
+ * @dir: cipher direction (DIR_ENCRYPT/DIR_DECRYPT)
+ * @count: count value (32 bits)
+ * @fresh: fresh value ID (32 bits)
+ * @direction: direction (1 bit)
+ * @datalen: size of data
  */
 static inline void cnstr_shdsc_kasumi_f9(uint32_t *descbuf, unsigned *bufsize,
 			   struct alginfo *authdata, uint8_t dir,
@@ -290,11 +269,9 @@ static inline void cnstr_shdsc_kasumi_f9(uint32_t *descbuf, unsigned *bufsize,
 }
 
 /**
- * @details                CRC32 Accelerator (IEEE 802 CRC32 protocol mode)
- * @ingroup                sharedesc_group
- *
- * @param[in,out] descbuf  Pointer to descriptor-under-construction buffer.
- * @param[in,out] bufsize  Limit of descriptor buffer size.
+ * cnstr_shdsc_crc - CRC32 Accelerator (IEEE 802 CRC32 protocol mode)
+ * @descbuf: pointer to descriptor-under-construction buffer
+ * @bufsize: limit of descriptor buffer size
  */
 static inline void cnstr_shdsc_crc(uint32_t *descbuf, unsigned *bufsize)
 {

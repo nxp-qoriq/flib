@@ -19,8 +19,16 @@
 #endif
 
 /**
- * @enum rta_sec_era
- * @details SEC HW block revisions supported by the RTA library.
+ * enum rta_sec_era - SEC HW block revisions supported by the RTA library
+ * @RTA_SEC_ERA_1: SEC Era 1
+ * @RTA_SEC_ERA_2: SEC Era 2
+ * @RTA_SEC_ERA_3: SEC Era 3
+ * @RTA_SEC_ERA_4: SEC Era 4
+ * @RTA_SEC_ERA_5: SEC Era 5
+ * @RTA_SEC_ERA_6: SEC Era 6
+ * @RTA_SEC_ERA_7: SEC Era 7
+ * @RTA_SEC_ERA_8: SEC Era 8
+ * @MAX_SEC_ERA: maximum SEC HW block revision supported by RTA library
  */
 enum rta_sec_era {
 	RTA_SEC_ERA_1,
@@ -31,26 +39,24 @@ enum rta_sec_era {
 	RTA_SEC_ERA_6,
 	RTA_SEC_ERA_7,
 	RTA_SEC_ERA_8,
-	MAX_SEC_ERA = RTA_SEC_ERA_8 /**< Maximum SEC HW block revision
-					 supported by RTA library */
+	MAX_SEC_ERA = RTA_SEC_ERA_8
 };
 
 /**
- * @def DEFAULT_SEC_ERA
- * @details The default value for the SEC era in case the user provides an
- * unsupported value.
+ * DEFAULT_SEC_ERA - the default value for the SEC era in case the user provides
+ * an unsupported value.
  */
 #define DEFAULT_SEC_ERA	MAX_SEC_ERA
 
 /**
- * @def USER_SEC_ERA(sec_era)
- * @details Translates the SEC Era from internal to user representation.
+ * USER_SEC_ERA - translates the SEC Era from internal to user representation.
+ * @sec_era: SEC Era in internal (library) representation
  */
 #define USER_SEC_ERA(sec_era)	(sec_era + 1)
 
 /**
- * @def INTL_SEC_ERA(sec_era)
- * @details Translates the SEC Era from user representation to internal.
+ * INTL_SEC_ERA - translates the SEC Era from user representation to internal.
+ * @sec_era: SEC Era in user representation
  */
 #define INTL_SEC_ERA(sec_era)	(sec_era - 1)
 
@@ -514,23 +520,28 @@ enum rta_sec_era {
 #define __MOVEDW	3
 
 /**
- * @struct    program sec_run_time_asm.h
- * @details   Descriptor buffer management structure
+ * struct program - descriptor buffer management structure
+ * @current_pc:	current offset in descriptor
+ * @current_instruction: current instruction in descriptor
+ * @first_error_pc: offset of the first error in descriptor
+ * @start_pc: start offset in descriptor buffer
+ * @buffer: buffer carrying descriptor
+ * @shrhdr: shared descriptor header
+ * @jobhdr: job descriptor header
+ * @ps: pointer fields size; if ps is set to 1, pointers will be 36bits in
+ *      length; if ps is set to 0, pointers will be 32bits in length
+ * @bswap: if set, perform byte swap on a 4-byte boundary
  */
 struct program {
-	unsigned current_pc;	 /**< Current offset in descriptor */
-	unsigned current_instruction;/**< Current instruction in descriptor */
-	unsigned first_error_pc; /**< Offset of the first error in descriptor */
-	unsigned start_pc;	 /**< Start offset in descriptor buffer */
-	uint32_t *buffer;	 /**< Buffer carrying descriptor */
-	uint32_t *shrhdr;	 /**< Shared Descriptor Header */
-	uint32_t *jobhdr;	 /**< Job Descriptor Header */
-	unsigned short ps;	 /**< Pointer fields size; if ps is set to 1,
-				    pointers will be 36bits in length; if ps
-				    is set to 0, pointers will be 32bits in
-				    length. */
-	unsigned short bswap;	 /**< If set, perform byte swap on a 4-byte
-				      boundary.*/
+	unsigned current_pc;
+	unsigned current_instruction;
+	unsigned first_error_pc;
+	unsigned start_pc;
+	uint32_t *buffer;
+	uint32_t *shrhdr;
+	uint32_t *jobhdr;
+	unsigned short ps;
+	unsigned short bswap;
 };
 
 static inline void rta_program_cntxt_init(struct program *program,

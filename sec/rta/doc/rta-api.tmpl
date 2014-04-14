@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
+        "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd" []>
+
+<book id="RTAapi">
+ <bookinfo>
+  <title>Writing descriptors for Freescale CAAM using RTA library</title>
+  <authorgroup>
+   <author>
+    <firstname>Horia</firstname>
+    <surname>Geanta</surname>
+    <affiliation>
+     <address><email>horia.geanta@freescale.com</email></address>
+    </affiliation>
+   </author>
+  </authorgroup>
+
+  <copyright>
+   <year>2008-2014</year>
+   <holder>Freescale Semiconductor</holder>
+  </copyright>
+
+  <legalnotice>
+   <para>
+     This documentation is free software; you can redistribute
+     it and/or modify it under the terms of the GNU General Public
+     License as published by the Free Software Foundation; either
+     version 2 of the License, or (at your option) any later
+     version.
+   </para>
+
+   <para>
+     This program is distributed in the hope that it will be
+     useful, but WITHOUT ANY WARRANTY; without even the implied
+     warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+     See the GNU General Public License for more details.
+   </para>
+
+   <para>
+     You should have received a copy of the GNU General Public
+     License along with this program; if not, write to the Free
+     Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
+     MA 02111-1307 USA
+   </para>
+
+   <para>
+     For more details see the file COPYING in the source
+     distribution of Linux.
+   </para>
+  </legalnotice>
+ </bookinfo>
+
+<toc></toc>
+
+  <chapter id="intro">
+    <title>Introduction</title>
+    <sect1>
+      <title>About</title>
+!Pdrivers/crypto/caam/flib/rta.h About
+!Pdrivers/crypto/caam/flib/rta.h Usage
+      <mediaobject>
+        <imageobject>
+          <imagedata fileref="rta_arch.svg" format="SVG" align="CENTER"/>
+        </imageobject>
+        <caption><para>RTA Integration Overview</para></caption>
+      </mediaobject>
+    </sect1>
+    <sect1>
+      <title>Using RTA</title>
+      <para>
+        RTA can be used in an application just by including the following header file:
+	#include flib/rta.h
+      </para>
+      <para>
+        The files in drivers/crypto/caam/desc directory contain several
+	real-world descriptors written with RTA. You can use them as-is or adapt
+	them to your needs.
+      </para>
+      <para>
+        RTA routines assume that your code defines a local variable named
+	"program":
+	<itemizedlist mark='opencircle'>
+	  <listitem>
+	    <para>struct program prg;</para>
+	  </listitem>
+	  <listitem>
+	    <para>struct program *program = &amp;prg;</para>
+	  </listitem>
+	</itemizedlist>
+        This variable is passed behind the scene to all RTA API calls.
+	It contains several housekeeping information that are used during
+	descriptor creation.
+      </para>
+      <para>
+        RTA creates the descriptors and saves them in buffers. It is the user's
+	job to allocate memory for these buffers before passing them to RTA
+	program initialization call.
+      </para>
+      <para>
+        A RTA program must start with a call to PROGRAM_CNTXT_INIT and end with
+	PROGRAM_FINALIZE. PROGRAM_CNTXT_INIT will initialze the members of
+	'program' structure with user information (pointer to user's buffer, and
+	the SEC subversion). The PROGRAM_FINALIZE call checks the descriptor's
+	validity.
+      </para>
+      <para>
+        The program length is limited to the size of buffer descriptor which
+	can be maximum 64 words (256 bytes). However, a JUMP command can cause
+	loading and execution of another Job Descriptor; this allows for much
+	larger programs to be created.
+      </para>
+    </sect1>
+    <sect1>
+      <title>RTA components</title>
+      <para>
+        The content of the package is split mainly in two components:
+	<itemizedlist mark='opencircle'>
+	  <listitem>
+	    <para>descriptor builder API (drivers/crypto/caam/flib/rta.h)</para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      ready to use RTA descriptors
+	      (drivers/crypto/caam/flib/desc/*.h)
+	    </para>
+	  </listitem>
+	</itemizedlist>
+      </para>
+      <para>
+        These are the main building blocks of descriptors:
+	<itemizedlist mark='opencircle'>
+	  <listitem>
+	    <para>buffer management: init &amp; finalize</para>
+	  </listitem>
+	  <listitem>
+	    <para>SEC commands: MOVE, LOAD, FIFO_LOAD etc.</para>
+	  </listitem>
+	  <listitem>
+	    <para>descriptor labels (e.g. used as JUMP destinations)</para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      utility commands: (e.g. PATCH_* commands that update labels and
+	      references)
+	    </para>
+	  </listitem>
+	</itemizedlist>
+      </para>
+      <para>
+        In some cases, descriptor fields can't all be set when the commands are
+	inserted. These fields must be updated in a similar fashion to what the
+	linking process does with a binary file. RTA uses PATCH_* commands to
+	get relevant information and PROGRAM_FINALIZE to complete the
+	"code relocation".
+      </para>
+      <para>
+        If there is a need for descriptors larger than 64 words, their function
+	can be split into several smaller ones. In such case the smaller
+	descriptors are correlated and updated using PATCH_*_NON_LOCAL commands.
+	These calls must appear after all the descriptors are finalized and not
+	before as in a single descriptor case (the reason being that only then
+	references to all descriptors are available).
+      </para>
+    </sect1>
+  </chapter>
+
+  <chapter id="apiref">
+    <title>RTA API reference</title>
+    <sect1>
+      <title>Descriptor Buffer Management Routines</title>
+!Pdrivers/crypto/caam/flib/rta.h Descriptor Buffer Management Routines
+!Fdrivers/crypto/caam/flib/rta/sec_run_time_asm.h rta_sec_era
+!Fdrivers/crypto/caam/flib/rta/sec_run_time_asm.h USER_SEC_ERA
+!Fdrivers/crypto/caam/flib/rta/sec_run_time_asm.h INTL_SEC_ERA
+!Fdrivers/crypto/caam/flib/rta.h PROGRAM_CNTXT_INIT
+!Fdrivers/crypto/caam/flib/rta.h PROGRAM_FINALIZE
+!Fdrivers/crypto/caam/flib/rta.h PROGRAM_SET_36BIT_ADDR
+!Fdrivers/crypto/caam/flib/rta.h PROGRAM_SET_BSWAP
+!Fdrivers/crypto/caam/flib/rta.h WORD
+!Fdrivers/crypto/caam/flib/rta.h DWORD
+!Fdrivers/crypto/caam/flib/rta.h COPY_DATA
+!Fdrivers/crypto/caam/flib/rta.h SHR_DESC_LEN
+!Fdrivers/crypto/caam/flib/rta.h SHR_DESC_BYTES
+!Fdrivers/crypto/caam/flib/rta.h JOB_DESC_LEN
+!Fdrivers/crypto/caam/flib/rta.h JOB_DESC_BYTES
+!Fdrivers/crypto/caam/flib/rta/sec_run_time_asm.h program
+    </sect1>
+    <sect1>
+      <title>SEC Commands Routines</title>
+!Pdrivers/crypto/caam/flib/rta.h SEC Commands Routines
+!Fdrivers/crypto/caam/flib/rta.h SHR_HDR
+!Fdrivers/crypto/caam/flib/rta.h JOB_HDR
+!Fdrivers/crypto/caam/flib/rta.h JOB_HDR_EXT
+!Fdrivers/crypto/caam/flib/rta.h MOVE
+!Fdrivers/crypto/caam/flib/rta.h MOVEB
+!Fdrivers/crypto/caam/flib/rta.h MOVEDW
+!Fdrivers/crypto/caam/flib/rta.h FIFOLOAD
+!Fdrivers/crypto/caam/flib/rta.h SEQFIFOLOAD
+!Fdrivers/crypto/caam/flib/rta.h FIFOSTORE
+!Fdrivers/crypto/caam/flib/rta.h SEQFIFOSTORE
+!Fdrivers/crypto/caam/flib/rta.h KEY
+!Fdrivers/crypto/caam/flib/rta.h SEQINPTR
+!Fdrivers/crypto/caam/flib/rta.h SEQOUTPTR
+!Fdrivers/crypto/caam/flib/rta.h ALG_OPERATION
+!Fdrivers/crypto/caam/flib/rta.h PROTOCOL
+!Fdrivers/crypto/caam/flib/rta.h PKHA_OPERATION
+!Fdrivers/crypto/caam/flib/rta.h JUMP
+!Fdrivers/crypto/caam/flib/rta.h JUMP_INC
+!Fdrivers/crypto/caam/flib/rta.h JUMP_DEC
+!Fdrivers/crypto/caam/flib/rta.h LOAD
+!Fdrivers/crypto/caam/flib/rta.h SEQLOAD
+!Fdrivers/crypto/caam/flib/rta.h STORE
+!Fdrivers/crypto/caam/flib/rta.h SEQSTORE
+!Fdrivers/crypto/caam/flib/rta.h MATHB
+!Fdrivers/crypto/caam/flib/rta.h MATHU
+!Fdrivers/crypto/caam/flib/rta.h SIGNATURE
+!Fdrivers/crypto/caam/flib/rta.h NFIFOADD
+    </sect1>
+    <sect1>
+      <title>Self Referential Code Management Routines</title>
+!Pdrivers/crypto/caam/flib/rta.h Self Referential Code Management Routines
+!Fdrivers/crypto/caam/flib/rta.h REFERENCE
+!Fdrivers/crypto/caam/flib/rta.h LABEL
+!Fdrivers/crypto/caam/flib/rta.h SET_LABEL
+!Fdrivers/crypto/caam/flib/rta.h PATCH_JUMP
+!Fdrivers/crypto/caam/flib/rta.h PATCH_JUMP_NON_LOCAL
+!Fdrivers/crypto/caam/flib/rta.h PATCH_MOVE
+!Fdrivers/crypto/caam/flib/rta.h PATCH_MOVE_NON_LOCAL
+!Fdrivers/crypto/caam/flib/rta.h PATCH_LOAD
+!Fdrivers/crypto/caam/flib/rta.h PATCH_STORE
+!Fdrivers/crypto/caam/flib/rta.h PATCH_STORE_NON_LOCAL
+!Fdrivers/crypto/caam/flib/rta.h PATCH_RAW
+!Fdrivers/crypto/caam/flib/rta.h PATCH_RAW_NON_LOCAL
+    </sect1>
+  </chapter>
+
+  <chapter id="descapi">
+    <title>RTA descriptors library</title>
+    <sect1>
+      <title>Job Descriptor Example Routines</title>
+!Pdrivers/crypto/caam/flib/desc/jobdesc.h Job Descriptor Constructors
+!Fdrivers/crypto/caam/flib/desc/jobdesc.h cnstr_jobdesc_mdsplitkey
+    </sect1>
+    <sect1>
+      <title>Auxiliary Data Structures</title>
+!Pdrivers/crypto/caam/flib/desc/common.h Shared Descriptor Constructors - shared structures
+!Fdrivers/crypto/caam/flib/desc/common.h alginfo
+!Fdrivers/crypto/caam/flib/desc/common.h protcmd
+    </sect1>
+  </chapter>
+</book>
