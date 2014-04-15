@@ -3,8 +3,8 @@
 #ifndef __DESC_RSA_H__
 #define __DESC_RSA_H__
 
-#include "common.h"
 #include "flib/rta.h"
+#include "common.h"
 
 /**
  * @file                 rsa.h

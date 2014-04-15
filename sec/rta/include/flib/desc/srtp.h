@@ -3,8 +3,8 @@
 #ifndef __DESC_SRTP_H__
 #define __DESC_SRTP_H__
 
-#include "common.h"
 #include "flib/rta.h"
+#include "common.h"
 
 /**
  * @file                 srtp.h
