@@ -326,7 +326,7 @@ static inline void cnstr_shdsc_mbms_type0(uint32_t *descbuf,
 	 * Read the first two words of the descriptor into M0 (the 2nd word
 	 * contains the statistic to be incremented
 	 */
-	MOVE(DESCBUF, 0, MATH0, 0, IMM(8), 0);
+	MOVE(DESCBUF, 0, MATH0, 0, IMM(8), WITH(WAITCOMP));
 
 	/*
 	 * Increment the read statistic with 1, while not mangling the header
@@ -335,7 +335,7 @@ static inline void cnstr_shdsc_mbms_type0(uint32_t *descbuf,
 	MATHB(MATH0, ADD, ONE, MATH0, SIZE(8), WITH(0));
 
 	/* Write back the modifications in the descriptor buffer */
-	MOVE(MATH0, 0, DESCBUF, 0, IMM(8), WAITCOMP);
+	MOVE(MATH0, 0, DESCBUF, 0, IMM(8), WITH(WAITCOMP));
 
 	/* Store the updated statistic in external memory */
 	STORE(SHAREDESCBUF_EFF, 4, IMM(DUMMY_BUF_BASE), 4, WITH(0));
@@ -343,7 +343,7 @@ static inline void cnstr_shdsc_mbms_type0(uint32_t *descbuf,
 	SET_LABEL(rto);
 
 	/* Halt here with the appropriate status */
-	JUMP(IMM(MBMS_CRC_HDR_FAIL), HALT_STATUS, ALL_FALSE, WITH(0));
+	JUMP(IMM(MBMS_CRC_HDR_FAIL), HALT_STATUS, ALL_FALSE, WITH(CALM));
 
 	/*
 	 * If here, all is fine, so prepare the frame-copying. First revert
@@ -394,6 +394,7 @@ static inline unsigned cnstr_shdsc_mbms_type1_3(uint32_t *descbuf,
 	LABEL(end_of_sd);
 	LABEL(seq_in_ptr);
 	LABEL(sd_ptr);
+	LABEL(keyjmp);
 	LABEL(hdr_crc_pass);
 	LABEL(load_2nd_part);
 	LABEL(all_crc_pass);
@@ -409,6 +410,7 @@ static inline unsigned cnstr_shdsc_mbms_type1_3(uint32_t *descbuf,
 	REFERENCE(patch_move_load_2nd_part);
 
 	REFERENCE(patch_load);
+	REFERENCE(pkeyjmp);
 	REFERENCE(load_start_of_buf);
 
 	part1_buf = descbuf;
@@ -459,9 +461,12 @@ static inline unsigned cnstr_shdsc_mbms_type1_3(uint32_t *descbuf,
 	 * The following instructions take care of patching the first before
 	 * last command that can be pushed in the current descriptor buffer
 	 */
+	pkeyjmp = JUMP(IMM(keyjmp), LOCAL_JUMP, ALL_TRUE, WITH(SHRD|SELF));
 
 	/* Load the header polynomial to KEY2 register */
 	KEY(KEY2, 0, IMM(MBMS_HEADER_POLY), 1, WITH(IMMED));
+
+	SET_LABEL(keyjmp);
 
 	ALG_OPERATION(OP_ALG_ALGSEL_CRC,
 		      OP_ALG_AAI_CUST_POLY |
@@ -560,7 +565,7 @@ static inline unsigned cnstr_shdsc_mbms_type1_3(uint32_t *descbuf,
 	 * Read the first two words of the descriptor into M0 (the 2nd word
 	 * contains the statistic to be incremented
 	 */
-	MOVE(DESCBUF, 0, MATH0, 0, IMM(8), 0);
+	MOVE(DESCBUF, 0, MATH0, 0, IMM(8), WITH(WAITCOMP));
 
 	/*
 	 * Increment the read statistic with 1, while not mangling the header
@@ -569,13 +574,13 @@ static inline unsigned cnstr_shdsc_mbms_type1_3(uint32_t *descbuf,
 	MATHB(MATH0, ADD, ONE, MATH0, SIZE(8), WITH(0));
 
 	/* Write back the modifications in the descriptor buffer */
-	MOVE(MATH0, 0, DESCBUF, 0, IMM(8), WAITCOMP);
+	MOVE(MATH0, 0, DESCBUF, 0, IMM(8), WITH(WAITCOMP));
 
 	/* Store the updated statistic in external memory */
 	STORE(SHAREDESCBUF_EFF, 4, IMM(DUMMY_BUF_BASE), 4, WITH(0));
 
 	/* Halt here with the appropriate status */
-	JUMP(IMM(MBMS_CRC_HDR_FAIL), HALT_STATUS, ALL_FALSE, WITH(0));
+	JUMP(IMM(MBMS_CRC_HDR_FAIL), HALT_STATUS, ALL_TRUE, WITH(CALM));
 
 	/*
 	 * If here, header is OK. Payload must be checked next
@@ -633,6 +638,7 @@ static inline unsigned cnstr_shdsc_mbms_type1_3(uint32_t *descbuf,
 	sd_ptr = end_of_sd + 1;
 
 	PATCH_MOVE(seq_in_address, seq_in_ptr);
+	PATCH_JUMP(pkeyjmp, keyjmp);
 	PATCH_MOVE(patch_load, load_start_of_buf);
 	PATCH_MOVE(move_sd_address, sd_ptr);
 	/*
@@ -743,7 +749,7 @@ static inline unsigned cnstr_shdsc_mbms_type1_3(uint32_t *descbuf,
 	 * Read the 2nd two words of the descriptor into M0 (the 3rd word
 	 * contains the statistic to be incremented
 	 */
-	MOVE(DESCBUF, 4, MATH0, 0, IMM(8), 0);
+	MOVE(DESCBUF, 4, MATH0, 0, IMM(8), WITH(WAITCOMP));
 
 	/*
 	 * Increment the read statistic with 1, while not mangling the failed
@@ -752,10 +758,10 @@ static inline unsigned cnstr_shdsc_mbms_type1_3(uint32_t *descbuf,
 	MATHB(MATH0, ADD, ONE, MATH0, SIZE(8), WITH(0));
 
 	/* Write back the modifications in the descriptor buffer */
-	MOVE(MATH0, 4, DESCBUF, 0, IMM(8), WAITCOMP);
+	MOVE(MATH0, 0, DESCBUF, 4, IMM(8), WITH(WAITCOMP));
 
 	/* Store the updated statistic in external memory */
-	STORE(SHAREDESCBUF_EFF, 8, IMM(DUMMY_BUF_BASE), 4, WITH(0));
+	STORE(SHAREDESCBUF, 8, IMM(DUMMY_BUF_BASE), 4, WITH(0));
 
 	/*
 	 * Halt here with the appropriate status, but wait first for data
