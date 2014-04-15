@@ -857,4 +857,53 @@ static inline void cnstr_shdsc_mbms(uint32_t *descbuf,
 	}
 }
 
+/**
+ * @defgroup helper_group Shared Descriptor Helper Routines
+ * @ingroup descriptor_lib_group
+ * @{
+ */
+/** @} end of helper_group */
+
+/**
+ * @details              Helper function for retrieving MBMS descriptor
+ *                       statistics.
+ * @ingroup              helper_group
+ *
+ * @param [in] descbuf   Pointer to descriptor buffer, previously populated
+ *                       by the cnstr_shdsc_mbms() function.
+ * @param [in,out] stats Points to a statistics structure matching the MBMS
+ *                       PDU type, as specified by the @pdu_type parameter.
+ * @param [in] pdu_type  MBMS PDU type.
+ *
+ */
+static inline void get_mbms_stats(uint32_t *descbuf,
+				  void *stats,
+				  enum mbms_pdu_type pdu_type)
+{
+	uint32_t *pdb_ptr;
+
+	/*
+	 * The structure of the MBMS descriptor is the following:
+	 * HEADER (1W)
+	 * Header CRC failed (1W)
+	 * Payload CRC failed (1W, valid only for MBMS Type 1 and Type 3)
+	 */
+	pdb_ptr = descbuf + 1;
+
+	switch (pdu_type) {
+	case MBMS_PDU_TYPE0:
+		memcpy(stats, pdb_ptr, sizeof(struct mbms_type_0_pdb));
+		break;
+
+	case MBMS_PDU_TYPE1:
+	case MBMS_PDU_TYPE3:
+		memcpy(stats, pdb_ptr, sizeof(struct mbms_type_1_3_pdb));
+		break;
+
+	default:
+		pr_err("Invalid MBMS PDU Type selected %d\n", pdu_type);
+		break;
+	}
+}
+
 #endif /* __DESC_MBMS_H__ */
