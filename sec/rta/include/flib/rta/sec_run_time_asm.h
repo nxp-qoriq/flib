@@ -3,8 +3,12 @@
 #ifndef __RTA_SEC_RUN_TIME_ASM_H__
 #define __RTA_SEC_RUN_TIME_ASM_H__
 
-#include "../desc.h"
-#include "../compat.h"
+#include "flib/desc.h"
+
+/* flib/compat.h is not delivered in kernel */
+#ifndef __KERNEL__
+#include "flib/compat.h"
+#endif
 
 #ifndef high_32b
 #define high_32b(x) ((uint32_t)((x) >> 32))
