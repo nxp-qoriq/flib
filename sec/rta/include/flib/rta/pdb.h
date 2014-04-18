@@ -915,4 +915,41 @@ struct rsa_dec_pdb_form3 {
 	uint32_t trailer;	/* Contains rsv, #q, #p fields */
 };
 
+/*
+ * RLC Protocol Data Blocks
+ */
+#define RLC_PDB_OPT_SNS_SHIFT	1
+#define RLC_PDB_OPT_SNS_AM	(0 << RLC_PDB_OPT_SNS_SHIFT)
+#define RLC_PDB_OPT_SNS_UM	(1 << RLC_PDB_OPT_SNS_SHIFT)
+
+#define RLC_PDB_OPT_4B_SHIFT	0
+#define RLC_PDB_OPT_4B_SHIFT_EN	(1 << RLC_PDB_OPT_4B_SHIFT)
+
+#define RLC_PDB_HFN_SHIFT_UM	7
+#define RLC_PDB_HFN_SHIFT_AM	12
+
+#define RLC_PDB_BEARER_SHIFT	27
+#define RLC_PDB_DIR_SHIFT	26
+
+struct rlc_pdb {
+	uint32_t opt_res;	/* RLC options bitfield:
+				 * - bit 30: 1 = unacknowledged mode
+				 *           0 = acknowldeged mode
+				 * - bit 31: 1 = shift output data
+				 *               by 4 bits (pad with 0)
+				 */
+	uint32_t hfn_res;	/* HyperFrame number,(27, 25 or 21 bits),
+				 * left aligned & right-padded with zeros. */
+	uint32_t bearer_dir_res;/* Bearer(5 bits), packet direction (1 bit),
+				 * left aligned & right-padded with zeros. */
+	uint32_t hfn_thr_res;	/* HyperFrame number threshold (27, 25 or 21
+				 * bits), left aligned & right-padded with
+				 * zeros. */
+};
+
+/*
+ * RLC internal PDB type
+ */
+#define RLC_PDB_TYPE_FULL_PDB	PDCP_PDB_TYPE_FULL_PDB
+
 #endif /* __RTA_PDB_H__ */
