@@ -333,9 +333,9 @@ static inline int pdcp_insert_cplane_null_op(struct program *program,
 	return 0;
 }
 
-static inline int pdcp_insert_uplane_null_op(struct program *program,
-		struct alginfo *cipherdata,
-		unsigned dir)
+static inline int insert_copy_frame_op(struct program *program,
+				       struct alginfo *cipherdata,
+				       unsigned dir)
 {
 	LABEL(local_offset);
 	REFERENCE(move_cmd_read_descbuf);
@@ -1652,10 +1652,10 @@ static inline int pdcp_insert_uplane_15bit_op(struct program *program,
  * Function for inserting the snippet of code responsible for creating
  * the HFN override code via either DPOVRD or via the input frame.
  */
-static inline int pdcp_insert_hfn_ov_op(struct program *program,
-		uint32_t shift,
-		enum pdb_type_e pdb_type,
-		unsigned char era_2_sw_hfn_override)
+static inline int insert_hfn_ov_op(struct program *program,
+				   uint32_t shift,
+				   enum pdb_type_e pdb_type,
+				   unsigned char era_2_sw_hfn_override)
 {
 	uint32_t imm = 0x80000000;
 	uint16_t hfn_pdb_offset;
@@ -1922,8 +1922,8 @@ static inline void cnstr_shdsc_pdcp_c_plane_encap(uint32_t *descbuf,
 
 	SET_LABEL(pdb_end);
 
-	if (pdcp_insert_hfn_ov_op(program, PDCP_SN_SIZE_5, pdb_type,
-				  era_2_sw_hfn_override))
+	if (insert_hfn_ov_op(program, PDCP_SN_SIZE_5, pdb_type,
+			     era_2_sw_hfn_override))
 		return;
 
 	if (pdcp_cp_fp[cipherdata->algtype][authdata->algtype](program,
@@ -2075,8 +2075,8 @@ static inline void cnstr_shdsc_pdcp_c_plane_decap(uint32_t *descbuf,
 
 	SET_LABEL(pdb_end);
 
-	if (pdcp_insert_hfn_ov_op(program, PDCP_SN_SIZE_5, pdb_type,
-				  era_2_sw_hfn_override))
+	if (insert_hfn_ov_op(program, PDCP_SN_SIZE_5, pdb_type,
+			     era_2_sw_hfn_override))
 		return;
 
 	if (pdcp_cp_fp[cipherdata->algtype][authdata->algtype](program,
@@ -2203,10 +2203,8 @@ static inline void cnstr_shdsc_pdcp_u_plane_encap(uint32_t *descbuf,
 
 	SET_LABEL(pdb_end);
 
-	if (pdcp_insert_hfn_ov_op(program,
-				  sn_size,
-				  PDCP_PDB_TYPE_FULL_PDB,
-				  era_2_sw_hfn_override))
+	if (insert_hfn_ov_op(program, sn_size, PDCP_PDB_TYPE_FULL_PDB,
+			     era_2_sw_hfn_override))
 		return;
 
 	switch (sn_size) {
@@ -2229,9 +2227,9 @@ static inline void cnstr_shdsc_pdcp_u_plane_encap(uint32_t *descbuf,
 				 (uint16_t)cipherdata->algtype);
 			break;
 		case PDCP_CIPHER_TYPE_NULL:
-			pdcp_insert_uplane_null_op(program,
-						   cipherdata,
-						   OP_TYPE_ENCAP_PROTOCOL);
+			insert_copy_frame_op(program,
+					     cipherdata,
+					     OP_TYPE_ENCAP_PROTOCOL);
 			break;
 		default:
 			pr_err("%s: Invalid encrypt algorithm selected: %d\n",
@@ -2244,9 +2242,9 @@ static inline void cnstr_shdsc_pdcp_u_plane_encap(uint32_t *descbuf,
 	case PDCP_SN_SIZE_15:
 		switch (cipherdata->algtype) {
 		case PDCP_CIPHER_TYPE_NULL:
-			pdcp_insert_uplane_null_op(program,
-						   cipherdata,
-						   OP_TYPE_ENCAP_PROTOCOL);
+			insert_copy_frame_op(program,
+					     cipherdata,
+					     OP_TYPE_ENCAP_PROTOCOL);
 			break;
 
 		default:
@@ -2377,10 +2375,10 @@ static inline void cnstr_shdsc_pdcp_u_plane_decap(uint32_t *descbuf,
 
 	SET_LABEL(pdb_end);
 
-	if (pdcp_insert_hfn_ov_op(program,
-				  sn_size,
-				  PDCP_PDB_TYPE_FULL_PDB,
-				  era_2_sw_hfn_override))
+	if (insert_hfn_ov_op(program,
+			     sn_size,
+			     PDCP_PDB_TYPE_FULL_PDB,
+			     era_2_sw_hfn_override))
 		return;
 
 	switch (sn_size) {
@@ -2402,9 +2400,9 @@ static inline void cnstr_shdsc_pdcp_u_plane_decap(uint32_t *descbuf,
 				 (uint16_t)cipherdata->algtype);
 			break;
 		case PDCP_CIPHER_TYPE_NULL:
-			pdcp_insert_uplane_null_op(program,
-						   cipherdata,
-						   OP_TYPE_DECAP_PROTOCOL);
+			insert_copy_frame_op(program,
+					     cipherdata,
+					     OP_TYPE_DECAP_PROTOCOL);
 			break;
 		default:
 			pr_err("%s: Invalid encrypt algorithm selected: %d\n",
@@ -2417,9 +2415,9 @@ static inline void cnstr_shdsc_pdcp_u_plane_decap(uint32_t *descbuf,
 	case PDCP_SN_SIZE_15:
 		switch (cipherdata->algtype) {
 		case PDCP_CIPHER_TYPE_NULL:
-			pdcp_insert_uplane_null_op(program,
-						   cipherdata,
-						   OP_TYPE_DECAP_PROTOCOL);
+			insert_copy_frame_op(program,
+					     cipherdata,
+					     OP_TYPE_DECAP_PROTOCOL);
 			break;
 
 		default:
