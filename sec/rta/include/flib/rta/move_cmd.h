@@ -129,17 +129,30 @@ static inline unsigned rta_move(struct program *program, uint64_t src,
 		opcode |= ((dst_offset / 16) << MOVE_AUX_SHIFT) & MOVE_AUX_MASK;
 	else if (opt == MOVE_SET_AUX_LS)
 		opcode |= MOVE_AUX_LS;
-	else if ((opt & MOVE_SET_AUX_MATH_SRC) ||
-		 (opt & MOVE_SET_AUX_MATH_DST)) {
-		ret = math_offset(offset);
-		if (ret == -1) {
-			pr_debug("MOVE: Invalid offset in MATH register. SEC PC: %d; Instr: %d\n",
-				 program->current_pc,
-				 program->current_instruction);
-			goto err;
-		}
+	else if (opt & MOVE_SET_AUX_MATH) {
+		if (opt & MOVE_SET_AUX_SRC)
+			offset = src_offset;
+		else
+			offset = dst_offset;
 
-		opcode |= (uint32_t)ret;
+		if (rta_sec_era < RTA_SEC_ERA_6) {
+			if (offset)
+				pr_debug("MOVE: Offset not supported by SEC Era %d. SEC PC: %d; Instr: %d\n",
+					 USER_SEC_ERA(rta_sec_era),
+					 program->current_pc,
+					 program->current_instruction);
+			/* nothing to do for offset = 0 */
+		} else {
+			ret = math_offset(offset);
+			if (ret == -1) {
+				pr_debug("MOVE: Invalid offset in MATH register. SEC PC: %d; Instr: %d\n",
+					 program->current_pc,
+					 program->current_instruction);
+				goto err;
+			}
+
+			opcode |= (uint32_t)ret;
+		}
 	}
 
 	/* write source field */
