@@ -4975,6 +4975,9 @@ static inline unsigned cnstr_shdsc_mbms_type1_3(uint32_t *descbuf,
  *                          of the PDB.
  * @param[in] pdu_type      Type of the MBMS PDU required to be processed
  *                          by this descriptor.
+ *
+ * @note  This function can be called only for SEC ERA >= 5.
+ *
  **/
 static inline void cnstr_shdsc_mbms(uint32_t *descbuf,
 				    unsigned *bufsize,
@@ -4982,6 +4985,12 @@ static inline void cnstr_shdsc_mbms(uint32_t *descbuf,
 				    unsigned *preheader_len,
 				    enum mbms_pdu_type pdu_type)
 {
+	if (rta_sec_era < RTA_SEC_ERA_5) {
+		*bufsize = 0;
+		pr_debug("MBMS protocol processing is available only for SEC ERA >= 5\n");
+		return;
+	}
+
 	switch (pdu_type) {
 	case MBMS_PDU_TYPE0:
 		cnstr_shdsc_mbms_type0(descbuf, bufsize, ps);
