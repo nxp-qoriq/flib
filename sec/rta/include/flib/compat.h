@@ -4,10 +4,18 @@
 #define __RTA_COMPAT_H__
 
 #include <stdint.h>
+#include <errno.h>
+
+#ifdef __GLIBC__
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <errno.h>
+#elif defined(__EWL__) && (defined(AIOP) || defined(MC))
+#include "common/fsl_string.h"
+#include "common/fsl_stdlib.h"
+#include "common/fsl_stdio.h"
+#include "fsl_dbg.h"
+#endif
 
 #ifdef __GLIBC__
 #include <byteswap.h>
@@ -24,7 +32,7 @@
 #define __always_inline inline __attribute__((always_inline))
 #endif
 
-#ifndef pr_debug
+#if defined(__GLIBC__) && !defined(pr_debug)
 #if !defined(SUPPRESS_PRINTS) && defined(RTA_DEBUG)
 #define pr_debug(fmt, ...)    printf(fmt, ##__VA_ARGS__)
 #else
@@ -32,7 +40,7 @@
 #endif
 #endif /* pr_debug */
 
-#ifndef pr_err
+#if defined(__GLIBC__) && !defined(pr_err)
 #if !defined(SUPPRESS_PRINTS)
 #define pr_err(fmt, ...)    printf(fmt, ##__VA_ARGS__)
 #else
