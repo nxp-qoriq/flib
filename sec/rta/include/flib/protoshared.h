@@ -5141,7 +5141,7 @@ static inline void cnstr_shdsc_rlc_encap(uint32_t *descbuf,
 	if (ps)
 		PROGRAM_SET_36BIT_ADDR();
 
-	SHR_HDR(SHR_SERIAL, 0, WITH(0));
+	phdr = SHR_HDR(SHR_SERIAL, 0, WITH(0));
 
 	memset(&pdb, 0, sizeof(struct rlc_pdb));
 
