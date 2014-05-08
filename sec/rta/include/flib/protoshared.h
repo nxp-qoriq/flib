@@ -4194,10 +4194,11 @@ static inline void cnstr_shdsc_wifi_encap(uint32_t *descbuf, unsigned *bufsize,
 		SEQOUTPTR(0, 48, WITH(RTO));
 		SEQFIFOSTORE(SKIP, 0, 0, WITH(VLF));
 		SEQSTORE(MATH3, 0, SIZE(8), 0);
+
+		PATCH_JUMP(pstartloop, startloop);
 	}
 	PATCH_HDR(phdr, pdbend);
 	PATCH_JUMP(pkeyjump, keyjump);
-	PATCH_JUMP(pstartloop, startloop);
 
 	*bufsize = PROGRAM_FINALIZE();
 }
