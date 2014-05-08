@@ -822,10 +822,6 @@ static inline unsigned cnstr_shdsc_mbms_type1_3(uint32_t *descbuf,
  * @param[in] preheader_len Length to be set in the corresponding preheader
  *                          field. Unless the descriptor is split in multiple
  *                          parts, this will be equal to bufsize.
- *                          This structure will be copied inline to the
- *                          descriptor under construction. No error checking
- *                          will be made. Refer to the block guide for details
- *                          of the PDB.
  * @param[in] pdu_type      Type of the MBMS PDU required to be processed
  *                          by this descriptor.
  *
