@@ -938,13 +938,12 @@ struct rlc_pdb {
 				 * - bit 31: 1 = shift output data
 				 *               by 4 bits (pad with 0)
 				 */
-	uint32_t hfn_res;	/* HyperFrame number,(27, 25 or 21 bits),
-				 * left aligned & right-padded with zeros. */
+	uint32_t hfn_res;	/* HyperFrame number,(27 or 20 bits), left
++				   aligned & right-padded with zeros. */
 	uint32_t bearer_dir_res;/* Bearer(5 bits), packet direction (1 bit),
 				 * left aligned & right-padded with zeros. */
-	uint32_t hfn_thr_res;	/* HyperFrame number threshold (27, 25 or 21
-				 * bits), left aligned & right-padded with
-				 * zeros. */
+	uint32_t hfn_thr_res;	/* HyperFrame number threshold (27 or 20 bits),
+				   left aligned & right-padded with zeros. */
 };
 
 /*
