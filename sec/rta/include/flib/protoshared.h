@@ -1936,7 +1936,7 @@ static inline int pdcp_insert_cplane_int_only_op(struct program *program,
 		MATHB(MATH0, AND, IMM(PDCP_C_PLANE_SN_MASK), MATH1, SIZE(8),
 		      WITH(IFB));
 		MATHB(MATH1, SHLD, MATH1, MATH1, SIZE(8), WITH(0));
-		MOVE(DESCBUF, 8, MATH2, 8, IMM(8), WITH(WAITCOMP));
+		MOVE(DESCBUF, 8, MATH2, 0, IMM(8), WITH(WAITCOMP));
 		MATHB(MATH1, OR, MATH2, MATH2, SIZE(8), WITH(0));
 		MOVE(MATH2, 0, CONTEXT2, 0, IMM(8), WITH(0));
 
@@ -1994,7 +1994,7 @@ static inline int pdcp_insert_cplane_enc_only_op(struct program *program,
 	MATHB(MATH0, AND, IMM(PDCP_C_PLANE_SN_MASK), MATH1, SIZE(8), WITH(IFB));
 	SEQSTORE(MATH0, 7, 1, WITH(0));
 	MATHB(MATH1, SHLD, MATH1, MATH1, SIZE(8), WITH(0));
-	MOVE(DESCBUF, 8, MATH2, 8, IMM(8), WITH(WAITCOMP));
+	MOVE(DESCBUF, 8, MATH2, 0, IMM(8), WITH(WAITCOMP));
 	MATHB(MATH1, OR, MATH2, MATH2, SIZE(8), WITH(0));
 
 	switch (cipherdata->algtype) {
@@ -2906,7 +2906,7 @@ static inline int pdcp_insert_uplane_15bit_op(struct program *program,
 	      WITH(IFB));
 	SEQSTORE(MATH0, 6, 2, WITH(0));
 	MATHB(MATH1, SHLD, MATH1, MATH1, SIZE(8), WITH(0));
-	MOVE(DESCBUF, 8, MATH2, 8, IMM(8), WITH(WAITCOMP));
+	MOVE(DESCBUF, 8, MATH2, 0, IMM(8), WITH(WAITCOMP));
 	MATHB(MATH1, OR, MATH2, MATH2, SIZE(8), WITH(0));
 
 	MATHB(SEQINSZ, SUB, MATH3, VSEQINSZ, SIZE(4), WITH(0));
