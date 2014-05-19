@@ -216,7 +216,7 @@ struct ipsec_encap_pdb {
 	uint32_t spi;
 	uint16_t rsvd2;
 	uint16_t ip_hdr_len;
-	uint32_t ip_hdr[0]; /* optional IP Header content */
+	uint32_t ip_hdr[0]; /* optional IP Header content (for legacy mode) */
 };
 
 /**
@@ -769,6 +769,14 @@ static inline void cnstr_shdsc_ipsec_decap_des_aes_xcbc(uint32_t *descbuf,
  *      This structure will be copied inline to the descriptor under
  *      construction. No error checking will be made. Refer to the
  *      block guide for details about the encapsulation PDB.
+ * @param[in] opt_ip_hdr  Pointer to Optional IP Header.
+ *       if OIHI = PDBOPTS_ESP_OIHI_PDB_INL, opt_ip_hdr points to the buffer to
+ *       be inlined in the PDB. Number of bytes (buffer size) copied is provided
+ *       in pdb->ip_hdr_len.
+ *       if OIHI = PDBOPTS_ESP_OIHI_PDB_REF, opt_ip_hdr points to the address of
+ *       the Optional IP Header. The address will be inlined in the PDB
+ *       verbatim.
+ *       For other values of OIHI options field, opt_ip_hdr is not used.
  * @param[in] cipherdata  Pointer to block cipher transform definitions. Valid
  *      algorithm values: one of OP_PCL_IPSEC_*
  * @param[in] authdata    Pointer to authentication transform definitions. Note
@@ -779,6 +787,7 @@ static inline void cnstr_shdsc_ipsec_new_encap(uint32_t *descbuf,
 					       unsigned *bufsize,
 					       unsigned short ps,
 					       struct ipsec_encap_pdb *pdb,
+					       uint8_t *opt_ip_hdr,
 					       struct alginfo *cipherdata,
 					       struct alginfo *authdata)
 {
@@ -803,21 +812,19 @@ static inline void cnstr_shdsc_ipsec_new_encap(uint32_t *descbuf,
 		PROGRAM_SET_36BIT_ADDR();
 	phdr = SHR_HDR(SHR_SERIAL, hdr, 0);
 
+	COPY_DATA((uint8_t *)pdb, sizeof(struct ipsec_encap_pdb));
+
 	switch (pdb->options & PDBOPTS_ESP_OIHI_MASK) {
 	case PDBOPTS_ESP_OIHI_PDB_INL:
-		COPY_DATA((uint8_t *)pdb,
-			  sizeof(struct ipsec_encap_pdb) + pdb->ip_hdr_len);
+		COPY_DATA(opt_ip_hdr, pdb->ip_hdr_len);
 		break;
 	case PDBOPTS_ESP_OIHI_PDB_REF:
 		if (ps)
-			COPY_DATA((uint8_t *)pdb,
-				  sizeof(struct ipsec_encap_pdb) + BYTES_8);
+			COPY_DATA(opt_ip_hdr, BYTES_8);
 		else
-			COPY_DATA((uint8_t *)pdb,
-				  sizeof(struct ipsec_encap_pdb) + BYTES_4);
+			COPY_DATA(opt_ip_hdr, BYTES_4);
 		break;
 	default:
-		COPY_DATA((uint8_t *)pdb, sizeof(struct ipsec_encap_pdb));
 		break;
 	}
 	SET_LABEL(hdr);
