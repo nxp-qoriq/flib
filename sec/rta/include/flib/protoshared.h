@@ -2616,16 +2616,12 @@ static inline int pdcp_insert_cplane_aes_snow_op(struct program *program,
 		unsigned dir,
 		unsigned char era_2_sw_hfn_override)
 {
-	LABEL(local_offset);
-	REFERENCE(read_load_nfifo);
-	REFERENCE(write_load_nfifo);
-
 	KEY(KEY1, cipherdata->key_enc_flags, PTR(cipherdata->key),
 	    cipherdata->keylen, WITH(0));
 	KEY(KEY2, authdata->key_enc_flags, PTR(authdata->key),
 	    authdata->keylen, WITH(0));
 
-	if (rta_sec_era <= RTA_SEC_ERA_2)
+	if (dir == OP_TYPE_ENCAP_PROTOCOL)
 		MATHB(SEQINSZ, SUB, ONE, VSEQINSZ, SIZE(4), WITH(0));
 
 	SEQLOAD(MATH0, 7, 1, WITH(0));
@@ -2652,15 +2648,8 @@ static inline int pdcp_insert_cplane_aes_snow_op(struct program *program,
 		MATHB(SEQINSZ, SUB, IMM(PDCP_MAC_I_LEN), MATH1, SIZE(4),
 		      WITH(0));
 
-		if (rta_sec_era <= RTA_SEC_ERA_2)
-			MATHB(ZERO, ADD, MATH1, VSEQOUTSZ, SIZE(4), WITH(0));
-		else
-			MATHB(MATH1, SUB, ZERO, VSEQOUTSZ, SIZE(4), WITH(0));
-
-		read_load_nfifo = MOVE(DESCBUF, 0, MATH1, 0, IMM(6),
-				       WITH(WAITCOMP));
-		write_load_nfifo = MOVE(MATH1, 0, DESCBUF, 0, IMM(8),
-					WITH(WAITCOMP));
+		MATHB(ZERO, ADD, MATH1, VSEQOUTSZ, SIZE(4), WITH(0));
+		MATHB(ZERO, ADD, MATH1, VSEQINSZ, SIZE(4), WITH(0));
 	}
 
 	if (dir == OP_TYPE_ENCAP_PROTOCOL)
@@ -2668,16 +2657,12 @@ static inline int pdcp_insert_cplane_aes_snow_op(struct program *program,
 	else
 		SEQFIFOSTORE(MSG, 0, 0, WITH(VLF | CONT));
 
-	if (rta_sec_era > RTA_SEC_ERA_2)
-		MATHB(SEQINSZ, SUB, ZERO, VSEQINSZ, SIZE(4), WITH(0));
-
 	ALG_OPERATION(OP_ALG_ALGSEL_SNOW_F9,
 		      OP_ALG_AAI_F9,
 		      OP_ALG_AS_INITFINAL,
 		      dir == OP_TYPE_ENCAP_PROTOCOL ?
 			     ICV_CHECK_DISABLE : ICV_CHECK_ENABLE,
 		      OP_ALG_DECRYPT);
-	SET_LABEL(local_offset);
 	ALG_OPERATION(OP_ALG_ALGSEL_AES,
 		      OP_ALG_AAI_CTR,
 		      OP_ALG_AS_INITFINAL,
@@ -2689,7 +2674,7 @@ static inline int pdcp_insert_cplane_aes_snow_op(struct program *program,
 		SEQFIFOLOAD(MSGINSNOOP, 0, WITH(VLF | LAST2));
 		MOVE(CONTEXT2, 0, IFIFOAB1, 0, IMM(4), WITH(LAST1 | FLUSH1));
 	} else {
-		SEQFIFOLOAD(MSGOUTSNOOP, 0, WITH(LAST2));
+		SEQFIFOLOAD(MSGOUTSNOOP, 0, WITH(VLF | LAST2));
 		SEQFIFOLOAD(MSG1, 4, WITH(LAST1 | FLUSH1));
 		JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, WITH(CLASS1 | NOP | NIFP));
 
@@ -2709,9 +2694,6 @@ static inline int pdcp_insert_cplane_aes_snow_op(struct program *program,
 		} else {
 			MOVE(MATH0, 0, IFIFO, 0, IMM(4), WITH(WAITCOMP));
 		}
-
-		PATCH_MOVE(read_load_nfifo, local_offset);
-		PATCH_MOVE(write_load_nfifo, local_offset);
 	}
 
 	return 0;
