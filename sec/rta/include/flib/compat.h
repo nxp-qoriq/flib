@@ -12,7 +12,7 @@
 #include <byteswap.h>
 /* FSL's Embedded Warrior C Library; assume AIOP or MC environment */
 #elif defined(__EWL__) && defined(AIOP)
-#include "general.h"
+#include "dplib/fsl_general.h"
 #elif defined(__EWL__) && defined(MC)
 #include "common/endian.h"
 #else
@@ -59,17 +59,17 @@
 #elif defined(__EWL__) && defined(AIOP)
 static __always_inline uint16_t swab16(uint16_t x)
 {
-	return LH_SWAP(&x);
+	return LH_SWAP(0, &x);
 }
 
 static __always_inline uint32_t swab32(uint32_t x)
 {
-	return LW_SWAP(&x);
+	return LW_SWAP(0, &x);
 }
 
 static __always_inline uint64_t swab64(uint64_t x)
 {
-	return LDW_SWAP(&x);
+	return LDW_SWAP(0, &x);
 }
 #elif defined(__EWL__) && defined(MC)
 # define swab16(x) swap_uint16(x)
