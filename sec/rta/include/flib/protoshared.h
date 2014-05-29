@@ -2948,8 +2948,18 @@ static inline int pdcp_insert_cplane_zuc_snow_op(struct program *program,
 		MOVE(CONTEXT2, 0, IFIFOAB1, 0, IMM(4), WITH(LAST1 | FLUSH1));
 	} else {
 		SEQFIFOLOAD(MSG1, 4, WITH(LAST1 | FLUSH1));
+		JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, WITH(CLASS1 | NOP | NIFP));
 
-		/* Save ICV */
+		if (rta_sec_era >= RTA_SEC_ERA_6)
+			/*
+			 * For SEC ERA 6, there's a problem with the OFIFO
+			 * pointer, and thus it needs to be reset here before
+			 * moving to M0.
+			 */
+			LOAD(IMM(0), DCTRL, 0, LDLEN_RST_CHA_OFIFO_PTR,
+			     WITH(0));
+
+		/* Put ICV to M0 before sending it to C2 for comparison. */
 		MOVE(OFIFO, 0, MATH0, 0, IMM(4), WITH(WAITCOMP));
 
 		LOAD(IMM(NFIFOENTRY_STYPE_ALTSOURCE |
