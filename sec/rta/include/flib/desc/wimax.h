@@ -105,6 +105,207 @@ struct wimax_decap_pdb {
 };
 
 /**
+ * @details                WiMAX(802.16) encapsulation descriptor for platforms
+ *          with SEC ERA >= 5.
+ *          This descriptor addreses the prefetch problem when modifying the
+ *          header of the input frame by invalidating the prefetch mechanism.
+ *
+ *          For performance reasons (due to the long read latencies),
+ *          the JQ will prefetch the input frame if a job cannot go immediately
+ *          into a DECO. As a result, the rewind is rewinding into the prefetch
+ *          buffer, not into memory. Therefore, in those cases where prefetch
+ *          is done, an unaware descriptor would update the memory but read
+ *          from the prefetched buffer and, as a result, it would not get
+ *          the updated header.
+ *
+ *          This descriptor invalidates the prefetch data and reads the updated
+ *          header from memory. The descriptor reads enough data to read to the
+ *          end of the prefetched data, dumps that data, rewinds the input frame
+ *          and just starts reading from the beginning again.
+ *
+ * @ingroup                sharedesc_group
+ * @warning                Descriptor valid on platforms
+ *                         with support for SEC ERA 5 or higher.
+ *
+ * @param[in,out] descbuf  Pointer to descriptor-under-construction buffer.
+ * @param[in,out] bufsize  Points to size to be updated at completion.
+ * @param[in] pdb_opts     PDB Options Byte.
+ * @param[in] pn           PDB Packet Number.
+ * @param[in] cipherdata   Pointer to block cipher transform definitions.
+ * @param[in] protinfo     Protocol information: OP_PCL_WIMAX_OFDM/OFDMA.
+ */
+static inline void cnstr_shdsc_wimax_encap_era5(uint32_t *descbuf,
+		unsigned *bufsize, uint8_t pdb_opts, uint32_t pn,
+		uint16_t protinfo, struct alginfo *cipherdata)
+{
+	struct wimax_encap_pdb pdb;
+	struct program prg;
+	struct program *program = &prg;
+
+	LABEL(hdr);
+	LABEL(out_len);
+	LABEL(keyjump);
+	LABEL(local_offset);
+	LABEL(mathjump);
+	LABEL(seqout_ptr);
+	LABEL(swapped_seqout_ptr);
+	REFERENCE(phdr);
+	REFERENCE(move_seqin_ptr);
+	REFERENCE(move_seqout_ptr);
+	REFERENCE(pmathjump);
+	REFERENCE(pkeyjump);
+	REFERENCE(seqout_ptr_jump1);
+	REFERENCE(seqout_ptr_jump2);
+	REFERENCE(write_seqout_ptr);
+	REFERENCE(write_swapped_seqout_ptr);
+
+	memset(&pdb, 0, sizeof(struct wimax_encap_pdb));
+	pdb.options = pdb_opts;
+	pdb.pn = pn;
+	pdb.b0_flags = WIMAX_PDB_B0;
+	pdb.ctr_flags = WIMAX_PDB_CTR;
+
+	PROGRAM_CNTXT_INIT(descbuf, 0);
+	phdr = SHR_HDR(SHR_SERIAL, hdr, WITH(0));
+
+	COPY_DATA((uint8_t *)&pdb, sizeof(struct wimax_encap_pdb));
+	SET_LABEL(hdr);
+
+	/*
+	 * Figure out how much data has been prefetched.
+	 * The prefetch buffer will have 128 bytes (or less, if the input frame
+	 * is less than 128 bytes)
+	 */
+	MATHB(MATH0, ADD, IMM(128), VSEQINSZ, SIZE(4), 0);
+	MATHB(SEQINSZ, SUB, VSEQINSZ, NONE, SIZE(4), 0);
+	/* If not negative, then input is bigger than 128 bytes */
+	pmathjump = JUMP(IMM(mathjump), LOCAL_JUMP, ALL_FALSE, MATH_N);
+	MATHB(SEQINSZ, ADD, ZERO, VSEQINSZ, SIZE(4), 0);
+	SET_LABEL(mathjump);
+	MATHB(VSEQINSZ, ADD, ZERO, MATH3, SIZE(4), 0);
+
+	/* Save SEQOUTPTR, Output Pointer and Output Length. */
+	move_seqout_ptr = MOVE(DESCBUF, 0, OFIFO, 0, IMM(16), WITH(WAITCOMP));
+/*
+ * TODO: RTA currently doesn't support creating a LOAD command
+ * with another command as IMM. In this particular case "0xa00000fa" is a JUMP
+ * command used for jumping back after rewinding and reseting the sequence
+ * output pointer and length.
+ * To be changed when proper support is added in RTA.
+ */
+	LOAD(IMM(0xa00000fa), OFIFO, 0, 4, WITH(0));
+
+	/* Swap SEQOUTPTR to the SEQINPTR. */
+	move_seqin_ptr = MOVE(DESCBUF, 0, MATH0, 0, IMM(20), WITH(WAITCOMP));
+	MATHB(MATH0, OR, IMM(CMD_SEQ_IN_PTR ^ CMD_SEQ_OUT_PTR), MATH0, SIZE(8),
+	      IFB);
+/*
+ * TODO: RTA currently doesn't support creating a LOAD command
+ * with another command as IMM. In this particular case "0xa00000dc" is a JUMP
+ * command used for jumping back after starting the new output sequence using
+ * the pointer and length used when the current input sequence was defined.
+ * To be changed when proper support is added in RTA.
+ */
+	LOAD(IMM(0xa00000dc), MATH2, 4, 4, WITH(0));
+	write_swapped_seqout_ptr = MOVE(MATH0, 0, DESCBUF, 0, IMM(24),
+					WITH(WAITCOMP));
+	seqout_ptr_jump1 = JUMP(IMM(swapped_seqout_ptr), LOCAL_JUMP, ALL_TRUE,
+				WITH(0));
+	write_seqout_ptr = MOVE(OFIFO, 0, DESCBUF, 0, IMM(20), WITH(WAITCOMP));
+
+	/*
+	 * Read exactly the amount of data that would have been prefetched if,
+	 * in fact, the data was prefetched. This will cause DECO to flush
+	 * the prefetched data
+	 */
+	SEQFIFOLOAD(IFIFO, 0, WITH(VLF));
+	JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, WITH(CALM));
+	/* Get header into Math 0 */
+	MOVE(IFIFOABD, 0, MATH0, 4, IMM(8), WITH(WAITCOMP));
+
+	/* Clear input data FIFO and Class 1,2 registers*/
+	LOAD(IMM(LDST_SRCDST_WORD_CLRW | CLRW_CLR_C2MODE | CLRW_CLR_C2DATAS |
+		 CLRW_CLR_C2CTX | CLRW_CLR_C2KEY | CLRW_RESET_CLS2_CHA |
+		 CLRW_RESET_CLS1_CHA | CLRW_RESET_IFIFO_DFIFO),
+	     CLRW, 0, 4, WITH(0));
+
+	/*
+	 * Set Encryption Control bit.
+	 * Header is loaded at offset four in Math 0 register.
+	 * Use the 32 bit value of the WIMAX_GMH_EC_MASK macro.
+	 */
+	MATHB(MATH0, OR, IMM(high_32b(WIMAX_GMH_EC_MASK)), MATH0, SIZE(4), 0);
+
+	/*
+	 * Update Generic Mac Header Length field.
+	 * The left shift is used in order to update the GMH LEN field
+	 * and nothing else.
+	 */
+	if (pdb_opts & WIMAX_PDBOPTS_FCS)
+		MATHB(MATH0, ADD, IMM((WIMAX_PN_LEN + WIMAX_ICV_LEN +
+				      WIMAX_FCS_LEN) << 8),
+		      MATH0, SIZE(4), 0);
+	else
+		MATHB(MATH0, ADD, IMM((WIMAX_PN_LEN + WIMAX_ICV_LEN) << 8),
+		      MATH0, SIZE(4), 0);
+
+	/*
+	 * Compute the CRC-8-ATM value for the first five bytes
+	 * of the header and insert the result into the sixth
+	 * MATH0 byte field.
+	 */
+	KEY(KEY2, 0, IMM(CRC_8_ATM_POLY), 2, WITH(IMMED));
+	ALG_OPERATION(OP_ALG_ALGSEL_CRC,
+		      OP_ALG_AAI_CUST_POLY | OP_ALG_AAI_DIS, OP_ALG_AS_UPDATE,
+		      ICV_CHECK_DISABLE, OP_ALG_ENCRYPT);
+	MOVE(MATH0, 4, IFIFOAB2, 0, IMM(5), WITH(LAST1));
+	MOVE(CONTEXT2, 0, MATH2, 0, IMM(4), WITH(WAITCOMP));
+	MOVE(MATH2, 0, MATH1, 1, IMM(1), WITH(WAITCOMP));
+	SEQSTORE(MATH0, 4, 8, WITH(0));
+	LOAD(IMM(LDST_SRCDST_WORD_CLRW | CLRW_CLR_C2MODE | CLRW_CLR_C2DATAS |
+		 CLRW_CLR_C2CTX | CLRW_CLR_C2KEY | CLRW_RESET_CLS2_CHA),
+	     CLRW, 0, 4, WITH(0));
+	JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, WITH(CALM));
+	SEQINPTR(0, 0, WITH(RTO));
+
+	/* Add what was removed */
+	MATHB(SEQINSZ, ADD, MATH3, SEQINSZ, SIZE(4), 0);
+
+	pkeyjump = JUMP(IMM(keyjump), LOCAL_JUMP, ALL_TRUE, WITH(SHRD));
+	KEY(KEY1, cipherdata->key_enc_flags, PTR(cipherdata->key),
+	    cipherdata->keylen, WITH(IMMED));
+	SET_LABEL(keyjump);
+	seqout_ptr_jump2 = JUMP(IMM(local_offset), LOCAL_JUMP, ALL_TRUE,
+				WITH(0));
+	PROTOCOL(OP_TYPE_ENCAP_PROTOCOL, OP_PCLID_WIMAX, protinfo);
+/*
+ * TODO: RTA currently doesn't support adding labels in or after Job Descriptor.
+ * To be changed when proper support is added in RTA.
+ */
+	SET_LABEL(local_offset);
+	local_offset += 1;
+
+	SET_LABEL(swapped_seqout_ptr);
+	swapped_seqout_ptr += 2;
+
+	SET_LABEL(seqout_ptr);
+	seqout_ptr += 3;
+	SET_LABEL(out_len);
+	out_len += 6;
+
+	PATCH_HDR(phdr, hdr);
+	PATCH_JUMP(pkeyjump, keyjump);
+	PATCH_JUMP(pmathjump, mathjump);
+	PATCH_JUMP(seqout_ptr_jump1, swapped_seqout_ptr);
+	PATCH_JUMP(seqout_ptr_jump2, local_offset);
+	PATCH_MOVE(move_seqin_ptr, out_len);
+	PATCH_MOVE(move_seqout_ptr, seqout_ptr);
+	PATCH_MOVE(write_seqout_ptr, local_offset);
+	PATCH_MOVE(write_swapped_seqout_ptr, local_offset);
+	*bufsize = PROGRAM_FINALIZE();
+}
+
+/**
  * @defgroup sharedesc_group Shared Descriptor Example Routines
  * @ingroup descriptor_lib_group
  * @{
@@ -147,6 +348,12 @@ static inline void cnstr_shdsc_wimax_encap(uint32_t *descbuf, unsigned *bufsize,
 	REFERENCE(seqout_ptr_jump2);
 	REFERENCE(write_seqout_ptr);
 	REFERENCE(write_swapped_seqout_ptr);
+
+	if (rta_sec_era >= RTA_SEC_ERA_5) {
+		cnstr_shdsc_wimax_encap_era5(descbuf, bufsize, pdb_opts, pn,
+					     protinfo, cipherdata);
+		return;
+	}
 
 	memset(&pdb, 0x00, sizeof(struct wimax_encap_pdb));
 	pdb.options = pdb_opts;
