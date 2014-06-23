@@ -32,7 +32,7 @@ unsigned prepend(uint32_t *buff)
 	PROGRAM_CNTXT_INIT(buff, 0);
 	PROGRAM_SET_36BIT_ADDR();
 
-	SHR_HDR(SHR_SERIAL, 15, WITH(RIF));
+	SHR_HDR(SHR_SERIAL, 15, RIF);
 	{
 		{	/* IPSEC ESP ENCAP (CBC) PDB */
 			/* Options:NextHdr=0x09 NHOffset=0 ChainedIV
@@ -49,16 +49,16 @@ unsigned prepend(uint32_t *buff)
 			WORD(0x79890a98);	/* Opt IP Hdr */
 		}
 
-		SEQSTORE(PTR((uintptr_t) &data_in), 0, 14, WITH(IMMED));
+		SEQSTORE(PTR((uintptr_t) &data_in), 0, 14, IMMED);
 		pjump1 = JUMP(IMM(skip_key_load), LOCAL_JUMP, ALL_TRUE,
-			      WITH(SHRD));
+			      SHRD);
 		KEY(MDHA_SPLIT_KEY, 0, PTR((uintptr_t) &key_1), 40,
-		    WITH(IMMED));
-		KEY(KEY1, 0, PTR((uintptr_t) &key_2), 16, WITH(IMMED));
+		    IMMED);
+		KEY(KEY1, 0, PTR((uintptr_t) &key_2), 16, IMMED);
 		SET_LABEL(skip_key_load);
 		PROTOCOL(OP_TYPE_ENCAP_PROTOCOL, OP_PCLID_IPSEC,
-			 WITH(OP_PCL_IPSEC_AES_CBC |
-			      OP_PCL_IPSEC_HMAC_SHA1_160));
+			 OP_PCL_IPSEC_AES_CBC |
+			      OP_PCL_IPSEC_HMAC_SHA1_160);
 	}
 	PATCH_JUMP(pjump1, skip_key_load);
 

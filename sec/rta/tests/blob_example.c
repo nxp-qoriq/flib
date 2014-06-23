@@ -27,7 +27,7 @@ unsigned test_blob_example(uint32_t *buff)
 		SEQINPTR((uintptr_t) data_in_addr, data_length, 0);
 		SEQOUTPTR((uintptr_t) blob_out_addr, blob_length, 0);
 		PROTOCOL(OP_TYPE_ENCAP_PROTOCOL, OP_PCLID_BLOB,
-			 WITH(OP_PCL_BLOB_FORMAT_NORMAL));
+			 OP_PCL_BLOB_FORMAT_NORMAL);
 	}
 
 	return PROGRAM_FINALIZE();

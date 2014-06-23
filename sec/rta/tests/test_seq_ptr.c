@@ -18,8 +18,8 @@ unsigned test_seq_ptr_op(uint32_t *buff)
 	PROGRAM_CNTXT_INIT(buff, 0);
 	SEQINPTR(data_in, data_size, 0);
 	SEQOUTPTR(data_out, data_size, 0);
-	SEQINPTR(0, 0, WITH(RTO));
-	SEQOUTPTR(0, 0, WITH(RTO));
+	SEQINPTR(0, 0, RTO);
+	SEQOUTPTR(0, 0, RTO);
 
 	return PROGRAM_FINALIZE();
 }

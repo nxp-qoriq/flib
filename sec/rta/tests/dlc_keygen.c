@@ -51,7 +51,7 @@ unsigned dlc_keygen(uint32_t *buff)
 		LOAD(IMM((field_size + 8)), PKASZ, 0, 4, 0);
 
 		/* Step B.2. Generate random 'value' for private key */
-		NFIFOADD(PAD, PKA, (field_size + 8), WITH(PAD_RANDOM | EXT));
+		NFIFOADD(PAD, PKA, (field_size + 8), PAD_RANDOM | EXT);
 
 		/* Step B.3. Reduce the private key down to within the
 		 * modulus */

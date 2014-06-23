@@ -69,7 +69,7 @@ unsigned build_dtls_sharedesc(uint32_t *buff, uint32_t seqnum,
 		 *     mask to turn the SEQ-OUT-PTR cmd into a SEQ-IN-PTR cmd
 		 *     put new SEQ-IN-PTR command in-line in shared descriptor
 		 */
-		pmove1 = MOVE(DESCBUF, 0, MATH0, 0, IMM(16), WITH(WAITCOMP));
+		pmove1 = MOVE(DESCBUF, 0, MATH0, 0, IMM(16), WAITCOMP);
 		MATHB(MATH0, XOR, IMM(0x0840010000000000), MATH0, 8, 0);
 		/*(8 needs to be 12 if 64-bit pointers are being used */
 		pmove2 = MOVE(MATH0, 0, DESCBUF, 0, IMM(8), 0);
@@ -83,17 +83,17 @@ unsigned build_dtls_sharedesc(uint32_t *buff, uint32_t seqnum,
 		SEQFIFOSTORE(MSG, 0, mdatalen, 0);
 		/* s3: Skip key commands when sharing permits */
 		pjump1 = JUMP(IMM(skip_keyloading), LOCAL_JUMP, ALL_TRUE,
-			      WITH(SHRD));
+			      SHRD);
 		KEY(MDHA_SPLIT_KEY, ENC, PTR((uintptr_t) hmac_key), 40,
-		    WITH(IMMED));
+		    IMMED);
 
 		/* load DTLS HMAC authentication key */
-		KEY(KEY1, 0, PTR((uintptr_t) aes_key), 16, WITH(IMMED));
+		KEY(KEY1, 0, PTR((uintptr_t) aes_key), 16, IMMED);
 		/* load DTLS AES confidentiality key */
 		SET_LABEL(skip_keyloading);
 		/* s4: Execute DTLS protocol thread */
 		PROTOCOL(OP_TYPE_ENCAP_PROTOCOL, OP_PCLID_DTLS10,
-			 WITH(cipher_alg));
+			 cipher_alg);
 		SET_LABEL(new_seqinptr);
 		/* s5: These 3 words reserved for a new SEQ-IN-PTR cmd to
 		 * set up to */
@@ -110,22 +110,22 @@ unsigned build_dtls_sharedesc(uint32_t *buff, uint32_t seqnum,
 		SEQFIFOLOAD(SKIP, 59, 0);
 		SEQLOAD(MATH2, 0, 16, 0);
 		/* Load last frame's output IV into math0/math1 */
-		pmove3 = MOVE(DESCBUF, 0, MATH0, 0, IMM(16), WITH(WAITCOMP));
+		pmove3 = MOVE(DESCBUF, 0, MATH0, 0, IMM(16), WAITCOMP);
 		/* Wait for loads to complete */
-		JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, WITH(CALM));
+		JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, CALM);
 		/* Compare upper half of two IVs */
 		MATHB(MATH0, XOR, MATH2, NONE, 8, 0);
 		/* If two upper halves are different, then zero is not set and
 		 * jump to */
 		pjump2 = JUMP(IMM(new_IV_OK), LOCAL_JUMP, ANY_FALSE,
-			      WITH(MATH_Z));
+			      MATH_Z);
 		/* Compare lower half of two IVs */
 		MATHB(MATH1, XOR, MATH3, NONE, 8, 0);
 		/*
 		 * If we got here with zero set, then both halves were
 		 * identical --this is an ERROR
 		 */
-		JUMP(IMM(255), HALT_STATUS, ALL_TRUE, WITH(MATH_Z));
+		JUMP(IMM(255), HALT_STATUS, ALL_TRUE, MATH_Z);
 		SET_LABEL(new_IV_OK);
 		/*
 		 * s7: Store back both IVs; math2/3 for next compare; math0/1

@@ -39,7 +39,7 @@ unsigned mod_exp(uint32_t *buff)
 		KEY(PKE, 0, PTR(exp), 20, 0);
 		FIFOLOAD(PKA, PTR(base + 1), 1, 0);
 		PKHA_OPERATION(OP_ALG_PKMODE_MOD_EXPO);
-		JUMP(IMM(0x42), HALT_STATUS, ALL_TRUE, WITH(PK_0));
+		JUMP(IMM(0x42), HALT_STATUS, ALL_TRUE, PK_0);
 		FIFOSTORE(PKB, 0, res, field_size, 0);
 	}
 

@@ -51,9 +51,9 @@ unsigned generate_dlc_fp_params(struct program *prg, uint32_t *buff)
 		LOAD(IMM((r_size - 1)), PKASZ, 0, 4, 0);
 		LOAD(IMM(0), DCTRL, LDOFF_DISABLE_AUTO_NFIFO, 0, 0);
 		/* Get random MSB and LSB do abd */
-		NFIFOADD(PAD, MSG, 2, WITH(PAD_RANDOM | LAST1));
+		NFIFOADD(PAD, MSG, 2, PAD_RANDOM | LAST1);
 		/* Now into math0 */
-		MOVE(IFIFOABD, 0, MATH0, 4, IMM(2), WITH(WAITCOMP));
+		MOVE(IFIFOABD, 0, MATH0, 4, IMM(2), WAITCOMP);
 		/* Turn on MSb and LSb */
 		MATHB(MATH0, OR, IMM(0x80010000), MATH0, 4, 0);
 		/* Send them to the ififo */
@@ -61,20 +61,20 @@ unsigned generate_dlc_fp_params(struct program *prg, uint32_t *buff)
 		/* Send MSB to pkn */
 		NFIFOADD(IFIFO, PKN, 1, 0);
 		/* and middle random bytes */
-		NFIFOADD(PAD, PKN, (r_size - 2), WITH(PAD_RANDOM | EXT));
+		NFIFOADD(PAD, PKN, (r_size - 2), PAD_RANDOM | EXT);
 		/* Send LSB to pkn (with flush1, so loading finishes) */
-		NFIFOADD(IFIFO, PKN, 1, WITH(FLUSH1));
+		NFIFOADD(IFIFO, PKN, 1, FLUSH1);
 		LOAD(IMM(0), DCTRL, LDOFF_ENABLE_AUTO_NFIFO, 0, 0);
 		/* Random seed for the Miller-Rabin primality test */
 		NFIFOADD(PAD, PKA, (r_size - 1),
-			 WITH(FLUSH1 | PAD_RANDOM | EXT));
+			 FLUSH1 | PAD_RANDOM | EXT);
 		/* Iteration count */
 		FIFOLOAD(PKB, IMM(0x32), 1, 0);
 		PKHA_OPERATION(OP_ALG_PKMODE_MOD_PRIMALITY);
 
 		/* If r did not test prime, go try another */
 		ref_new_r = JUMP(IMM(new_r), LOCAL_JUMP, ANY_FALSE,
-				 WITH(PK_PRIME));
+				 PK_PRIME);
 		FIFOSTORE(PKN, 0, dom_r_addr, r_size, 0);
 
 		/* Set up maximum number of tries to compute a q from this r */
@@ -103,17 +103,17 @@ unsigned dlc_fp_make_x(struct program *prg, uint32_t *buff)
 		 * but with a different size)
 		 */
 		LOAD(IMM(0), DCTRL, LDOFF_DISABLE_AUTO_NFIFO, 0, 0);
-		NFIFOADD(PAD, MSG, 2, WITH(PAD_RANDOM | LAST1));
-		MOVE(IFIFOABD, 0, MATH0, 4, IMM(2), WITH(WAITCOMP));
+		NFIFOADD(PAD, MSG, 2, PAD_RANDOM | LAST1);
+		MOVE(IFIFOABD, 0, MATH0, 4, IMM(2), WAITCOMP);
 		MATHB(MATH0, OR, IMM(0x80010000), MATH0, 4, 0);
 		MOVE(MATH0, 4, IFIFOAB1, 0, IMM(2), 0);
 		NFIFOADD(IFIFO, PKN, 1, 0);
-		NFIFOADD(PAD, PKN, (q_size - 2), WITH(EXT | PAD_RANDOM));
-		NFIFOADD(IFIFO, PKN, 1, WITH(FLUSH1));
+		NFIFOADD(PAD, PKN, (q_size - 2), EXT | PAD_RANDOM);
+		NFIFOADD(IFIFO, PKN, 1, FLUSH1);
 		LOAD(IMM(0), DCTRL, LDOFF_ENABLE_AUTO_NFIFO, 0, 0);
 
 		/* Let X finish loading into pkn before storing it */
-		JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, WITH(NIFP));
+		JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, NIFP);
 		FIFOSTORE(PKN, 0, dom_q_addr, q_size, 0);
 		JUMP(PTR(make_q_addr), FAR_JUMP, ALL_TRUE, 0);
 	}
@@ -167,17 +167,17 @@ unsigned dlc_fp_make_q(struct program *prg, uint32_t *buff)
 		/* Set up prime test for q */
 		PKHA_OPERATION(OP_ALG_PKMODE_COPY_NSZ_B_N);
 		LOAD(IMM((q_size - 1)), PKASZ, 0, 4, 0);
-		NFIFOADD(PAD, PKA, q_size - 1, WITH(PAD_RANDOM | EXT | FLUSH1));
+		NFIFOADD(PAD, PKA, q_size - 1, PAD_RANDOM | EXT | FLUSH1);
 		FIFOLOAD(PKB, IMM(0x14), 1, 0);
 		PKHA_OPERATION(OP_ALG_PKMODE_MOD_PRIMALITY);
 
 		ref_store_q = JUMP(IMM(store_q), LOCAL_JUMP, ALL_TRUE,
-				   WITH(PK_PRIME));
+				   PK_PRIME);
 
 		/* Decrement try-X counter */
 		MATHB(MATH3, SUB, ONE, MATH3, 4, 0);
 		/* Go get another X */
-		JUMP(PTR(make_X_addr), FAR_JUMP, ANY_FALSE, WITH(MATH_Z));
+		JUMP(PTR(make_X_addr), FAR_JUMP, ANY_FALSE, MATH_Z);
 		/* Start over with a new r */
 		JUMP(PTR(generate_dlc_fp_params_addr), FAR_JUMP, ALL_TRUE, 0);
 
@@ -252,7 +252,7 @@ unsigned dlc_fp_make_g(struct program *prg, uint32_t *buff)
 		FIFOLOAD(PKA, IMM(0x01), 1, 0);
 		PKHA_OPERATION(OP_ALG_PKMODE_MOD_SUB_BA);
 		ref_found_g = JUMP(IMM(found_g), LOCAL_JUMP, ANY_FALSE,
-				   WITH(PK_0));
+				   PK_0);
 
 		/* H++ */
 		FIFOLOAD(PKB, PTR(dom_g_addr), q_size, 0);

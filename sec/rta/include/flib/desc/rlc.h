@@ -130,7 +130,7 @@ static inline void cnstr_shdsc_rlc_encap(uint32_t *descbuf,
 	if (ps)
 		PROGRAM_SET_36BIT_ADDR();
 
-	phdr = SHR_HDR(SHR_SERIAL, 0, WITH(0));
+	phdr = SHR_HDR(SHR_SERIAL, 0, 0);
 
 	memset(&pdb, 0, sizeof(struct rlc_pdb));
 
@@ -174,10 +174,10 @@ static inline void cnstr_shdsc_rlc_encap(uint32_t *descbuf,
 		switch (cipherdata->algtype) {
 		case RLC_CIPHER_TYPE_KASUMI:
 			pkeyjmp = JUMP(IMM(keyjmp), LOCAL_JUMP, ALL_TRUE,
-				       WITH(SHRD));
+				       SHRD);
 			/* Insert Cipher Key */
 			KEY(KEY1, cipherdata->key_enc_flags,
-			    PTR(cipherdata->key), cipherdata->keylen, WITH(0));
+			    PTR(cipherdata->key), cipherdata->keylen, 0);
 			SET_LABEL(keyjmp);
 
 			PROTOCOL(OP_TYPE_ENCAP_PROTOCOL,
@@ -199,7 +199,7 @@ static inline void cnstr_shdsc_rlc_encap(uint32_t *descbuf,
 
 			/* Insert Cipher Key */
 			KEY(KEY1, cipherdata->key_enc_flags,
-			    PTR(cipherdata->key), cipherdata->keylen, WITH(0));
+			    PTR(cipherdata->key), cipherdata->keylen, 0);
 
 			PROTOCOL(OP_TYPE_ENCAP_PROTOCOL,
 				 OP_PCLID_3G_RLC_PDU,
@@ -274,7 +274,7 @@ static inline void cnstr_shdsc_rlc_decap(uint32_t *descbuf,
 	if (ps)
 		PROGRAM_SET_36BIT_ADDR();
 
-	phdr = SHR_HDR(SHR_SERIAL, 0, WITH(0));
+	phdr = SHR_HDR(SHR_SERIAL, 0, 0);
 
 	memset(&pdb, 0, sizeof(struct rlc_pdb));
 
@@ -318,10 +318,10 @@ static inline void cnstr_shdsc_rlc_decap(uint32_t *descbuf,
 		switch (cipherdata->algtype) {
 		case RLC_CIPHER_TYPE_KASUMI:
 			pkeyjmp = JUMP(IMM(keyjmp), LOCAL_JUMP, ALL_TRUE,
-				       WITH(SHRD));
+				       SHRD);
 			/* Insert Cipher Key */
 			KEY(KEY1, cipherdata->key_enc_flags,
-			    PTR(cipherdata->key), cipherdata->keylen, WITH(0));
+			    PTR(cipherdata->key), cipherdata->keylen, 0);
 			SET_LABEL(keyjmp);
 
 			PROTOCOL(OP_TYPE_DECAP_PROTOCOL,
@@ -342,7 +342,7 @@ static inline void cnstr_shdsc_rlc_decap(uint32_t *descbuf,
 
 			/* Insert Cipher Key */
 			KEY(KEY1, cipherdata->key_enc_flags,
-			    PTR(cipherdata->key), cipherdata->keylen, WITH(0));
+			    PTR(cipherdata->key), cipherdata->keylen, 0);
 			SET_LABEL(keyjmp);
 
 			PROTOCOL(OP_TYPE_DECAP_PROTOCOL,

@@ -47,21 +47,21 @@ unsigned jdesc_pkha_make_rsa_p_q(struct program *prg, uint32_t *buff,
 		SET_LABEL(retry);
 		MATHB(MATH1, SUB, ONE, MATH1, 8, 0);	/* trycounter-- */
 		/* fail on too many tries */
-		JUMP(IMM(0x42), HALT_STATUS, ALL_TRUE, WITH(MATH_N));
+		JUMP(IMM(0x42), HALT_STATUS, ALL_TRUE, MATH_N);
 
 		/* Get PKHA sizes ready to load values */
 		LOAD(IMM(pq_size), PKNSZ, 0, 4, 0);
 		LOAD(IMM((pq_size - 1)), PKASZ, 0, 4, 0);
 
 		/* Generate 4 MSB and 1 LSB random bytes for our candidate */
-		NFIFOADD(PAD, MSG, 5, WITH(PAD_RANDOM | LAST1));
-		MOVE(IFIFOABD, 0, MATH2, 0, IMM(5), WITH(WAITCOMP));
+		NFIFOADD(PAD, MSG, 5, PAD_RANDOM | LAST1);
+		MOVE(IFIFOABD, 0, MATH2, 0, IMM(5), WAITCOMP);
 		/* Make it odd */
 		MATHB(MATH2, OR, IMM(0x8000000001000000), MATH2, 8, 0);
 		/* Compare it to sqrt(2) * 2^pq_size ... */
 		MATHB(MATH2, SUB, IMM(0xb504f333ff000000), NONE, 8, 0);
 		pjump1 = JUMP(IMM(retry), LOCAL_JUMP, ANY_TRUE,
-			      WITH(MATH_Z | MATH_N));
+			      MATH_Z | MATH_N);
 
 		/* Put the five bytes into the ififo */
 		MOVE(MATH2, 0, IFIFOAB1, 0, IMM(4), 0);
@@ -71,26 +71,26 @@ unsigned jdesc_pkha_make_rsa_p_q(struct program *prg, uint32_t *buff,
 		/* skip this next if we're doing very short RSA */
 		MATHB(SEQOUTSZ, SUB, IMM(5), NONE, 4, 0);
 		pjump2 = JUMP(IMM(short_key), LOCAL_JUMP, ANY_TRUE,
-			      WITH(MATH_Z | MATH_N));
+			      MATH_Z | MATH_N);
 
 		/* Generate random 'middle bytes' for our candidate */
-		NFIFOADD(PAD, PKN, (pq_size - 5), WITH(PAD_RANDOM | EXT));
+		NFIFOADD(PAD, PKN, (pq_size - 5), PAD_RANDOM | EXT);
 		SET_LABEL(short_key);
-		NFIFOADD(IFIFO, PKN, 1, WITH(FLUSH1));
+		NFIFOADD(IFIFO, PKN, 1, FLUSH1);
 		/* Generate random 'miller-rabin seed' for pka */
 		NFIFOADD(PAD, PKA, (pq_size - 1),
-			 WITH(PAD_RANDOM | FLUSH1 | EXT));
+			 PAD_RANDOM | FLUSH1 | EXT);
 		/* Put our 'miller-rabin trial count' into pkb */
 		LOAD(IMM(1), PKBSZ, 0, 4, 0);
-		MOVE(MATH0, 0, IFIFOAB1, 0, IMM(1), WITH(WAITCOMP));
-		NFIFOADD(IFIFO, PKB, 1, WITH(FLUSH1));
+		MOVE(MATH0, 0, IFIFOAB1, 0, IMM(1), WAITCOMP);
+		NFIFOADD(IFIFO, PKB, 1, FLUSH1);
 		/* Crunch */
 		PKHA_OPERATION(OP_ALG_PKMODE_MOD_PRIMALITY);
 		pjump5 = JUMP(IMM(retry), LOCAL_JUMP, ANY_FALSE,
-			      WITH(PK_PRIME));
+			      PK_PRIME);
 		/* p / q test */
 		MATHB(MATH3, SUB, ONE, MATH3, 4, 0);
-		pjump3 = JUMP(IMM(store_q), LOCAL_JUMP, ALL_TRUE, WITH(MATH_N));
+		pjump3 = JUMP(IMM(store_q), LOCAL_JUMP, ALL_TRUE, MATH_N);
 		FIFOSTORE(PKN, 0, prv_key_p, pq_size, 0);
 		pjump4 = JUMP(IMM(now_do_q), LOCAL_JUMP, ALL_TRUE, 0);
 
@@ -147,25 +147,25 @@ unsigned jdesc_pkha_make_rsa_check_pq(struct program *prg, uint32_t *buff,
 		PKHA_OPERATION(OP_ALG_PKMODE_MOD_SUB_AB);
 		LOAD(IMM(CCTRL_UNLOAD_PK_B), CCTRL, 0, 4, 0);
 		/* Get interesting bits */
-		MOVE(OFIFO, 0, MATH2, 0, IMM(16), WITH(WAITCOMP));
+		MOVE(OFIFO, 0, MATH2, 0, IMM(16), WAITCOMP);
 		/* Trash remaining bits */
 		MOVE(OFIFO, 0, CONTEXT1, 0, IMM((pq_size - 16 + 1)),
-		     WITH(WAITCOMP));
+		     WAITCOMP);
 		MATHB(ZERO, OR, MATH2, NONE, 8, 0);
-		pjump1 = JUMP(IMM(check_2), LOCAL_JUMP, ALL_TRUE, WITH(MATH_N));
-		pjump2 = JUMP(IMM(do_over), LOCAL_JUMP, ALL_TRUE, WITH(MATH_Z));
+		pjump1 = JUMP(IMM(check_2), LOCAL_JUMP, ALL_TRUE, MATH_N);
+		pjump2 = JUMP(IMM(do_over), LOCAL_JUMP, ALL_TRUE, MATH_Z);
 		MATHB(MATH3, AND, IMM(0xfffffffffff00000), NONE, 8, 0);
 
-		pjump3 = JUMP(IMM(do_over), LOCAL_JUMP, ALL_TRUE, WITH(MATH_Z));
+		pjump3 = JUMP(IMM(do_over), LOCAL_JUMP, ALL_TRUE, MATH_Z);
 		pjump4 = JUMP(IMM(pq_ok), LOCAL_JUMP, ALL_TRUE, 0);
 
 		SET_LABEL(check_2);
 		MATHB(MATH2, XOR, IMM(0xffffffffffffffff), NONE, 8, 0);
-		pjump5 = JUMP(IMM(pq_ok), LOCAL_JUMP, ANY_FALSE, WITH(MATH_Z));
+		pjump5 = JUMP(IMM(pq_ok), LOCAL_JUMP, ANY_FALSE, MATH_Z);
 
 		MATHB(MATH3, AND, IMM(0xfffffffffff00000), MATH3, 8, 0);
 		MATHB(MATH3, XOR, IMM(0xfffffffffff00000), NONE, 8, 0);
-		pjump6 = JUMP(IMM(pq_ok), LOCAL_JUMP, ANY_FALSE, WITH(MATH_Z));
+		pjump6 = JUMP(IMM(pq_ok), LOCAL_JUMP, ANY_FALSE, MATH_Z);
 
 		SET_LABEL(do_over);
 		JUMP(PTR(pkha_make_rsa_keys_phys), FAR_JUMP, ALL_TRUE, 0);
@@ -197,7 +197,7 @@ unsigned jdesc_pkha_make_rsa_keys(struct program *prg, uint32_t *buff,
 		MATHB(ZERO, ADD, IMM(0x1000000000004000), MATH0, 8, 0);
 		MATHB(ZERO, ADD, IMM(10), VSEQINSZ, 4, 0);
 		MATHB(ZERO, ADD, IMM(pq_size), SEQOUTSZ, 4, 0);
-		FIFOLOAD(PKA, PTR(0), 0, WITH(IMMED));	/* Acquire the PKHA */
+		FIFOLOAD(PKA, PTR(0), 0, IMMED);	/* Acquire the PKHA */
 		LOAD(IMM(0), DCTRL, LDOFF_DISABLE_AUTO_NFIFO, 0, 0);
 		JUMP(PTR(pkha_make_rsa_p_q_phys), FAR_JUMP, ALL_TRUE, 0);
 	}
@@ -229,7 +229,7 @@ unsigned jdesc_pkha_make_rsa_d_n(struct program *prg, uint32_t *buff,
 		FIFOLOAD(PKA, PTR(pub_key_e), e_size, 0);
 		PKHA_OPERATION(OP_ALG_PKMODE_MOD_GCD);
 		pjump1 = JUMP(IMM(phi_e_relatively_prime), LOCAL_JUMP, ALL_TRUE,
-			      WITH(PK_GCD_1));
+			      PK_GCD_1);
 		LOAD(IMM(0), DCTRL, LDOFF_DISABLE_AUTO_NFIFO, 0, 0);
 		JUMP(PTR(pkha_make_rsa_keys_phys), FAR_JUMP, ALL_TRUE, 0);
 

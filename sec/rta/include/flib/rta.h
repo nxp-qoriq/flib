@@ -363,7 +363,7 @@ static inline unsigned rta_get_sec_era(void)
  *         mode, a log message will be shown at output..
  */
 #define SEQFIFOLOAD(data, length, flags) \
-	rta_fifo_load(program, data, NONE, length, WITH(flags|SEQ))
+	rta_fifo_load(program, data, NONE, length, flags|SEQ)
 
 /**
  * FIFOSTORE - Configures FIFOSTORE command, to move data from Output Data FIFO
@@ -399,7 +399,7 @@ static inline unsigned rta_get_sec_era(void)
  *         mode, a log message will be shown at output.
  */
 #define SEQFIFOSTORE(data, encrypt_flags, length, flags) \
-	rta_fifo_store(program, data, encrypt_flags, 0, length, WITH(flags|SEQ))
+	rta_fifo_store(program, data, encrypt_flags, 0, length, flags|SEQ)
 
 /**
  * KEY - Configures KEY and SEQ KEY commands
@@ -583,7 +583,7 @@ static inline unsigned rta_get_sec_era(void)
  *         mode, a log message will be shown at output.
  */
 #define SEQLOAD(dst, offset, length, flags) \
-	rta_load(program, NONE, dst, offset, length, WITH(flags|SEQ))
+	rta_load(program, NONE, dst, offset, length, flags|SEQ)
 
 /**
  * STORE - Configures STORE command to read data from registers and write them
@@ -625,7 +625,7 @@ static inline unsigned rta_get_sec_era(void)
  *         mode, a log message will be shown at output.
  */
 #define SEQSTORE(src, offset, length, flags) \
-	rta_store(program, src, offset, NONE, length, WITH(flags|SEQ))
+	rta_store(program, src, offset, NONE, length, flags|SEQ)
 
 /**
  * MATHB - Configures MATHB command to perform binary operations

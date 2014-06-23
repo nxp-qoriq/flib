@@ -609,14 +609,14 @@ static inline void cnstr_shdsc_ipsec_encap_des_aes_xcbc(uint32_t *descbuf,
 	/* Swap SEQINPTR to SEQOUTPTR. */
 	move_seqout_ptr = MOVE(DESCBUF, 0, MATH1, 0, IMM(16), WAITCOMP);
 	MATHB(MATH1, AND, IMM(~(CMD_SEQ_IN_PTR ^ CMD_SEQ_OUT_PTR)), MATH1,
-	      SIZE(8), IFB);
+	      8, IFB);
 /*
  * TODO: RTA currently doesn't support creating a LOAD command
  * with another command as IMM.
  * To be changed when proper support is added in RTA.
  */
 	LOAD(IMM(0xa00000e5), MATH3, 4, 4, 0);
-	MATHB(MATH3, SHLD, MATH3, MATH3,  SIZE(8), 0);
+	MATHB(MATH3, SHLD, MATH3, MATH3,  8, 0);
 	write_swapped_seqin_ptr = MOVE(MATH1, 0, DESCBUF, 0, IMM(20), WAITCOMP);
 	swapped_seqin_ptr_jump = JUMP(IMM(swapped_seqin_ptr), LOCAL_JUMP,
 				      ALL_TRUE, 0);
@@ -627,8 +627,8 @@ static inline void cnstr_shdsc_ipsec_encap_des_aes_xcbc(uint32_t *descbuf,
 	move_outlen = MOVE(DESCBUF, 0, MATH0, 4, IMM(8), WAITCOMP);
 	MATHB(MATH0, SUB,
 	      IMM((uint64_t)(pdb->ip_hdr_len + IPSEC_ICV_MD5_TRUNC_SIZE)),
-	      VSEQINSZ, SIZE(4), 0);
-	MATHB(MATH0, SUB, IMM(IPSEC_ICV_MD5_TRUNC_SIZE), VSEQOUTSZ, SIZE(4), 0);
+	      VSEQINSZ, 4, 0);
+	MATHB(MATH0, SUB, IMM(IPSEC_ICV_MD5_TRUNC_SIZE), VSEQOUTSZ, 4, 0);
 	KEY(KEY1, authdata->key_enc_flags, PTR(authdata->key), authdata->keylen,
 	    0);
 	ALG_OPERATION(OP_ALG_ALGSEL_AES, OP_ALG_AAI_XCBC_MAC,
@@ -742,8 +742,8 @@ static inline void cnstr_shdsc_ipsec_decap_des_aes_xcbc(uint32_t *descbuf,
 	    0);
 	MATHB(SEQINSZ, SUB,
 	      IMM((uint64_t)(pdb->ip_hdr_len + IPSEC_ICV_MD5_TRUNC_SIZE)),
-	      MATH0, SIZE(4), 0);
-	MATHB(MATH0, SUB, ZERO, VSEQINSZ, SIZE(4), 0);
+	      MATH0, 4, 0);
+	MATHB(MATH0, SUB, ZERO, VSEQINSZ, 4, 0);
 	ALG_OPERATION(OP_ALG_ALGSEL_MD5, OP_ALG_AAI_HMAC_PRECOMP,
 		      OP_ALG_AS_INITFINAL, ICV_CHECK_DISABLE, OP_ALG_ENCRYPT);
 	ALG_OPERATION(OP_ALG_ALGSEL_AES, OP_ALG_AAI_XCBC_MAC,
@@ -753,7 +753,7 @@ static inline void cnstr_shdsc_ipsec_decap_des_aes_xcbc(uint32_t *descbuf,
 	SEQFIFOLOAD(ICV1, IPSEC_ICV_MD5_TRUNC_SIZE, FLUSH1 | LAST1);
 	/* Swap SEQOUTPTR to SEQINPTR. */
 	move_seqin_ptr = MOVE(DESCBUF, 0, MATH1, 0, IMM(16), WAITCOMP);
-	MATHB(MATH1, OR, IMM(CMD_SEQ_IN_PTR ^ CMD_SEQ_OUT_PTR), MATH1, SIZE(8),
+	MATHB(MATH1, OR, IMM(CMD_SEQ_IN_PTR ^ CMD_SEQ_OUT_PTR), MATH1, 8,
 	      IFB);
 /*
  * TODO: RTA currently doesn't support creating a LOAD command
@@ -761,7 +761,7 @@ static inline void cnstr_shdsc_ipsec_decap_des_aes_xcbc(uint32_t *descbuf,
  * To be changed when proper support is added in RTA.
  */
 	LOAD(IMM(0xA00000e1), MATH3, 4, 4, 0);
-	MATHB(MATH3, SHLD, MATH3, MATH3,  SIZE(8), 0);
+	MATHB(MATH3, SHLD, MATH3, MATH3,  8, 0);
 	write_swapped_seqout_ptr = MOVE(MATH1, 0, DESCBUF, 0, IMM(20),
 					WAITCOMP);
 	swapped_seqout_ptr_jump = JUMP(IMM(swapped_seqout_ptr), LOCAL_JUMP,
@@ -774,8 +774,8 @@ static inline void cnstr_shdsc_ipsec_decap_des_aes_xcbc(uint32_t *descbuf,
 	SET_LABEL(jump_cmd);
 	WORD(0xA00000f3);
 	SEQINPTR(0, 65535, RTO);
-	MATHB(MATH0, SUB, ZERO, VSEQINSZ, SIZE(4), 0);
-	MATHB(MATH0, ADD, IMM(pdb->ip_hdr_len), VSEQOUTSZ, SIZE(4), 0);
+	MATHB(MATH0, SUB, ZERO, VSEQINSZ, 4, 0);
+	MATHB(MATH0, ADD, IMM(pdb->ip_hdr_len), VSEQOUTSZ, 4, 0);
 	move_jump = MOVE(DESCBUF, 0, OFIFO, 0, IMM(8), WAITCOMP);
 	move_jump_back = MOVE(OFIFO, 0, DESCBUF, 0, IMM(8), 0);
 	SEQFIFOLOAD(SKIP, pdb->ip_hdr_len, 0);
@@ -791,7 +791,7 @@ static inline void cnstr_shdsc_ipsec_decap_des_aes_xcbc(uint32_t *descbuf,
 	SEQINPTR(0, 65535, RTO);
 	MATHB(MATH0, ADD,
 	      IMM((uint64_t)(pdb->ip_hdr_len + IPSEC_ICV_MD5_TRUNC_SIZE)),
-	      SEQINSZ, SIZE(4), 0);
+	      SEQINSZ, 4, 0);
 	KEY(KEY1, cipherdata->key_enc_flags, PTR(cipherdata->key),
 	    cipherdata->keylen, 0);
 	PROTOCOL(OP_TYPE_DECAP_PROTOCOL, OP_PCLID_IPSEC,

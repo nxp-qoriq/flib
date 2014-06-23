@@ -30,7 +30,7 @@ unsigned test_load_op(uint32_t *buff)
 	LOAD(IMM(0x616263), IFIFO, 0, 3, 0);
 	LOAD(IMM(four), PKNSZ, 0, 4, 0);
 	LOAD(PTR((uintptr_t) ctx), CONTEXT2, ctxoff, 16, 0);
-	LOAD(PTR((uintptr_t) sgtable), KEY1, 0, keylen, WITH(SGF));
+	LOAD(PTR((uintptr_t) sgtable), KEY1, 0, keylen, SGF);
 	LOAD(PTR((uintptr_t) descwords), DESCBUF, 20 * word_size, 4 * word_size,
 	     0);
 

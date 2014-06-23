@@ -13,7 +13,7 @@ unsigned pointer_size_1(uint32_t *buff)
 	struct program *program = &prg;
 
 	PROGRAM_CNTXT_INIT(buff, 0);
-	JOB_HDR(SHR_NEVER, shdesc_len, 200, WITH(SHR));
+	JOB_HDR(SHR_NEVER, shdesc_len, 200, SHR);
 	{
 		FIFOLOAD(PKN, PTR(0x4), 4, 0);
 		PKHA_OPERATION(OP_ALG_PKMODE_MOD_EXPO);
@@ -30,7 +30,7 @@ unsigned pointer_size_2(uint32_t *buff)
 	PROGRAM_CNTXT_INIT(buff, 0);
 	PROGRAM_SET_36BIT_ADDR();
 
-	JOB_HDR(SHR_NEVER, shdesc_len, 200, WITH(SHR));
+	JOB_HDR(SHR_NEVER, shdesc_len, 200, SHR);
 	{
 		FIFOLOAD(PKN, PTR(0x4), 4, 0);
 		PKHA_OPERATION(OP_ALG_PKMODE_MOD_EXPO);

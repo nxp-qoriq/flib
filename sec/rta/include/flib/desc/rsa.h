@@ -288,7 +288,7 @@ static inline void cnstr_shdsc_rsa(uint32_t *descbuf, unsigned *bufsize,
 	PROGRAM_CNTXT_INIT(descbuf, 0);
 	if (ps)
 		PROGRAM_SET_36BIT_ADDR();
-	phdr = SHR_HDR(SHR_SERIAL, pdbend, WITH(0));
+	phdr = SHR_HDR(SHR_SERIAL, pdbend, 0);
 	COPY_DATA(pdb, pdb_len);
 	SET_LABEL(pdbend);
 	PROTOCOL(protcmd->optype, protcmd->protid, protcmd->protinfo);

@@ -31,7 +31,7 @@ unsigned generate_job_desc(struct program *program, uint32_t *buff)
 	PROGRAM_CNTXT_INIT(buff, 0x20);
 	SET_LABEL(label_different_desc);
 	MATHB(MATH2, XOR, MATH1, MATH3, 4, 0);
-	MATHU(MATH2, BSWAP, MATH3, 2, WITH(NFU));
+	MATHU(MATH2, BSWAP, MATH3, 2, NFU);
 
 	return PROGRAM_FINALIZE();
 }

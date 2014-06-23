@@ -80,12 +80,12 @@ unsigned generate_lte_code(struct program *prg, uint32_t *buff, int mdatalen,
 		/* NOTE Math 0 contains 0 at this point */
 		MATHB(SEQINSZ, ADD, MATH0, VSEQINSZ, BYTES_4, 0);
 		LOAD(IMM(0), DCTRL, 8, 0, 0);
-		SEQFIFOLOAD(MSG1, 0, WITH(VLF));
+		SEQFIFOLOAD(MSG1, 0, VLF);
 		LOAD(IMM(0), DCTRL, 4, 0, 0);
 		/* First extra command words */
 		pmove1 = MOVE(IFIFOABD, 0, DESCBUF, 0,
 			      IMM(num_more_extras_bytes),
-			      WITH(FLUSH1 | WAITCOMP));
+			      FLUSH1 | WAITCOMP);
 		pjump1 = JUMP(IMM(0), LOCAL_JUMP, ALL_TRUE, 0);
 
 		SET_LABEL(back_from_extras);
@@ -93,7 +93,7 @@ unsigned generate_lte_code(struct program *prg, uint32_t *buff, int mdatalen,
 		/* here is the main loop */
 		SET_LABEL(loop_start);
 		/* get length of this PDU */
-		MOVE(IFIFOABD, 0, MATH0, 4, IMM(4), WITH(FLUSH1));
+		MOVE(IFIFOABD, 0, MATH0, 4, IMM(4), FLUSH1);
 
 		/* calculate the data size for CRC */
 		pmove2 = MOVE(DESCBUF, 0, MATH0, 0, IMM(4), 0);
@@ -137,7 +137,7 @@ unsigned generate_lte_code(struct program *prg, uint32_t *buff, int mdatalen,
 		 */
 
 		/* Get PDU header */
-		MOVE(IFIFOABD, 0, CONTEXT1, 0, IMM(2), WITH(FLUSH1));
+		MOVE(IFIFOABD, 0, CONTEXT1, 0, IMM(2), FLUSH1);
 
 		SET_LABEL(datasz_len);
 		LOAD(IMM(0), DATA2SZ, 0, BYTES_4, 0);
@@ -145,9 +145,9 @@ unsigned generate_lte_code(struct program *prg, uint32_t *buff, int mdatalen,
 		LOAD(IMM(0), DATA1SZ, 0, BYTES_4, 0);
 
 		/* PDU Header to Math 3 */
-		MOVE(CONTEXT1, 0, MATH0, 0, IMM(8), WITH(WAITCOMP));
+		MOVE(CONTEXT1, 0, MATH0, 0, IMM(8), WAITCOMP);
 		/* Get PDU into right 2 bytes */
-		MATHB(MATH0, RSHIFT, IMM(48), MATH0, BYTES_8, WITH(IFB));
+		MATHB(MATH0, RSHIFT, IMM(48), MATH0, BYTES_8, IFB);
 		/* PDU Header to Math 3 left 2 bytes */
 		MOVE(CONTEXT1, 0, MATH0, 0, IMM(2), 0);
 		/* Put it where CRC can snoop & FIFO STORE can get it */
@@ -157,7 +157,7 @@ unsigned generate_lte_code(struct program *prg, uint32_t *buff, int mdatalen,
 		 * SEQ NUM */
 		MATHB(MATH0, AND, IMM(0x7FF8), MATH0, BYTES_4, 0);
 		/* get SEQ NUM to right 12 bits of left word */
-		MATHB(MATH0, LSHIFT, IMM(29), MATH0, BYTES_8, WITH(IFB));
+		MATHB(MATH0, LSHIFT, IMM(29), MATH0, BYTES_8, IFB);
 		/* merge in HFN, bearer, D */
 		MATHB(MATH0, OR, MATH3, MATH0, BYTES_8, 0);
 		/* get context in place */
@@ -177,7 +177,7 @@ unsigned generate_lte_code(struct program *prg, uint32_t *buff, int mdatalen,
 		MATHB(MATH0, SUB, ONE, MATH0, BYTES_2, 0);
 		/* do the final entry */
 		pjump2 = JUMP(IMM(0), LOCAL_JUMP, ALL_TRUE,
-				WITH(MATH_Z));
+				MATH_Z);
 		SET_LABEL(info_len);
 		LOAD(IMM(NFIFOENTRY_STYPE_SNOOP | NFIFOENTRY_DEST_BOTH |
 			 NFIFOENTRY_DTYPE_MSG | NFIFOENTRY_LC1),
@@ -193,9 +193,9 @@ unsigned generate_lte_code(struct program *prg, uint32_t *buff, int mdatalen,
 
 		/* Create offset in output FIFO of 6 */
 		WORD(0x16860016);
-		SEQFIFOSTORE(MSG, 0, 0, WITH(VLF));
+		SEQFIFOSTORE(MSG, 0, 0, VLF);
 
-		JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, WITH(CLASS1 | NOP));
+		JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, CLASS1 | NOP);
 		LOAD(IMM
 		     (CLRW_CLR_C1MODE | CLRW_CLR_C1DATAS | CLRW_CLR_C1ICV |
 		      CLRW_CLR_C1CTX), CLRW, 0, BYTES_4, 0);
@@ -241,9 +241,9 @@ unsigned generate_extra_desc_code(struct program *prg, uint32_t *buff,
 	/* get the Tail */
 	MOVE(IFIFOABD, 0, MATH1, 0, IMM(0), 0);
 	/* label tail_move_i really goes here */
-	MOVE(MATH1, 0, IFIFOAB2, 0, IMM(0), WITH(LAST2));
+	MOVE(MATH1, 0, IFIFOAB2, 0, IMM(0), LAST2);
 	/* put it out there; MOVE makes sure store data is there */
-	SEQSTORE(MATH1, 0, 0, WITH(VLF));
+	SEQSTORE(MATH1, 0, 0, VLF);
 	SEQSTORE(CONTEXT2, 0, 2, 0);
 
 	JUMP(NONE, HALT_STATUS, ALL_TRUE, 0);
@@ -263,9 +263,9 @@ unsigned generate_more_extra_desc_code(struct program *prg, uint32_t *buff,
 	PROGRAM_CNTXT_INIT(buff, buffpos);
 
 	/* end extras to C2 context for later use */
-	MOVE(IFIFOABD, 0, CONTEXT2, 0, IMM(num_ctx2_extras), WITH(FLUSH1));
-	MOVE(IFIFOABD, 0, CONTEXT1, 0, IMM(num_ctx1_extras), WITH(FLUSH1));
-	MOVE(IFIFOABD, 0, MATH0, 4, IMM(28), WITH(FLUSH1));
+	MOVE(IFIFOABD, 0, CONTEXT2, 0, IMM(num_ctx2_extras), FLUSH1);
+	MOVE(IFIFOABD, 0, CONTEXT1, 0, IMM(num_ctx1_extras), FLUSH1);
+	MOVE(IFIFOABD, 0, MATH0, 4, IMM(28), FLUSH1);
 
 	MOVE(CONTEXT2, 48, MATH1, 0, IMM(6), 0); /* fix up the tail length */
 	MOVE(MATH1, 0, CONTEXT2, 48, IMM(8), 0);
@@ -276,7 +276,7 @@ unsigned generate_more_extra_desc_code(struct program *prg, uint32_t *buff,
 	MOVE(CONTEXT2, 4, MATH0, 0, IMM(4), 0);	/* fix up head size */
 	encap_share_end_ref3 = MOVE(CONTEXT1, 0, DESCBUF, 0,
 				    IMM(num_even_more_extras_bytes),
-				    WITH(WAITCOMP));
+				    WAITCOMP);
 	encap_share_end_ref4 = JUMP(IMM(0), LOCAL_JUMP, ALL_TRUE, 0);
 
 	return PROGRAM_FINALIZE();
@@ -300,7 +300,7 @@ unsigned generate_even_more_extra_desc_code(struct program *prg, uint32_t *buff,
 	MOVE(MATH0, 0, CONTEXT2, 8, IMM(8), 0);
 	MOVE(CONTEXT2, 16, MATH0, 0, IMM(6), 0);	/* fix up head move */
 	MOVE(MATH0, 0, CONTEXT2, 16, IMM(8), 0);
-	MOVE(IFIFOABD, 0, KEY1, 0, IMM(16), WITH(FLUSH1));
+	MOVE(IFIFOABD, 0, KEY1, 0, IMM(16), FLUSH1);
 
 	LOAD(IMM(16), KEY1SZ, 0, 4, 0);
 
@@ -325,10 +325,10 @@ unsigned generate_yet_more_extra_desc_code(struct program *prg, uint32_t *buff,
 	PROGRAM_CNTXT_INIT(buff, buffpos);
 
 	/* get CRC init value into place */
-	MOVE(IFIFOABD, 0, CONTEXT2, 0, IMM(4), WITH(FLUSH1));
+	MOVE(IFIFOABD, 0, CONTEXT2, 0, IMM(4), FLUSH1);
 
 	LOAD(IMM(0), DATA2SZ, 0, 4, 0);
-	MOVE(IFIFOABD, 0, OFIFO, 0, IMM(0), WITH(FLUSH1));
+	MOVE(IFIFOABD, 0, OFIFO, 0, IMM(0), FLUSH1);
 	LOAD(IMM
 	     (NFIFOENTRY_STYPE_OFIFO | NFIFOENTRY_DEST_CLASS2 |
 	      NFIFOENTRY_DTYPE_MSG | 2), NFIFO, 0, 4, 0);
@@ -361,7 +361,7 @@ unsigned generate_still_more_extra_desc_code(struct program *prg,
 	PROGRAM_CNTXT_INIT(buff, buffpos);
 
 	SET_LABEL(yet_more);
-	SEQFIFOSTORE(MSG, 0, 0, WITH(VLF));
+	SEQFIFOSTORE(MSG, 0, 0, VLF);
 	back_from_extras_ref1 =
 	    JUMP(IMM(back_from_extras), LOCAL_JUMP, ALL_TRUE, 0);
 

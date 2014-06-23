@@ -20,7 +20,7 @@ unsigned make_prime_test(uint32_t *buff)
 	JOB_HDR(SHR_NEVER, 0, 0, 0);
 	{
 		/* Acquire the PKHA */
-		FIFOLOAD(PKA, PTR(0), 0, WITH(IMMED));
+		FIFOLOAD(PKA, PTR(0), 0, IMMED);
 		/* Write the PKHA N size, getting it ready to load */
 		LOAD(IMM(prime_size), PKNSZ, 0, 4, 0);
 		/* Write the PKHA A size, getting it ready to load */
@@ -34,8 +34,8 @@ unsigned make_prime_test(uint32_t *buff)
 		   MATH0. The upper four will be ignored, and the next two
 		   will become the first and last bytes of our candidate.
 		 */
-		NFIFOADD(PAD, MSG, 6, WITH(PAD_RANDOM | LAST1));
-		MOVE(ABD, 0, MATH0, 0, IMM(6), WITH(WAITCOMP));
+		NFIFOADD(PAD, MSG, 6, PAD_RANDOM | LAST1);
+		MOVE(ABD, 0, MATH0, 0, IMM(6), WAITCOMP);
 		/* Turn on MSb of first byte and LSb of last byte */
 		MATHB(MATH0, OR, IMM(0x80010000), MATH0, 4, 0);
 		/* Send the first and last bytes to the input data fifo */
@@ -44,9 +44,9 @@ unsigned make_prime_test(uint32_t *buff)
 		/* Send MSB from Input FIFO to PKHA N */
 		NFIFOADD(IFIFO, PKN, 1, 0);
 		/* Send middle bytes to PKHA N */
-		NFIFOADD(PAD, PKN, (prime_size - 2), WITH(PAD_RANDOM | EXT));
+		NFIFOADD(PAD, PKN, (prime_size - 2), PAD_RANDOM | EXT);
 		/* Send LSB byte from Input FIFO to PKHA N */
-		NFIFOADD(IFIFO, PKN, 1, WITH(FLUSH1));
+		NFIFOADD(IFIFO, PKN, 1, FLUSH1);
 		/* Turn on auto info-fifo entries */
 		LOAD(IMM(0), DCTRL, LDOFF_ENABLE_AUTO_NFIFO, 0, 0);
 		/*
@@ -54,11 +54,11 @@ unsigned make_prime_test(uint32_t *buff)
 		 * Send random seed to PKHA A
 		 */
 		NFIFOADD(PAD, PKA, (prime_size - 1),
-			 WITH(PAD_RANDOM | FLUSH1 | EXT));
+			 PAD_RANDOM | FLUSH1 | EXT);
 		/* Miller-Rabin iteration count (either-endian) */
 		FIFOLOAD(PKB, IMM(0x07), 1, 0);
 		PKHA_OPERATION(OP_ALG_PKMODE_MOD_PRIMALITY);
-		pjump1 = JUMP(IMM(gen), LOCAL_JUMP, ANY_FALSE, WITH(PK_PRIME));
+		pjump1 = JUMP(IMM(gen), LOCAL_JUMP, ANY_FALSE, PK_PRIME);
 		FIFOSTORE(PKN, 0, prime, prime_size, 0);
 	}
 	PATCH_JUMP(pjump1, gen);

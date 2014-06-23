@@ -34,11 +34,11 @@ unsigned dual_1(uint32_t *buff)
 		KEY(KEY2, 0, PTR(auth_key), auth_key_size, 0);
 		ALG_OPERATION(OP_ALG_ALGSEL_SHA256, OP_ALG_AAI_HMAC,
 			      OP_ALG_AS_INITFINAL, 0, OP_ALG_ENCRYPT);
-		MOVE(CONTEXT1, 0, IFIFOAB2, 0, IMM(ctx_size), WITH(WAITCOMP));
+		MOVE(CONTEXT1, 0, IFIFOAB2, 0, IMM(ctx_size), WAITCOMP);
 		ALG_OPERATION(OP_ALG_ALGSEL_AES, OP_ALG_AAI_CBC,
 			      OP_ALG_AS_INITFINAL, 0, OP_ALG_ENCRYPT);
 		FIFOLOAD(MSG2, PTR(auth), auth_size, 0);
-		FIFOLOAD(MSGINSNOOP, PTR(pt_in), msg_len, WITH(LAST1 | LAST2));
+		FIFOLOAD(MSGINSNOOP, PTR(pt_in), msg_len, LAST1 | LAST2);
 		FIFOSTORE(MSG, 0, ct_out, msg_len, 0);
 		STORE(CONTEXT2, 0, PTR(mac), mac_size, 0);
 	}

@@ -27,8 +27,8 @@ unsigned test_decryption(uint32_t *buff)
 		KEY(KEY1, 0, PTR(key_data), keylen, 0);
 		ALG_OPERATION(OP_ALG_ALGSEL_AES, OP_ALG_AAI_CBC,
 			      OP_ALG_AS_INITFINAL, 0, OP_ALG_DECRYPT);
-		FIFOLOAD(MSG1, PTR(data_in), datasz, WITH(LAST1));
-		FIFOSTORE(MSG, 0, data_out, datasz, WITH(EXT));
+		FIFOLOAD(MSG1, PTR(data_in), datasz, LAST1);
+		FIFOSTORE(MSG, 0, data_out, datasz, EXT);
 	}
 
 	return PROGRAM_FINALIZE();
