@@ -24,7 +24,7 @@ unsigned hmac_1(uint32_t *buff)
 		KEY(MDHA_SPLIT_KEY, 0, PTR(key_data), keylen, 0);
 		ALG_OPERATION(OP_ALG_ALGSEL_SHA256, OP_ALG_AAI_HMAC_PRECOMP,
 			      OP_ALG_AS_INITFINAL, 0, OP_ALG_ENCRYPT);
-		FIFOLOAD(MSG2, PTR(msg), msglen, WITH(LAST2 | EXT));
+		FIFOLOAD(MSG2, PTR(msg), msglen, LAST2 | EXT);
 		STORE(CONTEXT2, 0, PTR(hmac), 32, 0);
 	}
 

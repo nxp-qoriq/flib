@@ -142,7 +142,7 @@ static inline void cnstr_shdsc_wimax_encap_era5(uint32_t *descbuf,
 	pdb.ctr_flags = WIMAX_PDB_CTR;
 
 	PROGRAM_CNTXT_INIT(descbuf, 0);
-	phdr = SHR_HDR(SHR_SERIAL, hdr, WITH(0));
+	phdr = SHR_HDR(SHR_SERIAL, hdr, 0);
 
 	COPY_DATA((uint8_t *)&pdb, sizeof(struct wimax_encap_pdb));
 	SET_LABEL(hdr);
@@ -152,16 +152,16 @@ static inline void cnstr_shdsc_wimax_encap_era5(uint32_t *descbuf,
 	 * The prefetch buffer will have 128 bytes (or less, if the input frame
 	 * is less than 128 bytes)
 	 */
-	MATHB(MATH0, ADD, IMM(128), VSEQINSZ, SIZE(4), 0);
-	MATHB(SEQINSZ, SUB, VSEQINSZ, NONE, SIZE(4), 0);
+	MATHB(MATH0, ADD, IMM(128), VSEQINSZ, 4, 0);
+	MATHB(SEQINSZ, SUB, VSEQINSZ, NONE, 4, 0);
 	/* If not negative, then input is bigger than 128 bytes */
 	pmathjump = JUMP(IMM(mathjump), LOCAL_JUMP, ALL_FALSE, MATH_N);
-	MATHB(SEQINSZ, ADD, ZERO, VSEQINSZ, SIZE(4), 0);
+	MATHB(SEQINSZ, ADD, ZERO, VSEQINSZ, 4, 0);
 	SET_LABEL(mathjump);
-	MATHB(VSEQINSZ, ADD, ZERO, MATH3, SIZE(4), 0);
+	MATHB(VSEQINSZ, ADD, ZERO, MATH3, 4, 0);
 
 	/* Save SEQOUTPTR, Output Pointer and Output Length. */
-	move_seqout_ptr = MOVE(DESCBUF, 0, OFIFO, 0, IMM(16), WITH(WAITCOMP));
+	move_seqout_ptr = MOVE(DESCBUF, 0, OFIFO, 0, IMM(16), WAITCOMP);
 /*
  * TODO: RTA currently doesn't support creating a LOAD command
  * with another command as IMM. In this particular case "0xa00000fa" is a JUMP
@@ -169,11 +169,11 @@ static inline void cnstr_shdsc_wimax_encap_era5(uint32_t *descbuf,
  * output pointer and length.
  * To be changed when proper support is added in RTA.
  */
-	LOAD(IMM(0xa00000fa), OFIFO, 0, 4, WITH(0));
+	LOAD(IMM(0xa00000fa), OFIFO, 0, 4, 0);
 
 	/* Swap SEQOUTPTR to the SEQINPTR. */
-	move_seqin_ptr = MOVE(DESCBUF, 0, MATH0, 0, IMM(20), WITH(WAITCOMP));
-	MATHB(MATH0, OR, IMM(CMD_SEQ_IN_PTR ^ CMD_SEQ_OUT_PTR), MATH0, SIZE(8),
+	move_seqin_ptr = MOVE(DESCBUF, 0, MATH0, 0, IMM(20), WAITCOMP);
+	MATHB(MATH0, OR, IMM(CMD_SEQ_IN_PTR ^ CMD_SEQ_OUT_PTR), MATH0, 8,
 	      IFB);
 /*
  * TODO: RTA currently doesn't support creating a LOAD command
@@ -182,35 +182,35 @@ static inline void cnstr_shdsc_wimax_encap_era5(uint32_t *descbuf,
  * the pointer and length used when the current input sequence was defined.
  * To be changed when proper support is added in RTA.
  */
-	LOAD(IMM(0xa00000dc), MATH2, 4, 4, WITH(0));
+	LOAD(IMM(0xa00000dc), MATH2, 4, 4, 0);
 	write_swapped_seqout_ptr = MOVE(MATH0, 0, DESCBUF, 0, IMM(24),
-					WITH(WAITCOMP));
+					WAITCOMP);
 	seqout_ptr_jump1 = JUMP(IMM(swapped_seqout_ptr), LOCAL_JUMP, ALL_TRUE,
-				WITH(0));
-	write_seqout_ptr = MOVE(OFIFO, 0, DESCBUF, 0, IMM(20), WITH(WAITCOMP));
+				0);
+	write_seqout_ptr = MOVE(OFIFO, 0, DESCBUF, 0, IMM(20), WAITCOMP);
 
 	/*
 	 * Read exactly the amount of data that would have been prefetched if,
 	 * in fact, the data was prefetched. This will cause DECO to flush
 	 * the prefetched data
 	 */
-	SEQFIFOLOAD(IFIFO, 0, WITH(VLF));
-	JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, WITH(CALM));
+	SEQFIFOLOAD(IFIFO, 0, VLF);
+	JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, CALM);
 	/* Get header into Math 0 */
-	MOVE(IFIFOABD, 0, MATH0, 4, IMM(8), WITH(WAITCOMP));
+	MOVE(IFIFOABD, 0, MATH0, 4, IMM(8), WAITCOMP);
 
 	/* Clear input data FIFO and Class 1,2 registers*/
 	LOAD(IMM(LDST_SRCDST_WORD_CLRW | CLRW_CLR_C2MODE | CLRW_CLR_C2DATAS |
 		 CLRW_CLR_C2CTX | CLRW_CLR_C2KEY | CLRW_RESET_CLS2_CHA |
 		 CLRW_RESET_CLS1_CHA | CLRW_RESET_IFIFO_DFIFO),
-	     CLRW, 0, 4, WITH(0));
+	     CLRW, 0, 4, 0);
 
 	/*
 	 * Set Encryption Control bit.
 	 * Header is loaded at offset four in Math 0 register.
 	 * Use the 32 bit value of the WIMAX_GMH_EC_MASK macro.
 	 */
-	MATHB(MATH0, OR, IMM(high_32b(WIMAX_GMH_EC_MASK)), MATH0, SIZE(4), 0);
+	MATHB(MATH0, OR, IMM(high_32b(WIMAX_GMH_EC_MASK)), MATH0, 4, 0);
 
 	/*
 	 * Update Generic Mac Header Length field.
@@ -220,39 +220,39 @@ static inline void cnstr_shdsc_wimax_encap_era5(uint32_t *descbuf,
 	if (pdb_opts & WIMAX_PDBOPTS_FCS)
 		MATHB(MATH0, ADD, IMM((WIMAX_PN_LEN + WIMAX_ICV_LEN +
 				      WIMAX_FCS_LEN) << 8),
-		      MATH0, SIZE(4), 0);
+		      MATH0, 4, 0);
 	else
 		MATHB(MATH0, ADD, IMM((WIMAX_PN_LEN + WIMAX_ICV_LEN) << 8),
-		      MATH0, SIZE(4), 0);
+		      MATH0, 4, 0);
 
 	/*
 	 * Compute the CRC-8-ATM value for the first five bytes
 	 * of the header and insert the result into the sixth
 	 * MATH0 byte field.
 	 */
-	KEY(KEY2, 0, IMM(CRC_8_ATM_POLY), 2, WITH(IMMED));
+	KEY(KEY2, 0, IMM(CRC_8_ATM_POLY), 2, IMMED);
 	ALG_OPERATION(OP_ALG_ALGSEL_CRC,
 		      OP_ALG_AAI_CUST_POLY | OP_ALG_AAI_DIS, OP_ALG_AS_UPDATE,
 		      ICV_CHECK_DISABLE, OP_ALG_ENCRYPT);
-	MOVE(MATH0, 4, IFIFOAB2, 0, IMM(5), WITH(LAST1));
-	MOVE(CONTEXT2, 0, MATH2, 0, IMM(4), WITH(WAITCOMP));
-	MOVE(MATH2, 0, MATH1, 1, IMM(1), WITH(WAITCOMP));
-	SEQSTORE(MATH0, 4, 8, WITH(0));
+	MOVE(MATH0, 4, IFIFOAB2, 0, IMM(5), LAST1);
+	MOVE(CONTEXT2, 0, MATH2, 0, IMM(4), WAITCOMP);
+	MOVE(MATH2, 0, MATH1, 1, IMM(1), WAITCOMP);
+	SEQSTORE(MATH0, 4, 8, 0);
 	LOAD(IMM(LDST_SRCDST_WORD_CLRW | CLRW_CLR_C2MODE | CLRW_CLR_C2DATAS |
 		 CLRW_CLR_C2CTX | CLRW_CLR_C2KEY | CLRW_RESET_CLS2_CHA),
-	     CLRW, 0, 4, WITH(0));
-	JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, WITH(CALM));
-	SEQINPTR(0, 0, WITH(RTO));
+	     CLRW, 0, 4, 0);
+	JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, CALM);
+	SEQINPTR(0, 0, RTO);
 
 	/* Add what was removed */
-	MATHB(SEQINSZ, ADD, MATH3, SEQINSZ, SIZE(4), 0);
+	MATHB(SEQINSZ, ADD, MATH3, SEQINSZ, 4, 0);
 
-	pkeyjump = JUMP(IMM(keyjump), LOCAL_JUMP, ALL_TRUE, WITH(SHRD));
+	pkeyjump = JUMP(IMM(keyjump), LOCAL_JUMP, ALL_TRUE, SHRD);
 	KEY(KEY1, cipherdata->key_enc_flags, PTR(cipherdata->key),
-	    cipherdata->keylen, WITH(IMMED));
+	    cipherdata->keylen, IMMED);
 	SET_LABEL(keyjump);
 	seqout_ptr_jump2 = JUMP(IMM(local_offset), LOCAL_JUMP, ALL_TRUE,
-				WITH(0));
+				0);
 	PROTOCOL(OP_TYPE_ENCAP_PROTOCOL, OP_PCLID_WIMAX, protinfo);
 /*
  * TODO: RTA currently doesn't support adding labels in or after Job Descriptor.
@@ -331,40 +331,40 @@ static inline void cnstr_shdsc_wimax_encap(uint32_t *descbuf, unsigned *bufsize,
 	pdb.ctr_flags = WIMAX_PDB_CTR;
 
 	PROGRAM_CNTXT_INIT(descbuf, 0);
-	phdr = SHR_HDR(SHR_SERIAL, hdr, WITH(0));
+	phdr = SHR_HDR(SHR_SERIAL, hdr, 0);
 	{
 		COPY_DATA((uint8_t *)&pdb, sizeof(struct wimax_encap_pdb));
 		SET_LABEL(hdr);
 		/* Save SEQOUTPTR, Output Pointer and Output Length. */
 		move_seqout_ptr = MOVE(DESCBUF, 0, OFIFO, 0, IMM(16),
-				       WITH(WAITCOMP));
+				       WAITCOMP);
 /*
  * TODO: RTA currently doesn't support creating a LOAD command
  * with another command as IMM.
  * To be changed when proper support is added in RTA.
  */
-		LOAD(IMM(0xa00000fa), OFIFO, 0, 4, WITH(0));
+		LOAD(IMM(0xa00000fa), OFIFO, 0, 4, 0);
 
 		/* Swap SEQOUTPTR to the SEQINPTR. */
 		move_seqin_ptr = MOVE(DESCBUF, 0, MATH0, 0, IMM(20),
-				      WITH(WAITCOMP));
+				      WAITCOMP);
 		MATHB(MATH0, OR, IMM(CMD_SEQ_IN_PTR ^ CMD_SEQ_OUT_PTR), MATH0,
-		      SIZE(8), IFB);
+		      8, IFB);
 /*
  * TODO: RTA currently doesn't support creating a LOAD command
  * with another command as IMM.
  * To be changed when proper support is added in RTA.
  */
-		LOAD(IMM(0xa00000dd), MATH2, 4, 4, WITH(0));
+		LOAD(IMM(0xa00000dd), MATH2, 4, 4, 0);
 		write_swapped_seqout_ptr = MOVE(MATH0, 0, DESCBUF, 0, IMM(24),
-						WITH(WAITCOMP));
+						WAITCOMP);
 		seqout_ptr_jump1 = JUMP(IMM(swapped_seqout_ptr), LOCAL_JUMP,
-				       ALL_TRUE, WITH(0));
+				       ALL_TRUE, 0);
 
 		write_seqout_ptr = MOVE(OFIFO, 0, DESCBUF, 0, IMM(20),
-					WITH(WAITCOMP));
+					WAITCOMP);
 
-		SEQLOAD(MATH0, 0, 8, WITH(0));
+		SEQLOAD(MATH0, 0, 8, 0);
 		LOAD(IMM(LDST_SRCDST_WORD_CLRW |
 			 CLRW_CLR_C1MODE |
 			 CLRW_CLR_C2MODE |
@@ -373,10 +373,10 @@ static inline void cnstr_shdsc_wimax_encap(uint32_t *descbuf, unsigned *bufsize,
 			 CLRW_CLR_C2KEY |
 			 CLRW_RESET_CLS2_CHA |
 			 CLRW_RESET_CLS1_CHA),
-		     CLRW, 0, 4, WITH(0));
-		JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, WITH(CALM));
+		     CLRW, 0, 4, 0);
+		JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, CALM);
 		/* Set Encryption Control bit */
-		MATHB(MATH0, OR, IMM(WIMAX_GMH_EC_MASK), MATH0, SIZE(8), 0);
+		MATHB(MATH0, OR, IMM(WIMAX_GMH_EC_MASK), MATH0, 8, 0);
 
 		/*
 		 * Update Generic Mac Header Length field.
@@ -387,28 +387,28 @@ static inline void cnstr_shdsc_wimax_encap(uint32_t *descbuf, unsigned *bufsize,
 			MATHB(MATH0, ADD, IMM((WIMAX_PN_LEN << 0x28) +
 					      (WIMAX_ICV_LEN << 0x28) +
 					      (WIMAX_FCS_LEN << 0x28)),
-			      MATH0, SIZE(8), 0);
+			      MATH0, 8, 0);
 		else
 			MATHB(MATH0, ADD, IMM((WIMAX_PN_LEN << 0x28) +
 					      (WIMAX_ICV_LEN << 0x28)),
-			      MATH0, SIZE(8), 0);
+			      MATH0, 8, 0);
 
 		/*
 		 * Compute the CRC-8-ATM value for the first five bytes
 		 * of the header and insert the result into the sixth
 		 * MATH0 byte field.
 		 */
-		KEY(KEY2, 0, IMM(CRC_8_ATM_POLY), 2, WITH(IMMED));
+		KEY(KEY2, 0, IMM(CRC_8_ATM_POLY), 2, IMMED);
 		ALG_OPERATION(OP_ALG_ALGSEL_CRC,
 			      OP_ALG_AAI_CUST_POLY | OP_ALG_AAI_DIS,
 			      OP_ALG_AS_UPDATE, ICV_CHECK_DISABLE,
 			      OP_ALG_ENCRYPT);
-		MOVE(MATH0, 0, IFIFOAB2, 0, IMM(5), WITH(LAST1));
-		MOVE(CONTEXT2, 0, MATH1, 0, IMM(4), WITH(WAITCOMP));
-		MOVE(MATH1, 0, MATH0, 5, IMM(1), WITH(WAITCOMP));
-		SEQSTORE(MATH0, 0, 8, WITH(0));
+		MOVE(MATH0, 0, IFIFOAB2, 0, IMM(5), LAST1);
+		MOVE(CONTEXT2, 0, MATH1, 0, IMM(4), WAITCOMP);
+		MOVE(MATH1, 0, MATH0, 5, IMM(1), WAITCOMP);
+		SEQSTORE(MATH0, 0, 8, 0);
 
-		SEQINPTR(0, 8, WITH(RTO));
+		SEQINPTR(0, 8, RTO);
 		LOAD(IMM(LDST_SRCDST_WORD_CLRW |
 			 CLRW_CLR_C1MODE |
 			 CLRW_CLR_C2MODE |
@@ -417,18 +417,18 @@ static inline void cnstr_shdsc_wimax_encap(uint32_t *descbuf, unsigned *bufsize,
 			 CLRW_CLR_C2KEY |
 			 CLRW_RESET_CLS2_CHA |
 			 CLRW_RESET_CLS1_CHA),
-		     CLRW, 0, 4, WITH(0));
+		     CLRW, 0, 4, 0);
 		pkeyjump = JUMP(IMM(keyjump), LOCAL_JUMP, ALL_TRUE,
-				WITH(SHRD | SELF));
+				SHRD | SELF);
 		KEY(KEY1, cipherdata->key_enc_flags, PTR(cipherdata->key),
-		    cipherdata->keylen, WITH(IMMED));
+		    cipherdata->keylen, IMMED);
 		SET_LABEL(keyjump);
 		/*
 		 * Wait for the updated header to be written into memory, then
 		 * rewind and reset the sequence output pointer and length.
 		 */
 		seqout_ptr_jump2 = JUMP(IMM(swapped_seqout_ptr), LOCAL_JUMP,
-					ALL_TRUE, WITH(CALM));
+					ALL_TRUE, CALM);
 		PROTOCOL(OP_TYPE_ENCAP_PROTOCOL, OP_PCLID_WIMAX, protinfo);
 /*
  * TODO: RTA currently doesn't support adding labels in or after Job Descriptor.
@@ -494,11 +494,11 @@ static inline void cnstr_shdsc_wimax_decap(uint32_t *descbuf, unsigned *bufsize,
 	pdb.ctr_flags = WIMAX_PDB_CTR;
 
 	PROGRAM_CNTXT_INIT(descbuf, 0);
-	phdr = SHR_HDR(SHR_SERIAL, hdr, WITH(0));
+	phdr = SHR_HDR(SHR_SERIAL, hdr, 0);
 	{
 		COPY_DATA((uint8_t *)&pdb, sizeof(struct wimax_decap_pdb));
 		SET_LABEL(hdr);
-		load_gmh = SEQLOAD(DESCBUF, 0, 8, WITH(0));
+		load_gmh = SEQLOAD(DESCBUF, 0, 8, 0);
 		LOAD(IMM(LDST_SRCDST_WORD_CLRW |
 			 CLRW_CLR_C1MODE |
 			 CLRW_CLR_C2MODE |
@@ -507,21 +507,21 @@ static inline void cnstr_shdsc_wimax_decap(uint32_t *descbuf, unsigned *bufsize,
 			 CLRW_CLR_C2KEY |
 			 CLRW_RESET_CLS2_CHA |
 			 CLRW_RESET_CLS1_CHA),
-		     CLRW, 0, 4, WITH(0));
-		SEQINPTR(0, 8, WITH(RTO));
+		     CLRW, 0, 4, 0);
+		SEQINPTR(0, 8, RTO);
 
 		pkeyjump = JUMP(IMM(keyjump), LOCAL_JUMP, ALL_TRUE,
-				WITH(SHRD | SELF));
+				SHRD | SELF);
 		KEY(KEY1, cipherdata->key_enc_flags, PTR(cipherdata->key),
-		    cipherdata->keylen, WITH(IMMED));
+		    cipherdata->keylen, IMMED);
 		SET_LABEL(keyjump);
 		PROTOCOL(OP_TYPE_DECAP_PROTOCOL, OP_PCLID_WIMAX, protinfo);
 
-		SEQOUTPTR(0, 8, WITH(RTO));
-		move_gmh = MOVE(DESCBUF, 0, MATH0, 0, IMM(8), WITH(WAITCOMP));
+		SEQOUTPTR(0, 8, RTO);
+		move_gmh = MOVE(DESCBUF, 0, MATH0, 0, IMM(8), WAITCOMP);
 
 		/* Clear Encryption Control bit. */
-		MATHB(MATH0, AND, IMM(~WIMAX_GMH_EC_MASK), MATH0, SIZE(8), 0);
+		MATHB(MATH0, AND, IMM(~WIMAX_GMH_EC_MASK), MATH0, 8, 0);
 
 		/*
 		 * Update Generic Mac Header Length field.
@@ -532,11 +532,11 @@ static inline void cnstr_shdsc_wimax_decap(uint32_t *descbuf, unsigned *bufsize,
 			MATHB(MATH0, SUB, IMM((WIMAX_PN_LEN << 0x28) +
 					      (WIMAX_ICV_LEN << 0x28) +
 					      (WIMAX_FCS_LEN << 0x28)),
-			      MATH0, SIZE(8), 0);
+			      MATH0, 8, 0);
 		else
 			MATHB(MATH0, SUB, IMM((WIMAX_PN_LEN << 0x28) +
 					      (WIMAX_ICV_LEN << 0x28)),
-			      MATH0, SIZE(8), 0);
+			      MATH0, 8, 0);
 
 		/*
 		 * Compute the CRC-8-ATM value for the first five bytes
@@ -551,18 +551,18 @@ static inline void cnstr_shdsc_wimax_decap(uint32_t *descbuf, unsigned *bufsize,
 			 CLRW_CLR_C2KEY |
 			 CLRW_RESET_CLS2_CHA |
 			 CLRW_RESET_CLS1_CHA),
-		     CLRW, 0, 4, WITH(0));
-		KEY(KEY2, 0, IMM(CRC_8_ATM_POLY), 2, WITH(IMMED));
+		     CLRW, 0, 4, 0);
+		KEY(KEY2, 0, IMM(CRC_8_ATM_POLY), 2, IMMED);
 		ALG_OPERATION(OP_ALG_ALGSEL_CRC,
 			      OP_ALG_AAI_CUST_POLY | OP_ALG_AAI_DIS,
 			      OP_ALG_AS_UPDATE, ICV_CHECK_DISABLE,
 			      OP_ALG_ENCRYPT);
-		MOVE(MATH0, 0, IFIFOAB2, 0, IMM(5), WITH(LAST1));
-		MOVE(CONTEXT2, 0, MATH1, 0, IMM(4), WITH(WAITCOMP));
-		MOVE(MATH1, 0, MATH0, 5, IMM(1), WITH(WAITCOMP));
+		MOVE(MATH0, 0, IFIFOAB2, 0, IMM(5), LAST1);
+		MOVE(CONTEXT2, 0, MATH1, 0, IMM(4), WAITCOMP);
+		MOVE(MATH1, 0, MATH0, 5, IMM(1), WAITCOMP);
 
 		/* Rewrite decapsulation Generic Mac Header. */
-		SEQSTORE(MATH0, 0, 6, WITH(0));
+		SEQSTORE(MATH0, 0, 6, 0);
 /*
  * TODO: RTA currently doesn't support adding labels in or after Job Descriptor.
  * To be changed when proper support is added in RTA.

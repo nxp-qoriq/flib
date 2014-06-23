@@ -40,15 +40,15 @@ unsigned generate_capwap_code(uint32_t *buff, unsigned mdatalen)
 	/* All of the IV, both next and previous */
 	COPY_DATA(((uint8_t[]){ 00, 00}), 2);
 
-	ref1 = MOVE(DESCBUF, 0, MATH0, 0, IMM(16), WITH(WAITCOMP));
-	MATHB(MATH0, XOR, IMM(0x0840010000000000), MATH0, SIZE(8), 0);
+	ref1 = MOVE(DESCBUF, 0, MATH0, 0, IMM(16), WAITCOMP);
+	MATHB(MATH0, XOR, IMM(0x0840010000000000), MATH0, 8, 0);
 	ref2 = MOVE(MATH0, 0, DESCBUF, 0, IMM(8), 0);
 	MOVE(IFIFOABD, 0, OFIFO, 0, IMM(mdatalen), 0);
 	SEQFIFOSTORE(MSG, 0, mdatalen, 0);
 
-	pjump2 = JUMP(IMM(0), LOCAL_JUMP, ALL_TRUE, WITH(SHRD));
-	KEY(MDHA_SPLIT_KEY, WITH(ENC), IMM(key_addr), 4, 0);
-	KEY(KEY1, WITH(EKT), IMM(key_addr), 4, 0);
+	pjump2 = JUMP(IMM(0), LOCAL_JUMP, ALL_TRUE, SHRD);
+	KEY(MDHA_SPLIT_KEY, ENC, IMM(key_addr), 4, 0);
+	KEY(KEY1, EKT, IMM(key_addr), 4, 0);
 	SET_LABEL(skip_keyloading);
 	ALG_OPERATION(OP_ALG_ALGSEL_AES, OP_ALG_AAI_CTR_MOD128, OP_ALG_AS_INIT,
 		      ICV_CHECK_DISABLE, DIR_ENC);
@@ -57,12 +57,12 @@ unsigned generate_capwap_code(uint32_t *buff, unsigned mdatalen)
 	WORD(0x0);
 	SEQFIFOLOAD(SKIP, 59, 0);
 
-	SEQLOAD(MATH2, 0, SIZE(8), 0);
-	MOVE(DESCBUF, (uint16_t)previous_iv, MATH0, 0, IMM(16), WITH(WAITCOMP));
-	MATHB(MATH0, XOR, MATH2, MATH1, SIZE(8), 0);
+	SEQLOAD(MATH2, 0, 8, 0);
+	MOVE(DESCBUF, (uint16_t)previous_iv, MATH0, 0, IMM(16), WAITCOMP);
+	MATHB(MATH0, XOR, MATH2, MATH1, 8, 0);
 
-	pjump1 = JUMP(IMM(0), LOCAL_JUMP, ALL_FALSE, WITH(MATH_Z));
-	MATHB(MATH1, XOR, MATH3, MATH2, SIZE(8), 0);
+	pjump1 = JUMP(IMM(0), LOCAL_JUMP, ALL_FALSE, MATH_Z);
+	MATHB(MATH1, XOR, MATH3, MATH2, 8, 0);
 	SET_LABEL(new_IV_OK);
 	MOVE(MATH0, 0, DESCBUF, (uint16_t)encap_iv, IMM(32), 0);
 	SEQSTORE(DESCBUF, 4, 8, 0);

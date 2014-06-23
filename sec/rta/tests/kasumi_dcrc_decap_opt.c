@@ -38,7 +38,7 @@ unsigned build_shdesc_kasumi_dcrc_decap(struct program *prg, uint32_t *buff,
 			WORD(0x55555555);
 		}
 		pjump1 = JUMP(IMM(handle_kasumi), LOCAL_JUMP, ALL_TRUE,
-			      WITH(MATH_N));
+			      MATH_N);
 		/*
 		 * bring in all the "extra" stuff with an extra word to make
 		 * things space out correctly
@@ -51,12 +51,12 @@ unsigned build_shdesc_kasumi_dcrc_decap(struct program *prg, uint32_t *buff,
 		MOVE(IFIFOABD, 0, KEY1, 0, IMM(key_size), 0);
 		MOVE(IFIFOABD, 0, CONTEXT1, 32, IMM(32), 0);
 		LOAD(IMM(key_size), KEY1SZ, 0, 4, 0);
-		MOVE(CONTEXT1, 36, MATH0, 0, IMM(4), WITH(WAITCOMP));
+		MOVE(CONTEXT1, 36, MATH0, 0, IMM(4), WAITCOMP);
 		/* get PDU len in left 2 bytes */
-		MATHB(MATH0, LSHIFT, IMM(16), MATH0, 8, WITH(IFB));
+		MATHB(MATH0, LSHIFT, IMM(16), MATH0, 8, IFB);
 		pmove1 = MOVE(MATH0, 0, DESCBUF, 0, IMM(4), 0);
 		PROTOCOL(OP_TYPE_DECAP_PROTOCOL, OP_PCLID_3G_DCRC,
-			 WITH(OP_PCL_3G_DCRC_CRC7));
+			 OP_PCL_3G_DCRC_CRC7);
 		MATHB(ZERO, SUB, ONE, NONE, 4, 0);
 		/* re-execute Job Descriptor */
 		ref_decap_job = SHR_HDR(SHR_NEVER, decap_job_seqoutptr, 0);
@@ -66,7 +66,7 @@ unsigned build_shdesc_kasumi_dcrc_decap(struct program *prg, uint32_t *buff,
 		pmove2 = MOVE(CONTEXT1, 0, DESCBUF, 0, IMM(12), 0);
 		/* skip over the preamble and the DCRC header */
 		MATHB(MATH0, ADD, IMM(60), VSEQINSZ, 4, 0);
-		SEQFIFOLOAD(SKIP, 0, WITH(VLF));
+		SEQFIFOLOAD(SKIP, 0, VLF);
 		/*
 		 * store the Math register stuff back in the Class 2 Context
 		 * Register - only need #PDUs and size
@@ -82,23 +82,23 @@ unsigned build_shdesc_kasumi_dcrc_decap(struct program *prg, uint32_t *buff,
 		SET_LABEL(process_pdu);
 		MATHB(MATH1, ADD, ONE, SEQINSZ, 4, 0);
 		PROTOCOL(OP_TYPE_DECAP_PROTOCOL, OP_PCLID_3G_RLC_PDU,
-			 WITH(OP_PCL_3G_RLC_KASUMI));
+			 OP_PCL_3G_RLC_KASUMI);
 		/* Give up KFHA so somebody else can use it during DCRC */
 		LOAD(IMM
 		     (CLRW_CLR_C1CTX | CLRW_CLR_C1ICV | CLRW_CLR_C1MODE |
 		      CLRW_CLR_C1DATAS), CLRW, 0, 4, 0);
 		LOAD(IMM(CCTRL_RESET_CHA_KFHA), CCTRL, 0, 4, 0);
-		MOVE(CONTEXT2, 0, MATH0, 0, IMM(16), WITH(WAITCOMP));
+		MOVE(CONTEXT2, 0, MATH0, 0, IMM(16), WAITCOMP);
 		MATHB(MATH0, SUB, ONE, MATH0, 8, 0);
 		MOVE(MATH0, 0, CONTEXT2, 0, IMM(8), 0);
 		pjump2 = JUMP(IMM(process_pdu), LOCAL_JUMP, ANY_FALSE,
-			      WITH(MATH_Z));
+			      MATH_Z);
 		/*
 		 * For ERA < 5: WORKAROUND FOR INPUT FIFO NIBBLE SHIFT
 		 * REGISTER BUG
 		 * MOVE(MATH0, 0, IFIFOAB1, 0, IMM(1), 0);
 		 * LOAD(IMM(0), DCTRL, LDOFF_ENABLE_AUTO_IFIFO, 0, 0);
-		 * MOVE(IFIFOAB2, 0, OFIFO, 0, IMM(1), WITH(FLUSH2|WAITCOMP));
+		 * MOVE(IFIFOAB2, 0, OFIFO, 0, IMM(1), FLUSH2|WAITCOMP);
 		 */
 		SET_LABEL(decap_share_end);
 
@@ -122,11 +122,11 @@ unsigned build_jbdesc_kasumi_dcrc_decap(struct program *prg, uint32_t *buff,
 	uint64_t pdu_out_addr_1 = 0x098e449dull;
 
 	PROGRAM_CNTXT_INIT(buff, buffpos);
-	JOB_HDR(SHR_ALWAYS, buffpos, desc_addr_1, WITH(REO | SHR));
+	JOB_HDR(SHR_ALWAYS, buffpos, desc_addr_1, REO | SHR);
 	{
 		SET_LABEL(decap_job_seqoutptr);
-		SEQOUTPTR(pdu_out_addr_1, output_frame_length, WITH(EXT));
-		SEQINPTR(pdu_in_addr_1, input_frame_length, WITH(EXT));
+		SEQOUTPTR(pdu_out_addr_1, output_frame_length, EXT);
+		SEQINPTR(pdu_in_addr_1, input_frame_length, EXT);
 	}
 
 	return PROGRAM_FINALIZE();

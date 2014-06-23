@@ -30,41 +30,41 @@ unsigned f2m_calc_c_test(uint32_t *buff)
 
 		/* Test for 'too big' (to fit into 4096-bit PKHA memory...) */
 		MATHB(MATH2, RSHIFT, IMM(9), MATH1, 4, 0);
-		JUMP(IMM(0x12), HALT_STATUS, ANY_FALSE, WITH(MATH_Z));
+		JUMP(IMM(0x12), HALT_STATUS, ANY_FALSE, MATH_Z);
 
 		/* Direct first byte of polynomial to MATH1 via Class 1 CTX */
 		SEQLOAD(CONTEXT1, 0, 1, 0);
 		/* wait for load to complete */
-		JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, WITH(NIP));
+		JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, NIP);
 		MOVE(CONTEXT1, 0, MATH1, 0, IMM(1), 0);
 
 		/*
 		 * Load full polynomial into PKHA N RAM (after recomputing full
 		 * byte count)
 		 */
-		SEQINPTR(0, 1, WITH(RTO)); /* Back up the to the beginning */
+		SEQINPTR(0, 1, RTO); /* Back up the to the beginning */
 		MATHB(MATH2, ADD, ONE, VSEQINSZ, 4, 0);
-		SEQFIFOLOAD(PKN, 0, WITH(VLF));
+		SEQFIFOLOAD(PKN, 0, VLF);
 
 		/* Start with m = 8 * (poly_size - 1) - 1 */
 		MATHB(MATH2, LSHIFT, IMM(3), MATH0, 4, 0);
 		MATHB(MATH2, SUB, ONE, MATH2, 4, 0);
 		/* Move first byte from MSB to LSB */
-		MATHB(MATH1, RSHIFT, IMM(56), MATH1, 8, WITH(IFB));
-		JUMP(IMM(0x13), HALT_STATUS, ALL_TRUE, WITH(MATH_Z));
+		MATHB(MATH1, RSHIFT, IMM(56), MATH1, 8, IFB);
+		JUMP(IMM(0x13), HALT_STATUS, ALL_TRUE, MATH_Z);
 
 		SET_LABEL(bit_search_top);
 		MATHB(MATH0, ADD, ONE, MATH0, 2, 0);	/* m = m + 1 */
 		MATHB(MATH1, RSHIFT, ONE, MATH1, 2, 0); /* byte >> 1 */
 		pjump1 = JUMP(IMM(bit_search_top), LOCAL_JUMP, ANY_FALSE,
-			      WITH(MATH_Z));
+			      MATH_Z);
 
 		MATHB(MATH0, SUB, IMM(3), MATH0, 2, 0);	/* m-2 */
 		LOAD(IMM(0), DCTRL, LDOFF_DISABLE_AUTO_NFIFO, 0, 0);
 		LOAD(IMM(2), PKESZ, 0, 4, 0);
-		MATHB(MATH0, LSHIFT, IMM(48), MATH0, 8, WITH(IFB));
+		MATHB(MATH0, LSHIFT, IMM(48), MATH0, 8, IFB);
 		MOVE(MATH0, 0, IFIFOAB1, 0, IMM(2), 0);
-		NFIFOADD(IFIFO, PKE, 2, WITH(FLUSH1));
+		NFIFOADD(IFIFO, PKE, 2, FLUSH1);
 		LOAD(IMM(0), DCTRL, LDOFF_ENABLE_AUTO_NFIFO, 0, 0);
 
 		/* pke is now 'm-2'; load 2 into pka */
@@ -74,11 +74,11 @@ unsigned f2m_calc_c_test(uint32_t *buff)
 
 		/* Now load curve parameter b */
 		MATHB(SEQINSZ, ADD, ZERO, VSEQINSZ, 4, 0);
-		SEQFIFOLOAD(PKA, 0, WITH(VLF));
+		SEQFIFOLOAD(PKA, 0, VLF);
 		PKHA_OPERATION(OP_ALG_PKMODE_F2M_EXP);
 
 		MATHB(SEQOUTSZ, ADD, ZERO, VSEQOUTSZ, 4, 0);
-		SEQFIFOSTORE(PKB, 0, 0, WITH(VLF));
+		SEQFIFOSTORE(PKB, 0, 0, VLF);
 	}
 	PATCH_JUMP(pjump1, bit_search_top);
 

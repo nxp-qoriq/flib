@@ -202,12 +202,12 @@ static inline void cnstr_shdsc_mbms_type0(uint32_t *descbuf,
 	 * transferring data that is in the input buffer by the (non-SEQ) LOAD
 	 * command below
 	 */
-	LOAD(IMM(0), DCTRL, LDOFF_CHG_NONSEQLIODN_SEQ, 0, WITH(0));
+	LOAD(IMM(0), DCTRL, LDOFF_CHG_NONSEQLIODN_SEQ, 0, 0);
 
 	pkeyjmp = JUMP(IMM(keyjmp), LOCAL_JUMP, ALL_TRUE, SHRD|SELF);
 
 	/* Load the polynomial to KEY2 register */
-	KEY(KEY2, 0, IMM(MBMS_HEADER_POLY), 1, WITH(IMMED));
+	KEY(KEY2, 0, IMM(MBMS_HEADER_POLY), 1, IMMED);
 
 	SET_LABEL(keyjmp);
 
@@ -219,41 +219,41 @@ static inline void cnstr_shdsc_mbms_type0(uint32_t *descbuf,
 
 	/* Put UDP offset in least significant byte of M1 */
 	load_start_of_buf = LOAD(PTR(DUMMY_BUF_BASE | BUF_L4_OFFSET), MATH1, 7,
-				 SIZE(1), 0);
+				 1, 0);
 	load_start_of_buf++;
 
 	/* Restore LIODN */
-	LOAD(IMM(0), DCTRL, LDOFF_CHG_NONSEQLIODN_NON_SEQ, 0, WITH(0));
+	LOAD(IMM(0), DCTRL, LDOFF_CHG_NONSEQLIODN_NON_SEQ, 0, 0);
 
 	/* Wait for transfer to end */
 	JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, CALM);
 
 	/* Calculate offset to MBMS SYNC header offset from start of frame */
-	MATHB(MATH1, ADD, IMM(MBMS_HDR_OFFSET), VSEQINSZ, SIZE(4), WITH(0));
+	MATHB(MATH1, ADD, IMM(MBMS_HDR_OFFSET), VSEQINSZ, 4, 0);
 
 	/*
 	 * Put the full input length in M1, used below to patch the rereading
 	 * of the frame
 	 */
-	MATHB(VSEQINSZ, ADD, IMM(MBMS_TYPE0_HDR_LEN), MATH1, SIZE(4),
-	      WITH(0));
+	MATHB(VSEQINSZ, ADD, IMM(MBMS_TYPE0_HDR_LEN), MATH1, 4,
+	      0);
 
 	/* Calculate length of output frame to be stored (if CRC passes) */
-	MATHB(MATH1, SUB, ZERO, VSEQOUTSZ, SIZE(4), WITH(0));
+	MATHB(MATH1, SUB, ZERO, VSEQOUTSZ, 4, 0);
 
 	/* SKIP all headers */
-	SEQFIFOLOAD(SKIP, 0, WITH(VLF));
+	SEQFIFOLOAD(SKIP, 0, VLF);
 
 	/* Read the MBMS header, minus the CRC */
 	SEQFIFOLOAD(MSG2,
 		    MBMS_TYPE0_HDR_LEN - 1,
-		    WITH(LAST2));
+		    LAST2);
 
 	/* READ CRC in MSB of M2 */
-	SEQLOAD(MATH2, 0, 1, WITH(0));
+	SEQLOAD(MATH2, 0, 1, 0);
 
 	/* Restore VSIL before mangling MATH1 below */
-	MATHB(MATH1, ADD, ZERO, VSEQINSZ, SIZE(4), WITH(0));
+	MATHB(MATH1, ADD, ZERO, VSEQINSZ, 4, 0);
 
 	/*
 	 * Patch the SEQINPTR RTO command below to revert the frame input
@@ -268,20 +268,20 @@ static inline void cnstr_shdsc_mbms_type0(uint32_t *descbuf,
 	 * Wait here for CRCA to finish processing AND for the external transfer
 	 * of the CRC to finish before proceeding in comparing the CRC
 	 */
-	JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, WITH(CALM));
+	JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, CALM);
 
 	/* Put in the MSB of M3 the CRC as calculated by CRCA */
-	MOVE(CONTEXT2, 0, MATH3, 0, IMM(1), WITH(WAITCOMP));
+	MOVE(CONTEXT2, 0, MATH3, 0, IMM(1), WAITCOMP);
 
 	/* Do Frame_CRC XOR Calculated_CRC */
-	MATHB(MATH2, XOR, MATH3, NONE, SIZE(8), WITH(0));
+	MATHB(MATH2, XOR, MATH3, NONE, 8, 0);
 
 	/*
 	 * If the last math operation sets the zero flag, it means the two CRCs
 	 * match and the descriptor can start copying things into the OFIFO and
 	 * subsequently write them to external memory.
 	 */
-	jump_write_crc = JUMP(IMM(0), LOCAL_JUMP, ALL_TRUE, WITH(MATH_Z));
+	jump_write_crc = JUMP(IMM(0), LOCAL_JUMP, ALL_TRUE, MATH_Z);
 
 	/*
 	 * If here, then the two CRCs are different. Thus, the descriptor
@@ -293,44 +293,44 @@ static inline void cnstr_shdsc_mbms_type0(uint32_t *descbuf,
 	 * Read the first two words of the descriptor into M0 (the 2nd word
 	 * contains the statistic to be incremented
 	 */
-	MOVE(DESCBUF, 0, MATH0, 0, IMM(8), WITH(WAITCOMP));
+	MOVE(DESCBUF, 0, MATH0, 0, IMM(8), WAITCOMP);
 
 	/*
 	 * Increment the read statistic with 1, while not mangling the header
 	 * of the descriptor
 	 */
-	MATHB(MATH0, ADD, ONE, MATH0, SIZE(8), WITH(0));
+	MATHB(MATH0, ADD, ONE, MATH0, 8, 0);
 
 	/* Write back the modifications in the descriptor buffer */
-	MOVE(MATH0, 0, DESCBUF, 0, IMM(8), WITH(WAITCOMP));
+	MOVE(MATH0, 0, DESCBUF, 0, IMM(8), WAITCOMP);
 
 	/* Store the updated statistic in external memory */
-	STORE(SHAREDESCBUF_EFF, 4, IMM(DUMMY_BUF_BASE), 4, WITH(0));
+	STORE(SHAREDESCBUF_EFF, 4, IMM(DUMMY_BUF_BASE), 4, 0);
 
 	SET_LABEL(rto);
 
 	/* Halt here with the appropriate status */
-	JUMP(IMM(MBMS_CRC_HDR_FAIL), HALT_STATUS, ALL_FALSE, WITH(CALM));
+	JUMP(IMM(MBMS_CRC_HDR_FAIL), HALT_STATUS, ALL_FALSE, CALM);
 
 	/*
 	 * If here, all is fine, so prepare the frame-copying. First revert
 	 * the input frame
 	 */
 	SET_LABEL(crc_pass);
-	SEQINPTR(0, 0, WITH(RTO));
+	SEQINPTR(0, 0, RTO);
 
 	/* Store everything */
-	SEQFIFOSTORE(MSG, 0, 0, WITH(VLF));
+	SEQFIFOSTORE(MSG, 0, 0, VLF);
 
 	/*
 	 * Move M1 bytes from IFIFO to OFIFO
 	 * Note: Only bits 16:31 of M1 are used, so the fact that it's mangled
 	 *       because of the RTO patching above is not relevant.
 	 */
-	MOVE(AB1, 0, OFIFO, 0, MATH1, WITH(0));
+	MOVE(AB1, 0, OFIFO, 0, MATH1, 0);
 
 	/* Read all frame */
-	SEQFIFOLOAD(MSG1, 0, WITH(VLF | LAST1 | FLUSH1));
+	SEQFIFOLOAD(MSG1, 0, VLF | LAST1 | FLUSH1);
 
 	SET_LABEL(end_of_sd);
 	seq_in_ptr = end_of_sd + 8;
@@ -409,14 +409,14 @@ static inline unsigned cnstr_shdsc_mbms_type1_3(uint32_t *descbuf,
 	 * transferring data that is in the input buffer by the (non-SEQ) LOAD
 	 * command below
 	 */
-	LOAD(IMM(0), DCTRL, LDOFF_CHG_NONSEQLIODN_SEQ, 0, WITH(0));
+	LOAD(IMM(0), DCTRL, LDOFF_CHG_NONSEQLIODN_SEQ, 0, 0);
 
 	/*
 	 * Note: The assumption here is that the base adress where the preheader
 	 * and the descriptor are allocated is 256B aligned.
 	 */
 	move_sd_address = MOVE(DESCBUF, 0, MATH2, 0, IMM(7), 0);
-	patch_move_load_2nd_part = MOVE(MATH2, 0, DESCBUF, 0, IMM(7), WITH(0));
+	patch_move_load_2nd_part = MOVE(MATH2, 0, DESCBUF, 0, IMM(7), 0);
 
 	/*
 	 * This descriptor overwrites itself ("overlay methodology").
@@ -428,10 +428,10 @@ static inline unsigned cnstr_shdsc_mbms_type1_3(uint32_t *descbuf,
 	 * The following instructions take care of patching the first before
 	 * last command that can be pushed in the current descriptor buffer
 	 */
-	pkeyjmp = JUMP(IMM(keyjmp), LOCAL_JUMP, ALL_TRUE, WITH(SHRD|SELF));
+	pkeyjmp = JUMP(IMM(keyjmp), LOCAL_JUMP, ALL_TRUE, SHRD|SELF);
 
 	/* Load the header polynomial to KEY2 register */
-	KEY(KEY2, 0, IMM(MBMS_HEADER_POLY), 1, WITH(IMMED));
+	KEY(KEY2, 0, IMM(MBMS_HEADER_POLY), 1, IMMED);
 
 	SET_LABEL(keyjmp);
 
@@ -443,84 +443,84 @@ static inline unsigned cnstr_shdsc_mbms_type1_3(uint32_t *descbuf,
 
 	/* Put UDP offset in least significant byte of M1 */
 	load_start_of_buf = LOAD(PTR(DUMMY_BUF_BASE | BUF_L4_OFFSET), MATH1, 7,
-				 SIZE(1), 0);
+				 1, 0);
 	load_start_of_buf++;
 
 	/* Restore LIODN */
-	LOAD(IMM(0), DCTRL, LDOFF_CHG_NONSEQLIODN_NON_SEQ, 0, WITH(0));
+	LOAD(IMM(0), DCTRL, LDOFF_CHG_NONSEQLIODN_NON_SEQ, 0, 0);
 
 	/* Wait for transfer to end */
 	JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, CALM);
 
 	/* Calculate offset to MBMS SYNC header offset from start of frame */
-	MATHB(MATH1, ADD, IMM(MBMS_HDR_OFFSET), VSEQINSZ, SIZE(4), WITH(0));
+	MATHB(MATH1, ADD, IMM(MBMS_HDR_OFFSET), VSEQINSZ, 4, 0);
 
 	/* Put full frame length into M0 */
-	MATHB(SEQINSZ, SUB, ZERO, MATH0, SIZE(4), WITH(0));
+	MATHB(SEQINSZ, SUB, ZERO, MATH0, 4, 0);
 
 	/* M1 will contain the offset to MBMS payload */
 	if (pdu_type == MBMS_PDU_TYPE1)
-		MATHB(VSEQINSZ, ADD, IMM(MBMS_TYPE1_HDR_LEN), MATH1, SIZE(4),
-		      WITH(0));
+		MATHB(VSEQINSZ, ADD, IMM(MBMS_TYPE1_HDR_LEN), MATH1, 4,
+		      0);
 	else
-		MATHB(VSEQINSZ, ADD, IMM(MBMS_TYPE3_HDR_LEN), MATH1, SIZE(4),
-		      WITH(0));
+		MATHB(VSEQINSZ, ADD, IMM(MBMS_TYPE3_HDR_LEN), MATH1, 4,
+		      0);
 
 	/*
 	 * Save frame length and MBMS Header Offset (all frame data to be
 	 * skipped into Context1
 	 */
-	MOVE(MATH0, 0, CONTEXT1, 0, IMM(16), WITH(0));
+	MOVE(MATH0, 0, CONTEXT1, 0, IMM(16), 0);
 
 	/* SKIP all headers */
-	SEQFIFOLOAD(SKIP, 0, WITH(VLF));
+	SEQFIFOLOAD(SKIP, 0, VLF);
 
 	/* Read the MBMS header, minus the CRC */
 	if (pdu_type == MBMS_PDU_TYPE1)
 		SEQFIFOLOAD(MSG2,
 			    MBMS_TYPE1_HDR_LEN - 2,
-			    WITH(LAST2));
+			    LAST2);
 	else
 		SEQFIFOLOAD(MSG2,
 			    MBMS_TYPE3_HDR_LEN - 2,
-			    WITH(LAST2));
+			    LAST2);
 
 	/* READ Header CRC and Payload CRC and save it in ... */
-	SEQLOAD(MATH3, 0, SIZE(2), WITH(0));
+	SEQLOAD(MATH3, 0, 2, 0);
 
 	/*
 	 * Wait here for CRCA to finish processing AND for the external transfer
 	 * of the CRC to finish before proceeding in comparing the CRC
 	 */
-	JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, WITH(CALM | CLASS2));
+	JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, CALM | CLASS2);
 
 	/* Clear the payload CRC */
-	MATHB(MATH3, AND, IMM(HDR_CRC_MASK), MATH2, SIZE(8), 0);
+	MATHB(MATH3, AND, IMM(HDR_CRC_MASK), MATH2, 8, 0);
 
 	/* Put in M3 the payload CRC */
-	MATHB(MATH3, XOR, MATH2, MATH3, SIZE(8), WITH(STL));
+	MATHB(MATH3, XOR, MATH2, MATH3, 8, STL);
 
 	/*
 	 * Align the payload CRC properly (so it can be compared easily with
 	 * the calculated CRC.
 	 */
-	MATHB(MATH3, LSHIFT, IMM(6), MATH3, SIZE(8), WITH(IFB));
+	MATHB(MATH3, LSHIFT, IMM(6), MATH3, 8, IFB);
 
 	/* Save header & payload CRC for future checking and/or updating */
-	MOVE(MATH2, 0, CONTEXT1, 16, IMM(16), WITH(0));
+	MOVE(MATH2, 0, CONTEXT1, 16, IMM(16), 0);
 
 	/* Put in the MSB of M3 the header CRC as calculated by CRCA */
-	MOVE(CONTEXT2, 0, MATH3, 0, IMM(8), WITH(WAITCOMP));
+	MOVE(CONTEXT2, 0, MATH3, 0, IMM(8), WAITCOMP);
 
 	/* Do Frame_CRC XOR Calculated_CRC */
-	MATHB(MATH2, XOR, MATH3, NONE, SIZE(8), WITH(0));
+	MATHB(MATH2, XOR, MATH3, NONE, 8, 0);
 
 	/*
 	 * If the last math operation sets the zero flag, it means the two CRCs
 	 * match and the descriptor can start copying things into the OFIFO and
 	 * subsequently write them to external memory.
 	 */
-	jump_chk_payload_crc = JUMP(IMM(0), LOCAL_JUMP, ALL_TRUE, WITH(MATH_Z));
+	jump_chk_payload_crc = JUMP(IMM(0), LOCAL_JUMP, ALL_TRUE, MATH_Z);
 
 	/*
 	 * If here, then the two CRCs are different. Thus, the descriptor
@@ -532,22 +532,22 @@ static inline unsigned cnstr_shdsc_mbms_type1_3(uint32_t *descbuf,
 	 * Read the first two words of the descriptor into M0 (the 2nd word
 	 * contains the statistic to be incremented
 	 */
-	MOVE(DESCBUF, 0, MATH0, 0, IMM(8), WITH(WAITCOMP));
+	MOVE(DESCBUF, 0, MATH0, 0, IMM(8), WAITCOMP);
 
 	/*
 	 * Increment the read statistic with 1, while not mangling the header
 	 * of the descriptor
 	 */
-	MATHB(MATH0, ADD, ONE, MATH0, SIZE(8), WITH(0));
+	MATHB(MATH0, ADD, ONE, MATH0, 8, 0);
 
 	/* Write back the modifications in the descriptor buffer */
-	MOVE(MATH0, 0, DESCBUF, 0, IMM(8), WITH(WAITCOMP));
+	MOVE(MATH0, 0, DESCBUF, 0, IMM(8), WAITCOMP);
 
 	/* Store the updated statistic in external memory */
-	STORE(SHAREDESCBUF_EFF, 4, IMM(DUMMY_BUF_BASE), 4, WITH(0));
+	STORE(SHAREDESCBUF_EFF, 4, IMM(DUMMY_BUF_BASE), 4, 0);
 
 	/* Halt here with the appropriate status */
-	JUMP(IMM(MBMS_CRC_HDR_FAIL), HALT_STATUS, ALL_TRUE, WITH(CALM));
+	JUMP(IMM(MBMS_CRC_HDR_FAIL), HALT_STATUS, ALL_TRUE, CALM);
 
 	/*
 	 * If here, header is OK. Payload must be checked next
@@ -561,13 +561,13 @@ static inline unsigned cnstr_shdsc_mbms_type1_3(uint32_t *descbuf,
 		 CLRW_CLR_C2CTX |
 		 CLRW_CLR_C2KEY |
 		 CLRW_RESET_CLS2_CHA),
-		 CLRW, 0, 4, WITH(0));
+		 CLRW, 0, 4, 0);
 
 	/*
 	 * Set VSIL so that the length to be read is:
 	 * original SIL - MBMS Hdr Offset - MBMS Header Length
 	 */
-	MATHB(MATH0, SUB, MATH1, VSEQINSZ, SIZE(4), WITH(0));
+	MATHB(MATH0, SUB, MATH1, VSEQINSZ, 4, 0);
 
 	/*
 	 * Insert the overlaying procedure here. This is quite simple:
@@ -578,7 +578,7 @@ static inline unsigned cnstr_shdsc_mbms_type1_3(uint32_t *descbuf,
 	 *   re-fetched
 	 * - a jump back is done so the execution resumes after the PDB
 	 */
-	LOAD(IMM(0), DCTRL, LDOFF_CHG_SHARE_NEVER, 0, WITH(0));
+	LOAD(IMM(0), DCTRL, LDOFF_CHG_SHARE_NEVER, 0, 0);
 
 	/*
 	 * Note1: For now, RTA doesn't support to update the length of the LOAD
@@ -588,9 +588,9 @@ static inline unsigned cnstr_shdsc_mbms_type1_3(uint32_t *descbuf,
 	 * Note2: The "+8" below is due to the preheader that is before the SD
 	 */
 	SET_LABEL(load_2nd_part);
-	patch_load_2nd_part = LOAD(PTR(DUMMY_BUF_BASE), DESCBUF, 0, SIZE(8), 0);
+	patch_load_2nd_part = LOAD(PTR(DUMMY_BUF_BASE), DESCBUF, 0, 8, 0);
 
-	jump_start_of_desc = JUMP(IMM(0), LOCAL_JUMP, ALL_TRUE, WITH(CALM));
+	jump_start_of_desc = JUMP(IMM(0), LOCAL_JUMP, ALL_TRUE, CALM);
 
 	/*
 	 * HERE ENDS THE FIRST PART OF THE DESCRIPTOR. ALL INSTRUCTIONS
@@ -650,7 +650,7 @@ static inline unsigned cnstr_shdsc_mbms_type1_3(uint32_t *descbuf,
 	PROGRAM_CNTXT_INIT(part2_buf, pdb_end);
 
 	/* Load the payload polynomial to KEY2 register */
-	KEY(KEY2, 0, IMM(MBMS_PAYLOAD_POLY), 2, WITH(IMMED));
+	KEY(KEY2, 0, IMM(MBMS_PAYLOAD_POLY), 2, IMMED);
 
 	/* Request the CRC engine */
 	ALG_OPERATION(OP_ALG_ALGSEL_CRC,
@@ -660,18 +660,18 @@ static inline unsigned cnstr_shdsc_mbms_type1_3(uint32_t *descbuf,
 		      OP_ALG_ENCRYPT);
 
 	/* Get the payload CRC, saved previously */
-	MOVE(CONTEXT1, 24, MATH2, 0, IMM(8), WITH(0));
+	MOVE(CONTEXT1, 24, MATH2, 0, IMM(8), 0);
 
 	/* Read the payload data */
-	SEQFIFOLOAD(MSG2, 0, WITH(LAST2 | VLF));
+	SEQFIFOLOAD(MSG2, 0, LAST2 | VLF);
 
 	/* Get the calculated CRC */
-	MOVE(CONTEXT2, 0, MATH3, 0, IMM(8), WITH(WAITCOMP));
+	MOVE(CONTEXT2, 0, MATH3, 0, IMM(8), WAITCOMP);
 
 	/* Check if the two CRCs match */
-	MATHB(MATH3, XOR, MATH2, NONE, SIZE(8), WITH(0));
+	MATHB(MATH3, XOR, MATH2, NONE, 8, 0);
 
-	jump_all_crc_ok = JUMP(IMM(0), LOCAL_JUMP, ALL_TRUE, WITH(MATH_Z));
+	jump_all_crc_ok = JUMP(IMM(0), LOCAL_JUMP, ALL_TRUE, MATH_Z);
 
 	/*
 	 * If here, then the two CRCs are different. Thus, the descriptor
@@ -682,80 +682,80 @@ static inline unsigned cnstr_shdsc_mbms_type1_3(uint32_t *descbuf,
 	 */
 
 	/* Revert the frame back to the beginning */
-	SEQINPTR(0, 9600, WITH(RTO));
+	SEQINPTR(0, 9600, RTO);
 
 	/* Bytes to copy = MAC/VLAN/IP/UDP/GTP/MBMS minus CRC (2B) */
-	MATHB(MATH1, SUB, IMM(2), MATH1, SIZE(4), WITH(0));
-	MATHB(MATH1, SUB, ZERO, VSEQINSZ, SIZE(4), WITH(0));
+	MATHB(MATH1, SUB, IMM(2), MATH1, 4, 0);
+	MATHB(MATH1, SUB, ZERO, VSEQINSZ, 4, 0);
 
 	/* Prepare the CRC Hdr to be written */
-	MOVE(CONTEXT1, 16, MATH2, 0, IMM(8), WITH(0));
+	MOVE(CONTEXT1, 16, MATH2, 0, IMM(8), 0);
 
 	/* Align the Calculated Payload CRC to be written properly */
-	MATHB(MATH3, RSHIFT, IMM(6), MATH3, SIZE(8), WITH(IFB));
+	MATHB(MATH3, RSHIFT, IMM(6), MATH3, 8, IFB);
 
 	/* Bytes to write in output memory =  MAC/VLAN/IP/UDP/GTP/MBMS */
-	MATHB(MATH1, SUB, ZERO, VSEQOUTSZ, SIZE(4), WITH(0));
+	MATHB(MATH1, SUB, ZERO, VSEQOUTSZ, 4, 0);
 
 	/* Initiate writing to external memory */
-	SEQFIFOSTORE(MSG, 0, 0, WITH(VLF));
+	SEQFIFOSTORE(MSG, 0, 0, VLF);
 
 	/* Read everything w/o the CRCs */
-	SEQFIFOLOAD(MSG1, 0, WITH(LAST1 | FLUSH1 | VLF));
+	SEQFIFOLOAD(MSG1, 0, LAST1 | FLUSH1 | VLF);
 
 	/* Move M1 bytes from IFIFO to OFIFO */
-	MOVE(AB1, 0, OFIFO, 0, MATH1, WITH(0));
+	MOVE(AB1, 0, OFIFO, 0, MATH1, 0);
 
 	/* Add the calculated payload CRC to the header CRC */
-	MATHB(MATH2, OR, MATH3, MATH2, SIZE(8), WITH(0));
+	MATHB(MATH2, OR, MATH3, MATH2, 8, 0);
 
 	/* Now store the updated CRCs to the output frame */
-	SEQSTORE(MATH2, 0, SIZE(2), 0);
+	SEQSTORE(MATH2, 0, 2, 0);
 
 	/*
 	 * Read the 2nd two words of the descriptor into M0 (the 3rd word
 	 * contains the statistic to be incremented
 	 */
-	MOVE(DESCBUF, 4, MATH0, 0, IMM(8), WITH(WAITCOMP));
+	MOVE(DESCBUF, 4, MATH0, 0, IMM(8), WAITCOMP);
 
 	/*
 	 * Increment the read statistic with 1, while not mangling the failed
 	 * CRC header statistics
 	 */
-	MATHB(MATH0, ADD, ONE, MATH0, SIZE(8), WITH(0));
+	MATHB(MATH0, ADD, ONE, MATH0, 8, 0);
 
 	/* Write back the modifications in the descriptor buffer */
-	MOVE(MATH0, 0, DESCBUF, 4, IMM(8), WITH(WAITCOMP));
+	MOVE(MATH0, 0, DESCBUF, 4, IMM(8), WAITCOMP);
 
 	/* Store the updated statistic in external memory */
-	STORE(SHAREDESCBUF, 8, IMM(DUMMY_BUF_BASE), 4, WITH(0));
+	STORE(SHAREDESCBUF, 8, IMM(DUMMY_BUF_BASE), 4, 0);
 
 	/*
 	 * Halt here with the appropriate status, but wait first for data
 	 * to reach the memory
 	 */
-	JUMP(IMM(MBMS_CRC_PAYLOAD_FAIL), HALT_STATUS, ALL_TRUE, WITH(CALM));
+	JUMP(IMM(MBMS_CRC_PAYLOAD_FAIL), HALT_STATUS, ALL_TRUE, CALM);
 
 	SET_LABEL(all_crc_pass);
 	/* If here, both the header CRC and the payload CRC are correct */
 
 	/* Revert the frame back to beginning */
-	SEQINPTR(0, 9600, WITH(RTO));
+	SEQINPTR(0, 9600, RTO);
 
 	/* Bytes to read = MAC/VLAN/IP/UDP/GTP/MBMS + Payload*/
-	MATHB(MATH0, SUB, ZERO, VSEQINSZ, SIZE(4), WITH(0));
+	MATHB(MATH0, SUB, ZERO, VSEQINSZ, 4, 0);
 
 	/* Bytes to write = bytes to read */
-	MATHB(VSEQINSZ, SUB, ZERO, VSEQOUTSZ, SIZE(4), WITH(0));
+	MATHB(VSEQINSZ, SUB, ZERO, VSEQOUTSZ, 4, 0);
 
 	/* Store everything */
-	SEQFIFOSTORE(MSG, 0, 0, WITH(VLF));
+	SEQFIFOSTORE(MSG, 0, 0, VLF);
 
 	/* Read all frame */
-	SEQFIFOLOAD(MSG1, 0, WITH(VLF | LAST1 | FLUSH1));
+	SEQFIFOLOAD(MSG1, 0, VLF | LAST1 | FLUSH1);
 
 	/* Move M1 bytes from IFIFO to OFIFO */
-	MOVE(AB1, 0, OFIFO, 0, MATH0, WITH(0));
+	MOVE(AB1, 0, OFIFO, 0, MATH0, 0);
 
 	/*
 	 * Halt with 0 (i.e. no error).
@@ -763,7 +763,7 @@ static inline unsigned cnstr_shdsc_mbms_type1_3(uint32_t *descbuf,
 	 * the DECO will continue executing stuff that is leftover from the
 	 * original descriptor buffer.
 	 */
-	JUMP(IMM(0x00), HALT_STATUS, ALL_TRUE, WITH(CALM));
+	JUMP(IMM(0x00), HALT_STATUS, ALL_TRUE, CALM);
 
 	SET_LABEL(end_of_part2);
 

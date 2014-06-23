@@ -14,9 +14,9 @@ unsigned test_key_op(uint32_t *buff)
 	uintptr_t addr = (uintptr_t) &key_imm;
 
 	PROGRAM_CNTXT_INIT(buff, 0);
-	KEY(MDHA_SPLIT_KEY, WITH(ENC), IMM(addr), 4, 0);
-	KEY(MDHA_SPLIT_KEY, WITH(ENC), PTR(addr), 4, 0);
-	KEY(KEY1, WITH(EKT), IMM(addr), 4, 0);
+	KEY(MDHA_SPLIT_KEY, ENC, IMM(addr), 4, 0);
+	KEY(MDHA_SPLIT_KEY, ENC, PTR(addr), 4, 0);
+	KEY(KEY1, EKT, IMM(addr), 4, 0);
 
 	return PROGRAM_FINALIZE();
 }

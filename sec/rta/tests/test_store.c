@@ -48,7 +48,7 @@ unsigned test_store_cmds(uint32_t *buff)
 	STORE(PKNSZ, 0, PTR(foo), 4, 0);
 	STORE(PKESZ, 0, PTR(foo), 4, 0);
 
-	STORE(CONTEXT1, 0, PTR(sgtable), ivlen, WITH(SGF));
+	STORE(CONTEXT1, 0, PTR(sgtable), ivlen, SGF);
 	STORE(CONTEXT1, 5, PTR(foo), 7, 0);
 
 	/* Class 2 CCB registers */
@@ -67,7 +67,7 @@ unsigned test_store_cmds(uint32_t *buff)
 	STORE(DPID, 0, PTR(foo), 8, 0);
 
 	SEQSTORE(MATH0, 0, 1, 0);
-	SEQSTORE(MATH1, 0, 0, WITH(VLF));
+	SEQSTORE(MATH1, 0, 0, VLF);
 	STORE(MATH2, 0, PTR(foo), 4, 0);
 	STORE(MATH3, 0, PTR(foo), 4, 0);
 	STORE(DESCBUF, 20 * word_size, PTR(descwords), 4 * word_size, 0);
@@ -76,11 +76,11 @@ unsigned test_store_cmds(uint32_t *buff)
 	SEQSTORE(DESCBUF, here, 12 * word_size, 0);
 
 	/* Immediate data */
-	STORE(IMM(0x010203), 0, PTR(foo), 3, WITH(IMMED));
-	STORE(PTR((uintptr_t) &abc), 0, PTR(foo), 3, WITH(IMMED));
-	SEQSTORE(IMM(0x010203), 0, 3, WITH(IMMED));
-	SEQSTORE(IMM(0x01020304050607), 0, 7, WITH(IMMED | VLF));
-	SEQSTORE(PTR((uintptr_t) &abc), 0, 3, WITH(IMMED));
+	STORE(IMM(0x010203), 0, PTR(foo), 3, IMMED);
+	STORE(PTR((uintptr_t) &abc), 0, PTR(foo), 3, IMMED);
+	SEQSTORE(IMM(0x010203), 0, 3, IMMED);
+	SEQSTORE(IMM(0x01020304050607), 0, 7, IMMED | VLF);
+	SEQSTORE(PTR((uintptr_t) &abc), 0, 3, IMMED);
 
 	return PROGRAM_FINALIZE();
 }
@@ -116,9 +116,9 @@ unsigned test_store_sd(struct program *share_desc, uint32_t *buff,
 	pstore = STORE(SHAREDESCBUF, shr_loc, IMM(0), 4 * word_size, 0);
 	SET_LABEL(shr_loc);
 	MOVE(CONTEXT1, 0, CONTEXT2, 0, IMM(1), 0);
-	MATHB(ZERO, ADD, ONE, MATH1, SIZE(1), 0);
-	MATHB(ZERO, ADD, ONE, MATH1, SIZE(1), 0);
-	MATHB(ZERO, ADD, ONE, MATH1, SIZE(1), 0);
+	MATHB(ZERO, ADD, ONE, MATH1, 1, 0);
+	MATHB(ZERO, ADD, ONE, MATH1, 1, 0);
+	MATHB(ZERO, ADD, ONE, MATH1, 1, 0);
 	pstore2 = STORE(JOBDESCBUF, 0, IMM(0), 4 * word_size, 0);
 
 	PATCH_STORE(pstore, shr_loc);
@@ -134,13 +134,13 @@ unsigned test_store_jd2(struct program *job_desc, uint32_t *buff,
 
 	PROGRAM_CNTXT_INIT(buff, 0);
 
-	JOB_HDR(SHR_NEVER, buffpos, shrloc, WITH(SHR));
-	MATHB(ZERO, ADD, ONE, MATH1, SIZE(1), 0);
+	JOB_HDR(SHR_NEVER, buffpos, shrloc, SHR);
+	MATHB(ZERO, ADD, ONE, MATH1, 1, 0);
 	SET_LABEL(mod_loc2);
 	MOVE(CONTEXT1, 0, CONTEXT2, 0, IMM(1), 0);
 	STORE(DESCBUF, mod_loc2 * word_size, PTR(descwords), 4 * word_size, 0);
-	MATHB(ZERO, ADD, ONE, MATH1, SIZE(1), 0);
-	MATHB(ZERO, ADD, ONE, MATH1, SIZE(1), 0);
+	MATHB(ZERO, ADD, ONE, MATH1, 1, 0);
+	MATHB(ZERO, ADD, ONE, MATH1, 1, 0);
 	pstore3 = STORE(JOBDESCBUF, 0, IMM(0), 4 * word_size, 0);
 	pstore4 = STORE(SHAREDESCBUF, 0, IMM(0), 4 * word_size, 0);
 

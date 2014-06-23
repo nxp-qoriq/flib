@@ -61,8 +61,6 @@ enum rta_sec_era {
 #define INTL_SEC_ERA(sec_era)	(sec_era - 1)
 
 /* Convenience macros */
-#define WITH(x) (x)
-#define SIZE(x) (x)
 #define NO_OPT 0
 #define IMM_DATA 1
 #define PTR_DATA 2

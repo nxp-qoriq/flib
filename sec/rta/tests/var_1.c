@@ -36,9 +36,9 @@ unsigned var_test(uint32_t *buff)
 	JOB_HDR(SHR_NEVER, 0, 0, 0);
 	{
 		FIFOLOAD(PKN, PTR((uintptr_t) &modulus), (sizeof(modulus)),
-			 WITH(IMMED));
+			 IMMED);
 		FIFOLOAD(PKA, PTR((uintptr_t) &secret), secret_len,
-			 WITH(IMMED));
+			 IMMED);
 		KEY(PKE, 0, IMM(0x03), 1, 0);
 		PKHA_OPERATION(OP_ALG_PKMODE_MOD_EXPO);
 		FIFOSTORE(PKB, 0, secret_out, (sizeof(modulus)), 0);
