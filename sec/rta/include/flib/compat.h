@@ -52,6 +52,22 @@
 			~((__typeof__(x))(a) - 1))
 #endif
 
+#ifndef upper_32_bits
+/**
+ * upper_32_bits - return bits 32-63 of a number
+ * @n: the number we're accessing
+ */
+#define upper_32_bits(n) ((uint32_t)(((n) >> 16) >> 16))
+#endif
+
+#ifndef lower_32_bits
+/**
+ * lower_32_bits - return bits 0-31 of a number
+ * @n: the number we're accessing
+ */
+#define lower_32_bits(n) ((uint32_t)(n))
+#endif
+
 /* Use Linux naming convention */
 #ifdef __GLIBC__
 # define swab16(x) bswap_16(x)

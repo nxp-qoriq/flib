@@ -210,7 +210,7 @@ static inline void cnstr_shdsc_wimax_encap_era5(uint32_t *descbuf,
 	 * Header is loaded at offset four in Math 0 register.
 	 * Use the 32 bit value of the WIMAX_GMH_EC_MASK macro.
 	 */
-	MATHB(MATH0, OR, IMM(high_32b(WIMAX_GMH_EC_MASK)), MATH0, 4, 0);
+	MATHB(MATH0, OR, IMM(upper_32_bits(WIMAX_GMH_EC_MASK)), MATH0, 4, 0);
 
 	/*
 	 * Update Generic Mac Header Length field.
