@@ -87,8 +87,8 @@ static inline void cnstr_shdsc_macsec_encap(uint32_t *descbuf,
 		pr_err("MACsec GMAC available only for Era 5 or above\n");
 
 	memset(&pdb, 0x00, sizeof(struct macsec_encap_pdb));
-	pdb.sci_hi = high_32b(sci);
-	pdb.sci_lo = low_32b(sci);
+	pdb.sci_hi = upper_32_bits(sci);
+	pdb.sci_lo = lower_32_bits(sci);
 	pdb.ethertype = ethertype;
 	pdb.tci_an = tci_an;
 	pdb.pn = pn;
@@ -137,8 +137,8 @@ static inline void cnstr_shdsc_macsec_decap(uint32_t *descbuf,
 		pr_err("MACsec GMAC available only for Era 5 or above\n");
 
 	memset(&pdb, 0x00, sizeof(struct macsec_decap_pdb));
-	pdb.sci_hi = high_32b(sci);
-	pdb.sci_lo = low_32b(sci);
+	pdb.sci_hi = upper_32_bits(sci);
+	pdb.sci_lo = lower_32_bits(sci);
 	pdb.pn = pn;
 
 	startidx = sizeof(struct macsec_decap_pdb) >> 2;

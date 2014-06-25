@@ -10,14 +10,6 @@
 #include "flib/compat.h"
 #endif
 
-#ifndef high_32b
-#define high_32b(x) ((uint32_t)((x) >> 32))
-#endif
-
-#ifndef low_32b
-#define low_32b(x) ((uint32_t)(x))
-#endif
-
 /**
  * enum rta_sec_era - SEC HW block revisions supported by the RTA library
  * @RTA_SEC_ERA_1: SEC Era 1
@@ -609,9 +601,9 @@ static inline void __rta_out32(struct program *program, uint32_t val)
 static inline void __rta_out64(struct program *program, int ext, uint64_t val)
 {
 	if (ext)
-		__rta_out32(program, high_32b(val));
+		__rta_out32(program, upper_32_bits(val));
 
-	__rta_out32(program, low_32b(val));
+	__rta_out32(program, lower_32_bits(val));
 }
 
 static inline unsigned rta_word(struct program *program, uint32_t val)

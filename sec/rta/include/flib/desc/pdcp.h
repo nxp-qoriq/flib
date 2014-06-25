@@ -1101,10 +1101,8 @@ static inline int pdcp_insert_cplane_aes_snow_op(struct program *program,
 	MATHB(MATH1, OR, MATH2, MATH1, 8, 0);
 	MOVE(MATH1, 0, CONTEXT1, 16, IMM(8), 0);
 	MOVE(MATH1, 0, CONTEXT2, 0, IMM(4), 0);
-	MATHB(MATH1, AND, IMM(low_32b(PDCP_BEARER_MASK)), MATH2,
-	      4, 0);
-	MATHB(MATH1, AND, IMM(high_32b(PDCP_DIR_MASK)), MATH3, 4,
-	      0);
+	MATHB(MATH1, AND, IMM(lower_32_bits(PDCP_BEARER_MASK)), MATH2, 4, 0);
+	MATHB(MATH1, AND, IMM(upper_32_bits(PDCP_DIR_MASK)), MATH3, 4, 0);
 	MATHB(MATH3, SHLD, MATH3, MATH3, 8, 0);
 	MOVE(MATH2, 4, OFIFO, 0, IMM(12), 0);
 	MOVE(OFIFO, 0, CONTEXT2, 4, IMM(12), 0);
@@ -1369,10 +1367,8 @@ static inline int pdcp_insert_cplane_zuc_snow_op(struct program *program,
 	MATHB(MATH1, OR, MATH2, MATH1, 8, 0);
 	MOVE(MATH1, 0, CONTEXT1, 0, IMM(8), 0);
 	MOVE(MATH1, 0, CONTEXT2, 0, IMM(4), 0);
-	MATHB(MATH1, AND, IMM(low_32b(PDCP_BEARER_MASK)), MATH2,
-	      4, 0);
-	MATHB(MATH1, AND, IMM(high_32b(PDCP_DIR_MASK)), MATH3, 4,
-	      0);
+	MATHB(MATH1, AND, IMM(lower_32_bits(PDCP_BEARER_MASK)), MATH2, 4, 0);
+	MATHB(MATH1, AND, IMM(upper_32_bits(PDCP_DIR_MASK)), MATH3, 4, 0);
 	MATHB(MATH3, SHLD, MATH3, MATH3, 8, 0);
 	MOVE(MATH2, 4, OFIFO, 0, IMM(12), 0);
 	MOVE(OFIFO, 0, CONTEXT2, 4, IMM(12), 0);

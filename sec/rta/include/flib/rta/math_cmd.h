@@ -231,8 +231,8 @@ static inline unsigned rta_math(struct program *program, uint64_t operand1,
 		__rta_out64(program, (length > 4) && !(options & IFB),
 			    operand2);
 	} else if ((type_op1 == IMM_DATA) && (type_op2 == IMM_DATA)) {
-		__rta_out32(program, low_32b(operand1));
-		__rta_out32(program, low_32b(operand2));
+		__rta_out32(program, lower_32_bits(operand1));
+		__rta_out32(program, lower_32_bits(operand2));
 	}
 
 	return start_pc;

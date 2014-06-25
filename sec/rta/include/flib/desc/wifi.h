@@ -106,8 +106,8 @@ static inline void cnstr_shdsc_wifi_encap(uint32_t *descbuf, unsigned *bufsize,
 	pdb.mac_hdr_len = mac_hdr_len;
 	pdb.b0_flags = WIFI_B0_FLAGS;
 	pdb.pri = priority;
-	pdb.pn1 = (uint16_t)high_32b(pn);
-	pdb.pn2 = low_32b(pn);
+	pdb.pn1 = (uint16_t)upper_32_bits(pn);
+	pdb.pn2 = lower_32_bits(pn);
 	pdb.frm_ctrl_mask = WIFI_FRM_CTRL_MASK;
 	pdb.seq_ctrl_mask = WIFI_SEQ_CTRL_MASK;
 	pdb.key_id = key_id;
@@ -226,8 +226,8 @@ static inline void cnstr_shdsc_wifi_decap(uint32_t *descbuf, unsigned *bufsize,
 	pdb.mac_hdr_len = mac_hdr_len;
 	pdb.b0_flags = WIFI_B0_FLAGS;
 	pdb.pri = priority;
-	pdb.pn1 = (uint16_t)high_32b(pn);
-	pdb.pn2 = low_32b(pn);
+	pdb.pn1 = (uint16_t)upper_32_bits(pn);
+	pdb.pn2 = lower_32_bits(pn);
 	pdb.frm_ctrl_mask = WIFI_FRM_CTRL_MASK;
 	pdb.seq_ctrl_mask = WIFI_SEQ_CTRL_MASK;
 	pdb.ctr_flags = WIFI_CTR_FLAGS;
