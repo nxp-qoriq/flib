@@ -289,16 +289,16 @@ int main(int argc, char **argv)
 
 	pr_debug("Make RSA KEYS program\n");
 	pr_debug("size = %d\n", rsa_keys_size);
-	print_prog((uint32_t *) make_rsa_keys, rsa_keys_size);
+	print_prog((uint32_t *)make_rsa_keys, rsa_keys_size);
 
 	pr_debug("size = %d\n", rsa_p_q_size);
-	print_prog((uint32_t *) make_rsa_p_q, rsa_p_q_size);
+	print_prog((uint32_t *)make_rsa_p_q, rsa_p_q_size);
 
 	pr_debug("size = %d\n", rsa_check_pq_size);
-	print_prog((uint32_t *) make_rsa_check_pq, rsa_check_pq_size);
+	print_prog((uint32_t *)make_rsa_check_pq, rsa_check_pq_size);
 
 	pr_debug("size = %d\n", rsa_d_n_size);
-	print_prog((uint32_t *) make_rsa_d_n, rsa_d_n_size);
+	print_prog((uint32_t *)make_rsa_d_n, rsa_d_n_size);
 
 	return 0;
 }

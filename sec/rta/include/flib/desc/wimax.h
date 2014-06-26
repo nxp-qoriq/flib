@@ -444,7 +444,6 @@ static inline void cnstr_shdsc_wimax_encap(uint32_t *descbuf, unsigned *bufsize,
 		seqout_ptr += 3;
 		SET_LABEL(out_len);
 		out_len += 6;
-
 	}
 	PATCH_HDR(phdr, hdr);
 	PATCH_JUMP(pkeyjump, keyjump);

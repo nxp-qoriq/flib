@@ -212,10 +212,10 @@ int main(int argc, char **argv)
 
 	pr_debug("FAST36B multipdu kasumi bitshift program\n");
 	pr_debug("size = %d\n", lte_desc_size);
-	print_prog((uint32_t *) share, lte_desc_size);
+	print_prog((uint32_t *)share, lte_desc_size);
 
 	pr_debug("size = %d\n", job_desc_size);
-	print_prog((uint32_t *) job, job_desc_size);
+	print_prog((uint32_t *)job, job_desc_size);
 
 	return 0;
 }

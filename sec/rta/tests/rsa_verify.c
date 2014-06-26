@@ -26,7 +26,6 @@ unsigned build_rsa_verify_desc(uint32_t *buff, uint32_t n_len, uint32_t e_len,
 			DWORD(e);	/* public expnenent */
 			WORD(n_len);	/* g length */
 			SET_LABEL(pdb_end);
-
 		}
 		PROTOCOL(OP_TYPE_UNI_PROTOCOL, OP_PCLID_RSAENCRYPT, 0);
 	}
