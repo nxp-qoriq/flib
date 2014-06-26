@@ -139,13 +139,13 @@ static inline int rta_move(struct program *program, int cmd_type, uint64_t src,
 	opcode |= (offset << MOVE_OFFSET_SHIFT) & MOVE_OFFSET_MASK;
 
 	/* set AUX field if required */
-	if (opt == MOVE_SET_AUX_SRC)
+	if (opt == MOVE_SET_AUX_SRC) {
 		opcode |= ((src_offset / 16) << MOVE_AUX_SHIFT) & MOVE_AUX_MASK;
-	else if (opt == MOVE_SET_AUX_DST)
+	} else if (opt == MOVE_SET_AUX_DST) {
 		opcode |= ((dst_offset / 16) << MOVE_AUX_SHIFT) & MOVE_AUX_MASK;
-	else if (opt == MOVE_SET_AUX_LS)
+	} else if (opt == MOVE_SET_AUX_LS) {
 		opcode |= MOVE_AUX_LS;
-	else if (opt & MOVE_SET_AUX_MATH) {
+	} else if (opt & MOVE_SET_AUX_MATH) {
 		if (opt & MOVE_SET_AUX_SRC)
 			offset = src_offset;
 		else

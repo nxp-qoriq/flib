@@ -115,7 +115,6 @@ unsigned build_shdesc_kasumi_dcrc_encap(struct program *prg, uint32_t *buff,
 		PROTOCOL(OP_TYPE_ENCAP_PROTOCOL, OP_PCLID_3G_DCRC,
 			 OP_PCL_3G_DCRC_CRC7);
 		SET_LABEL(encap_share_end);
-
 	}
 
 	PATCH_JUMP(pjump1, do_dcrc);
@@ -174,10 +173,10 @@ int main(int argc, char **argv)
 
 	pr_debug("KASUMI DCRC Decryption program\n");
 	pr_debug("size = %d\n", lte_desc_size);
-	print_prog((uint32_t *) lte_desc, lte_desc_size);
+	print_prog((uint32_t *)lte_desc, lte_desc_size);
 
 	pr_debug("size = %d\n", job_desc_size);
-	print_prog((uint32_t *) job_desc, job_desc_size);
+	print_prog((uint32_t *)job_desc, job_desc_size);
 
 	return 0;
 }

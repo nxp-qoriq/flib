@@ -200,10 +200,8 @@ unsigned jump_cmd_desc5(struct program *prg, uint32_t *buff, unsigned buffpos)
 	PROGRAM_CNTXT_INIT(buff, buffpos);
 	{
 		/* class done tests */
-		JUMP(PTR(0x500), FAR_JUMP, ALL_TRUE,
-				CLASS1 | PK_0 | MATH_N);
-		JUMP(PTR(0x500), FAR_JUMP, ALL_FALSE,
-				CLASS1 | MATH_Z | MATH_N);
+		JUMP(PTR(0x500), FAR_JUMP, ALL_TRUE, CLASS1 | PK_0 | MATH_N);
+		JUMP(PTR(0x500), FAR_JUMP, ALL_FALSE, CLASS1 | MATH_Z | MATH_N);
 		JUMP(PTR(0x500), FAR_JUMP, ALL_TRUE, BOTH | NOP);
 		JUMP(PTR(0x500), FAR_JUMP, ALL_TRUE, CLASS2 | NOP);
 		JUMP(PTR(0x500), FAR_JUMP, ALL_TRUE, CLASS2 | NOP);
@@ -318,27 +316,27 @@ int main(int argc, char **argv)
 	pr_debug("JUMP commands program\n");
 	pr_debug("Jump desc #1\n");
 	pr_debug("size = %d\n", buf1len);
-	print_prog((uint32_t *) desc1, buf1len);
+	print_prog((uint32_t *)desc1, buf1len);
 
 	pr_debug("Jump desc #2\n");
 	pr_debug("size = %d\n", buf2len);
-	print_prog((uint32_t *) desc2, buf2len);
+	print_prog((uint32_t *)desc2, buf2len);
 
 	pr_debug("Jump desc #3\n");
 	pr_debug("size = %d\n", buf3len);
-	print_prog((uint32_t *) desc3, buf3len);
+	print_prog((uint32_t *)desc3, buf3len);
 
 	pr_debug("Jump desc #4\n");
 	pr_debug("size = %d\n", buf4len);
-	print_prog((uint32_t *) desc4, buf4len);
+	print_prog((uint32_t *)desc4, buf4len);
 
 	pr_debug("Jump desc #5\n");
 	pr_debug("size = %d\n", buf5len);
-	print_prog((uint32_t *) desc5, buf5len);
+	print_prog((uint32_t *)desc5, buf5len);
 
 	pr_debug("Jump desc #6\n");
 	pr_debug("size = %d\n", buf6len);
-	print_prog((uint32_t *) desc6, buf6len);
+	print_prog((uint32_t *)desc6, buf6len);
 
 	return 0;
 }

@@ -280,7 +280,6 @@ unsigned generate_more_extra_desc_code(struct program *prg, uint32_t *buff,
 	encap_share_end_ref4 = JUMP(IMM(0), LOCAL_JUMP, ALL_TRUE, 0);
 
 	return PROGRAM_FINALIZE();
-
 }
 
 /*

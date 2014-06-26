@@ -101,7 +101,6 @@ unsigned build_shdesc_kasumi_dcrc_decap(struct program *prg, uint32_t *buff,
 		 * MOVE(IFIFOAB2, 0, OFIFO, 0, IMM(1), FLUSH2|WAITCOMP);
 		 */
 		SET_LABEL(decap_share_end);
-
 	}
 
 	PATCH_JUMP(pjump1, handle_kasumi);
@@ -156,10 +155,10 @@ int main(int argc, char **argv)
 
 	pr_debug("KASUMI DCRC Decryption program\n");
 	pr_debug("size = %d\n", lte_desc_size);
-	print_prog((uint32_t *) lte_desc, lte_desc_size);
+	print_prog((uint32_t *)lte_desc, lte_desc_size);
 
 	pr_debug("size = %d\n", job_desc_size);
-	print_prog((uint32_t *) job_desc, job_desc_size);
+	print_prog((uint32_t *)job_desc, job_desc_size);
 
 	return 0;
 }

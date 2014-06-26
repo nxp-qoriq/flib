@@ -196,7 +196,6 @@ unsigned build_more_cmds_raid_xor_opt(struct program *prg, uint32_t *buff,
 	PATCH_HDR(ref1_shr_last, last);
 
 	return PROGRAM_FINALIZE();
-
 }
 
 int main(int argc, char **argv)
@@ -223,15 +222,15 @@ int main(int argc, char **argv)
 
 	pr_debug("raid xor program shared desc\n");
 	pr_debug("size = %d\n", shr_size);
-	print_prog((uint32_t *) sharedesc, shr_size);
+	print_prog((uint32_t *)sharedesc, shr_size);
 
 	pr_debug("raid xor program job desc\n");
 	pr_debug("size = %d\n", job_size);
-	print_prog((uint32_t *) jobdesc, job_size);
+	print_prog((uint32_t *)jobdesc, job_size);
 
 	pr_debug("raid xor program job context\n");
 	pr_debug("size = %d\n", ctx_size);
-	print_prog((uint32_t *) context_buf, ctx_size);
+	print_prog((uint32_t *)context_buf, ctx_size);
 
 	return 0;
 }

@@ -6,17 +6,17 @@
 
 enum rta_sec_era rta_sec_era;
 
-uint8_t *iv1 = (uint8_t *) 0x64;	/* input constant */
-uint8_t *ipad = (uint8_t *) 0x664;
-uint8_t *opad = (uint8_t *) 0x12364;
+uint8_t *iv1 = (uint8_t *)0x64;	/* input constant */
+uint8_t *ipad = (uint8_t *)0x664;
+uint8_t *opad = (uint8_t *)0x12364;
 
 unsigned build_hmacprecomp(uint32_t *buff)
 {
 	struct program prg;
 	struct program *program = &prg;
-	uint8_t *hmac_key = (uint8_t *) (0x12);	/* input */
+	uint8_t *hmac_key = (uint8_t *)(0x12);	/* input */
 	unsigned int hmac_key_len = 18;	/* input */
-	uint32_t *hmacprecompute_opad_phys = (uint32_t *) 0xaabb2200;
+	uint32_t *hmacprecompute_opad_phys = (uint32_t *)0xaabb2200;
 
 	PROGRAM_CNTXT_INIT(buff, 0);
 	JOB_HDR(SHR_NEVER, 0, 0, 0);
@@ -139,8 +139,8 @@ unsigned build_hmac_from_pre(uint32_t *buff)
 {
 	struct program prg;
 	struct program *program = &prg;
-	uint8_t *innerhash = (uint8_t *) 0x28;	/* debug */
-	uint8_t *mac = (uint8_t *) 12228;
+	uint8_t *innerhash = (uint8_t *)0x28;	/* debug */
+	uint8_t *mac = (uint8_t *)12228;
 	void *msg = (void *)0x12341234ul;	/* physical ptr */
 	unsigned int maclen = 28;
 

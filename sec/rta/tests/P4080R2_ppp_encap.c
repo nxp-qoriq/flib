@@ -287,19 +287,19 @@ int main(int argc, char **argv)
 
 	pr_debug("PPP decap program shared desc\n");
 	pr_debug("size = %d\n", shr_size);
-	print_prog((uint32_t *) shr, shr_size);
+	print_prog((uint32_t *)shr, shr_size);
 
 	pr_debug("context1\n");
 	pr_debug("size = %d\n", c1_ctx_size);
-	print_prog((uint32_t *) c1_ctx, c1_ctx_size);
+	print_prog((uint32_t *)c1_ctx, c1_ctx_size);
 
 	pr_debug("context2\n");
 	pr_debug("size = %d\n", c2_ctx_size);
-	print_prog((uint32_t *) c2_ctx, c2_ctx_size);
+	print_prog((uint32_t *)c2_ctx, c2_ctx_size);
 
 	pr_debug("PPP decap program job desc\n");
 	pr_debug("size = %d\n", job_size);
-	print_prog((uint32_t *) job, job_size);
+	print_prog((uint32_t *)job, job_size);
 
 	return 0;
 }
