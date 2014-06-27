@@ -68,14 +68,14 @@ static const uint32_t math_result[][2] = {
  */
 static const unsigned math_result_sz[] = {9, 9, 10, 10, 10, 10, 10, 10};
 
-static inline unsigned rta_math(struct program *program, uint64_t operand1,
-				int type_op1, uint32_t op, uint64_t operand2,
-				int type_op2, uint32_t result, int type_res,
-				int length, uint32_t options)
+static inline int rta_math(struct program *program, uint64_t operand1,
+			   int type_op1, uint32_t op, uint64_t operand2,
+			   int type_op2, uint32_t result, int type_res,
+			   int length, uint32_t options)
 {
 	uint32_t opcode = CMD_MATH;
 	uint32_t val = 0;
-	int ret;
+	int ret = -EINVAL;
 	unsigned start_pc = program->current_pc;
 
 	if (type_res != REG_TYPE) {
@@ -137,7 +137,7 @@ static inline unsigned rta_math(struct program *program, uint64_t operand1,
 	} else {
 		ret = __rta_map_opcode((uint32_t)operand1, math_op1,
 				       math_op1_sz[rta_sec_era], &val);
-		if (ret == -1) {
+		if (ret < 0) {
 			pr_err("MATH: operand1 not supported. SEC PC: %d; Instr: %d\n",
 			       program->current_pc,
 			       program->current_instruction);
@@ -152,7 +152,7 @@ static inline unsigned rta_math(struct program *program, uint64_t operand1,
 	} else {
 		ret = __rta_map_opcode((uint32_t)operand2, math_op2,
 				       math_op2_sz[rta_sec_era], &val);
-		if (ret == -1) {
+		if (ret < 0) {
 			pr_err("MATH: operand2 not supported. SEC PC: %d; Instr: %d\n",
 			       program->current_pc,
 			       program->current_instruction);
@@ -164,7 +164,7 @@ static inline unsigned rta_math(struct program *program, uint64_t operand1,
 	/* Write result field */
 	ret = __rta_map_opcode(result, math_result, math_result_sz[rta_sec_era],
 			       &val);
-	if (ret == -1) {
+	if (ret < 0) {
 		pr_err("MATH: result not supported. SEC PC: %d; Instr: %d\n",
 		       program->current_pc, program->current_instruction);
 		goto err;
@@ -195,6 +195,7 @@ static inline unsigned rta_math(struct program *program, uint64_t operand1,
 	default:
 		pr_err("MATH: operator is not supported. SEC PC: %d; Instr: %d\n",
 		       program->current_pc, program->current_instruction);
+		ret = -EINVAL;
 		goto err;
 	}
 
@@ -217,6 +218,7 @@ static inline unsigned rta_math(struct program *program, uint64_t operand1,
 	default:
 		pr_err("MATH: length is not supported. SEC PC: %d; Instr: %d\n",
 		       program->current_pc, program->current_instruction);
+		ret = -EINVAL;
 		goto err;
 	}
 
@@ -235,12 +237,12 @@ static inline unsigned rta_math(struct program *program, uint64_t operand1,
 		__rta_out32(program, lower_32_bits(operand2));
 	}
 
-	return start_pc;
+	return (int)start_pc;
 
  err:
 	program->first_error_pc = start_pc;
 	program->current_instruction++;
-	return start_pc;
+	return ret;
 }
 
 #endif /* __RTA_MATH_CMD_H__ */

@@ -4,6 +4,7 @@
 #define __RTA_COMPAT_H__
 
 #include <stdint.h>
+#include <errno.h>
 
 #ifdef __GLIBC__
 #include <string.h>

@@ -52,12 +52,12 @@ static const uint32_t store_src_table[][2] = {
  */
 static const unsigned store_src_table_sz[] = {29, 31, 33, 33, 33, 33, 35, 35};
 
-static inline unsigned rta_store(struct program *program, uint64_t src,
-				 int type_src, uint16_t offset, uint64_t dst,
-				 int type_dst, uint32_t length, uint32_t flags)
+static inline int rta_store(struct program *program, uint64_t src, int type_src,
+			    uint16_t offset, uint64_t dst, int type_dst,
+			    uint32_t length, uint32_t flags)
 {
 	uint32_t opcode = 0, val;
-	int ret;
+	int ret = -EINVAL;
 	unsigned start_pc = program->current_pc;
 
 	if (flags & SEQ)
@@ -102,7 +102,7 @@ static inline unsigned rta_store(struct program *program, uint64_t src,
 	if (type_src == REG_TYPE) {
 		ret = __rta_map_opcode((uint32_t)src, store_src_table,
 				       store_src_table_sz[rta_sec_era], &val);
-		if (ret == -1) {
+		if (ret < 0) {
 			pr_err("STORE: Invalid source. SEC PC: %d; Instr: %d\n",
 			       program->current_pc,
 			       program->current_instruction);
@@ -127,7 +127,7 @@ static inline unsigned rta_store(struct program *program, uint64_t src,
 
 	if ((src == _JOBDESCBUF) || (src == _SHAREDESCBUF) ||
 	    (src == _JOBDESCBUF_EFF) || (src == _SHAREDESCBUF_EFF))
-		return start_pc;
+		return (int)start_pc;
 
 	/* for STORE, a pointer to where the data will be stored is needed */
 	if (!(flags & SEQ)) {
@@ -135,6 +135,7 @@ static inline unsigned rta_store(struct program *program, uint64_t src,
 			pr_err("STORE: Invalid dst type. SEC PC: %d; Instr: %d\n",
 			       program->current_pc,
 			       program->current_instruction);
+			ret = -EINVAL;
 			goto err;
 		}
 		__rta_out64(program, program->ps, dst);
@@ -144,12 +145,12 @@ static inline unsigned rta_store(struct program *program, uint64_t src,
 	if (flags & IMMED)
 		__rta_inline_data(program, src, type_src, length);
 
-	return start_pc;
+	return (int)start_pc;
 
  err:
 	program->first_error_pc = start_pc;
 	program->current_instruction++;
-	return start_pc;
+	return ret;
 }
 
 #endif /* __RTA_STORE_CMD_H__ */

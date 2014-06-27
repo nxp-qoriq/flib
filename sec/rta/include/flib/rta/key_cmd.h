@@ -17,10 +17,9 @@ static const uint32_t key_enc_flags[] = {
 	ENC | NWB | EKT | TK | PTS
 };
 
-static inline unsigned rta_key(struct program *program, uint32_t key_dst,
-			       int key_type, uint32_t encrypt_flags,
-			       uint64_t src, int src_type, uint32_t length,
-			       uint32_t flags)
+static inline int rta_key(struct program *program, uint32_t key_dst,
+			  int key_type, uint32_t encrypt_flags, uint64_t src,
+			  int src_type, uint32_t length, uint32_t flags)
 {
 	uint32_t opcode = 0, is_seq_cmd = 0;
 	unsigned start_pc = program->current_pc;
@@ -132,7 +131,6 @@ static inline unsigned rta_key(struct program *program, uint32_t key_dst,
 		pr_err("KEY: Invalid destination. SEC PC: %d; Instr: %d\n",
 		       program->current_pc, program->current_instruction);
 		goto err;
-		break;
 	}
 
 	/* write key length */
@@ -182,12 +180,12 @@ static inline unsigned rta_key(struct program *program, uint32_t key_dst,
 	else
 		__rta_out64(program, program->ps, src);
 
-	return start_pc;
+	return (int)start_pc;
 
  err:
 	program->first_error_pc = start_pc;
 	program->current_instruction++;
-	return start_pc;
+	return -EINVAL;
 }
 
 #endif /* __RTA_KEY_CMD_H__ */

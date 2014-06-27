@@ -45,13 +45,14 @@ static const uint32_t jump_src_dst[][2] = {
 	{ _VSEQOUTSZ, JUMP_SRC_DST_VARSEQOUTLEN }
 };
 
-static inline unsigned rta_jump(struct program *program, uint64_t address,
-				int address_type, uint32_t jump_type,
-				uint32_t test_type, uint32_t test_condition,
-				uint32_t src_dst, int type_src_dst)
+static inline int rta_jump(struct program *program, uint64_t address,
+			   int address_type, uint32_t jump_type,
+			   uint32_t test_type, uint32_t test_condition,
+			   uint32_t src_dst, int type_src_dst)
 {
 	uint32_t opcode = CMD_JUMP;
 	unsigned start_pc = program->current_pc;
+	int ret = -EINVAL;
 
 	if ((address_type != IMM_DATA) && (address_type != PTR_DATA)) {
 		pr_err("JUMP: Address must be either IMM or PTR\n");
@@ -134,7 +135,6 @@ static inline unsigned rta_jump(struct program *program, uint64_t address,
 				ARRAY_SIZE(jump_test_cond), &opcode);
 	} else {
 		uint32_t val = 0;
-		int ret;
 
 		if (type_src_dst != REG_TYPE) {
 			pr_err("JUMP_INCDEC: Incorrect SRC_DST type. SEC PC: %d; Instr: %d\n",
@@ -145,7 +145,7 @@ static inline unsigned rta_jump(struct program *program, uint64_t address,
 
 		ret = __rta_map_opcode(src_dst, jump_src_dst,
 				       ARRAY_SIZE(jump_src_dst), &val);
-		if (ret == -1) {
+		if (ret < 0) {
 			pr_err("JUMP_INCDEC: SRC_DST not supported. SEC PC: %d; Instr: %d\n",
 			       program->current_pc,
 			       program->current_instruction);
@@ -169,12 +169,12 @@ static inline unsigned rta_jump(struct program *program, uint64_t address,
 	if (jump_type == FAR_JUMP)
 		__rta_out64(program, program->ps, address);
 
-	return start_pc;
+	return (int)start_pc;
 
  err:
 	program->first_error_pc = start_pc;
 	program->current_instruction++;
-	return start_pc;
+	return ret;
 }
 
 #endif /* __RTA_JUMP_CMD_H__ */

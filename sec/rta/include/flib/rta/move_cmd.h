@@ -70,16 +70,15 @@ static inline int set_move_offset(struct program *program, uint64_t src,
 
 static inline int math_offset(uint16_t offset);
 
-static inline unsigned rta_move(struct program *program, int cmd_type,
-				uint64_t src, int type_src, uint16_t src_offset,
-				uint64_t dst, int type_dst, uint16_t dst_offset,
-				uint32_t length, int type_length,
-				uint32_t flags)
+static inline int rta_move(struct program *program, int cmd_type, uint64_t src,
+			   int type_src, uint16_t src_offset, uint64_t dst,
+			   int type_dst, uint16_t dst_offset, uint32_t length,
+			   int type_length, uint32_t flags)
 {
 	uint32_t opcode = 0;
 	uint16_t offset = 0, opt = 0;
 	uint32_t val = 0;
-	int ret, is_move_len_cmd = 0;
+	int ret = -EINVAL, is_move_len_cmd = 0;
 	unsigned start_pc = program->current_pc;
 
 	if ((type_src != REG_TYPE) || (type_dst != REG_TYPE)) {
@@ -128,7 +127,7 @@ static inline unsigned rta_move(struct program *program, int cmd_type,
 	 */
 	ret = set_move_offset(program, src, src_offset, dst, dst_offset,
 			      &offset, &opt);
-	if (ret)
+	if (ret < 0)
 		goto err;
 
 	opcode |= (offset << MOVE_OFFSET_SHIFT) & MOVE_OFFSET_MASK;
@@ -155,7 +154,7 @@ static inline unsigned rta_move(struct program *program, int cmd_type,
 			/* nothing to do for offset = 0 */
 		} else {
 			ret = math_offset(offset);
-			if (ret == -1) {
+			if (ret < 0) {
 				pr_err("MOVE: Invalid offset in MATH register. SEC PC: %d; Instr: %d\n",
 				       program->current_pc,
 				       program->current_instruction);
@@ -169,7 +168,7 @@ static inline unsigned rta_move(struct program *program, int cmd_type,
 	/* write source field */
 	ret = __rta_map_opcode((uint32_t)src, move_src_table,
 			       move_src_table_sz[rta_sec_era], &val);
-	if (ret == -1) {
+	if (ret < 0) {
 		pr_err("MOVE: Invalid SRC. SEC PC: %d; Instr: %d\n",
 		       program->current_pc, program->current_instruction);
 		goto err;
@@ -179,7 +178,7 @@ static inline unsigned rta_move(struct program *program, int cmd_type,
 	/* write destination field */
 	ret = __rta_map_opcode((uint32_t)dst, move_dst_table,
 			       move_dst_table_sz[rta_sec_era], &val);
-	if (ret == -1) {
+	if (ret < 0) {
 		pr_err("MOVE: Invalid DST. SEC PC: %d; Instr: %d\n",
 		       program->current_pc, program->current_instruction);
 		goto err;
@@ -234,12 +233,12 @@ static inline unsigned rta_move(struct program *program, int cmd_type,
 	__rta_out32(program, opcode);
 	program->current_instruction++;
 
-	return start_pc;
+	return (int)start_pc;
 
  err:
 	program->first_error_pc = start_pc;
 	program->current_instruction++;
-	return start_pc;
+	return ret;
 }
 
 static inline int set_move_offset(struct program *program, uint64_t src,
@@ -381,7 +380,7 @@ static inline int set_move_offset(struct program *program, uint64_t src,
 
 	return 0;
  err:
-	return -1;
+	return -EINVAL;
 }
 
 static inline int math_offset(uint16_t offset)
@@ -397,7 +396,7 @@ static inline int math_offset(uint16_t offset)
 		return MOVE_AUX_LS | MOVE_AUX_MS;
 	}
 
-	return -1;
+	return -EINVAL;
 }
 
 #endif /* __RTA_MOVE_CMD_H__ */
