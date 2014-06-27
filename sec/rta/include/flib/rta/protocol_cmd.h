@@ -27,7 +27,7 @@ static inline int __rta_ssl_proto(uint16_t protoinfo)
 	case OP_PCL_SSL30_RC4_128_SHA_10:
 	case OP_PCL_TLS_ECDHE_PSK_RC4_128_SHA:
 		if (rta_sec_era == RTA_SEC_ERA_7)
-			return -1;
+			return -EINVAL;
 		/* fall through if not Era 7 */
 	case OP_PCL_SSL30_DES40_CBC_SHA:
 	case OP_PCL_SSL30_DES_CBC_SHA_2:
@@ -183,7 +183,7 @@ static inline int __rta_ssl_proto(uint16_t protoinfo)
 		return 0;
 	}
 
-	return -1;
+	return -EINVAL;
 }
 
 static inline int __rta_ike_proto(uint16_t protoinfo)
@@ -199,7 +199,7 @@ static inline int __rta_ike_proto(uint16_t protoinfo)
 		return 0;
 	}
 
-	return -1;
+	return -EINVAL;
 }
 
 static inline int __rta_ipsec_proto(uint16_t protoinfo)
@@ -211,7 +211,7 @@ static inline int __rta_ipsec_proto(uint16_t protoinfo)
 	case OP_PCL_IPSEC_NULL:
 	case OP_PCL_IPSEC_AES_NULL_WITH_GMAC:
 		if (rta_sec_era < RTA_SEC_ERA_2)
-			return -1;
+			return -EINVAL;
 		break;
 	case OP_PCL_IPSEC_AES_CCM8:
 	case OP_PCL_IPSEC_AES_CCM12:
@@ -228,7 +228,7 @@ static inline int __rta_ipsec_proto(uint16_t protoinfo)
 	case OP_PCL_IPSEC_AES_CTR:
 		break;
 	default:
-		return -1;
+		return -EINVAL;
 	}
 
 	switch (proto_cls2) {
@@ -244,7 +244,7 @@ static inline int __rta_ipsec_proto(uint16_t protoinfo)
 		return 0;
 	}
 
-	return -1;
+	return -EINVAL;
 }
 
 static inline int __rta_srtp_proto(uint16_t protoinfo)
@@ -261,7 +261,7 @@ static inline int __rta_srtp_proto(uint16_t protoinfo)
 		/* no break */
 	}
 
-	return -1;
+	return -EINVAL;
 }
 
 static inline int __rta_macsec_proto(uint16_t protoinfo)
@@ -271,7 +271,7 @@ static inline int __rta_macsec_proto(uint16_t protoinfo)
 		return 0;
 	}
 
-	return -1;
+	return -EINVAL;
 }
 
 static inline int __rta_wifi_proto(uint16_t protoinfo)
@@ -281,7 +281,7 @@ static inline int __rta_wifi_proto(uint16_t protoinfo)
 		return 0;
 	}
 
-	return -1;
+	return -EINVAL;
 }
 
 static inline int __rta_wimax_proto(uint16_t protoinfo)
@@ -292,7 +292,7 @@ static inline int __rta_wimax_proto(uint16_t protoinfo)
 		return 0;
 	}
 
-	return -1;
+	return -EINVAL;
 }
 
 /* Allowed blob proto flags for each SEC Era */
@@ -311,7 +311,7 @@ static const uint32_t proto_blob_flags[] = {
 static inline int __rta_blob_proto(uint16_t protoinfo)
 {
 	if (protoinfo & ~proto_blob_flags[rta_sec_era])
-		return -1;
+		return -EINVAL;
 
 	switch (protoinfo & OP_PCL_BLOB_FORMAT_MASK) {
 	case OP_PCL_BLOB_FORMAT_NORMAL:
@@ -319,13 +319,13 @@ static inline int __rta_blob_proto(uint16_t protoinfo)
 	case OP_PCL_BLOB_FORMAT_TEST:
 		break;
 	default:
-		return -1;
+		return -EINVAL;
 	}
 
 	switch (protoinfo & OP_PCL_BLOB_REG_MASK) {
 	case OP_PCL_BLOB_AFHA_SBOX:
 		if (rta_sec_era < RTA_SEC_ERA_3)
-			return -1;
+			return -EINVAL;
 		/* no break */
 	case OP_PCL_BLOB_REG_MEMORY:
 	case OP_PCL_BLOB_REG_KEY1:
@@ -335,7 +335,7 @@ static inline int __rta_blob_proto(uint16_t protoinfo)
 		return 0;
 	}
 
-	return -1;
+	return -EINVAL;
 }
 
 static inline int __rta_dlc_proto(uint16_t protoinfo)
@@ -344,7 +344,7 @@ static inline int __rta_dlc_proto(uint16_t protoinfo)
 	    (protoinfo & (OP_PCL_PKPROT_DSA_MSG | OP_PCL_PKPROT_HASH_MASK |
 	     OP_PCL_PKPROT_EKT_Z | OP_PCL_PKPROT_DECRYPT_Z |
 	     OP_PCL_PKPROT_DECRYPT_PRI)))
-		return -1;
+		return -EINVAL;
 
 	switch (protoinfo & OP_PCL_PKPROT_HASH_MASK) {
 	case OP_PCL_PKPROT_HASH_MD5:
@@ -355,7 +355,7 @@ static inline int __rta_dlc_proto(uint16_t protoinfo)
 	case OP_PCL_PKPROT_HASH_SHA512:
 		break;
 	default:
-		return -1;
+		return -EINVAL;
 	}
 
 	return 0;
@@ -367,7 +367,7 @@ static inline int __rta_rsa_enc_proto(uint16_t protoinfo)
 	case OP_PCL_RSAPROT_OP_ENC_F_IN:
 		if ((protoinfo & OP_PCL_RSAPROT_FFF_MASK) !=
 		    OP_PCL_RSAPROT_FFF_RED)
-			return -1;
+			return -EINVAL;
 		break;
 	case OP_PCL_RSAPROT_OP_ENC_F_OUT:
 		switch (protoinfo & OP_PCL_RSAPROT_FFF_MASK) {
@@ -378,11 +378,11 @@ static inline int __rta_rsa_enc_proto(uint16_t protoinfo)
 		case OP_PCL_RSAPROT_FFF_TK_EKT:
 			break;
 		default:
-			return -1;
+			return -EINVAL;
 		}
 		break;
 	default:
-		return -1;
+		return -EINVAL;
 	}
 
 	return 0;
@@ -396,7 +396,7 @@ static inline int __rta_rsa_dec_proto(uint16_t protoinfo)
 	case OP_PCL_RSAPROT_OP_DEC_PQDPDQC:
 		break;
 	default:
-		return -1;
+		return -EINVAL;
 	}
 
 	switch (protoinfo & OP_PCL_RSAPROT_PPP_MASK) {
@@ -407,7 +407,7 @@ static inline int __rta_rsa_dec_proto(uint16_t protoinfo)
 	case OP_PCL_RSAPROT_PPP_TK_EKT:
 		break;
 	default:
-		return -1;
+		return -EINVAL;
 	}
 
 	if (protoinfo & OP_PCL_RSAPROT_FMT_PKCSV15)
@@ -419,7 +419,7 @@ static inline int __rta_rsa_dec_proto(uint16_t protoinfo)
 		case OP_PCL_RSAPROT_FFF_TK_EKT:
 			break;
 		default:
-			return -1;
+			return -EINVAL;
 		}
 
 	return 0;
@@ -428,7 +428,7 @@ static inline int __rta_rsa_dec_proto(uint16_t protoinfo)
 static inline int __rta_3g_dcrc_proto(uint16_t protoinfo)
 {
 	if (rta_sec_era == RTA_SEC_ERA_7)
-		return -1;
+		return -EINVAL;
 
 	switch (protoinfo) {
 	case OP_PCL_3G_DCRC_CRC7:
@@ -436,13 +436,13 @@ static inline int __rta_3g_dcrc_proto(uint16_t protoinfo)
 		return 0;
 	}
 
-	return -1;
+	return -EINVAL;
 }
 
 static inline int __rta_3g_rlc_proto(uint16_t protoinfo)
 {
 	if (rta_sec_era == RTA_SEC_ERA_7)
-		return -1;
+		return -EINVAL;
 
 	switch (protoinfo) {
 	case OP_PCL_3G_RLC_NULL:
@@ -451,13 +451,13 @@ static inline int __rta_3g_rlc_proto(uint16_t protoinfo)
 		return 0;
 	}
 
-	return -1;
+	return -EINVAL;
 }
 
 static inline int __rta_lte_pdcp_proto(uint16_t protoinfo)
 {
 	if (rta_sec_era == RTA_SEC_ERA_7)
-		return -1;
+		return -EINVAL;
 
 	switch (protoinfo) {
 	case OP_PCL_LTE_ZUC:
@@ -469,7 +469,7 @@ static inline int __rta_lte_pdcp_proto(uint16_t protoinfo)
 		return 0;
 	}
 
-	return -1;
+	return -EINVAL;
 }
 
 static inline int __rta_lte_pdcp_mixed_proto(uint16_t protoinfo)
@@ -481,7 +481,7 @@ static inline int __rta_lte_pdcp_mixed_proto(uint16_t protoinfo)
 	case OP_PCL_LTE_MIXED_AUTH_ZUC:
 		break;
 	default:
-		return -1;
+		return -EINVAL;
 	}
 
 	switch (protoinfo & OP_PCL_LTE_MIXED_ENC_MASK) {
@@ -492,7 +492,7 @@ static inline int __rta_lte_pdcp_mixed_proto(uint16_t protoinfo)
 		return 0;
 	}
 
-	return -1;
+	return -EINVAL;
 }
 
 struct proto_map {
@@ -543,14 +543,14 @@ static const struct proto_map proto_table[] = {
  */
 static const unsigned proto_table_sz[] = {21, 29, 29, 29, 29, 29, 31, 33};
 
-static inline unsigned rta_proto_operation(struct program *program,
-					   uint32_t optype, uint32_t protid,
-					   uint16_t protoinfo)
+static inline int rta_proto_operation(struct program *program, uint32_t optype,
+				      uint32_t protid, uint16_t protoinfo)
 {
 	uint32_t opcode = CMD_OPERATION;
 	unsigned i, found = 0;
 	uint32_t optype_tmp = optype;
 	unsigned start_pc = program->current_pc;
+	int ret = -EINVAL;
 
 	for (i = 0; i < proto_table_sz[rta_sec_era]; i++) {
 		/* clear last bit in optype to match also decap proto */
@@ -563,8 +563,9 @@ static inline unsigned rta_proto_operation(struct program *program,
 					break;
 				}
 				/* check protoinfo */
-				if (-1 == (*proto_table[i].protoinfo_func)
-						(protoinfo)) {
+				ret = (*proto_table[i].protoinfo_func)
+						(protoinfo);
+				if (ret < 0) {
 					pr_err("PROTO_DESC: Bad PROTO Type. SEC Program Line: %d\n",
 					       program->current_pc);
 					goto err;
@@ -582,12 +583,12 @@ static inline unsigned rta_proto_operation(struct program *program,
 
 	__rta_out32(program, opcode | optype | protid | protoinfo);
 	program->current_instruction++;
-	return start_pc;
+	return (int)start_pc;
 
  err:
 	program->first_error_pc = start_pc;
 	program->current_instruction++;
-	return start_pc;
+	return ret;
 }
 
 #endif /* __RTA_PROTOCOL_CMD_H__ */

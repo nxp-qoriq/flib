@@ -200,16 +200,15 @@ static inline int load_check_len_offset(int pos, uint32_t length,
 
 	return 0;
 err:
-	return -1;
+	return -EINVAL;
 }
 
-static inline unsigned rta_load(struct program *program, uint64_t src,
-				int src_type, uint64_t dst, int dst_type,
-				uint32_t offset, uint32_t length,
-				uint32_t flags)
+static inline int rta_load(struct program *program, uint64_t src, int src_type,
+			   uint64_t dst, int dst_type, uint32_t offset,
+			   uint32_t length, uint32_t flags)
 {
 	uint32_t opcode = 0;
-	int pos = -1;
+	int pos = -1, ret = -EINVAL;
 	unsigned start_pc = program->current_pc, i;
 
 	if (dst_type != REG_TYPE) {
@@ -261,7 +260,8 @@ static inline unsigned rta_load(struct program *program, uint64_t src,
 		goto err;
 	}
 
-	if (-1 == load_check_len_offset(pos, length, offset)) {
+	ret = load_check_len_offset(pos, length, offset);
+	if (ret < 0) {
 		pr_err("LOAD: Invalid length/offset. SEC Program Line: %d\n",
 		       program->current_pc);
 		goto err;
@@ -283,7 +283,7 @@ static inline unsigned rta_load(struct program *program, uint64_t src,
 
 	/* DECO COTROL: skip writing pointer of imm data */
 	if (dst == _DCTRL)
-		return start_pc;
+		return (int)start_pc;
 
 	/*
 	 * For data copy, 3 possible ways to specify how to copy data:
@@ -297,12 +297,12 @@ static inline unsigned rta_load(struct program *program, uint64_t src,
 	else if (!(flags & SEQ))
 		__rta_out64(program, program->ps, src);
 
-	return start_pc;
+	return (int)start_pc;
 
  err:
 	program->first_error_pc = start_pc;
 	program->current_instruction++;
-	return start_pc;
+	return ret;
 }
 
 #endif /* __RTA_LOAD_CMD_H__*/

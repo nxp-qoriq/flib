@@ -38,13 +38,13 @@ static const uint32_t fifo_load_table[][2] = {
  */
 static const unsigned fifo_load_table_sz[] = {22, 22, 23, 23, 23, 23, 23, 23};
 
-static inline unsigned rta_fifo_load(struct program *program, uint32_t src,
-				     int type_src, uint64_t loc, int type_loc,
-				     uint32_t length, uint32_t flags)
+static inline int rta_fifo_load(struct program *program, uint32_t src,
+				int type_src, uint64_t loc, int type_loc,
+				uint32_t length, uint32_t flags)
 {
 	uint32_t opcode = 0;
 	uint32_t ext_length = 0, val = 0;
-	int ret, is_seq_cmd = 0;
+	int ret = -EINVAL, is_seq_cmd = 0;
 	unsigned start_pc = program->current_pc;
 
 	if (type_src != REG_TYPE) {
@@ -101,7 +101,7 @@ static inline unsigned rta_fifo_load(struct program *program, uint32_t src,
 	/* write input data type field */
 	ret = __rta_map_opcode(src, fifo_load_table,
 			       fifo_load_table_sz[rta_sec_era], &val);
-	if (ret == -1) {
+	if (ret < 0) {
 		pr_err("FIFO LOAD: Source value is not supported. SEC Program Line: %d\n",
 		       program->current_pc);
 		goto err;
@@ -163,12 +163,12 @@ static inline unsigned rta_fifo_load(struct program *program, uint32_t src,
 	if (opcode & FIFOLDST_EXT)
 		__rta_out32(program, ext_length);
 
-	return start_pc;
+	return (int)start_pc;
 
  err:
 	program->first_error_pc = start_pc;
 	program->current_instruction++;
-	return start_pc;
+	return ret;
 }
 
 static const uint32_t fifo_store_table[][2] = {
@@ -203,14 +203,13 @@ static const uint32_t fifo_store_table[][2] = {
  */
 static const unsigned fifo_store_table_sz[] = {21, 21, 21, 21, 22, 22, 22, 22};
 
-static inline unsigned rta_fifo_store(struct program *program, uint32_t src,
-				      int type_src, uint32_t encrypt_flags,
-				      uint64_t dst, uint32_t length,
-				      uint32_t flags)
+static inline int rta_fifo_store(struct program *program, uint32_t src,
+				 int type_src, uint32_t encrypt_flags,
+				 uint64_t dst, uint32_t length, uint32_t flags)
 {
 	uint32_t opcode = 0;
 	uint32_t val = 0;
-	int ret, is_seq_cmd = 0;
+	int ret = -EINVAL, is_seq_cmd = 0;
 	unsigned start_pc = program->current_pc;
 
 	if (type_src != REG_TYPE) {
@@ -257,7 +256,7 @@ static inline unsigned rta_fifo_store(struct program *program, uint32_t src,
 	/* write output data type field */
 	ret = __rta_map_opcode(src, fifo_store_table,
 			       fifo_store_table_sz[rta_sec_era], &val);
-	if (ret == -1) {
+	if (ret < 0) {
 		pr_err("FIFO STORE: Source type not supported. SEC Program Line: %d\n",
 		       program->current_pc);
 		goto err;
@@ -269,6 +268,7 @@ static inline unsigned rta_fifo_store(struct program *program, uint32_t src,
 	if (encrypt_flags & EKT) {
 		if (rta_sec_era == RTA_SEC_ERA_1) {
 			pr_err("FIFO STORE: AES-CCM source types not supported\n");
+			ret = -EINVAL;
 			goto err;
 		}
 		opcode |= (0x10 << FIFOST_TYPE_SHIFT);
@@ -306,12 +306,12 @@ static inline unsigned rta_fifo_store(struct program *program, uint32_t src,
 	if (opcode & FIFOLDST_EXT)
 		__rta_out32(program, length);
 
-	return start_pc;
+	return (int)start_pc;
 
  err:
 	program->first_error_pc = start_pc;
 	program->current_instruction++;
-	return start_pc;
+	return ret;
 }
 
 #endif /* __RTA_FIFO_LOAD_STORE_CMD_H__ */

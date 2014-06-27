@@ -683,51 +683,69 @@ static inline unsigned rta_set_label(struct program *program)
 #define BSWAP    (0x0B << MATH_FUN_SHIFT)
 
 
-static inline void rta_patch_move(struct program *program, unsigned line,
-				  unsigned new_ref, unsigned check_swap)
+static inline int rta_patch_move(struct program *program, int line,
+				 unsigned new_ref, unsigned check_swap)
 {
 	uint32_t opcode;
 	unsigned bswap = check_swap && program->bswap;
+
+	if (line < 0)
+		return -EINVAL;
 
 	opcode = bswap ? swab32(program->buffer[line]) : program->buffer[line];
 
 	opcode &= (uint32_t)~MOVE_OFFSET_MASK;
 	opcode |= (new_ref << (MOVE_OFFSET_SHIFT + 2)) & MOVE_OFFSET_MASK;
 	program->buffer[line] = bswap ? swab32(opcode) : opcode;
+
+	return 0;
 }
 
-static inline void rta_patch_jmp(struct program *program, unsigned line,
-				 unsigned new_ref, unsigned check_swap)
+static inline int rta_patch_jmp(struct program *program, int line,
+				unsigned new_ref, unsigned check_swap)
 {
 	uint32_t opcode;
 	unsigned bswap = check_swap && program->bswap;
+
+	if (line < 0)
+		return -EINVAL;
 
 	opcode = bswap ? swab32(program->buffer[line]) : program->buffer[line];
 
 	opcode &= (uint32_t)~JUMP_OFFSET_MASK;
 	opcode |= (new_ref - (line + program->start_pc)) & JUMP_OFFSET_MASK;
 	program->buffer[line] = bswap ? swab32(opcode) : opcode;
+
+	return 0;
 }
 
-static inline void rta_patch_header(struct program *program, unsigned line,
-				    unsigned new_ref, unsigned check_swap)
+static inline int rta_patch_header(struct program *program, int line,
+				   unsigned new_ref, unsigned check_swap)
 {
 	uint32_t opcode;
 	unsigned bswap = check_swap && program->bswap;
+
+	if (line < 0)
+		return -EINVAL;
 
 	opcode = bswap ? swab32(program->buffer[line]) : program->buffer[line];
 
 	opcode &= (uint32_t)~HDR_START_IDX_MASK;
 	opcode |= (new_ref << HDR_START_IDX_SHIFT) & HDR_START_IDX_MASK;
 	program->buffer[line] = bswap ? swab32(opcode) : opcode;
+
+	return 0;
 }
 
-static inline void rta_patch_load(struct program *program, unsigned line,
-				  unsigned new_ref)
+static inline int rta_patch_load(struct program *program, int line,
+				 unsigned new_ref)
 {
-	uint32_t opcode = program->buffer[line];
+	uint32_t opcode;
 
-	opcode &= (uint32_t)~LDST_OFFSET_MASK;
+	if (line < 0)
+		return -EINVAL;
+
+	opcode = program->buffer[line] & (uint32_t)~LDST_OFFSET_MASK;
 
 	if (opcode & (LDST_SRCDST_WORD_DESCBUF | LDST_CLASS_DECO))
 		opcode |= (new_ref << LDST_OFFSET_SHIFT) & LDST_OFFSET_MASK;
@@ -736,13 +754,18 @@ static inline void rta_patch_load(struct program *program, unsigned line,
 			  LDST_OFFSET_MASK;
 
 	program->buffer[line] = opcode;
+
+	return 0;
 }
 
-static inline void rta_patch_store(struct program *program, unsigned line,
-				   unsigned new_ref, unsigned check_swap)
+static inline int rta_patch_store(struct program *program, int line,
+				  unsigned new_ref, unsigned check_swap)
 {
 	uint32_t opcode;
 	unsigned bswap = check_swap && program->bswap;
+
+	if (line < 0)
+		return -EINVAL;
 
 	opcode = bswap ? swab32(program->buffer[line]) : program->buffer[line];
 
@@ -762,20 +785,27 @@ static inline void rta_patch_store(struct program *program, unsigned line,
 	}
 
 	program->buffer[line] = bswap ? swab32(opcode) : opcode;
+
+	return 0;
 }
 
-static inline void rta_patch_raw(struct program *program, unsigned line,
-				 unsigned mask, unsigned new_val,
-				 unsigned check_swap)
+static inline int rta_patch_raw(struct program *program, int line,
+				unsigned mask, unsigned new_val,
+				unsigned check_swap)
 {
 	uint32_t opcode;
 	unsigned bswap = check_swap && program->bswap;
+
+	if (line < 0)
+		return -EINVAL;
 
 	opcode = bswap ? swab32(program->buffer[line]) : program->buffer[line];
 
 	opcode &= (uint32_t)~mask;
 	opcode |= new_val & mask;
 	program->buffer[line] = bswap ? swab32(opcode) : opcode;
+
+	return 0;
 }
 
 static inline int __rta_map_opcode(uint32_t name,
@@ -789,7 +819,8 @@ static inline int __rta_map_opcode(uint32_t name,
 			*val = map_table[i][1];
 			return 0;
 		}
-	return -1;
+
+	return -EINVAL;
 }
 
 static inline void __rta_map_flags(uint32_t flags,

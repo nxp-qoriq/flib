@@ -204,10 +204,10 @@ static inline unsigned rta_get_sec_era(void)
  *             descriptor should start (@c unsigned).
  * @flags: operational flags: RIF, DNR, CIF, SC, PD
  *
- * Return: On success, descriptor buffer offset where this command is
- *         inserted (unsigned).
- *         First error program counter will be incremented on error; in debug
- *         mode, a log message will be shown at output.
+ * Return: On success, descriptor buffer offset where this command is inserted.
+ *         On error, a negative error code; first error program counter will
+ *         point to offset in descriptor buffer where the instruction should
+ *         have been written.
  */
 #define SHR_HDR(share, start_idx, flags) \
 	rta_shr_header(program, share, start_idx, flags)
@@ -222,10 +222,10 @@ static inline unsigned rta_get_sec_era(void)
  * @share_desc: pointer to shared descriptor, in case SHR bit is set (uint64_t)
  * @flags: operational flags: RSMS, DNR, TD, MTD, REO, SHR
  *
- * Return: On success, descriptor buffer offset where this command is
- *         inserted (unsigned).
- *         First error program counter will be incremented on error; in debug
- *         mode, a log message will be shown at output.
+ * Return: On success, descriptor buffer offset where this command is inserted.
+ *         On error, a negative error code; first error program counter will
+ *         point to offset in descriptor buffer where the instruction should
+ *         have been written.
  */
 #define JOB_HDR(share, start_idx, share_desc, flags) \
 	rta_job_header(program, share, start_idx, share_desc, flags, 0)
@@ -242,10 +242,10 @@ static inline unsigned rta_get_sec_era(void)
  * @ext_flags: extended header flags: DSV (DECO Select Valid), DECO Id (limited
  *             by DSEL_MASK).
  *
- * Return: On success, descriptor buffer offset where this command is
- *         inserted (unsigned).
- *         First error program counter will be incremented on error; in debug
- *         mode, a log message will be shown at output.
+ * Return: On success, descriptor buffer offset where this command is inserted.
+ *         On error, a negative error code; first error program counter will
+ *         point to offset in descriptor buffer where the instruction should
+ *         have been written.
  */
 #define JOB_HDR_EXT(share, start_idx, share_desc, flags, ext_flags) \
 	rta_job_header(program, share, start_idx, share_desc, flags | EXT, \
@@ -265,10 +265,10 @@ static inline unsigned rta_get_sec_era(void)
  * @opt: operational flags: WAITCOMP, FLUSH1, FLUSH2, LAST1, LAST2, SIZE_WORD,
  *       SIZE_BYTE, SIZE_DWORD.
  *
- * Return: On success, descriptor buffer offset where this command is
- *         inserted (unsigned).
- *         First error program counter will be incremented on error; in debug
- *         mode, a log message will be shown at output.
+ * Return: On success, descriptor buffer offset where this command is inserted.
+ *         On error, a negative error code; first error program counter will
+ *         point to offset in descriptor buffer where the instruction should
+ *         have been written.
  */
 #define MOVE(src, src_offset, dst, dst_offset, length, opt) \
 	rta_move(program, __MOVE, src, src_offset, dst, dst_offset, length, opt)
@@ -291,10 +291,10 @@ static inline unsigned rta_get_sec_era(void)
  * is descriptor buffer or MATH registers, data type is byte array when MOVE
  * data type is 4-byte array and vice versa.
  *
- * Return: On success, descriptor buffer offset where this command is
- *         inserted (unsigned).
- *         First error program counter will be incremented on error; in debug
- *         mode, a log message will be shown at output.
+ * Return: On success, descriptor buffer offset where this command is inserted.
+ *         On error, a negative error code; first error program counter will
+ *         point to offset in descriptor buffer where the instruction should
+ *         have been written.
  */
 #define MOVEB(src, src_offset, dst, dst_offset, length, opt) \
 	rta_move(program, __MOVEB, src, src_offset, dst, dst_offset, length, \
@@ -318,10 +318,10 @@ static inline unsigned rta_get_sec_era(void)
  * 8-byte array; word swapping is performed when SEC is programmed in little
  * endian mode.
  *
- * Return: On success, descriptor buffer offset where this command is
- *         inserted (unsigned).
- *         First error program counter will be incremented on error; in debug
- *         mode, a log message will be shown at output.
+ * Return: On success, descriptor buffer offset where this command is inserted.
+ *         On error, a negative error code; first error program counter will
+ *         point to offset in descriptor buffer where the instruction should
+ *         have been written.
  */
 #define MOVEDW(src, src_offset, dst, dst_offset, length, opt) \
 	rta_move(program, __MOVEDW, src, src_offset, dst, dst_offset, length, \
@@ -338,10 +338,10 @@ static inline unsigned rta_get_sec_era(void)
  * @flags: operational flags: SGF, IMMED, EXT, CLASS1, CLASS2, BOTH, FLUSH1,
  *         LAST1, LAST2.
  *
- * Return: On success, descriptor buffer offset where this command is
- *         inserted (unsigned).
- *         First error program counter will be incremented on error; in debug
- *         mode, a log message will be shown at output.
+ * Return: On success, descriptor buffer offset where this command is inserted.
+ *         On error, a negative error code; first error program counter will
+ *         point to offset in descriptor buffer where the instruction should
+ *         have been written.
  */
 #define FIFOLOAD(data, src, length, flags) \
 	rta_fifo_load(program, data, src, length, flags)
@@ -357,10 +357,10 @@ static inline unsigned rta_get_sec_era(void)
  * @flags: operational flags: VLF, CLASS1, CLASS2, BOTH, FLUSH1, LAST1, LAST2,
  *         AIDF.
  *
- * Return: On success, descriptor buffer offset where this command is
- *         inserted (unsigned).
- *         First error program counter will be incremented on error; in debug
- *         mode, a log message will be shown at output..
+ * Return: On success, descriptor buffer offset where this command is inserted.
+ *         On error, a negative error code; first error program counter will
+ *         point to offset in descriptor buffer where the instruction should
+ *         have been written.
  */
 #define SEQFIFOLOAD(data, length, flags) \
 	rta_fifo_load(program, data, NONE, length, flags|SEQ)
@@ -375,10 +375,10 @@ static inline unsigned rta_get_sec_era(void)
  * @length: number of bytes to load (uint32_t)
  * @flags: operational flags: SGF, CONT, EXT, CLASS1, CLASS2, BOTH
  *
- * Return: On success, descriptor buffer offset where this command is
- *         inserted (unsigned).
- *         First error program counter will be incremented on error; in debug
- *         mode, a log message will be shown at output.
+ * Return: On success, descriptor buffer offset where this command is inserted.
+ *         On error, a negative error code; first error program counter will
+ *         point to offset in descriptor buffer where the instruction should
+ *         have been written.
  */
 #define FIFOSTORE(data, encrypt_flags, dst, length, flags) \
 	rta_fifo_store(program, data, encrypt_flags, dst, length, flags)
@@ -393,10 +393,10 @@ static inline unsigned rta_get_sec_era(void)
  *          (uint32_t).
  * @flags: operational flags: VLF, CONT, EXT, CLASS1, CLASS2, BOTH
  *
- * Return: On success, descriptor buffer offset where this command is
- *         inserted (unsigned).
- *         First error program counter will be incremented on error; in debug
- *         mode, a log message will be shown at output.
+ * Return: On success, descriptor buffer offset where this command is inserted.
+ *         On error, a negative error code; first error program counter will
+ *         point to offset in descriptor buffer where the instruction should
+ *         have been written.
  */
 #define SEQFIFOSTORE(data, encrypt_flags, length, flags) \
 	rta_fifo_store(program, data, encrypt_flags, 0, length, flags|SEQ)
@@ -410,10 +410,10 @@ static inline unsigned rta_get_sec_era(void)
  *          (uint32_t).
  * @flags: operational flags: for KEY: SGF, IMMED; for SEQKEY: SEQ, VLF, AIDF
  *
- * Return: On success, descriptor buffer offset where this command is
- *         inserted (unsigned).
- *         First error program counter will be incremented on error; in debug
- *         mode, a log message will be shown at output.
+ * Return: On success, descriptor buffer offset where this command is inserted.
+ *         On error, a negative error code; first error program counter will
+ *         point to offset in descriptor buffer where the instruction should
+ *         have been written.
  */
 #define KEY(key_dst, encrypt_flags, src, length, flags) \
 	rta_key(program, key_dst, encrypt_flags, src, length, flags)
@@ -425,10 +425,10 @@ static inline unsigned rta_get_sec_era(void)
  * @flags: operational flags: RBS, INL, SGF, PRE, EXT, RTO, RJD, SOP (when PRE,
  *         RTO or SOP are set, @src parameter must be 0).
  *
- * Return: On success, descriptor buffer offset where this command is
- *         inserted (unsigned).
- *         First error program counter will be incremented on error; in debug
- *         mode, a log message will be shown at output.
+ * Return: On success, descriptor buffer offset where this command is inserted.
+ *         On error, a negative error code; first error program counter will
+ *         point to offset in descriptor buffer where the instruction should
+ *         have been written.
  */
 #define SEQINPTR(src, length, flags) \
 	rta_seq_in_ptr(program, src, length, flags)
@@ -440,10 +440,10 @@ static inline unsigned rta_get_sec_era(void)
  * @flags: operational flags: SGF, PRE, EXT, RTO, RST, EWS (when PRE or RTO are
  *         set, @dst parameter must be 0).
  *
- * Return: On success, descriptor buffer offset where this command is
- *         inserted (unsigned).
- *         First error program counter will be incremented on error; in debug
- *         mode, a log message will be shown at output.
+ * Return: On success, descriptor buffer offset where this command is inserted.
+ *         On error, a negative error code; first error program counter will
+ *         point to offset in descriptor buffer where the instruction should
+ *         have been written.
  */
 #define SEQOUTPTR(dst, length, flags) \
 	rta_seq_out_ptr(program, dst, length, flags)
@@ -461,10 +461,10 @@ static inline unsigned rta_get_sec_era(void)
  * @enc: selects between encryption and decryption: OP_ALG_ENCRYPT,
  *       OP_ALG_DECRYPT.
  *
- * Return: On success, descriptor buffer offset where this command is
- *         inserted (unsigned).
- *         First error program counter will be incremented on error; in debug
- *         mode, a log message will be shown at output.
+ * Return: On success, descriptor buffer offset where this command is inserted.
+ *         On error, a negative error code; first error program counter will
+ *         point to offset in descriptor buffer where the instruction should
+ *         have been written.
  */
 #define ALG_OPERATION(cipher_alg, aai, algo_state, icv_check, enc) \
 	rta_operation(program, cipher_alg, aai, algo_state, icv_check, enc)
@@ -476,10 +476,10 @@ static inline unsigned rta_get_sec_era(void)
  * @protid: protocol identifier value (check desc.h file for specific values)
  * @protoinfo: protocol dependent value (check desc.h file for specific values)
  *
- * Return: On success, descriptor buffer offset where this command is
- *         inserted (unsigned).
- *         First error program counter will be incremented on error; in debug
- *         mode, a log message will be shown at output.
+ * Return: On success, descriptor buffer offset where this command is inserted.
+ *         On error, a negative error code; first error program counter will
+ *         point to offset in descriptor buffer where the instruction should
+ *         have been written.
  */
 #define PROTOCOL(optype, protid, protoinfo) \
 	rta_proto_operation(program, optype, protid, protoinfo)
@@ -489,10 +489,10 @@ static inline unsigned rta_get_sec_era(void)
  * @op_pkha: PKHA operation; indicates the modular arithmetic function to
  *           execute (check desc.h file for specific values).
  *
- * Return: On success, descriptor buffer offset where this command is
- *         inserted (unsigned).
- *         First error program counter will be incremented on error; in debug
- *         mode, a log message will be shown at output.
+ * Return: On success, descriptor buffer offset where this command is inserted.
+ *         On error, a negative error code; first error program counter will
+ *         point to offset in descriptor buffer where the instruction should
+ *         have been written.
  */
 #define PKHA_OPERATION(op_pkha)   rta_pkha_operation(program, op_pkha)
 
@@ -509,10 +509,10 @@ static inline unsigned rta_get_sec_era(void)
  *        SELF, SHARED, JQP; Math and PKHA status conditions (JSL = 0) - Z, N,
  *        NV, C, PK0, PK1, PKP.
  *
- * Return: On success, descriptor buffer offset where this command is
- *         inserted (unsigned).
- *         First error program counter will be incremented on error; in debug
- *         mode, a log message will be shown at output.
+ * Return: On success, descriptor buffer offset where this command is inserted.
+ *         On error, a negative error code; first error program counter will
+ *         point to offset in descriptor buffer where the instruction should
+ *         have been written.
  */
 #define JUMP(addr, jump_type, test_type, cond) \
 	rta_jump(program, addr, jump_type, test_type, cond, _NONE, 0)
@@ -526,10 +526,10 @@ static inline unsigned rta_get_sec_era(void)
  * @src_dst: register to increment / decrement: MATH0-MATH3, DPOVRD, SEQINSZ,
  *           SEQOUTSZ, VSEQINSZ, VSEQOUTSZ.
  *
- * Return: On success, descriptor buffer offset where this command is
- *         inserted (unsigned).
- *         First error program counter will be incremented on error; in debug
- *         mode, a log message will be shown at output.
+ * Return: On success, descriptor buffer offset where this command is inserted.
+ *         On error, a negative error code; first error program counter will
+ *         point to offset in descriptor buffer where the instruction should
+ *         have been written.
  */
 #define JUMP_INC(addr, test_type, cond, src_dst) \
 	rta_jump(program, addr, LOCAL_JUMP_INC, test_type, cond, src_dst)
@@ -543,10 +543,10 @@ static inline unsigned rta_get_sec_era(void)
  * @src_dst: register to increment / decrement: MATH0-MATH3, DPOVRD, SEQINSZ,
  *           SEQOUTSZ, VSEQINSZ, VSEQOUTSZ.
  *
- * Return: On success, descriptor buffer offset where this command is
- *         inserted (unsigned).
- *         First error program counter will be incremented on error; in debug
- *         mode, a log message will be shown at output.
+ * Return: On success, descriptor buffer offset where this command is inserted.
+ *         On error, a negative error code; first error program counter will
+ *         point to offset in descriptor buffer where the instruction should
+ *         have been written.
  */
 #define JUMP_DEC(addr, test_type, cond, src_dst) \
 	rta_jump(program, addr, LOCAL_JUMP_DEC, test_type, cond, src_dst)
@@ -561,10 +561,10 @@ static inline unsigned rta_get_sec_era(void)
  * @length: number of bytes to load (uint32_t)
  * @flags: operational flags: VLF
  *
- * Return: On success, descriptor buffer offset where this command is
- *         inserted (unsigned).
- *         First error program counter will be incremented on error; in debug
- *         mode, a log message will be shown at output.
+ * Return: On success, descriptor buffer offset where this command is inserted.
+ *         On error, a negative error code; first error program counter will
+ *         point to offset in descriptor buffer where the instruction should
+ *         have been written.
  */
 #define LOAD(addr, dst, offset, length, flags) \
 	rta_load(program, addr, dst, offset, length, flags)
@@ -577,10 +577,10 @@ static inline unsigned rta_get_sec_era(void)
  * @length: number of bytes to load (uint32_t)
  * @flags: operational flags: SGF
  *
- * Return: On success, descriptor buffer offset where this command is
- *         inserted (unsigned).
- *         First error program counter will be incremented on error; in debug
- *         mode, a log message will be shown at output.
+ * Return: On success, descriptor buffer offset where this command is inserted.
+ *         On error, a negative error code; first error program counter will
+ *         point to offset in descriptor buffer where the instruction should
+ *         have been written.
  */
 #define SEQLOAD(dst, offset, length, flags) \
 	rta_load(program, NONE, dst, offset, length, flags|SEQ)
@@ -599,10 +599,10 @@ static inline unsigned rta_get_sec_era(void)
  * @length: number of bytes to store (uint32_t)
  * @flags: operational flags: VLF, IMM
  *
- * Return: On success, descriptor buffer offset where this command is
- *         inserted (unsigned).
- *         First error program counter will be incremented on error; in debug
- *         mode, a log message will be shown at output.
+ * Return: On success, descriptor buffer offset where this command is inserted.
+ *         On error, a negative error code; first error program counter will
+ *         point to offset in descriptor buffer where the instruction should
+ *         have been written.
  */
 #define STORE(src, offset, dst, length, flags) \
 	rta_store(program, src, offset, dst, length, flags)
@@ -619,10 +619,10 @@ static inline unsigned rta_get_sec_era(void)
  * @length: number of bytes to store (uint32_t)
  * @flags: operational flags: SGF
  *
- * Return: On success, descriptor buffer offset where this command is
- *         inserted (unsigned).
- *         First error program counter will be incremented on error; in debug
- *         mode, a log message will be shown at output.
+ * Return: On success, descriptor buffer offset where this command is inserted.
+ *         On error, a negative error code; first error program counter will
+ *         point to offset in descriptor buffer where the instruction should
+ *         have been written.
  */
 #define SEQSTORE(src, offset, length, flags) \
 	rta_store(program, src, offset, NONE, length, flags|SEQ)
@@ -643,10 +643,10 @@ static inline unsigned rta_get_sec_era(void)
  *          is one (int).
  * @opt: operational flags: IFB, NFU, STL, SWP
  *
- * Return: On success, descriptor buffer offset where this command is
- *         inserted (unsigned).
- *         First error program counter will be incremented on error; in debug
- *         mode, a log message will be shown at output.
+ * Return: On success, descriptor buffer offset where this command is inserted.
+ *         On error, a negative error code; first error program counter will
+ *         point to offset in descriptor buffer where the instruction should
+ *         have been written.
  */
 #define MATHB(operand1, operator, operand2, result, length, opt) \
 	rta_math(program, operand1, operator, operand2, result, length, opt)
@@ -663,10 +663,10 @@ static inline unsigned rta_get_sec_era(void)
  *          is one (int).
  * @opt: operational flags: NFU, STL, SWP
  *
- * Return: On success, descriptor buffer offset where this command is
- *         inserted (unsigned).
- *         First error program counter will be incremented on error; in debug
- *         mode, a log message will be shown at output.
+ * Return: On success, descriptor buffer offset where this command is inserted.
+ *         On error, a negative error code; first error program counter will
+ *         point to offset in descriptor buffer where the instruction should
+ *         have been written.
  */
 #define MATHU(operand1, operator, result, length, opt) \
 	rta_math(program, operand1, operator, _NONE, 0, result, length, opt)
@@ -680,10 +680,10 @@ static inline unsigned rta_get_sec_era(void)
  * After SIGNATURE command, DWORD or WORD must be used to insert signature in
  * descriptor buffer.
  *
- * Return: On success, descriptor buffer offset where this command is
- *         inserted (unsigned).
- *         First error program counter will be incremented on error; in debug
- *         mode, a log message will be shown at output.
+ * Return: On success, descriptor buffer offset where this command is inserted.
+ *         On error, a negative error code; first error program counter will
+ *         point to offset in descriptor buffer where the instruction should
+ *         have been written.
  */
 #define SIGNATURE(sign_type)   rta_signature(program, sign_type)
 
@@ -702,10 +702,10 @@ static inline unsigned rta_get_sec_era(void)
  *         -padding type: <em>PAD_ZERO, PAD_NONZERO, PAD_INCREMENT, PAD_RANDOM,
  *          PAD_ZERO_N1, PAD_NONZERO_0, PAD_N1, PAD_NONZERO_N
  *
- * Return: On success, descriptor buffer offset where this command is
- *         inserted (unsigned).
- *         First error program counter will be incremented on error; in debug
- *         mode, a log message will be shown at output.
+ * Return: On success, descriptor buffer offset where this command is inserted.
+ *         On error, a negative error code; first error program counter will
+ *         point to offset in descriptor buffer where the instruction should
+ *         have been written.
  */
 #define NFIFOADD(src, data, length, flags) \
 	rta_nfifo_load(program, src, data, length, flags)
@@ -722,7 +722,7 @@ static inline unsigned rta_get_sec_era(void)
  * @ref: reference to a descriptor buffer's index where an update is required
  *       with a value that will be known latter in the program flow.
  */
-#define REFERENCE(ref)    unsigned ref = 0xFFFFFFFF
+#define REFERENCE(ref)    int ref = -1
 
 /**
  * LABEL - initialize a variable used for storing an index inside a descriptor
@@ -743,11 +743,13 @@ static inline unsigned rta_get_sec_era(void)
  * PATCH_JUMP - Auxiliary command to resolve self referential code
  * @line: position in descriptor buffer where the update will be done; this
  *        value is previously retained in program flow using a reference near
- *        the sequence to be modified (unsigned).
+ *        the sequence to be modified.
  * @new_ref: updated value that will be inserted in descriptor buffer at the
  *           specified line; this value is previously obtained using SET_LABEL
  *           macro near the line that will be used as reference (unsigned). For
  *           JUMP command, the value represents the offset field (in words).
+ *
+ * Return: 0 in case of success, a negative error code if it fails
  */
 #define PATCH_JUMP(line, new_ref) rta_patch_jmp(program, line, new_ref, 0)
 
@@ -757,11 +759,13 @@ static inline unsigned rta_get_sec_era(void)
  * @src_program: buffer to be updated (struct program *)
  * @line: position in source descriptor buffer where the update will be done;
  *        this value is previously retained in program flow using a reference
- *        near the sequence to be modified (unsigned).
+ *        near the sequence to be modified.
  * @new_ref: updated value that will be inserted in descriptor buffer at the
  *           specified line; this value is previously obtained using SET_LABEL
  *           macro near the line that will be used as reference (unsigned). For
  *           JUMP command, the value represents the offset field (in words).
+ *
+ * Return: 0 in case of success, a negative error code if it fails
  */
 #define PATCH_JUMP_NON_LOCAL(src_program, line, new_ref) \
 	rta_patch_jmp(src_program, line, new_ref, 1)
@@ -770,11 +774,13 @@ static inline unsigned rta_get_sec_era(void)
  * PATCH_MOVE - Auxiliary command to resolve self referential code
  * @line: position in descriptor buffer where the update will be done; this
  *        value is previously retained in program flow using a reference near
- *        the sequence to be modified (unsigned).
+ *        the sequence to be modified.
  * @new_ref: updated value that will be inserted in descriptor buffer at the
  *           specified line; this value is previously obtained using SET_LABEL
  *           macro near the line that will be used as reference (unsigned). For
  *           MOVE command, the value represents the offset field (in words).
+ *
+ * Return: 0 in case of success, a negative error code if it fails
  */
 #define PATCH_MOVE(line, new_ref) rta_patch_move(program, line, new_ref, 0)
 
@@ -784,12 +790,14 @@ static inline unsigned rta_get_sec_era(void)
  * @src_program: buffer to be updated (struct program *)
  * @line: position in source descriptor buffer where the update will be done;
  *        this value is previously retained in program flow using a reference
- *        near the sequence to be modified (unsigned).
+ *        near the sequence to be modified.
  * @new_ref: updated value that will be inserted in source descriptor buffer at
  *           the specified line; this value is previously obtained using
  *           SET_LABEL macro near the line that will be used as reference
  *           (unsigned). For MOVE command, the value represents the offset
  *           field (in words).
+ *
+ * Return: 0 in case of success, a negative error code if it fails
  */
 #define PATCH_MOVE_NON_LOCAL(src_program, line, new_ref) \
 	rta_patch_move(src_program, line, new_ref, 1)
@@ -798,11 +806,13 @@ static inline unsigned rta_get_sec_era(void)
  * PATCH_LOAD - Auxiliary command to resolve self referential code
  * @line: position in descriptor buffer where the update will be done; this
  *        value is previously retained in program flow using a reference near
- *        the sequence to be modified (unsigned).
+ *        the sequence to be modified.
  * @new_ref: updated value that will be inserted in descriptor buffer at the
  *           specified line; this value is previously obtained using SET_LABEL
  *           macro near the line that will be used as reference (unsigned). For
  *           LOAD command, the value represents the offset field (in words).
+ *
+ * Return: 0 in case of success, a negative error code if it fails
  */
 #define PATCH_LOAD(line, new_ref) rta_patch_load(program, line, new_ref)
 
@@ -810,11 +820,13 @@ static inline unsigned rta_get_sec_era(void)
  * PATCH_STORE - Auxiliary command to resolve self referential code
  * @line: position in descriptor buffer where the update will be done; this
  *        value is previously retained in program flow using a reference near
- *        the sequence to be modified (unsigned).
+ *        the sequence to be modified.
  * @new_ref: updated value that will be inserted in descriptor buffer at the
  *           specified line; this value is previously obtained using SET_LABEL
  *           macro near the line that will be used as reference (unsigned). For
  *           STORE command, the value represents the offset field (in words).
+ *
+ * Return: 0 in case of success, a negative error code if it fails
  */
 #define PATCH_STORE(line, new_ref) rta_patch_store(program, line, new_ref, 0)
 
@@ -824,12 +836,14 @@ static inline unsigned rta_get_sec_era(void)
  * @src_program: buffer to be updated (struct program *)
  * @line: position in source descriptor buffer where the update will be done;
  *        this value is previously retained in program flow using a reference
- *        near the sequence to be modified (unsigned).
+ *        near the sequence to be modified.
  * @new_ref: updated value that will be inserted in source descriptor buffer at
  *           the specified line; this value is previously obtained using
  *           SET_LABEL macro near the line that will be used as reference
  *           (unsigned). For STORE command, the value represents the offset
  *           field (in words).
+ *
+ * Return: 0 in case of success, a negative error code if it fails
  */
 #define PATCH_STORE_NON_LOCAL(src_program, line, new_ref) \
 	rta_patch_store(src_program, line, new_ref, 1)
@@ -838,11 +852,13 @@ static inline unsigned rta_get_sec_era(void)
  * PATCH_HDR - Auxiliary command to resolve self referential code
  * @line: position in descriptor buffer where the update will be done; this
  *        value is previously retained in program flow using a reference near
- *        the sequence to be modified (unsigned).
+ *        the sequence to be modified.
  * @new_ref: updated value that will be inserted in descriptor buffer at the
  *           specified line; this value is previously obtained using SET_LABEL
  *           macro near the line that will be used as reference (unsigned). For
  *           HEADER command, the value represents the start index field.
+ *
+ * Return: 0 in case of success, a negative error code if it fails
  */
 #define PATCH_HDR(line, new_ref) rta_patch_header(program, line, new_ref, 0)
 
@@ -852,13 +868,14 @@ static inline unsigned rta_get_sec_era(void)
  * @src_program: buffer to be updated (struct program *)
  * @line: position in source descriptor buffer where the update will be done;
  *        this value is previously retained in program flow using a reference
- *        near the sequence to be modified (unsigned).
+ *        near the sequence to be modified.
  * @new_ref: updated value that will be inserted in source descriptor buffer at
  *           the specified line; this value is previously obtained using
  *           SET_LABEL macro near the line that will be used as reference
  *           (unsigned). For HEADER command, the value represents the start
  *           index field.
  *
+ * Return: 0 in case of success, a negative error code if it fails
  */
 #define PATCH_HDR_NON_LOCAL(src_program, line, new_ref) \
 	rta_patch_header(src_program, line, new_ref, 1)
@@ -867,12 +884,14 @@ static inline unsigned rta_get_sec_era(void)
  * PATCH_RAW - Auxiliary command to resolve self referential code
  * @line: position in descriptor buffer where the update will be done; this
  *        value is previously retained in program flow using a reference near
- *        the sequence to be modified (unsigned).
+ *        the sequence to be modified.
  * @mask: mask to be used for applying the new value (unsigned). The mask
  *        selects which bits from the provided @new_val are taken into
  *        consideration when overwriting the existing value.
  * @new_val: updated value that will be masked using the provided mask value
  *           and inserted in descriptor buffer at the specified line.
+ *
+ * Return: 0 in case of success, a negative error code if it fails
  */
 #define PATCH_RAW(line, mask, new_val) \
 	rta_patch_raw(program, line, mask, new_val, 0)
@@ -883,13 +902,14 @@ static inline unsigned rta_get_sec_era(void)
  * @src_program: buffer to be updated (struct program *)
  * @line: position in source descriptor buffer where the update will be done;
  *        this value is previously retained in program flow using a reference
- *        near the sequence to be modified (unsigned).
+ *        near the sequence to be modified.
  * @mask: mask to be used for applying the new value (unsigned). The mask
  *        selects which bits from the provided @new_val are taken into
  *        consideration when overwriting the existing value.
  * @new_val: updated value that will be masked using the provided mask value
  *           and inserted in descriptor buffer at the specified line.
  *
+ * Return: 0 in case of success, a negative error code if it fails
  */
 #define PATCH_RAW_NON_LOCAL(src_program, line, mask, new_val) \
 	rta_patch_raw(src_program, line, mask, new_val, 1)
