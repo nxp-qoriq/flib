@@ -80,7 +80,7 @@ struct wifi_decap_pdb {
  * cnstr_shdsc_wifi_encap - IEEE 802.11i WiFi encapsulation
  * @descbuf: pointer to descriptor-under-construction buffer
  * @bufsize: pointer to descriptor size, updated at completion
- * @ps: if 36/40bit addressing is desired, this parameter must be non-zero
+ * @ps: if 36/40bit addressing is desired, this parameter must be true
  * @mac_hdr_len: PDB MAC header length (24 or 28 bytes)
  * @pn: PDB Packet Number
  * @priority: PDB Packet priority
@@ -88,8 +88,8 @@ struct wifi_decap_pdb {
  * @cipherdata: block cipher transform definitions
  */
 static inline void cnstr_shdsc_wifi_encap(uint32_t *descbuf, unsigned *bufsize,
-		unsigned short ps, uint16_t mac_hdr_len, uint64_t pn,
-		uint8_t priority, uint8_t key_id, struct alginfo *cipherdata)
+		bool ps, uint16_t mac_hdr_len, uint64_t pn, uint8_t priority,
+		uint8_t key_id, struct alginfo *cipherdata)
 {
 	struct program prg;
 	struct program *program = &prg;
@@ -203,15 +203,15 @@ static inline void cnstr_shdsc_wifi_encap(uint32_t *descbuf, unsigned *bufsize,
  * cnstr_shdsc_wifi_decap - IEEE 802.11 WiFi decapsulation
  * @descbuf: pointer to descriptor-under-construction buffer
  * @bufsize: pointer to descriptor size, updated at completion
- * @ps: if 36/40bit addressing is desired, this parameter must be non-zero
+ * @ps: if 36/40bit addressing is desired, this parameter must be true
  * @mac_hdr_len: PDB MAC header length (24 or 28 bytes)
  * @pn: PDB Packet Number
  * @priority: PDB Packet priority
  * @cipherdata: block cipher transform definitions
  **/
 static inline void cnstr_shdsc_wifi_decap(uint32_t *descbuf, unsigned *bufsize,
-		unsigned short ps, uint16_t mac_hdr_len, uint64_t pn,
-		uint8_t priority, struct alginfo *cipherdata)
+		bool ps, uint16_t mac_hdr_len, uint64_t pn, uint8_t priority,
+		struct alginfo *cipherdata)
 {
 	struct program prg;
 	struct program *program = &prg;

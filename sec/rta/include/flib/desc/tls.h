@@ -318,7 +318,7 @@ struct tls_ccm_pdb {
  *                   shared descriptor.
  * @descbuf: pointer to buffer used for descriptor construction
  * @bufsize: pointer to descriptor size to be written back upon completion
- * @ps: if 36/40bit addressing is desired, this parameter must be non-zero
+ * @ps: if 36/40bit addressing is desired, this parameter must be true
  * @pdb: pointer to the PDB to be used in this descriptor
  *       This structure will be copied inline to the descriptor under
  *       construction. No error checking will be made. Refer to the block guide
@@ -332,8 +332,8 @@ struct tls_ccm_pdb {
  * SSL3.0 / TLS1.0 / TLS1.1 / TLS1.2 / DTLS10
  */
 static inline void cnstr_shdsc_tls(uint32_t *descbuf, unsigned *bufsize,
-				   unsigned short ps, uint8_t *pdb,
-				   unsigned pdb_len, struct protcmd *protcmd,
+				   bool ps, uint8_t *pdb, unsigned pdb_len,
+				   struct protcmd *protcmd,
 				   struct alginfo *cipherdata,
 				   struct alginfo *authdata)
 {

@@ -21,7 +21,8 @@ static inline int rta_key(struct program *program, uint32_t key_dst,
 			  int key_type, uint32_t encrypt_flags, uint64_t src,
 			  int src_type, uint32_t length, uint32_t flags)
 {
-	uint32_t opcode = 0, is_seq_cmd = 0;
+	uint32_t opcode = 0;
+	bool is_seq_cmd = false;
 	unsigned start_pc = program->current_pc;
 
 	if (key_type != REG_TYPE) {
@@ -39,7 +40,7 @@ static inline int rta_key(struct program *program, uint32_t key_dst,
 	/* write cmd type */
 	if (flags & SEQ) {
 		opcode = CMD_SEQ_KEY;
-		is_seq_cmd = 1;
+		is_seq_cmd = true;
 	} else {
 		opcode = CMD_KEY;
 	}

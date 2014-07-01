@@ -433,7 +433,7 @@ struct ipsec_new_decap_deco_dpovrd {
  *                           descriptor. Requires an MDHA split key.
  * @descbuf: pointer to buffer used for descriptor construction
  * @bufsize: pointer to descriptor size to be written back upon completion
- * @ps: if 36/40bit addressing is desired, this parameter must be non-zero
+ * @ps: if 36/40bit addressing is desired, this parameter must be true
  * @pdb: pointer to the PDB to be used with this descriptor
  *       This structure will be copied inline to the descriptor under
  *       construction. No error checking will be made. Refer to the
@@ -445,8 +445,7 @@ struct ipsec_new_decap_deco_dpovrd {
  *            specified. Valid algorithm values - one of OP_PCL_IPSEC_*
  */
 static inline void cnstr_shdsc_ipsec_encap(uint32_t *descbuf,
-					   unsigned *bufsize,
-					   unsigned short ps,
+					   unsigned *bufsize, bool ps,
 					   struct ipsec_encap_pdb *pdb,
 					   struct alginfo *cipherdata,
 					   struct alginfo *authdata)
@@ -485,7 +484,7 @@ static inline void cnstr_shdsc_ipsec_encap(uint32_t *descbuf,
  *                           Requires an MDHA split key.
  * @descbuf: pointer to buffer used for descriptor construction
  * @bufsize: pointer to descriptor size to be written back upon completion
- * @ps: if 36/40bit addressing is desired, this parameter must be non-zero
+ * @ps: if 36/40bit addressing is desired, this parameter must be true
  * @pdb: pointer to the PDB to be used with this descriptor
  *       This structure will be copied inline to the descriptor under
  *       construction. No error checking will be made. Refer to the
@@ -497,8 +496,7 @@ static inline void cnstr_shdsc_ipsec_encap(uint32_t *descbuf,
  *            specified. Valid algorithm values - one of OP_PCL_IPSEC_*
  */
 static inline void cnstr_shdsc_ipsec_decap(uint32_t *descbuf,
-					   unsigned *bufsize,
-					   unsigned short ps,
+					   unsigned *bufsize, bool ps,
 					   struct ipsec_decap_pdb *pdb,
 					   struct alginfo *cipherdata,
 					   struct alginfo *authdata)
@@ -833,7 +831,7 @@ static inline void cnstr_shdsc_ipsec_decap_des_aes_xcbc(uint32_t *descbuf,
  *     the protocol, it must be a MDHA split key.
  * @descbuf: pointer to buffer used for descriptor construction
  * @bufsize: pointer to descriptor size to be written back upon completion
- * @ps: if 36/40bit addressing is desired, this parameter must be non-zero
+ * @ps: if 36/40bit addressing is desired, this parameter must be true
  * @pdb: pointer to the PDB to be used with this descriptor
  *       This structure will be copied inline to the descriptor under
  *       construction. No error checking will be made. Refer to the
@@ -852,8 +850,7 @@ static inline void cnstr_shdsc_ipsec_decap_des_aes_xcbc(uint32_t *descbuf,
  *            specified. Valid algorithm values - one of OP_PCL_IPSEC_*
  */
 static inline void cnstr_shdsc_ipsec_new_encap(uint32_t *descbuf,
-					       unsigned *bufsize,
-					       unsigned short ps,
+					       unsigned *bufsize, bool ps,
 					       struct ipsec_encap_pdb *pdb,
 					       uint8_t *opt_ip_hdr,
 					       struct alginfo *cipherdata,
@@ -919,7 +916,7 @@ static inline void cnstr_shdsc_ipsec_new_encap(uint32_t *descbuf,
  *     it must be a MDHA split key.
  * @descbuf: pointer to buffer used for descriptor construction
  * @bufsize: pointer to descriptor size to be written back upon completion
- * @ps: if 36/40bit addressing is desired, this parameter must be non-zero
+ * @ps: if 36/40bit addressing is desired, this parameter must be true
  * @pdb: pointer to the PDB to be used with this descriptor
  *       This structure will be copied inline to the descriptor under
  *       construction. No error checking will be made. Refer to the
@@ -931,8 +928,7 @@ static inline void cnstr_shdsc_ipsec_new_encap(uint32_t *descbuf,
  *            specified. Valid algorithm values - one of OP_PCL_IPSEC_*
  */
 static inline void cnstr_shdsc_ipsec_new_decap(uint32_t *descbuf,
-					       unsigned *bufsize,
-					       unsigned short ps,
+					       unsigned *bufsize, bool ps,
 					       struct ipsec_decap_pdb *pdb,
 					       struct alginfo *cipherdata,
 					       struct alginfo *authdata)

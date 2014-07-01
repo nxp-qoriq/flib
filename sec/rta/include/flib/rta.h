@@ -751,7 +751,7 @@ static inline unsigned rta_get_sec_era(void)
  *
  * Return: 0 in case of success, a negative error code if it fails
  */
-#define PATCH_JUMP(line, new_ref) rta_patch_jmp(program, line, new_ref, 0)
+#define PATCH_JUMP(line, new_ref) rta_patch_jmp(program, line, new_ref, false)
 
 /**
  * PATCH_JUMP_NON_LOCAL - Auxiliary command to resolve referential code between
@@ -768,7 +768,7 @@ static inline unsigned rta_get_sec_era(void)
  * Return: 0 in case of success, a negative error code if it fails
  */
 #define PATCH_JUMP_NON_LOCAL(src_program, line, new_ref) \
-	rta_patch_jmp(src_program, line, new_ref, 1)
+	rta_patch_jmp(src_program, line, new_ref, true)
 
 /**
  * PATCH_MOVE - Auxiliary command to resolve self referential code
@@ -782,7 +782,7 @@ static inline unsigned rta_get_sec_era(void)
  *
  * Return: 0 in case of success, a negative error code if it fails
  */
-#define PATCH_MOVE(line, new_ref) rta_patch_move(program, line, new_ref, 0)
+#define PATCH_MOVE(line, new_ref) rta_patch_move(program, line, new_ref, false)
 
 /**
  * PATCH_MOVE_NON_LOCAL - Auxiliary command to resolve referential code between
@@ -800,7 +800,7 @@ static inline unsigned rta_get_sec_era(void)
  * Return: 0 in case of success, a negative error code if it fails
  */
 #define PATCH_MOVE_NON_LOCAL(src_program, line, new_ref) \
-	rta_patch_move(src_program, line, new_ref, 1)
+	rta_patch_move(src_program, line, new_ref, true)
 
 /**
  * PATCH_LOAD - Auxiliary command to resolve self referential code
@@ -828,7 +828,8 @@ static inline unsigned rta_get_sec_era(void)
  *
  * Return: 0 in case of success, a negative error code if it fails
  */
-#define PATCH_STORE(line, new_ref) rta_patch_store(program, line, new_ref, 0)
+#define PATCH_STORE(line, new_ref) \
+	rta_patch_store(program, line, new_ref, false)
 
 /**
  * PATCH_STORE_NON_LOCAL - Auxiliary command to resolve referential code between
@@ -846,7 +847,7 @@ static inline unsigned rta_get_sec_era(void)
  * Return: 0 in case of success, a negative error code if it fails
  */
 #define PATCH_STORE_NON_LOCAL(src_program, line, new_ref) \
-	rta_patch_store(src_program, line, new_ref, 1)
+	rta_patch_store(src_program, line, new_ref, true)
 
 /**
  * PATCH_HDR - Auxiliary command to resolve self referential code
@@ -860,7 +861,7 @@ static inline unsigned rta_get_sec_era(void)
  *
  * Return: 0 in case of success, a negative error code if it fails
  */
-#define PATCH_HDR(line, new_ref) rta_patch_header(program, line, new_ref, 0)
+#define PATCH_HDR(line, new_ref) rta_patch_header(program, line, new_ref, false)
 
 /**
  * PATCH_HDR_NON_LOCAL - Auxiliary command to resolve referential code between
@@ -878,7 +879,7 @@ static inline unsigned rta_get_sec_era(void)
  * Return: 0 in case of success, a negative error code if it fails
  */
 #define PATCH_HDR_NON_LOCAL(src_program, line, new_ref) \
-	rta_patch_header(src_program, line, new_ref, 1)
+	rta_patch_header(src_program, line, new_ref, true)
 
 /**
  * PATCH_RAW - Auxiliary command to resolve self referential code
@@ -894,7 +895,7 @@ static inline unsigned rta_get_sec_era(void)
  * Return: 0 in case of success, a negative error code if it fails
  */
 #define PATCH_RAW(line, mask, new_val) \
-	rta_patch_raw(program, line, mask, new_val, 0)
+	rta_patch_raw(program, line, mask, new_val, false)
 
 /**
  * PATCH_RAW_NON_LOCAL - Auxiliary command to resolve referential code between
@@ -912,6 +913,6 @@ static inline unsigned rta_get_sec_era(void)
  * Return: 0 in case of success, a negative error code if it fails
  */
 #define PATCH_RAW_NON_LOCAL(src_program, line, mask, new_val) \
-	rta_patch_raw(src_program, line, mask, new_val, 1)
+	rta_patch_raw(src_program, line, mask, new_val, true)
 
 #endif /* __RTA_RTA_H__ */

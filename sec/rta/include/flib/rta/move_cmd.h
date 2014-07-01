@@ -78,7 +78,8 @@ static inline int rta_move(struct program *program, int cmd_type, uint64_t src,
 	uint32_t opcode = 0;
 	uint16_t offset = 0, opt = 0;
 	uint32_t val = 0;
-	int ret = -EINVAL, is_move_len_cmd = 0;
+	int ret = -EINVAL;
+	bool is_move_len_cmd = false;
 	unsigned start_pc = program->current_pc;
 
 	if ((type_src != REG_TYPE) || (type_dst != REG_TYPE)) {
@@ -116,7 +117,7 @@ static inline int rta_move(struct program *program, int cmd_type, uint64_t src,
 		}
 
 		opcode = CMD_MOVE_LEN;
-		is_move_len_cmd = 1;
+		is_move_len_cmd = true;
 	} else {
 		opcode = CMD_MOVE;
 	}

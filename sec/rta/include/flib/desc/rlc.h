@@ -91,7 +91,7 @@ struct rlc_pdb {
  * @bufsize: size of descriptor written. Once the function returns, the value of
  *           this parameter can be used for reclaiming the space that wasn't
  *           used for the descriptor.
- * @ps: if 36/40bit addressing is desired, this parameter must be non-zero
+ * @ps: if 36/40bit addressing is desired, this parameter must be true
  * @mode: indicates if ACKed or non-ACKed mode is used
  * @hfn: starting Hyper Frame Number to be used together with the SN from the
  *       RLC frames.
@@ -109,7 +109,7 @@ struct rlc_pdb {
  */
 static inline void cnstr_shdsc_rlc_encap(uint32_t *descbuf,
 		unsigned *bufsize,
-		unsigned short ps,
+		bool ps,
 		enum rlc_mode mode,
 		uint32_t hfn,
 		unsigned short bearer,
@@ -235,7 +235,7 @@ static inline void cnstr_shdsc_rlc_encap(uint32_t *descbuf,
  * @bufsize: size of descriptor written. Once the function returns, the value of
  *           this parameter can be used for reclaiming the space that wasn't
  *           used for the descriptor.
- * @ps: if 36/40bit addressing is desired, this parameter must be non-zero
+ * @ps: if 36/40bit addressing is desired, this parameter must be true
  * @mode: indicates if ACKed or non-ACKed mode is used
  * @hfn: starting Hyper Frame Number to be used together with the SN from the
  *       RLC frames.
@@ -253,7 +253,7 @@ static inline void cnstr_shdsc_rlc_encap(uint32_t *descbuf,
  */
 static inline void cnstr_shdsc_rlc_decap(uint32_t *descbuf,
 		unsigned *bufsize,
-		unsigned short ps,
+		bool ps,
 		enum rlc_mode mode,
 		uint32_t hfn,
 		unsigned short bearer,
