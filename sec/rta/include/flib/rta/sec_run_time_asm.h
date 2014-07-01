@@ -58,11 +58,6 @@ enum rta_sec_era {
 #define PTR_DATA 2
 #define REG_TYPE 3
 
-#define BYTES_2 2
-#define BYTES_4 4
-#define BYTES_8 8
-#define BYTES_16 16
-
 #define IMM(VAL)    VAL, IMM_DATA
 #define PTR(VAL)    VAL, PTR_DATA
 
@@ -642,7 +637,7 @@ static inline void __rta_inline_data(struct program *program, uint64_t data,
 				     int data_type, uint32_t length)
 {
 	if (data_type == IMM_DATA) {
-		__rta_out64(program, length > BYTES_4, data);
+		__rta_out64(program, length > 4, data);
 	} else {
 		uint8_t *tmp = (uint8_t *)&program->buffer[program->current_pc];
 		uint32_t i;

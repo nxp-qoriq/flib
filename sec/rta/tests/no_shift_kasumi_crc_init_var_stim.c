@@ -78,7 +78,7 @@ unsigned generate_lte_code(struct program *prg, uint32_t *buff, int mdatalen,
 		WORD(0x80050000);
 
 		/* NOTE Math 0 contains 0 at this point */
-		MATHB(SEQINSZ, ADD, MATH0, VSEQINSZ, BYTES_4, 0);
+		MATHB(SEQINSZ, ADD, MATH0, VSEQINSZ, 4, 0);
 		LOAD(IMM(0), DCTRL, 8, 0, 0);
 		SEQFIFOLOAD(MSG1, 0, VLF);
 		LOAD(IMM(0), DCTRL, 4, 0, 0);
@@ -103,9 +103,9 @@ unsigned generate_lte_code(struct program *prg, uint32_t *buff, int mdatalen,
 		 * The input to cipher is 2 bytes less than B. And the amount
 		 * to SEQ FIFO STORE is equal to B
 		 */
-		MATHB(ZERO, ADD, MATH0, VSEQOUTSZ, BYTES_2, 0);
+		MATHB(ZERO, ADD, MATH0, VSEQOUTSZ, 2, 0);
 		/* B-2: Size of each PDU not including the header */
-		MATHB(MATH0, SUB, IMM(2), MATH0, BYTES_2, 0);
+		MATHB(MATH0, SUB, IMM(2), MATH0, 2, 0);
 
 		pmove4 = MOVE(DESCBUF, 0, MATH0, 0, IMM(4), 0);
 		pmove5 = MOVE(MATH0, 0, DESCBUF, 0, IMM(8), 0);
@@ -140,14 +140,14 @@ unsigned generate_lte_code(struct program *prg, uint32_t *buff, int mdatalen,
 		MOVE(IFIFOABD, 0, CONTEXT1, 0, IMM(2), FLUSH1);
 
 		SET_LABEL(datasz_len);
-		LOAD(IMM(0), DATA2SZ, 0, BYTES_4, 0);
+		LOAD(IMM(0), DATA2SZ, 0, 4, 0);
 		SET_LABEL(datasz1_len);
-		LOAD(IMM(0), DATA1SZ, 0, BYTES_4, 0);
+		LOAD(IMM(0), DATA1SZ, 0, 4, 0);
 
 		/* PDU Header to Math 3 */
 		MOVE(CONTEXT1, 0, MATH0, 0, IMM(8), WAITCOMP);
 		/* Get PDU into right 2 bytes */
-		MATHB(MATH0, RSHIFT, IMM(48), MATH0, BYTES_8, IFB);
+		MATHB(MATH0, RSHIFT, IMM(48), MATH0, 8, IFB);
 		/* PDU Header to Math 3 left 2 bytes */
 		MOVE(CONTEXT1, 0, MATH0, 0, IMM(2), 0);
 		/* Put it where CRC can snoop & FIFO STORE can get it */
@@ -155,11 +155,11 @@ unsigned generate_lte_code(struct program *prg, uint32_t *buff, int mdatalen,
 
 		/* now extract the SEQ NUM for context. mask out all but the
 		 * SEQ NUM */
-		MATHB(MATH0, AND, IMM(0x7FF8), MATH0, BYTES_4, 0);
+		MATHB(MATH0, AND, IMM(0x7FF8), MATH0, 4, 0);
 		/* get SEQ NUM to right 12 bits of left word */
-		MATHB(MATH0, LSHIFT, IMM(29), MATH0, BYTES_8, IFB);
+		MATHB(MATH0, LSHIFT, IMM(29), MATH0, 8, IFB);
 		/* merge in HFN, bearer, D */
-		MATHB(MATH0, OR, MATH3, MATH0, BYTES_8, 0);
+		MATHB(MATH0, OR, MATH3, MATH0, 8, 0);
 		/* get context in place */
 		MOVE(MATH0, 0, CONTEXT1, 0, IMM(8), 0);
 
@@ -169,26 +169,26 @@ unsigned generate_lte_code(struct program *prg, uint32_t *buff, int mdatalen,
 		/* Have CRC grab the PDU */
 		LOAD(IMM
 		     (NFIFOENTRY_STYPE_OFIFO | NFIFOENTRY_DEST_CLASS2 |
-		      NFIFOENTRY_DTYPE_MSG | 2), NFIFO, 0, BYTES_4, 0);
+		      NFIFOENTRY_DTYPE_MSG | 2), NFIFO, 0, 4, 0);
 
 		/* need to know if both C & N are 0 */
-		MATHB(MATH1, ADD, MATH2, MATH0, BYTES_2, 0);
+		MATHB(MATH1, ADD, MATH2, MATH0, 2, 0);
 		/* but haven't decremented N yet */
-		MATHB(MATH0, SUB, ONE, MATH0, BYTES_2, 0);
+		MATHB(MATH0, SUB, ONE, MATH0, 2, 0);
 		/* do the final entry */
 		pjump2 = JUMP(IMM(0), LOCAL_JUMP, ALL_TRUE,
 				MATH_Z);
 		SET_LABEL(info_len);
 		LOAD(IMM(NFIFOENTRY_STYPE_SNOOP | NFIFOENTRY_DEST_BOTH |
 			 NFIFOENTRY_DTYPE_MSG | NFIFOENTRY_LC1),
-		     NFIFO, 0, BYTES_4, 0);
+		     NFIFO, 0, 4, 0);
 
 		/* skip over the last entry */
 		pjump3 = JUMP(IMM(after_info), LOCAL_JUMP, ALL_TRUE, 0);
 		SET_LABEL(last_info);
 		LOAD(IMM(NFIFOENTRY_STYPE_SNOOP | NFIFOENTRY_DEST_BOTH |
 			 NFIFOENTRY_DTYPE_MSG | NFIFOENTRY_LC1 |
-			 NFIFOENTRY_LC2), NFIFO, 0, BYTES_4, 0);
+			 NFIFOENTRY_LC2), NFIFO, 0, 4, 0);
 		SET_LABEL(after_info);
 
 		/* Create offset in output FIFO of 6 */
@@ -198,7 +198,7 @@ unsigned generate_lte_code(struct program *prg, uint32_t *buff, int mdatalen,
 		JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, CLASS1 | NOP);
 		LOAD(IMM
 		     (CLRW_CLR_C1MODE | CLRW_CLR_C1DATAS | CLRW_CLR_C1ICV |
-		      CLRW_CLR_C1CTX), CLRW, 0, BYTES_4, 0);
+		      CLRW_CLR_C1CTX), CLRW, 0, 4, 0);
 
 		SET_LABEL(encap_share_end);
 	}

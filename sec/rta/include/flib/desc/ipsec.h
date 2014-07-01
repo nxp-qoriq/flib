@@ -888,9 +888,9 @@ static inline void cnstr_shdsc_ipsec_new_encap(uint32_t *descbuf,
 		break;
 	case PDBOPTS_ESP_OIHI_PDB_REF:
 		if (ps)
-			COPY_DATA(opt_ip_hdr, BYTES_8);
+			COPY_DATA(opt_ip_hdr, 8);
 		else
-			COPY_DATA(opt_ip_hdr, BYTES_4);
+			COPY_DATA(opt_ip_hdr, 4);
 		break;
 	default:
 		break;
