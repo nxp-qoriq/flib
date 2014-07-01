@@ -153,9 +153,8 @@ struct mbms_type_1_3_pdb {
 	uint32_t crc_payload_fail;
 };
 
-static inline void cnstr_shdsc_mbms_type0(uint32_t *descbuf,
-					  unsigned *bufsize,
-					  unsigned short ps)
+static inline void cnstr_shdsc_mbms_type0(uint32_t *descbuf, unsigned *bufsize,
+					  bool ps)
 {
 	struct program prg;
 	struct program *program = &prg;
@@ -348,8 +347,7 @@ static inline void cnstr_shdsc_mbms_type0(uint32_t *descbuf,
 }
 
 static inline unsigned cnstr_shdsc_mbms_type1_3(uint32_t *descbuf,
-						unsigned *bufsize,
-						unsigned short ps,
+						unsigned *bufsize, bool ps,
 						enum mbms_pdu_type pdu_type)
 {
 	struct program part1_prg, part2_prg;
@@ -780,7 +778,7 @@ static inline unsigned cnstr_shdsc_mbms_type1_3(uint32_t *descbuf,
  * cnstr_shdsc_mbms - MBMS PDU CRC checking descriptor
  * @descbuf: pointer to buffer used for descriptor construction
  * @bufsize: pointer to descriptor size to be written back upon completion
- * @ps: if 36/40bit addressing is desired, this parameter must be non-zero
+ * @ps: if 36/40bit addressing is desired, this parameter must be true
  * @preheader_len: length to be set in the corresponding preheader field. Unless
  *                 the descriptor is split in multiple parts, this will be equal
  *                 to bufsize.
@@ -789,10 +787,8 @@ static inline unsigned cnstr_shdsc_mbms_type1_3(uint32_t *descbuf,
  * Note: This function can be called only for SEC ERA >= 5.
  *
  */
-static inline void cnstr_shdsc_mbms(uint32_t *descbuf,
-				    unsigned *bufsize,
-				    unsigned short ps,
-				    unsigned *preheader_len,
+static inline void cnstr_shdsc_mbms(uint32_t *descbuf, unsigned *bufsize,
+				    bool ps, unsigned *preheader_len,
 				    enum mbms_pdu_type pdu_type)
 {
 	if (rta_sec_era < RTA_SEC_ERA_5) {

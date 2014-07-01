@@ -268,7 +268,7 @@ struct rsa_dec_pdb_form3 {
  *                   descriptor. Supports decryption implemented in 3 forms.
  * @descbuf: pointer to buffer used for descriptor construction
  * @bufsize: pointer to descriptor size to be written back upon completion
- * @ps: if 36/40bit addressing is desired, this parameter must be non-zero
+ * @ps: if 36/40bit addressing is desired, this parameter must be true
  * @pdb: pointer to the Protocol Data Block to be used for descriptor
  *       construction. Must be mapped over a defined rsa structure. The PDB is
  *       assumed to be valid.
@@ -276,8 +276,8 @@ struct rsa_dec_pdb_form3 {
  * @protcmd: protocol Operation Command definitions
  */
 static inline void cnstr_shdsc_rsa(uint32_t *descbuf, unsigned *bufsize,
-				   unsigned short ps, uint8_t *pdb,
-				   unsigned pdb_len, struct protcmd *protcmd)
+				   bool ps, uint8_t *pdb, unsigned pdb_len,
+				   struct protcmd *protcmd)
 {
 	struct program prg;
 	struct program *program = &prg;

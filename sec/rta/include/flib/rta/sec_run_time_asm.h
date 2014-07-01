@@ -513,9 +513,9 @@ enum rta_sec_era {
  * @buffer: buffer carrying descriptor
  * @shrhdr: shared descriptor header
  * @jobhdr: job descriptor header
- * @ps: pointer fields size; if ps is set to 1, pointers will be 36bits in
- *      length; if ps is set to 0, pointers will be 32bits in length
- * @bswap: if set, perform byte swap on a 4-byte boundary
+ * @ps: pointer fields size; if ps is true, pointers will be 36bits in
+ *      length; if ps is false, pointers will be 32bits in length
+ * @bswap: if true, perform byte swap on a 4-byte boundary
  */
 struct program {
 	unsigned current_pc;
@@ -525,8 +525,8 @@ struct program {
 	uint32_t *buffer;
 	uint32_t *shrhdr;
 	uint32_t *jobhdr;
-	unsigned short ps;
-	unsigned short bswap;
+	bool ps;
+	bool bswap;
 };
 
 static inline void rta_program_cntxt_init(struct program *program,
@@ -539,8 +539,8 @@ static inline void rta_program_cntxt_init(struct program *program,
 	program->buffer = buffer;
 	program->shrhdr = NULL;
 	program->jobhdr = NULL;
-	program->ps = 0;
-	program->bswap = 0;
+	program->ps = false;
+	program->bswap = false;
 }
 
 static inline void __rta__desc_bswap(uint32_t *buff, unsigned buff_len)
@@ -577,13 +577,13 @@ static inline unsigned rta_program_finalize(struct program *program)
 
 static inline unsigned rta_program_set_36bit_addr(struct program *program)
 {
-	program->ps = 1;
+	program->ps = true;
 	return program->current_pc;
 }
 
 static inline unsigned rta_program_set_bswap(struct program *program)
 {
-	program->bswap = 1;
+	program->bswap = true;
 	return program->current_pc;
 }
 
@@ -593,9 +593,10 @@ static inline void __rta_out32(struct program *program, uint32_t val)
 	program->current_pc++;
 }
 
-static inline void __rta_out64(struct program *program, int ext, uint64_t val)
+static inline void __rta_out64(struct program *program, bool is_ext,
+			       uint64_t val)
 {
-	if (ext)
+	if (is_ext)
 		__rta_out32(program, upper_32_bits(val));
 
 	__rta_out32(program, lower_32_bits(val));
@@ -614,7 +615,7 @@ static inline unsigned rta_dword(struct program *program, uint64_t val)
 {
 	unsigned start_pc = program->current_pc;
 
-	__rta_out64(program, 1, val);
+	__rta_out64(program, true, val);
 
 	return start_pc;
 }
@@ -679,10 +680,10 @@ static inline unsigned rta_set_label(struct program *program)
 
 
 static inline int rta_patch_move(struct program *program, int line,
-				 unsigned new_ref, unsigned check_swap)
+				 unsigned new_ref, bool check_swap)
 {
 	uint32_t opcode;
-	unsigned bswap = check_swap && program->bswap;
+	bool bswap = check_swap && program->bswap;
 
 	if (line < 0)
 		return -EINVAL;
@@ -697,10 +698,10 @@ static inline int rta_patch_move(struct program *program, int line,
 }
 
 static inline int rta_patch_jmp(struct program *program, int line,
-				unsigned new_ref, unsigned check_swap)
+				unsigned new_ref, bool check_swap)
 {
 	uint32_t opcode;
-	unsigned bswap = check_swap && program->bswap;
+	bool bswap = check_swap && program->bswap;
 
 	if (line < 0)
 		return -EINVAL;
@@ -715,10 +716,10 @@ static inline int rta_patch_jmp(struct program *program, int line,
 }
 
 static inline int rta_patch_header(struct program *program, int line,
-				   unsigned new_ref, unsigned check_swap)
+				   unsigned new_ref, bool check_swap)
 {
 	uint32_t opcode;
-	unsigned bswap = check_swap && program->bswap;
+	bool bswap = check_swap && program->bswap;
 
 	if (line < 0)
 		return -EINVAL;
@@ -754,10 +755,10 @@ static inline int rta_patch_load(struct program *program, int line,
 }
 
 static inline int rta_patch_store(struct program *program, int line,
-				  unsigned new_ref, unsigned check_swap)
+				  unsigned new_ref, bool check_swap)
 {
 	uint32_t opcode;
-	unsigned bswap = check_swap && program->bswap;
+	bool bswap = check_swap && program->bswap;
 
 	if (line < 0)
 		return -EINVAL;
@@ -786,10 +787,10 @@ static inline int rta_patch_store(struct program *program, int line,
 
 static inline int rta_patch_raw(struct program *program, int line,
 				unsigned mask, unsigned new_val,
-				unsigned check_swap)
+				bool check_swap)
 {
 	uint32_t opcode;
-	unsigned bswap = check_swap && program->bswap;
+	bool bswap = check_swap && program->bswap;
 
 	if (line < 0)
 		return -EINVAL;

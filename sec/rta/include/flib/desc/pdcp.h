@@ -1770,7 +1770,7 @@ static inline enum pdb_type_e cnstr_pdcp_c_plane_pdb(struct program *program,
  * @bufsize: size of descriptor written. Once the function returns, the value of
  *           this parameter can be used for reclaiming the space that wasn't
  *           used for the descriptor.
- * @ps: if 36/40bit addressing is desired, this parameter must be non-zero
+ * @ps: if 36/40bit addressing is desired, this parameter must be true
  * @hfn: starting Hyper Frame Number to be used together with the SN from the
  *       PDCP frames.
  * @bearer: radio bearer ID
@@ -1792,7 +1792,7 @@ static inline enum pdb_type_e cnstr_pdcp_c_plane_pdb(struct program *program,
  */
 static inline void cnstr_shdsc_pdcp_c_plane_encap(uint32_t *descbuf,
 		unsigned *bufsize,
-		unsigned short ps,
+		bool ps,
 		uint32_t hfn,
 		unsigned char bearer,
 		unsigned char direction,
@@ -1906,7 +1906,7 @@ static inline void cnstr_shdsc_pdcp_c_plane_encap(uint32_t *descbuf,
  * @bufsize: size of descriptor written. Once the function returns, the value of
  *           this parameter can be used for reclaiming the space that wasn't
  *           used for the descriptor.
- * @ps: if 36/40bit addressing is desired, this parameter must be non-zero
+ * @ps: if 36/40bit addressing is desired, this parameter must be true
  * @hfn: starting Hyper Frame Number to be used together with the SN from the
  *       PDCP frames.
  * @bearer: radio bearer ID
@@ -1929,7 +1929,7 @@ static inline void cnstr_shdsc_pdcp_c_plane_encap(uint32_t *descbuf,
  */
 static inline void cnstr_shdsc_pdcp_c_plane_decap(uint32_t *descbuf,
 		unsigned *bufsize,
-		unsigned short ps,
+		bool ps,
 		uint32_t hfn,
 		unsigned char bearer,
 		unsigned char direction,
@@ -2043,7 +2043,7 @@ static inline void cnstr_shdsc_pdcp_c_plane_decap(uint32_t *descbuf,
  * @bufsize: size of descriptor written. Once the function returns, the value of
  *           this parameter can be used for reclaiming the space that wasn't
  *           used for the descriptor.
- * @ps: if 36/40bit addressing is desired, this parameter must be non-zero
+ * @ps: if 36/40bit addressing is desired, this parameter must be true
  * @sn_size: selects Sequence Number Size: 7/12/15 bits
  * @hfn: starting Hyper Frame Number to be used together with the SN from the
  *       PDCP frames.
@@ -2065,7 +2065,7 @@ static inline void cnstr_shdsc_pdcp_c_plane_decap(uint32_t *descbuf,
  */
 static inline void cnstr_shdsc_pdcp_u_plane_encap(uint32_t *descbuf,
 		unsigned *bufsize,
-		unsigned short ps,
+		bool ps,
 		enum pdcp_sn_size sn_size,
 		uint32_t hfn,
 		unsigned short bearer,
@@ -2200,7 +2200,7 @@ static inline void cnstr_shdsc_pdcp_u_plane_encap(uint32_t *descbuf,
  * @bufsize: size of descriptor written. Once the function returns, the value of
  *           this parameter can be used for reclaiming the space that wasn't
  *           used for the descriptor.
- * @ps: if 36/40bit addressing is desired, this parameter must be non-zero
+ * @ps: if 36/40bit addressing is desired, this parameter must be true
  * @sn_size: selects Sequence Number Size: 7/12/15 bits
  * @hfn: starting Hyper Frame Number to be used together with the SN from the
  *       PDCP frames.
@@ -2222,7 +2222,7 @@ static inline void cnstr_shdsc_pdcp_u_plane_encap(uint32_t *descbuf,
  */
 static inline void cnstr_shdsc_pdcp_u_plane_decap(uint32_t *descbuf,
 		unsigned *bufsize,
-		unsigned short ps,
+		bool ps,
 		enum pdcp_sn_size sn_size,
 		uint32_t hfn,
 		unsigned short bearer,
@@ -2358,7 +2358,7 @@ static inline void cnstr_shdsc_pdcp_u_plane_decap(uint32_t *descbuf,
  * @bufsize: size of descriptor written. Once the function returns, the value of
  *           this parameter can be used for reclaiming the space that wasn't
  *           used for the descriptor.
- * @ps: if 36/40bit addressing is desired, this parameter must be non-zero
+ * @ps: if 36/40bit addressing is desired, this parameter must be true
  * @authdata: pointer to authentication transform definitions
  *            Valid algorithm values are those from auth_type_pdcp enum.
  *
@@ -2370,7 +2370,7 @@ static inline void cnstr_shdsc_pdcp_u_plane_decap(uint32_t *descbuf,
  */
 static inline void cnstr_shdsc_pdcp_short_mac(uint32_t *descbuf,
 		unsigned *bufsize,
-		unsigned short ps,
+		bool ps,
 		struct alginfo *authdata)
 {
 	struct program prg;

@@ -44,7 +44,8 @@ static inline int rta_fifo_load(struct program *program, uint32_t src,
 {
 	uint32_t opcode = 0;
 	uint32_t ext_length = 0, val = 0;
-	int ret = -EINVAL, is_seq_cmd = 0;
+	int ret = -EINVAL;
+	bool is_seq_cmd = false;
 	unsigned start_pc = program->current_pc;
 
 	if (type_src != REG_TYPE) {
@@ -56,7 +57,7 @@ static inline int rta_fifo_load(struct program *program, uint32_t src,
 	/* write command type field */
 	if (flags & SEQ) {
 		opcode = CMD_SEQ_FIFO_LOAD;
-		is_seq_cmd = 1;
+		is_seq_cmd = true;
 	} else {
 		opcode = CMD_FIFO_LOAD;
 	}
@@ -209,7 +210,8 @@ static inline int rta_fifo_store(struct program *program, uint32_t src,
 {
 	uint32_t opcode = 0;
 	uint32_t val = 0;
-	int ret = -EINVAL, is_seq_cmd = 0;
+	int ret = -EINVAL;
+	bool is_seq_cmd = false;
 	unsigned start_pc = program->current_pc;
 
 	if (type_src != REG_TYPE) {
@@ -221,7 +223,7 @@ static inline int rta_fifo_store(struct program *program, uint32_t src,
 	/* write command type field */
 	if (flags & SEQ) {
 		opcode = CMD_SEQ_FIFO_STORE;
-		is_seq_cmd = 1;
+		is_seq_cmd = true;
 	} else {
 		opcode = CMD_FIFO_STORE;
 	}
