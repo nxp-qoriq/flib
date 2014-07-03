@@ -430,11 +430,6 @@ enum rta_regs {
 #define SIZE_BYTE	0x00040000
 #define SIZE_DWORD	0x00080000
 
-/* MOVE command type */
-#define __MOVE		1
-#define __MOVEB		2
-#define __MOVEDW	3
-
 /* MATH command specific flags */
 #define IFB         MATH_IFB
 #define NFU         MATH_NFU
