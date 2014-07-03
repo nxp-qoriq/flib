@@ -370,7 +370,7 @@ static inline unsigned rta_get_sec_era(void)
  *             to external memory via DMA.
  * @data: output data type to store: PKHA registers, IFIFO, OFIFO, RNG,
  *        RNGOFIFO, AFHA_SBOX, MDHA_SPLIT_KEY, MSG, KEY1, KEY2, SKIP.
- * @encrypt_flags: store data encryption mode: EKT, NRM, TK, JDK
+ * @encrypt_flags: store data encryption mode: EKT, TK
  * @dst: pointer to store location (uint64_t)
  * @length: number of bytes to load (uint32_t)
  * @flags: operational flags: SGF, CONT, EXT, CLASS1, CLASS2, BOTH
@@ -388,7 +388,7 @@ static inline unsigned rta_get_sec_era(void)
  *                Data FIFO to external memory via DMA.
  * @data: output data type to store: PKHA registers, IFIFO, OFIFO, RNG,
  *        RNGOFIFO, AFHA_SBOX, MDHA_SPLIT_KEY, MSG, KEY1, KEY2, METADATA, SKIP.
- * @encrypt_flags: store data encryption mode: EKT, NRM, TK, JDK
+ * @encrypt_flags: store data encryption mode: EKT, TK
  * @length: number of bytes to load; can be set to 0 for SEQ command w/ VLF set
  *          (uint32_t).
  * @flags: operational flags: VLF, CONT, EXT, CLASS1, CLASS2, BOTH

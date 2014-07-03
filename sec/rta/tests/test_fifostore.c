@@ -29,9 +29,9 @@ unsigned test_fifo_store_op(uint32_t *buff)
 	FIFOSTORE(PKB3, 0, loc, 10, 0);
 	FIFOSTORE(PKN, 0, loc, 10, 0);
 	/* Encrypted (keys) section - normal */
-	FIFOSTORE(KEY1, NRM, loc, 32, 0);
+	FIFOSTORE(KEY1, 0, loc, 32, 0);
 	FIFOSTORE(KEY2, 0, loc, 16, 0);
-	FIFOSTORE(PKE, JDK | NRM, loc, 10, 0);
+	FIFOSTORE(PKE, 0, loc, 10, 0);
 	FIFOSTORE(AFHA_SBOX, 0, loc, 258, 0);
 	FIFOSTORE(MDHA_SPLIT_KEY, 0, loc, 128, 0);
 	/* Encrypted (keys) section - enhanced */

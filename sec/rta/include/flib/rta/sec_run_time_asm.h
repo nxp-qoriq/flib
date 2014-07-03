@@ -442,12 +442,12 @@ enum rta_sec_era {
 #define EWS		0x00800000
 
 #define ENC             0x00004000	/* Encrypted Key */
-#define EKT             0x00008000	/* AES CCM Encryption */
-#define TK              0x00010000	/* Trusted Descriptor Key */
+#define EKT             0x00008000	/* AES CCM Encryption (default is
+					 * AES ECB Encryption) */
+#define TK              0x00010000	/* Trusted Descriptor Key (default is
+					 * Job Descriptor Key) */
 #define NWB             0x00020000	/* No Write Back Key */
-#define NRM             0x00040000	/* AES ECB Encryption */
-#define JDK             0x00080000	/* Job Descriptor Key */
-#define PTS             0x00100000	/* Plaintext Store */
+#define PTS             0x00040000	/* Plaintext Store */
 
 /* HEADER Command specific flags */
 #define RIF             0x00010000
