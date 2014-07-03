@@ -46,9 +46,10 @@ static const uint32_t jump_src_dst[][2] = {
 };
 
 static inline int rta_jump(struct program *program, uint64_t address,
-			   int address_type, uint32_t jump_type,
-			   uint32_t test_type, uint32_t test_condition,
-			   uint32_t src_dst, int type_src_dst)
+			   int address_type, enum rta_jump_type jump_type,
+			   enum rta_jump_cond test_type,
+			   uint32_t test_condition, uint32_t src_dst,
+			   int type_src_dst)
 {
 	uint32_t opcode = CMD_JUMP;
 	unsigned start_pc = program->current_pc;

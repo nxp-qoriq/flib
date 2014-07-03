@@ -29,8 +29,9 @@ static const uint32_t shr_header_flags[] = {
 	DNR | SC | PD | CIF | RIF
 };
 
-static inline int rta_shr_header(struct program *program, uint32_t share,
-				 unsigned start_idx, uint32_t flags)
+static inline int rta_shr_header(struct program *program,
+				 enum rta_share_type share, unsigned start_idx,
+				 uint32_t flags)
 {
 	uint32_t opcode = CMD_SHARED_DESC_HDR;
 	unsigned start_pc = program->current_pc;
@@ -91,9 +92,10 @@ static inline int rta_shr_header(struct program *program, uint32_t share,
 	return -EINVAL;
 }
 
-static inline int rta_job_header(struct program *program, uint32_t share,
-				 unsigned start_idx, uint64_t shr_desc,
-				 uint32_t flags, uint32_t ext_flags)
+static inline int rta_job_header(struct program *program,
+				 enum rta_share_type share, unsigned start_idx,
+				 uint64_t shr_desc, uint32_t flags,
+				 uint32_t ext_flags)
 {
 	uint32_t opcode = CMD_DESC_HDR;
 	uint32_t hdr_ext = 0;
