@@ -53,7 +53,6 @@ enum rta_sec_era {
 #define INTL_SEC_ERA(sec_era)	(sec_era - 1)
 
 /* Convenience macros */
-#define NO_OPT 0
 #define IMM_DATA 1
 #define PTR_DATA 2
 #define REG_TYPE 3
@@ -61,353 +60,285 @@ enum rta_sec_era {
 #define IMM(VAL)    VAL, IMM_DATA
 #define PTR(VAL)    VAL, PTR_DATA
 
-#define REGISTER    0x01000000
-#define QUALIFIER   0x02000000
-#define MATH_OP     0x03000000
-#define MOVE_DST_SRC    0x04000000
-#define FIFO        0x05000000
-#define CONDITION   0x06000000
-#define KEYS        0x07000000
-#define TEST_TYPE   0x08000000
-#define SHARE_TYPE  0x09000000
-#define JUMP_TYPE   0x0A000000
+/**
+ * enum rta_jump_type - Types of action taken by JUMP command
+ * @LOCAL_JUMP: conditional jump to an offset within the descriptor buffer
+ * @FAR_JUMP: conditional jump to a location outside the descriptor buffer,
+ *            indicated by the POINTER field after the JUMP command.
+ * @HALT: conditional halt - stop the execution of the current descriptor and
+ *        writes PKHA / Math condition bits as status / error code.
+ * @HALT_STATUS: conditional halt with user-specified status - stop the
+ *               execution of the current descriptor and writes the value of
+ *               "LOCAL OFFSET" JUMP field as status / error code.
+ * @GOSUB: conditional subroutine call - similar to @LOCAL_JUMP, but also saves
+ *         return address in the Return Address register; subroutine calls
+ *         cannot be nested.
+ * @RETURN: conditional subroutine return - similar to @LOCAL_JUMP, but the
+ *          offset is taken from the Return Address register.
+ * @LOCAL_JUMP_INC: similar to @LOCAL_JUMP, but increment the register specified
+ *                  in "SRC_DST" JUMP field before evaluating the jump
+ *                  condition.
+ * @LOCAL_JUMP_DEC: similar to @LOCAL_JUMP, but decrement the register specified
+ *                  in "SRC_DST" JUMP field before evaluating the jump
+ *                  condition.
+ */
+enum rta_jump_type {
+	LOCAL_JUMP,
+	FAR_JUMP,
+	HALT,
+	HALT_STATUS,
+	GOSUB,
+	RETURN,
+	LOCAL_JUMP_INC,
+	LOCAL_JUMP_DEC
+};
 
-#define IFB         MATH_IFB
-#define NFU         MATH_NFU
-#define STL         MATH_STL
-#define SWP         MATH_SWP
+/**
+ * enum rta_jump_cond - How test conditions are evaluated by JUMP command
+ * @ALL_TRUE: perform action if ALL selected conditions are true
+ * @ALL_FALSE: perform action if ALL selected conditions are false
+ * @ANY_TRUE: perform action if ANY of the selected conditions is true
+ * @ANY_FALSE: perform action if ANY of the selected conditions is false
+ */
+enum rta_jump_cond {
+	ALL_TRUE,
+	ALL_FALSE,
+	ANY_TRUE,
+	ANY_FALSE
+};
 
-#define LOCAL_JUMP	(0x00 | JUMP_TYPE)
-#define FAR_JUMP	(0x01 | JUMP_TYPE)
-#define HALT		(0x02 | JUMP_TYPE)
-#define HALT_STATUS	(0x03 | JUMP_TYPE)
-#define GOSUB		(0x04 | JUMP_TYPE)
-#define RETURN		(0x05 | JUMP_TYPE)
-#define LOCAL_JUMP_INC	(0x06 | JUMP_TYPE)
-#define LOCAL_JUMP_DEC	(0x07 | JUMP_TYPE)
-
-#define SHR_NEVER   (0x00 | SHARE_TYPE)
-#define SHR_WAIT    (0x01 | SHARE_TYPE)
-#define SHR_SERIAL  (0x02 | SHARE_TYPE)
-#define SHR_ALWAYS  (0x03 | SHARE_TYPE)
-#define SHR_DEFER   (0x04 | SHARE_TYPE)
-
-#define ALL_TRUE    (0x00 | TEST_TYPE)
-#define ALL_FALSE   (0x01 | TEST_TYPE)
-#define ANY_TRUE    (0x02 | TEST_TYPE)
-#define ANY_FALSE   (0x03 | TEST_TYPE)
+/**
+ * enum rta_share_type - Types of sharing for JOB_HDR and SHR_HDR commands
+ * @SHR_NEVER: nothing is shared; descriptors can execute in parallel (i.e. no
+ *             dependencies are allowed between them).
+ * @SHR_WAIT: shared descriptor and keys are shared once the descriptor sets
+ *            "OK to share" in DECO Control Register (DCTRL).
+ * @SHR_SERIAL: shared descriptor and keys are shared once the descriptor has
+ *              completed.
+ * @SHR_ALWAYS: shared descriptor is shared anytime after the descriptor is
+ *              loaded.
+ * @SHR_DEFER: valid only for JOB_HDR; sharing type is the one specified
+ *             in the shared descriptor associated with the job descriptor.
+ */
+enum rta_share_type {
+	SHR_NEVER,
+	SHR_WAIT,
+	SHR_SERIAL,
+	SHR_ALWAYS,
+	SHR_DEFER
+};
 
 /* Registers definitions */
-
-/* CCB Registers */
-#define _CONTEXT1       (0x01 | REGISTER)
+enum rta_regs {
+	/* CCB Registers */
+	_CONTEXT1 = 1,
 #define CONTEXT1        _CONTEXT1, REG_TYPE
-
-#define _CONTEXT2       (0x02 | REGISTER)
+	_CONTEXT2,
 #define CONTEXT2        _CONTEXT2, REG_TYPE
-
-#define _KEY1           (0x03 | REGISTER)
+	_KEY1,
 #define KEY1            _KEY1, REG_TYPE
-
-#define _KEY2           (0x04 | REGISTER)
+	_KEY2,
 #define KEY2            _KEY2, REG_TYPE
-
-#define _KEY1SZ         (0x05 | REGISTER)
+	_KEY1SZ,
 #define KEY1SZ          _KEY1SZ, REG_TYPE
-
-#define _KEY2SZ         (0x06 | REGISTER)
+	_KEY2SZ,
 #define KEY2SZ          _KEY2SZ, REG_TYPE
-
-#define _ICV1SZ         (0x07 | REGISTER)
+	_ICV1SZ,
 #define ICV1SZ          _ICV1SZ, REG_TYPE
-
-#define _ICV2SZ         (0x08 | REGISTER)
+	_ICV2SZ,
 #define ICV2SZ          _ICV2SZ, REG_TYPE
-
-#define _DATA1SZ        (0x09 | REGISTER)
+	_DATA1SZ,
 #define DATA1SZ         _DATA1SZ, REG_TYPE
-
-#define _DATA2SZ        (0x0a | REGISTER)
+	_DATA2SZ,
 #define DATA2SZ         _DATA2SZ, REG_TYPE
-
-#define _ALTDS1         (0x0b | REGISTER)
+	_ALTDS1,
 #define ALTDS1          _ALTDS1, REG_TYPE
-
-#define _IV1SZ          (0x0c | REGISTER)
+	_IV1SZ,
 #define IV1SZ           _IV1SZ, REG_TYPE
-
-#define _AAD1SZ         (0x0d | REGISTER)
+	_AAD1SZ,
 #define AAD1SZ          _AAD1SZ, REG_TYPE
-
-#define _MODE1          (0x0e | REGISTER)
+	_MODE1,
 #define MODE1           _MODE1, REG_TYPE
-
-#define _MODE2          (0x0f | REGISTER)
+	_MODE2,
 #define MODE2           _MODE2, REG_TYPE
-
-#define _CCTRL          (0x10 | REGISTER)
+	_CCTRL,
 #define CCTRL           _CCTRL, REG_TYPE
-
-#define _DCTRL          (0x11 | REGISTER)
+	_DCTRL,
 #define DCTRL           _DCTRL, REG_TYPE
-
-#define _ICTRL          (0x12 | REGISTER)
+	_ICTRL,
 #define ICTRL           _ICTRL, REG_TYPE
-
-#define _CLRW           (0x13 | REGISTER)
+	_CLRW,
 #define CLRW            _CLRW, REG_TYPE
-
-#define _CSTAT          (0x14 | REGISTER)
+	_CSTAT,
 #define CSTAT           _CSTAT, REG_TYPE
-
-#define _IFIFO          (0x16 | FIFO)
+	_IFIFO,
 #define IFIFO           _IFIFO, REG_TYPE
-
-#define _NFIFO          (0x17 | FIFO)
+	_NFIFO,
 #define NFIFO           _NFIFO, REG_TYPE
-
-#define _OFIFO          (0x18 | FIFO)
+	_OFIFO,
 #define OFIFO           _OFIFO, REG_TYPE
-
-#define _PKASZ          (0x19 | REGISTER)
+	_PKASZ,
 #define PKASZ           _PKASZ, REG_TYPE
-
-#define _PKBSZ          (0x1a | REGISTER)
+	_PKBSZ,
 #define PKBSZ           _PKBSZ, REG_TYPE
-
-#define _PKNSZ          (0x1b | REGISTER)
+	_PKNSZ,
 #define PKNSZ           _PKNSZ, REG_TYPE
-
-#define _PKESZ          (0x1c | REGISTER)
+	_PKESZ,
 #define PKESZ           _PKESZ, REG_TYPE
-
-/* DECO Registers */
-#define _MATH0          (0x1d | REGISTER)
+	/* DECO Registers */
+	_MATH0,
 #define MATH0           _MATH0, REG_TYPE
-
-#define _MATH1          (0x1e | REGISTER)
+	_MATH1,
 #define MATH1           _MATH1, REG_TYPE
-
-#define _MATH2          (0x1f | REGISTER)
+	_MATH2,
 #define MATH2           _MATH2, REG_TYPE
-
-#define _MATH3          (0x20 | REGISTER)
+	_MATH3,
 #define MATH3           _MATH3, REG_TYPE
-
-#define _DESCBUF        (0x21 | REGISTER)
+	_DESCBUF,
 #define DESCBUF         _DESCBUF, REG_TYPE
-
-#define _JOBDESCBUF     (0x22 | REGISTER)
+	_JOBDESCBUF,
 #define JOBDESCBUF      _JOBDESCBUF, REG_TYPE
-
-#define _SHAREDESCBUF   (0x23 | REGISTER)
+	_SHAREDESCBUF,
 #define SHAREDESCBUF    _SHAREDESCBUF, REG_TYPE
-
-#define _DPOVRD         (0x24 | REGISTER)
+	_DPOVRD,
 #define DPOVRD          _DPOVRD, REG_TYPE
-
-#define _DJQDA          (0x25 | REGISTER)
+	_DJQDA,
 #define DJQDA           _DJQDA, REG_TYPE
-
-#define _DSTAT          (0x26 | REGISTER)
+	_DSTAT,
 #define DSTAT           _DSTAT, REG_TYPE
-
-#define _DPID           (0x27 | REGISTER)
+	_DPID,
 #define DPID            _DPID, REG_TYPE
-
-#define _DJQCTRL        (0x28 | REGISTER)
+	_DJQCTRL,
 #define DJQCTRL         _DJQCTRL, REG_TYPE
-
-#define _ALTSOURCE      (0x29 | REGISTER)
+	_ALTSOURCE,
 #define ALTSOURCE       _ALTSOURCE, REG_TYPE
-
-#define _SEQINSZ        (0x2a | REGISTER)
+	_SEQINSZ,
 #define SEQINSZ         _SEQINSZ, REG_TYPE
-
-#define _SEQOUTSZ       (0x2b | REGISTER)
+	_SEQOUTSZ,
 #define SEQOUTSZ        _SEQOUTSZ, REG_TYPE
-
-#define _VSEQINSZ       (0x2c | REGISTER)
+	_VSEQINSZ,
 #define VSEQINSZ        _VSEQINSZ, REG_TYPE
-
-#define _VSEQOUTSZ      (0x2e | REGISTER)
+	_VSEQOUTSZ,
 #define VSEQOUTSZ        _VSEQOUTSZ, REG_TYPE
-
-/* PKHA Registers */
-#define _PKA            (0x2f | REGISTER)
+	/* PKHA Registers */
+	_PKA,
 #define PKA             _PKA, REG_TYPE
-
-#define _PKN            (0x30 | REGISTER)
+	_PKN,
 #define PKN             _PKN, REG_TYPE
-
-#define _PKA0           (0x31 | REGISTER)
+	_PKA0,
 #define PKA0            _PKA0, REG_TYPE
-
-#define _PKA1           (0x32 | REGISTER)
+	_PKA1,
 #define PKA1            _PKA1, REG_TYPE
-
-#define _PKA2           (0x33 | REGISTER)
+	_PKA2,
 #define PKA2            _PKA2, REG_TYPE
-
-#define _PKA3           (0x34 | REGISTER)
+	_PKA3,
 #define PKA3            _PKA3, REG_TYPE
-
-#define _PKB            (0x35 | REGISTER)
+	_PKB,
 #define PKB             _PKB, REG_TYPE
-
-#define _PKB0           (0x36 | REGISTER)
+	_PKB0,
 #define PKB0            _PKB0, REG_TYPE
-
-#define _PKB1           (0x37 | REGISTER)
+	_PKB1,
 #define PKB1            _PKB1, REG_TYPE
-
-#define _PKB2           (0x38 | REGISTER)
+	_PKB2,
 #define PKB2            _PKB2, REG_TYPE
-
-#define _PKB3           (0x39 | REGISTER)
+	_PKB3,
 #define PKB3            _PKB3, REG_TYPE
-
-#define _PKE            (0x3a | REGISTER)
+	_PKE,
 #define PKE             _PKE, REG_TYPE
-
-/* Pseudo registers */
-#define _AB1            (0x3b | FIFO)
+	/* Pseudo registers */
+	_AB1,
 #define AB1             _AB1, REG_TYPE
-
-#define _AB2            (0x3c | FIFO)
+	_AB2,
 #define AB2             _AB2, REG_TYPE
-
-#define _ABD            (0x3d | FIFO)
+	_ABD,
 #define ABD             _ABD, REG_TYPE
-
-#define _IFIFOABD       (0x3e | FIFO)
+	_IFIFOABD,
 #define IFIFOABD        _IFIFOABD, REG_TYPE
-
-#define _IFIFOAB1       (0x3f | FIFO)
+	_IFIFOAB1,
 #define IFIFOAB1        _IFIFOAB1, REG_TYPE
-
-#define _IFIFOAB2       (0x40 | FIFO)
+	_IFIFOAB2,
 #define IFIFOAB2        _IFIFOAB2, REG_TYPE
-
-#define _AFHA_SBOX      (0x41 | REGISTER)
+	_AFHA_SBOX,
 #define AFHA_SBOX       _AFHA_SBOX, REG_TYPE
-
-#define _MDHA_SPLIT_KEY (0x42 | REGISTER)
+	_MDHA_SPLIT_KEY,
 #define MDHA_SPLIT_KEY  _MDHA_SPLIT_KEY, REG_TYPE
-
-#define _JOBSRC         (0x43 | REGISTER)
+	_JOBSRC,
 #define JOBSRC          _JOBSRC, REG_TYPE
-
-#define _ZERO           (0x44 | REGISTER)
+	_ZERO,
 #define ZERO            _ZERO, REG_TYPE
-
-#define _ONE            (0x45 | REGISTER)
+	_ONE,
 #define ONE             _ONE, REG_TYPE
-
-#define _AAD1           (0x46 | REGISTER)
+	_AAD1,
 #define AAD1            _AAD1, REG_TYPE
-
-#define _IV1            (0x47 | REGISTER)
+	_IV1,
 #define IV1             _IV1, REG_TYPE
-
-#define _IV2            (0x48 | REGISTER)
+	_IV2,
 #define IV2             _IV2, REG_TYPE
-
-#define _MSG1           (0x49 | REGISTER)
+	_MSG1,
 #define MSG1            _MSG1, REG_TYPE
-
-#define _MSG2           (0x4a | REGISTER)
+	_MSG2,
 #define MSG2            _MSG2, REG_TYPE
-
-#define _MSG            (0x4b | REGISTER)
+	_MSG,
 #define MSG             _MSG, REG_TYPE
-
-#define _MSGOUTSNOOP    (0x4c | REGISTER)
+	_MSGOUTSNOOP,
 #define MSGOUTSNOOP     _MSGOUTSNOOP, REG_TYPE
-
-#define _MSGINSNOOP     (0x4d | REGISTER)
+	_MSGINSNOOP,
 #define MSGINSNOOP      _MSGINSNOOP, REG_TYPE
-
-#define _ICV1           (0x4e | REGISTER)
+	_ICV1,
 #define ICV1            _ICV1, REG_TYPE
-
-#define _ICV2           (0x4f | REGISTER)
+	_ICV2,
 #define ICV2            _ICV2, REG_TYPE
-
-#define _SKIP           (0x50 | REGISTER)
+	_SKIP,
 #define SKIP            _SKIP, REG_TYPE
-
-#define _NONE           (0x51 | REGISTER)
+	_NONE,
 #define NONE            _NONE, REG_TYPE
-
-#define _RNGOFIFO       (0x52 | REGISTER)
+	_RNGOFIFO,
 #define RNGOFIFO        _RNGOFIFO, REG_TYPE
-
-#define _RNG            (0x53 | REGISTER)
+	_RNG,
 #define RNG             _RNG, REG_TYPE
-
-#define _IDFNS          (0x54 | REGISTER)
+	_IDFNS,
 #define IDFNS           _IDFNS, REG_TYPE
-
-#define _ODFNS          (0x55 | REGISTER)
+	_ODFNS,
 #define ODFNS           _ODFNS, REG_TYPE
-
-#define _NFIFOSZ        (0x56 | REGISTER)
+	_NFIFOSZ,
 #define NFIFOSZ         _NFIFOSZ, REG_TYPE
-
-#define _SZ             (0x57 | REGISTER)
+	_SZ,
 #define SZ              _SZ, REG_TYPE
-
-#define _PAD            (0x58 | REGISTER)
+	_PAD,
 #define PAD             _PAD, REG_TYPE
-
-#define _SAD1           (0x59 | REGISTER)
+	_SAD1,
 #define SAD1            _SAD1, REG_TYPE
-
-#define _AAD2           (0x5a | REGISTER)
+	_AAD2,
 #define AAD2            _AAD2, REG_TYPE
-
-#define _BIT_DATA       (0x5b | REGISTER)
+	_BIT_DATA,
 #define BIT_DATA        _BIT_DATA, REG_TYPE
-
-#define _NFIFO_SZL	(0x5c | REGISTER)
+	_NFIFO_SZL,
 #define NFIFO_SZL	_NFIFO_SZL, REG_TYPE
-
-#define _NFIFO_SZM	(0x5d | REGISTER)
+	_NFIFO_SZM,
 #define NFIFO_SZM	_NFIFO_SZM, REG_TYPE
-
-#define _NFIFO_L	(0x5e | REGISTER)
+	_NFIFO_L,
 #define NFIFO_L		_NFIFO_L, REG_TYPE
-
-#define _NFIFO_M	(0x5f | REGISTER)
+	_NFIFO_M,
 #define NFIFO_M		_NFIFO_M, REG_TYPE
-
-#define _SZL		(0x60 | REGISTER)
+	_SZL,
 #define SZL		_SZL, REG_TYPE
-
-#define _SZM		(0x61 | REGISTER)
+	_SZM,
 #define SZM		_SZM, REG_TYPE
-
-#define _JOBDESCBUF_EFF	(0x62 | REGISTER)
+	_JOBDESCBUF_EFF,
 #define JOBDESCBUF_EFF	_JOBDESCBUF_EFF, REG_TYPE
-
-#define _SHAREDESCBUF_EFF	(0x63 | REGISTER)
+	_SHAREDESCBUF_EFF,
 #define SHAREDESCBUF_EFF	_SHAREDESCBUF_EFF, REG_TYPE
-
-#define _METADATA	(0x64 | REGISTER)
+	_METADATA,
 #define METADATA	_METADATA, REG_TYPE
-
-#define _GTR		(0x65 | REGISTER)
+	_GTR,
 #define GTR		_GTR, REG_TYPE
-
-#define _STR		(0x66 | REGISTER)
+	_STR,
 #define STR		_STR, REG_TYPE
-
-#define _OFIFO_SYNC     (0x67 | FIFO)
+	_OFIFO_SYNC,
 #define OFIFO_SYNC      _OFIFO_SYNC, REG_TYPE
-
-#define _MSGOUTSNOOP_ALT (0x68 | REGISTER)
+	_MSGOUTSNOOP_ALT
 #define MSGOUTSNOOP_ALT  _MSGOUTSNOOP_ALT, REG_TYPE
+};
 
 /* Command flags */
 #define FLUSH1          0x00000001
@@ -503,6 +434,12 @@ enum rta_sec_era {
 #define __MOVE		1
 #define __MOVEB		2
 #define __MOVEDW	3
+
+/* MATH command specific flags */
+#define IFB         MATH_IFB
+#define NFU         MATH_NFU
+#define STL         MATH_STL
+#define SWP         MATH_SWP
 
 /**
  * struct program - descriptor buffer management structure

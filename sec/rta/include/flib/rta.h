@@ -199,7 +199,7 @@ static inline unsigned rta_get_sec_era(void)
 
 /**
  * SHR_HDR - Configures Shared Descriptor HEADER command
- * @share: descriptor share state: SHR_ALWAYS, SHR_SERIAL, SHR_NEVER, SHR_WAIT
+ * @share: descriptor share state (enum rta_share_type)
  * @start_idx: index in descriptor buffer where the execution of the shared
  *             descriptor should start (@c unsigned).
  * @flags: operational flags: RIF, DNR, CIF, SC, PD
@@ -214,8 +214,7 @@ static inline unsigned rta_get_sec_era(void)
 
 /**
  * JOB_HDR - Configures JOB Descriptor HEADER command
- * @share: descriptor share state: SHR_ALWAYS, SHR_SERIAL, SHR_NEVER, SHR_WAIT,
- *         SHR_DEFER.
+ * @share: descriptor share state (enum rta_share_type)
  * @start_idx: index in descriptor buffer where the execution of the job
  *             descriptor should start (unsigned). In case SHR bit is present
  *             in flags, this will be the shared descriptor length.
@@ -232,8 +231,7 @@ static inline unsigned rta_get_sec_era(void)
 
 /**
  * JOB_HDR_EXT - Configures JOB Descriptor HEADER command
- * @share: descriptor share state: SHR_ALWAYS, SHR_SERIAL, SHR_NEVER, SHR_WAIT,
- *         SHR_DEFER.
+ * @share: descriptor share state (enum rta_share_type)
  * @start_idx: index in descriptor buffer where the execution of the job
  *             descriptor should start (unsigned). In case SHR bit is present
  *             in flags, this will be the shared descriptor length.
@@ -500,10 +498,8 @@ static inline unsigned rta_get_sec_era(void)
  * JUMP - Configures JUMP command
  * @addr: local offset for local jumps or address pointer for non-local jumps;
  *        IMM or PTR macros must be used to indicate type.
- * @jump_type: type of action taken by jump: LOCAL_JUMP, GOSUB, RETURN, HALT,
- *             HALT_STATUS, FAR_JUMP.
- * @test_type: defines how jump conditions are evaluated: ALL_TRUE, ALL_FALSE,
- *             ANY_TRUE, ANY_FALSE.
+ * @jump_type: type of action taken by jump (enum rta_jump_type)
+ * @test_type: defines how jump conditions are evaluated (enum rta_jump_cond)
  * @cond: jump conditions: operational flags - DONE1, DONE2, BOTH; various
  *        sharing and wait conditions (JSL = 1) - NIFP, NIP, NOP, NCP, CALM,
  *        SELF, SHARED, JQP; Math and PKHA status conditions (JSL = 0) - Z, N,
@@ -520,8 +516,7 @@ static inline unsigned rta_get_sec_era(void)
 /**
  * JUMP_INC - Configures JUMP_INC command
  * @addr: local offset; IMM or PTR macros must be used to indicate type
- * @test_type: defines how jump conditions are evaluated: ALL_TRUE, ALL_FALSE,
- *             ANY_TRUE, ANY_FALSE.
+ * @test_type: defines how jump conditions are evaluated (enum rta_jump_cond)
  * @cond: jump conditions: Math status conditions (JSL = 0): Z, N, NV, C
  * @src_dst: register to increment / decrement: MATH0-MATH3, DPOVRD, SEQINSZ,
  *           SEQOUTSZ, VSEQINSZ, VSEQOUTSZ.
@@ -537,8 +532,7 @@ static inline unsigned rta_get_sec_era(void)
 /**
  * JUMP_DEC - Configures JUMP_DEC command
  * @addr: local offset; IMM or PTR macros must be used to indicate type
- * @test_type: defines how jump conditions are evaluated: ALL_TRUE, ALL_FALSE,
- *             ANY_TRUE, ANY_FALSE.
+ * @test_type: defines how jump conditions are evaluated (enum rta_jump_cond)
  * @cond: jump conditions: Math status conditions (JSL = 0): Z, N, NV, C
  * @src_dst: register to increment / decrement: MATH0-MATH3, DPOVRD, SEQINSZ,
  *           SEQOUTSZ, VSEQINSZ, VSEQOUTSZ.
