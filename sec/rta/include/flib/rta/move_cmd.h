@@ -14,6 +14,11 @@
 
 #define MASK_16b  0xFF
 
+/* MOVE command type */
+#define __MOVE		1
+#define __MOVEB		2
+#define __MOVEDW	3
+
 extern enum rta_sec_era rta_sec_era;
 
 static const uint32_t move_src_table[][2] = {
