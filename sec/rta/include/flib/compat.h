@@ -11,20 +11,14 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <byteswap.h>
+/* FSL's Embedded Warrior C Library; assume AIOP or MC environment */
 #elif defined(__EWL__) && (defined(AIOP) || defined(MC))
 #include "common/fsl_string.h"
 #include "common/fsl_stdlib.h"
 #include "common/fsl_stdio.h"
 #include "fsl_dbg.h"
-#endif
-
-#ifdef __GLIBC__
-#include <byteswap.h>
-/* FSL's Embedded Warrior C Library; assume AIOP or MC environment */
-#elif defined(__EWL__) && defined(AIOP)
-#include "dplib/fsl_general.h"
-#elif defined(__EWL__) && defined(MC)
-#include "common/endian.h"
+#include "fsl_endian.h"
 #else
 #error Environment not supported!
 #endif
@@ -80,28 +74,13 @@
 
 /* Use Linux naming convention */
 #ifdef __GLIBC__
-# define swab16(x) bswap_16(x)
-# define swab32(x) bswap_32(x)
-# define swab64(x) bswap_64(x)
-#elif defined(__EWL__) && defined(AIOP)
-static __always_inline uint16_t swab16(uint16_t x)
-{
-	return LH_SWAP(0, &x);
-}
-
-static __always_inline uint32_t swab32(uint32_t x)
-{
-	return LW_SWAP(0, &x);
-}
-
-static __always_inline uint64_t swab64(uint64_t x)
-{
-	return LDW_SWAP(0, &x);
-}
-#elif defined(__EWL__) && defined(MC)
-# define swab16(x) swap_uint16(x)
-# define swab32(x) swap_uint32(x)
-# define swab64(x) swap_uint64(x)
+#define swab16(x) bswap_16(x)
+#define swab32(x) bswap_32(x)
+#define swab64(x) bswap_64(x)
+#elif defined(__EWL__) && (defined(AIOP) || defined(MC))
+#define swab16(x) swap_uint16(x)
+#define swab32(x) swap_uint32(x)
+#define swab64(x) swap_uint64(x)
 #endif
 
 #endif /* __RTA_COMPAT_H__ */
