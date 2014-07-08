@@ -115,36 +115,20 @@
 #define COPY_DATA(data, len) rta_copy_data(program, (data), (len))
 
 /**
- * SHR_DESC_LEN -  determines shared descriptor buffer length in words
- * @buffer: shared descriptor buffer (uint32_t *)
+ * DESC_LEN -  determines job / shared descriptor buffer length (in words)
+ * @buffer: descriptor buffer (uint32_t *)
  *
- * Return: the shared descriptor buffer length (unsigned).
+ * Return: descriptor buffer length in words (unsigned).
  */
-#define SHR_DESC_LEN(buffer) rta_desc_len(buffer, HDR_DESCLEN_SHR_MASK)
+#define DESC_LEN(buffer) rta_desc_len(buffer)
 
 /**
- * SHR_DESC_BYTES - determines shared descriptor buffer length in bytes
- * @buffer: shared descriptor buffer (uint32_t *)
+ * DESC_BYTES - determines job / shared descriptor buffer length (in bytes)
+ * @buffer: descriptor buffer (uint32_t *)
  *
- * Return: the shared descriptor buffer length (unsigned).
+ * Return: descriptor buffer length in bytes (unsigned).
  */
-#define SHR_DESC_BYTES(buffer) rta_desc_bytes(buffer, HDR_DESCLEN_SHR_MASK)
-
-/**
- * JOB_DESC_LEN - determines job descriptor buffer length in words
- * @buffer: job descriptor buffer (uint32_t *)
- *
- * Return: the job descriptor buffer length (unsigned).
- */
-#define JOB_DESC_LEN(buffer) rta_desc_len(buffer, HDR_DESCLEN_MASK)
-
-/**
- * JOB_DESC_BYTES - determines job descriptor buffer length in bytes
- * @buffer: job descriptor buffer (uint32_t *)
- *
- * Return: the job descriptor buffer length (unsigned).
- */
-#define JOB_DESC_BYTES(buffer) rta_desc_bytes(buffer, HDR_DESCLEN_MASK)
+#define DESC_BYTES(buffer) rta_desc_bytes(buffer)
 
 /*
  * SEC HW block revision.

@@ -581,14 +581,17 @@ static inline void __rta_inline_data(struct program *program, uint64_t data,
 	}
 }
 
-static inline unsigned rta_desc_len(uint32_t *buffer, uint32_t mask)
+static inline unsigned rta_desc_len(uint32_t *buffer)
 {
-	 return *buffer & mask;
+	if ((*buffer & CMD_MASK) == CMD_DESC_HDR)
+		return *buffer & HDR_DESCLEN_MASK;
+	else
+		return *buffer & HDR_DESCLEN_SHR_MASK;
 }
 
-static inline unsigned rta_desc_bytes(uint32_t *buffer, uint32_t mask)
+static inline unsigned rta_desc_bytes(uint32_t *buffer)
 {
-	 return (unsigned)(rta_desc_len(buffer, mask) * CAAM_CMD_SZ);
+	return (unsigned)(rta_desc_len(buffer) * CAAM_CMD_SZ);
 }
 
 static inline unsigned rta_set_label(struct program *program)
