@@ -132,9 +132,11 @@ static inline void cnstr_shdsc_cbc_blkcipher(uint32_t *descbuf,
  * @authdata: pointer to authentication transform definitions;
  *            message digest algorithm: OP_ALG_ALGSEL_MD5/ SHA1-512.
  * @icv: HMAC comparison for ICV, NULL if no check desired
+ * @trunc_len: Length of the truncated ICV to be written in the output buffer, 0
+ *             if no truncation is needed
  */
 static inline void cnstr_shdsc_hmac(uint32_t *descbuf, unsigned *bufsize,
-		      struct alginfo *authdata, uint8_t *icv)
+		      struct alginfo *authdata, uint8_t *icv, uint8_t trunc_len)
 {
 	struct program prg;
 	struct program *program = &prg;
@@ -164,6 +166,8 @@ static inline void cnstr_shdsc_hmac(uint32_t *descbuf, unsigned *bufsize,
 	default:
 		return;
 	}
+
+	storelen = trunc_len && (trunc_len < storelen) ? trunc_len : storelen;
 
 	opicv = icv ? ICV_CHECK_ENABLE : ICV_CHECK_DISABLE;
 
