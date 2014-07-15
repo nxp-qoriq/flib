@@ -95,7 +95,7 @@ static inline void cnstr_shdsc_snow_f9(uint32_t *descbuf, unsigned *bufsize,
  * @descbuf: pointer to descriptor-under-construction buffer
  * @bufsize: limit/returned descriptor buffer size
  * @cipherdata: pointer to block cipher transform definitions
- * @iv: IV data
+ * @iv: IV data; if NULL, "ivlen" bytes from the input frame will be read as IV
  * @ivlen: IV length
  * @dir: DIR_ENCRYPT/DIR_DECRYPT
  */
@@ -137,10 +137,16 @@ static inline void cnstr_shdsc_cbc_blkcipher(uint32_t *descbuf,
 			      OP_ALG_AS_INITFINAL, ICV_CHECK_DISABLE, dir);
 	}
 
+	if (iv)
+		/* IV load, convert size */
+		LOAD(PTR((uintptr_t)iv), CONTEXT1, 0, ivlen, IMMED);
+	else
+		/* IV is present first before the actual message */
+		SEQLOAD(CONTEXT1, 0, ivlen, 0);
+
 	MATHB(SEQINSZ, SUB, MATH2, VSEQINSZ, 4, 0);
 	MATHB(SEQINSZ, SUB, MATH2, VSEQOUTSZ, 4, 0);
-	/* IV load, convert size */
-	LOAD(PTR((uintptr_t)iv), CONTEXT1, 0, ivlen, IMMED);
+
 	/* Insert sequence load/store with VLF */
 	SEQFIFOLOAD(MSG1, 32, VLF | LAST1 | LAST2);
 	SEQFIFOSTORE(MSG, 0, 32, VLF);
