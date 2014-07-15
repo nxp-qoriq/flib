@@ -43,8 +43,8 @@ static inline void cnstr_shdsc_snow_f8(uint32_t *descbuf, unsigned *bufsize,
 	ALG_OPERATION(OP_ALG_ALGSEL_SNOW_F8, OP_ALG_AAI_F8,
 		      OP_ALG_AS_INITFINAL, 0, dir);
 	LOAD(IMM(context), CONTEXT1, 0, 8, 0);
-	SEQFIFOLOAD(MSG1, 32, VLF | LAST1 | LAST2);
-	SEQFIFOSTORE(MSG, 0, 32, VLF);
+	SEQFIFOLOAD(MSG1, 0, VLF | LAST1 | LAST2);
+	SEQFIFOSTORE(MSG, 0, 0, VLF);
 
 	*bufsize = PROGRAM_FINALIZE();
 }
@@ -148,8 +148,8 @@ static inline void cnstr_shdsc_cbc_blkcipher(uint32_t *descbuf,
 	MATHB(SEQINSZ, SUB, MATH2, VSEQOUTSZ, 4, 0);
 
 	/* Insert sequence load/store with VLF */
-	SEQFIFOLOAD(MSG1, 32, VLF | LAST1 | LAST2);
-	SEQFIFOSTORE(MSG, 0, 32, VLF);
+	SEQFIFOLOAD(MSG1, 0, VLF | LAST1 | LAST2);
+	SEQFIFOSTORE(MSG, 0, 0, VLF);
 
 	PATCH_JUMP(pkeyjmp, keyjmp);
 	if (is_aes_dec)
@@ -232,7 +232,7 @@ static inline void cnstr_shdsc_hmac(uint32_t *descbuf, unsigned *bufsize,
 	MATHB(SEQINSZ, SUB, MATH2, VSEQOUTSZ, 4, 0);
 
 	/* Do load (variable length) */
-	SEQFIFOLOAD(MSG2, 32, VLF | LAST1 | LAST2);
+	SEQFIFOLOAD(MSG2, 0, VLF | LAST1 | LAST2);
 	SEQSTORE(CONTEXT2, 0, storelen, 0);
 
 	PATCH_JUMP(pkeyjmp, keyjmp);
@@ -273,8 +273,8 @@ static inline void cnstr_shdsc_kasumi_f8(uint32_t *descbuf, unsigned *bufsize,
 	ALG_OPERATION(OP_ALG_ALGSEL_KASUMI, OP_ALG_AAI_F8,
 		      OP_ALG_AS_INITFINAL, 0, dir);
 	LOAD(IMM(context), CONTEXT1, 0, 8, 0);
-	SEQFIFOLOAD(MSG1, 32, VLF | LAST1 | LAST2);
-	SEQFIFOSTORE(MSG, 0, 32, VLF);
+	SEQFIFOLOAD(MSG1, 0, VLF | LAST1 | LAST2);
+	SEQFIFOSTORE(MSG, 0, 0, VLF);
 
 	*bufsize = PROGRAM_FINALIZE();
 }
@@ -340,7 +340,7 @@ static inline void cnstr_shdsc_crc(uint32_t *descbuf, unsigned *bufsize)
 	ALG_OPERATION(OP_ALG_ALGSEL_CRC,
 		      OP_ALG_AAI_802 | OP_ALG_AAI_DOC,
 		      OP_ALG_AS_FINALIZE, 0, DIR_ENC);
-	SEQFIFOLOAD(MSG2, 32, VLF | LAST2);
+	SEQFIFOLOAD(MSG2, 0, VLF | LAST2);
 	SEQSTORE(CONTEXT2, 0, 4, 0);
 
 	*bufsize = PROGRAM_FINALIZE();
