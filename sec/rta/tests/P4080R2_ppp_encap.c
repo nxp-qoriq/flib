@@ -199,10 +199,10 @@ unsigned build_more_cmds(struct program *prg, uint32_t *buff, unsigned buffpos)
 	PROGRAM_CNTXT_INIT(buff, buffpos);
 	{
 		MATHB(MATH0, XOR, IMM(0x7d7d7d7d7d7d7d7d), MATH1, 8, 0);
-		MATHU(MATH1, ZBYTE, MATH1, 8, 0);
+		MATHU(MATH1, ZBYT, MATH1, 8, 0);
 
 		MATHB(MATH0, XOR, IMM(0x7e7e7e7e7e7e7e7e), MATH2, 8, 0);
-		MATHU(MATH2, ZBYTE, MATH2, 8, 0);
+		MATHU(MATH2, ZBYT, MATH2, 8, 0);
 		MATHB(MATH1, OR, MATH2, MATH1, 8, 0);
 
 		pjumpg = JUMP(IMM(g), LOCAL_JUMP, ALL_TRUE, MATH_Z);

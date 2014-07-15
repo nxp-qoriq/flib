@@ -198,7 +198,7 @@ unsigned build_extra_cmds(struct program *prg, uint32_t *buff, unsigned buffpos)
 		/* in case last of prev dword was special */
 		MATHB(MATH0, XOR, MATH2, MATH0, 8, 0);
 		MATHB(ZERO, AND, MATH2, MATH2, 8, 0);
-		MATHU(MATH1, ZBYTE, MATH1, 8, 0);
+		MATHU(MATH1, ZBYT, MATH1, 8, 0);
 		pjumpg = JUMP(IMM(g), LOCAL_JUMP, ALL_TRUE, MATH_Z);
 		ref1_moves = MOVE(CONTEXT2, 0, DESCBUF, 0, IMM(72),
 				  WAITCOMP);

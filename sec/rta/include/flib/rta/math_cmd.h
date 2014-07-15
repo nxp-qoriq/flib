@@ -84,8 +84,8 @@ static inline int rta_math(struct program *program, uint64_t operand1,
 		goto err;
 	}
 
-	if (((op == BSWAP) && (rta_sec_era < RTA_SEC_ERA_4)) ||
-	    ((op == ZBYTE) && (rta_sec_era < RTA_SEC_ERA_2))) {
+	if (((op == MATH_FUN_BSWAP) && (rta_sec_era < RTA_SEC_ERA_4)) ||
+	    ((op == MATH_FUN_ZBYT) && (rta_sec_era < RTA_SEC_ERA_2))) {
 		pr_err("MATH: operation not supported by SEC Era %d. SEC PC: %d; Instr: %d\n",
 		       USER_SEC_ERA(rta_sec_era), program->current_pc,
 		       program->current_instruction);
@@ -115,7 +115,8 @@ static inline int rta_math(struct program *program, uint64_t operand1,
 	 * assume that we can have _NONE as first operand
 	 * or _SEQINSZ as second operand
 	 */
-	if ((op != SHLD) && ((operand1 == _NONE) || (operand2 == _SEQINSZ))) {
+	if ((op != MATH_FUN_SHLD) && ((operand1 == _NONE) ||
+				      (operand2 == _SEQINSZ))) {
 		pr_err("MATH: Invalid operand. SEC PC: %d; Instr: %d\n",
 		       program->current_pc, program->current_instruction);
 		goto err;
@@ -125,7 +126,8 @@ static inline int rta_math(struct program *program, uint64_t operand1,
 	 * We first check if it is unary operation. In that
 	 * case second operand must be _NONE
 	 */
-	if (((op == ZBYTE) || (op == BSWAP)) && (operand2 != _NONE)) {
+	if (((op == MATH_FUN_ZBYT) || (op == MATH_FUN_BSWAP)) &&
+	    (operand2 != _NONE)) {
 		pr_err("MATH: Invalid operand2. SEC PC: %d; Instr: %d\n",
 		       program->current_pc, program->current_instruction);
 		goto err;
@@ -177,19 +179,19 @@ static inline int rta_math(struct program *program, uint64_t operand1,
 	 */
 	switch (op) {
 	/*Binary operators */
-	case (ADD):
-	case (ADDC):
-	case (SUB):
-	case (SUBB):
-	case (OR):
-	case (AND):
-	case (XOR):
-	case (LSHIFT):
-	case (RSHIFT):
-	case (SHLD):
+	case (MATH_FUN_ADD):
+	case (MATH_FUN_ADDC):
+	case (MATH_FUN_SUB):
+	case (MATH_FUN_SUBB):
+	case (MATH_FUN_OR):
+	case (MATH_FUN_AND):
+	case (MATH_FUN_XOR):
+	case (MATH_FUN_LSHIFT):
+	case (MATH_FUN_RSHIFT):
+	case (MATH_FUN_SHLD):
 	/* Unary operators */
-	case (ZBYTE):
-	case (BSWAP):
+	case (MATH_FUN_ZBYT):
+	case (MATH_FUN_BSWAP):
 		opcode |= op;
 		break;
 	default:

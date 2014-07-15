@@ -599,21 +599,6 @@ static inline unsigned rta_set_label(struct program *program)
 	return program->current_pc + program->start_pc;
 }
 
-/* Operators */
-#define ADD      (0x00 << MATH_FUN_SHIFT)
-#define ADDC     (0x01 << MATH_FUN_SHIFT)
-#define SUB      (0x02 << MATH_FUN_SHIFT)
-#define SUBB     (0x03 << MATH_FUN_SHIFT)
-#define OR       (0x04 << MATH_FUN_SHIFT)
-#define AND      (0x05 << MATH_FUN_SHIFT)
-#define XOR      (0x06 << MATH_FUN_SHIFT)
-#define LSHIFT   (0x07 << MATH_FUN_SHIFT)
-#define RSHIFT   (0x08 << MATH_FUN_SHIFT)
-#define SHLD     (0x09 << MATH_FUN_SHIFT)
-#define ZBYTE    (0x0A << MATH_FUN_SHIFT)
-#define BSWAP    (0x0B << MATH_FUN_SHIFT)
-
-
 static inline int rta_patch_move(struct program *program, int line,
 				 unsigned new_ref, bool check_swap)
 {
