@@ -164,12 +164,14 @@ static inline void cnstr_shdsc_cbc_blkcipher(uint32_t *descbuf,
  * @bufsize: limit/returned descriptor buffer size
  * @authdata: pointer to authentication transform definitions;
  *            message digest algorithm: OP_ALG_ALGSEL_MD5/ SHA1-512.
- * @icv: HMAC comparison for ICV, NULL if no check desired
+ * @do_icv: 0 if ICV checking is not desired, any other value if ICV checking
+ *          is needed for all the packets processed by this shared descriptor
  * @trunc_len: Length of the truncated ICV to be written in the output buffer, 0
  *             if no truncation is needed
  */
 static inline void cnstr_shdsc_hmac(uint32_t *descbuf, unsigned *bufsize,
-		      struct alginfo *authdata, uint8_t *icv, uint8_t trunc_len)
+		      struct alginfo *authdata, uint8_t do_icv,
+		      uint8_t trunc_len)
 {
 	struct program prg;
 	struct program *program = &prg;
@@ -206,7 +208,7 @@ static inline void cnstr_shdsc_hmac(uint32_t *descbuf, unsigned *bufsize,
 
 	storelen = trunc_len && (trunc_len < storelen) ? trunc_len : storelen;
 
-	opicv = icv ? ICV_CHECK_ENABLE : ICV_CHECK_DISABLE;
+	opicv = do_icv ? ICV_CHECK_ENABLE : ICV_CHECK_DISABLE;
 
 	PROGRAM_CNTXT_INIT(descbuf, 0);
 	SHR_HDR(SHR_SERIAL, 1, SC);
@@ -228,12 +230,18 @@ static inline void cnstr_shdsc_hmac(uint32_t *descbuf, unsigned *bufsize,
 	SET_LABEL(jmpprecomp);
 
 	/* compute sequences */
-	MATHB(SEQINSZ, SUB, MATH2, VSEQINSZ, 4, 0);
-	MATHB(SEQINSZ, SUB, MATH2, VSEQOUTSZ, 4, 0);
+	if (opicv == ICV_CHECK_ENABLE)
+		MATHB(SEQINSZ, SUB, IMM(storelen), VSEQINSZ, 4, 0);
+	else
+		MATHB(SEQINSZ, SUB, MATH2, VSEQINSZ, 4, 0);
 
 	/* Do load (variable length) */
 	SEQFIFOLOAD(MSG2, 0, VLF | LAST2);
-	SEQSTORE(CONTEXT2, 0, storelen, 0);
+
+	if (opicv == ICV_CHECK_ENABLE)
+		SEQFIFOLOAD(ICV2, storelen, LAST2);
+	else
+		SEQSTORE(CONTEXT2, 0, storelen, 0);
 
 	PATCH_JUMP(pkeyjmp, keyjmp);
 	PATCH_JUMP(pjmpprecomp, jmpprecomp);
