@@ -341,94 +341,94 @@ enum rta_regs {
 };
 
 /* Command flags */
-#define FLUSH1          0x00000001
-#define LAST1           0x00000002
-#define LAST2           0x00000004
-#define IMMED           0x00000008
-#define SGF             0x00000010
-#define VLF             0x00000020
-#define EXT             0x00000040
-#define CONT            0x00000080
-#define SEQ             0x00000100
-#define AIDF		0x00000200
-#define FLUSH2          0x00000400
+#define FLUSH1          BIT(0)
+#define LAST1           BIT(1)
+#define LAST2           BIT(2)
+#define IMMED           BIT(3)
+#define SGF             BIT(4)
+#define VLF             BIT(5)
+#define EXT             BIT(6)
+#define CONT            BIT(7)
+#define SEQ             BIT(8)
+#define AIDF		BIT(9)
+#define FLUSH2          BIT(10)
 
-#define CLASS1          0x00000800
-#define CLASS2          0x00001000
-#define BOTH            0x00002000
+#define CLASS1          BIT(11)
+#define CLASS2          BIT(12)
+#define BOTH            BIT(13)
 
 /* SEQ IN/OUT PTR Command specific flags */
-#define RBS             0x00010000
-#define INL             0x00020000
-#define PRE             0x00040000
-#define RTO             0x00080000
-#define RJD             0x00100000
-#define SOP		0x00200000
-#define RST		0x00400000
-#define EWS		0x00800000
+#define RBS             BIT(16)
+#define INL             BIT(17)
+#define PRE             BIT(18)
+#define RTO             BIT(19)
+#define RJD             BIT(20)
+#define SOP		BIT(21)
+#define RST		BIT(22)
+#define EWS		BIT(23)
 
-#define ENC             0x00004000	/* Encrypted Key */
-#define EKT             0x00008000	/* AES CCM Encryption (default is
-					 * AES ECB Encryption) */
-#define TK              0x00010000	/* Trusted Descriptor Key (default is
-					 * Job Descriptor Key) */
-#define NWB             0x00020000	/* No Write Back Key */
-#define PTS             0x00040000	/* Plaintext Store */
+#define ENC             BIT(14)	/* Encrypted Key */
+#define EKT             BIT(15)	/* AES CCM Encryption (default is
+				 * AES ECB Encryption) */
+#define TK              BIT(16)	/* Trusted Descriptor Key (default is
+				 * Job Descriptor Key) */
+#define NWB             BIT(17)	/* No Write Back Key */
+#define PTS             BIT(18)	/* Plaintext Store */
 
 /* HEADER Command specific flags */
-#define RIF             0x00010000
-#define DNR             0x00020000
-#define CIF             0x00040000
-#define PD              0x00080000
-#define RSMS            0x00100000
-#define TD              0x00200000
-#define MTD             0x00400000
-#define REO             0x00800000
-#define SHR             0x01000000
-#define SC		0x02000000
+#define RIF             BIT(16)
+#define DNR             BIT(17)
+#define CIF             BIT(18)
+#define PD              BIT(19)
+#define RSMS            BIT(20)
+#define TD              BIT(21)
+#define MTD             BIT(22)
+#define REO             BIT(23)
+#define SHR             BIT(24)
+#define SC		BIT(25)
 /* Extended HEADER specific flags */
-#define DSV		0x00000080
+#define DSV		BIT(7)
 #define DSEL_MASK	0x00000007	/* DECO Select */
-#define FTD		0x00000100
+#define FTD		BIT(8)
 
 /* JUMP Command specific flags */
-#define NIFP            0x00100000
-#define NIP             0x00200000
-#define NOP             0x00400000
-#define NCP             0x00800000
-#define CALM            0x01000000
+#define NIFP            BIT(20)
+#define NIP             BIT(21)
+#define NOP             BIT(22)
+#define NCP             BIT(23)
+#define CALM            BIT(24)
 
-#define MATH_Z          0x02000000
-#define MATH_N          0x04000000
-#define MATH_NV         0x08000000
-#define MATH_C          0x10000000
-#define PK_0            0x20000000
-#define PK_GCD_1        0x40000000
-#define PK_PRIME        0x80000000
-#define SELF            0x00000001
-#define SHRD            0x00000002
-#define JQP             0x00000004
+#define MATH_Z          BIT(25)
+#define MATH_N          BIT(26)
+#define MATH_NV         BIT(27)
+#define MATH_C          BIT(28)
+#define PK_0            BIT(29)
+#define PK_GCD_1        BIT(30)
+#define PK_PRIME        BIT(31)
+#define SELF            BIT(0)
+#define SHRD            BIT(1)
+#define JQP             BIT(2)
 
 /* NFIFOADD specific flags */
-#define PAD_ZERO        0x00010000
-#define PAD_NONZERO     0x00020000
-#define PAD_INCREMENT   0x00040000
-#define PAD_RANDOM      0x00080000
-#define PAD_ZERO_N1     0x00100000
-#define PAD_NONZERO_0   0x00200000
-#define PAD_N1          0x00800000
-#define PAD_NONZERO_N   0x01000000
-#define OC              0x02000000
-#define BM              0x04000000
-#define PR              0x08000000
-#define PS              0x10000000
-#define BP              0x20000000
+#define PAD_ZERO        BIT(16)
+#define PAD_NONZERO     BIT(17)
+#define PAD_INCREMENT   BIT(18)
+#define PAD_RANDOM      BIT(19)
+#define PAD_ZERO_N1     BIT(20)
+#define PAD_NONZERO_0   BIT(21)
+#define PAD_N1          BIT(23)
+#define PAD_NONZERO_N   BIT(24)
+#define OC              BIT(25)
+#define BM              BIT(26)
+#define PR              BIT(27)
+#define PS              BIT(28)
+#define BP              BIT(29)
 
 /* MOVE Command specific flags */
-#define WAITCOMP        0x00010000
-#define SIZE_WORD	0x00020000
-#define SIZE_BYTE	0x00040000
-#define SIZE_DWORD	0x00080000
+#define WAITCOMP        BIT(16)
+#define SIZE_WORD	BIT(17)
+#define SIZE_BYTE	BIT(18)
+#define SIZE_DWORD	BIT(19)
 
 /* MATH command specific flags */
 #define IFB         MATH_IFB

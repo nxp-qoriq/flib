@@ -66,6 +66,10 @@ typedef unsigned char			_Bool;
 #define ALIGN(x, a) (((x) + ((typeof(x))(a) - 1)) & ~((typeof(x))(a) - 1))
 #endif
 
+#ifndef BIT
+#define BIT(nr)		(1UL << (nr))
+#endif
+
 #ifndef upper_32_bits
 /**
  * upper_32_bits - return bits 32-63 of a number
