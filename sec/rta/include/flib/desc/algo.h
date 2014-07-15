@@ -43,7 +43,7 @@ static inline void cnstr_shdsc_snow_f8(uint32_t *descbuf, unsigned *bufsize,
 	ALG_OPERATION(OP_ALG_ALGSEL_SNOW_F8, OP_ALG_AAI_F8,
 		      OP_ALG_AS_INITFINAL, 0, dir);
 	LOAD(IMM(context), CONTEXT1, 0, 8, 0);
-	SEQFIFOLOAD(MSG1, 0, VLF | LAST1 | LAST2);
+	SEQFIFOLOAD(MSG1, 0, VLF | LAST1);
 	SEQFIFOSTORE(MSG, 0, 0, VLF);
 
 	*bufsize = PROGRAM_FINALIZE();
@@ -83,7 +83,7 @@ static inline void cnstr_shdsc_snow_f9(uint32_t *descbuf, unsigned *bufsize,
 	ALG_OPERATION(OP_ALG_ALGSEL_SNOW_F9, OP_ALG_AAI_F9,
 		      OP_ALG_AS_INITFINAL, 0, dir);
 	LOAD(PTR((uintptr_t)context), CONTEXT2, 0, 16, IMMED);
-	SEQFIFOLOAD(BIT_DATA, datalen, CLASS2 | LAST1 | LAST2);
+	SEQFIFOLOAD(BIT_DATA, datalen, CLASS2 | LAST2);
 	/* Save lower half of MAC out into a 32-bit sequence */
 	SEQSTORE(CONTEXT2, 0, 4, 0);
 
@@ -148,7 +148,7 @@ static inline void cnstr_shdsc_cbc_blkcipher(uint32_t *descbuf,
 	MATHB(SEQINSZ, SUB, MATH2, VSEQOUTSZ, 4, 0);
 
 	/* Insert sequence load/store with VLF */
-	SEQFIFOLOAD(MSG1, 0, VLF | LAST1 | LAST2);
+	SEQFIFOLOAD(MSG1, 0, VLF | LAST1);
 	SEQFIFOSTORE(MSG, 0, 0, VLF);
 
 	PATCH_JUMP(pkeyjmp, keyjmp);
@@ -232,7 +232,7 @@ static inline void cnstr_shdsc_hmac(uint32_t *descbuf, unsigned *bufsize,
 	MATHB(SEQINSZ, SUB, MATH2, VSEQOUTSZ, 4, 0);
 
 	/* Do load (variable length) */
-	SEQFIFOLOAD(MSG2, 0, VLF | LAST1 | LAST2);
+	SEQFIFOLOAD(MSG2, 0, VLF | LAST2);
 	SEQSTORE(CONTEXT2, 0, storelen, 0);
 
 	PATCH_JUMP(pkeyjmp, keyjmp);
@@ -273,7 +273,7 @@ static inline void cnstr_shdsc_kasumi_f8(uint32_t *descbuf, unsigned *bufsize,
 	ALG_OPERATION(OP_ALG_ALGSEL_KASUMI, OP_ALG_AAI_F8,
 		      OP_ALG_AS_INITFINAL, 0, dir);
 	LOAD(IMM(context), CONTEXT1, 0, 8, 0);
-	SEQFIFOLOAD(MSG1, 0, VLF | LAST1 | LAST2);
+	SEQFIFOLOAD(MSG1, 0, VLF | LAST1);
 	SEQFIFOSTORE(MSG, 0, 0, VLF);
 
 	*bufsize = PROGRAM_FINALIZE();
@@ -316,7 +316,7 @@ static inline void cnstr_shdsc_kasumi_f9(uint32_t *descbuf, unsigned *bufsize,
 	ALG_OPERATION(OP_ALG_ALGSEL_KASUMI, OP_ALG_AAI_F9,
 		      OP_ALG_AS_INITFINAL, 0, dir);
 	LOAD(PTR((uintptr_t)context), CONTEXT1, 0, 24, IMMED);
-	SEQFIFOLOAD(BIT_DATA, datalen, CLASS1 | LAST1 | LAST2);
+	SEQFIFOLOAD(BIT_DATA, datalen, CLASS1 | LAST1);
 	/* Save output MAC of DWORD 2 into a 32-bit sequence */
 	SEQSTORE(CONTEXT1, ctx_offset, 4, 0);
 
