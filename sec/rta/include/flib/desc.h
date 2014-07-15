@@ -2288,6 +2288,7 @@
 #define MATH_FUN_RSHIFT		(0x08 << MATH_FUN_SHIFT)
 #define MATH_FUN_SHLD		(0x09 << MATH_FUN_SHIFT)
 #define MATH_FUN_ZBYT		(0x0a << MATH_FUN_SHIFT)
+#define MATH_FUN_BSWAP		(0x0b << MATH_FUN_SHIFT)
 
 /* Source 0 selectors */
 #define MATH_SRC0_SHIFT		16

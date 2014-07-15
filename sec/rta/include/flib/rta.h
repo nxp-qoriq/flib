@@ -627,14 +627,15 @@ static inline unsigned rta_get_sec_era(void)
  *         have been written.
  */
 #define MATHB(operand1, operator, operand2, result, length, opt) \
-	rta_math(program, operand1, operator, operand2, result, length, opt)
+	rta_math(program, operand1, MATH_FUN_##operator, operand2, result, \
+		 length, opt)
 
 /**
  * MATHU - Configures MATHU command to perform unary operations
  * @operand1: operand: MATH0-MATH3, DPOVRD, SEQINSZ, SEQOUTSZ, VSEQINSZ,
  *            VSEQOUTSZ, ZERO, ONE, NONE, Immediate value. IMM must be used to
  *            indicate immediate value.
- * @operator: function to be performed: ZBYTE, BSWAP
+ * @operator: function to be performed: ZBYT, BSWAP
  * @result: destination for the result: MATH0-MATH3, DPOVRD, SEQINSZ, SEQOUTSZ,
  *          NONE, VSEQINSZ, VSEQOUTSZ.
  * @length: length in bytes of the operation and the immediate value, if there
@@ -647,7 +648,8 @@ static inline unsigned rta_get_sec_era(void)
  *         have been written.
  */
 #define MATHU(operand1, operator, result, length, opt) \
-	rta_math(program, operand1, operator, _NONE, 0, result, length, opt)
+	rta_math(program, operand1, MATH_FUN_##operator, _NONE, 0, result, \
+		 length, opt)
 
 /**
  * SIGNATURE - Configures SIGNATURE command
