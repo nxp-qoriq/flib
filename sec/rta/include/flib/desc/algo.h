@@ -105,22 +105,49 @@ static inline void cnstr_shdsc_cbc_blkcipher(uint32_t *descbuf,
 {
 	struct program prg;
 	struct program *program = &prg;
+	const is_aes_dec = (dir == DIR_DEC) && \
+			   (cipherdata->algtype == OP_ALG_ALGSEL_AES);
+	LABEL(keyjmp);
+	LABEL(skipdk);
+	REFERENCE(pkeyjmp);
+	REFERENCE(pskipdk);
 
 	PROGRAM_CNTXT_INIT(descbuf, 0);
-	SHR_HDR(SHR_ALWAYS, 1, SC);
+	SHR_HDR(SHR_SERIAL, 1, SC);
 
+	pkeyjmp = JUMP(IMM(keyjmp), LOCAL_JUMP, ALL_TRUE, SHRD);
 	/* Insert Key */
 	KEY(KEY1, cipherdata->key_enc_flags, PTR(cipherdata->key),
 	    cipherdata->keylen, IMMED);
+
+	if (is_aes_dec) {
+		ALG_OPERATION(cipherdata->algtype, OP_ALG_AAI_CBC,
+			      OP_ALG_AS_INITFINAL, ICV_CHECK_DISABLE, dir);
+
+		pskipdk = JUMP(IMM(skipdk), LOCAL_JUMP, ALL_TRUE, 0);
+	}
+	SET_LABEL(keyjmp);
+
+	if (is_aes_dec) {
+		ALG_OPERATION(OP_ALG_ALGSEL_AES, OP_ALG_AAI_CBC | OP_ALG_AAI_DK,
+			      OP_ALG_AS_INITFINAL, ICV_CHECK_DISABLE, dir);
+		SET_LABEL(skipdk);
+	} else {
+		ALG_OPERATION(cipherdata->algtype, OP_ALG_AAI_CBC,
+			      OP_ALG_AS_INITFINAL, ICV_CHECK_DISABLE, dir);
+	}
+
 	MATHB(SEQINSZ, SUB, MATH2, VSEQINSZ, 4, 0);
 	MATHB(SEQINSZ, SUB, MATH2, VSEQOUTSZ, 4, 0);
-	ALG_OPERATION(cipherdata->algtype, OP_ALG_AAI_CBC, OP_ALG_AS_INIT,
-		      ICV_CHECK_DISABLE, dir);
 	/* IV load, convert size */
 	LOAD(PTR((uintptr_t)iv), CONTEXT1, 0, ivlen, IMMED);
 	/* Insert sequence load/store with VLF */
 	SEQFIFOLOAD(MSG1, 32, VLF | LAST1 | LAST2);
 	SEQFIFOSTORE(MSG, 0, 32, VLF);
+
+	PATCH_JUMP(pkeyjmp, keyjmp);
+	if (is_aes_dec)
+		PATCH_JUMP(pskipdk, skipdk);
 
 	*bufsize = PROGRAM_FINALIZE();
 }
@@ -142,6 +169,10 @@ static inline void cnstr_shdsc_hmac(uint32_t *descbuf, unsigned *bufsize,
 	struct program *program = &prg;
 	uint8_t storelen;
 	uint8_t opicv;
+	LABEL(keyjmp);
+	LABEL(jmpprecomp);
+	REFERENCE(pkeyjmp);
+	REFERENCE(pjmpprecomp);
 
 	/* Compute fixed-size store based on alg selection */
 	switch (authdata->algtype) {
@@ -172,19 +203,34 @@ static inline void cnstr_shdsc_hmac(uint32_t *descbuf, unsigned *bufsize,
 	opicv = icv ? ICV_CHECK_ENABLE : ICV_CHECK_DISABLE;
 
 	PROGRAM_CNTXT_INIT(descbuf, 0);
-	SHR_HDR(SHR_ALWAYS, 1, SC);
+	SHR_HDR(SHR_SERIAL, 1, SC);
 
+	pkeyjmp = JUMP(IMM(keyjmp), LOCAL_JUMP, ALL_TRUE, SHRD);
 	KEY(KEY2, authdata->key_enc_flags, PTR(authdata->key),
 	    storelen, IMMED);
-	/* compute sequences */
-	MATHB(SEQINSZ, SUB, MATH2, VSEQINSZ, 4, 0);
-	MATHB(SEQINSZ, SUB, MATH2, VSEQOUTSZ, 4, 0);
+
 	/* Do operation */
 	ALG_OPERATION(authdata->algtype, OP_ALG_AAI_HMAC,
 		      OP_ALG_AS_INITFINAL, opicv, DIR_ENC);
+
+	pjmpprecomp = JUMP(IMM(jmpprecomp), LOCAL_JUMP, ALL_TRUE, 0);
+	SET_LABEL(keyjmp);
+
+	ALG_OPERATION(authdata->algtype, OP_ALG_AAI_HMAC_PRECOMP,
+		      OP_ALG_AS_INITFINAL, opicv, DIR_ENC);
+
+	SET_LABEL(jmpprecomp);
+
+	/* compute sequences */
+	MATHB(SEQINSZ, SUB, MATH2, VSEQINSZ, 4, 0);
+	MATHB(SEQINSZ, SUB, MATH2, VSEQOUTSZ, 4, 0);
+
 	/* Do load (variable length) */
 	SEQFIFOLOAD(MSG2, 32, VLF | LAST1 | LAST2);
 	SEQSTORE(CONTEXT2, 0, storelen, 0);
+
+	PATCH_JUMP(pkeyjmp, keyjmp);
+	PATCH_JUMP(pjmpprecomp, jmpprecomp);
 
 	*bufsize = PROGRAM_FINALIZE();
 }
