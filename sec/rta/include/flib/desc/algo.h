@@ -35,17 +35,17 @@ static inline void cnstr_shdsc_snow_f8(uint32_t *descbuf, unsigned *bufsize,
 
 	PROGRAM_CNTXT_INIT(descbuf, 0);
 	SHR_HDR(SHR_ALWAYS, 1, 0);
-	{
-		KEY(KEY1, cipherdata->key_enc_flags, PTR(cipherdata->key),
-		    cipherdata->keylen, IMMED);
-		MATHB(SEQINSZ, SUB, MATH2, VSEQINSZ, 4, 0);
-		MATHB(SEQINSZ, SUB, MATH2, VSEQOUTSZ, 4, 0);
-		ALG_OPERATION(OP_ALG_ALGSEL_SNOW_F8, OP_ALG_AAI_F8,
-			      OP_ALG_AS_INITFINAL, 0, dir);
-		LOAD(IMM(context), CONTEXT1, 0, 8, 0);
-		SEQFIFOLOAD(MSG1, 32, VLF | LAST1 | LAST2);
-		SEQFIFOSTORE(MSG, 0, 32, VLF);
-	}
+
+	KEY(KEY1, cipherdata->key_enc_flags, PTR(cipherdata->key),
+	    cipherdata->keylen, IMMED);
+	MATHB(SEQINSZ, SUB, MATH2, VSEQINSZ, 4, 0);
+	MATHB(SEQINSZ, SUB, MATH2, VSEQOUTSZ, 4, 0);
+	ALG_OPERATION(OP_ALG_ALGSEL_SNOW_F8, OP_ALG_AAI_F8,
+		      OP_ALG_AS_INITFINAL, 0, dir);
+	LOAD(IMM(context), CONTEXT1, 0, 8, 0);
+	SEQFIFOLOAD(MSG1, 32, VLF | LAST1 | LAST2);
+	SEQFIFOSTORE(MSG, 0, 32, VLF);
+
 	*bufsize = PROGRAM_FINALIZE();
 }
 
@@ -76,17 +76,17 @@ static inline void cnstr_shdsc_snow_f9(uint32_t *descbuf, unsigned *bufsize,
 
 	PROGRAM_CNTXT_INIT(descbuf, 0);
 	SHR_HDR(SHR_ALWAYS, 1, 0);
-	{
-		KEY(KEY2, authdata->key_enc_flags, PTR(authdata->key),
-		    authdata->keylen, IMMED);
-		MATHB(SEQINSZ, SUB, MATH2, VSEQINSZ, 4, 0);
-		ALG_OPERATION(OP_ALG_ALGSEL_SNOW_F9, OP_ALG_AAI_F9,
-			      OP_ALG_AS_INITFINAL, 0, dir);
-		LOAD(PTR((uintptr_t)context), CONTEXT2, 0, 16, IMMED);
-		SEQFIFOLOAD(BIT_DATA, datalen, CLASS2 | LAST1 | LAST2);
-		/* Save lower half of MAC out into a 32-bit sequence */
-		SEQSTORE(CONTEXT2, 0, 4, 0);
-	}
+
+	KEY(KEY2, authdata->key_enc_flags, PTR(authdata->key),
+	    authdata->keylen, IMMED);
+	MATHB(SEQINSZ, SUB, MATH2, VSEQINSZ, 4, 0);
+	ALG_OPERATION(OP_ALG_ALGSEL_SNOW_F9, OP_ALG_AAI_F9,
+		      OP_ALG_AS_INITFINAL, 0, dir);
+	LOAD(PTR((uintptr_t)context), CONTEXT2, 0, 16, IMMED);
+	SEQFIFOLOAD(BIT_DATA, datalen, CLASS2 | LAST1 | LAST2);
+	/* Save lower half of MAC out into a 32-bit sequence */
+	SEQSTORE(CONTEXT2, 0, 4, 0);
+
 	*bufsize = PROGRAM_FINALIZE();
 }
 
@@ -98,31 +98,30 @@ static inline void cnstr_shdsc_snow_f9(uint32_t *descbuf, unsigned *bufsize,
  * @iv: IV data
  * @ivlen: IV length
  * @dir: DIR_ENCRYPT/DIR_DECRYPT
- * @cipher: OP_ALG_ALGSEL_AES/DES/3DES
  */
 static inline void cnstr_shdsc_cbc_blkcipher(uint32_t *descbuf,
 			       unsigned *bufsize, struct alginfo *cipherdata,
-			       uint8_t *iv, uint32_t ivlen, uint8_t dir,
-			       uint32_t cipher)
+			       uint8_t *iv, uint32_t ivlen, uint8_t dir)
 {
 	struct program prg;
 	struct program *program = &prg;
 
 	PROGRAM_CNTXT_INIT(descbuf, 0);
 	SHR_HDR(SHR_ALWAYS, 1, SC);
-	{
-		/* Insert Key */
-		KEY(KEY1, cipherdata->key_enc_flags, PTR(cipherdata->key),
-		    cipherdata->keylen, IMMED);
-		MATHB(SEQINSZ, SUB, MATH2, VSEQINSZ, 4, 0);
-		MATHB(SEQINSZ, SUB, MATH2, VSEQOUTSZ, 4, 0);
-		ALG_OPERATION(cipher, OP_ALG_AAI_CBC, OP_ALG_AS_INIT, 0, dir);
-		/* IV load, convert size */
-		LOAD(PTR((uintptr_t)iv), CONTEXT1, 0, ivlen, IMMED);
-		/* Insert sequence load/store with VLF */
-		SEQFIFOLOAD(MSG1, 32, VLF | LAST1 | LAST2);
-		SEQFIFOSTORE(MSG, 0, 32, VLF);
-	}
+
+	/* Insert Key */
+	KEY(KEY1, cipherdata->key_enc_flags, PTR(cipherdata->key),
+	    cipherdata->keylen, IMMED);
+	MATHB(SEQINSZ, SUB, MATH2, VSEQINSZ, 4, 0);
+	MATHB(SEQINSZ, SUB, MATH2, VSEQOUTSZ, 4, 0);
+	ALG_OPERATION(cipherdata->algtype, OP_ALG_AAI_CBC, OP_ALG_AS_INIT,
+		      ICV_CHECK_DISABLE, dir);
+	/* IV load, convert size */
+	LOAD(PTR((uintptr_t)iv), CONTEXT1, 0, ivlen, IMMED);
+	/* Insert sequence load/store with VLF */
+	SEQFIFOLOAD(MSG1, 32, VLF | LAST1 | LAST2);
+	SEQFIFOSTORE(MSG, 0, 32, VLF);
+
 	*bufsize = PROGRAM_FINALIZE();
 }
 
@@ -170,19 +169,19 @@ static inline void cnstr_shdsc_hmac(uint32_t *descbuf, unsigned *bufsize,
 
 	PROGRAM_CNTXT_INIT(descbuf, 0);
 	SHR_HDR(SHR_ALWAYS, 1, SC);
-	{
-		KEY(KEY2, authdata->key_enc_flags, PTR(authdata->key),
-		    storelen, IMMED);
-		/* compute sequences */
-		MATHB(SEQINSZ, SUB, MATH2, VSEQINSZ, 4, 0);
-		MATHB(SEQINSZ, SUB, MATH2, VSEQOUTSZ, 4, 0);
-		/* Do operation */
-		ALG_OPERATION(authdata->algtype, OP_ALG_AAI_HMAC,
-			      OP_ALG_AS_INITFINAL, opicv, DIR_ENC);
-		/* Do load (variable length) */
-		SEQFIFOLOAD(MSG2, 32, VLF | LAST1 | LAST2);
-		SEQSTORE(CONTEXT2, 0, storelen, 0);
-	}
+
+	KEY(KEY2, authdata->key_enc_flags, PTR(authdata->key),
+	    storelen, IMMED);
+	/* compute sequences */
+	MATHB(SEQINSZ, SUB, MATH2, VSEQINSZ, 4, 0);
+	MATHB(SEQINSZ, SUB, MATH2, VSEQOUTSZ, 4, 0);
+	/* Do operation */
+	ALG_OPERATION(authdata->algtype, OP_ALG_AAI_HMAC,
+		      OP_ALG_AS_INITFINAL, opicv, DIR_ENC);
+	/* Do load (variable length) */
+	SEQFIFOLOAD(MSG2, 32, VLF | LAST1 | LAST2);
+	SEQSTORE(CONTEXT2, 0, storelen, 0);
+
 	*bufsize = PROGRAM_FINALIZE();
 }
 
@@ -210,17 +209,17 @@ static inline void cnstr_shdsc_kasumi_f8(uint32_t *descbuf, unsigned *bufsize,
 
 	PROGRAM_CNTXT_INIT(descbuf, 0);
 	SHR_HDR(SHR_ALWAYS, 1, 0);
-	{
-		KEY(KEY1, cipherdata->key_enc_flags, PTR(cipherdata->key),
-		    cipherdata->keylen, IMMED);
-		MATHB(SEQINSZ, SUB, MATH2, VSEQINSZ, 4, 0);
-		MATHB(SEQINSZ, SUB, MATH2, VSEQOUTSZ, 4, 0);
-		ALG_OPERATION(OP_ALG_ALGSEL_KASUMI, OP_ALG_AAI_F8,
-			      OP_ALG_AS_INITFINAL, 0, dir);
-		LOAD(IMM(context), CONTEXT1, 0, 8, 0);
-		SEQFIFOLOAD(MSG1, 32, VLF | LAST1 | LAST2);
-		SEQFIFOSTORE(MSG, 0, 32, VLF);
-	}
+
+	KEY(KEY1, cipherdata->key_enc_flags, PTR(cipherdata->key),
+	    cipherdata->keylen, IMMED);
+	MATHB(SEQINSZ, SUB, MATH2, VSEQINSZ, 4, 0);
+	MATHB(SEQINSZ, SUB, MATH2, VSEQOUTSZ, 4, 0);
+	ALG_OPERATION(OP_ALG_ALGSEL_KASUMI, OP_ALG_AAI_F8,
+		      OP_ALG_AS_INITFINAL, 0, dir);
+	LOAD(IMM(context), CONTEXT1, 0, 8, 0);
+	SEQFIFOLOAD(MSG1, 32, VLF | LAST1 | LAST2);
+	SEQFIFOSTORE(MSG, 0, 32, VLF);
+
 	*bufsize = PROGRAM_FINALIZE();
 }
 
@@ -254,17 +253,17 @@ static inline void cnstr_shdsc_kasumi_f9(uint32_t *descbuf, unsigned *bufsize,
 
 	PROGRAM_CNTXT_INIT(descbuf, 0);
 	SHR_HDR(SHR_ALWAYS, 1, 0);
-	{
-		KEY(KEY1, authdata->key_enc_flags, PTR(authdata->key),
-		    authdata->keylen, IMMED);
-		MATHB(SEQINSZ, SUB, MATH2, VSEQINSZ, 4, 0);
-		ALG_OPERATION(OP_ALG_ALGSEL_KASUMI, OP_ALG_AAI_F9,
-			      OP_ALG_AS_INITFINAL, 0, dir);
-		LOAD(PTR((uintptr_t)context), CONTEXT1, 0, 24, IMMED);
-		SEQFIFOLOAD(BIT_DATA, datalen, CLASS1 | LAST1 | LAST2);
-		/* Save output MAC of DWORD 2 into a 32-bit sequence */
-		SEQSTORE(CONTEXT1, ctx_offset, 4, 0);
-	}
+
+	KEY(KEY1, authdata->key_enc_flags, PTR(authdata->key),
+	    authdata->keylen, IMMED);
+	MATHB(SEQINSZ, SUB, MATH2, VSEQINSZ, 4, 0);
+	ALG_OPERATION(OP_ALG_ALGSEL_KASUMI, OP_ALG_AAI_F9,
+		      OP_ALG_AS_INITFINAL, 0, dir);
+	LOAD(PTR((uintptr_t)context), CONTEXT1, 0, 24, IMMED);
+	SEQFIFOLOAD(BIT_DATA, datalen, CLASS1 | LAST1 | LAST2);
+	/* Save output MAC of DWORD 2 into a 32-bit sequence */
+	SEQSTORE(CONTEXT1, ctx_offset, 4, 0);
+
 	*bufsize = PROGRAM_FINALIZE();
 }
 
@@ -280,14 +279,14 @@ static inline void cnstr_shdsc_crc(uint32_t *descbuf, unsigned *bufsize)
 
 	PROGRAM_CNTXT_INIT(descbuf, 0);
 	SHR_HDR(SHR_ALWAYS, 1, 0);
-	{
-		MATHB(SEQINSZ, SUB, MATH2, VSEQINSZ, 4, 0);
-		ALG_OPERATION(OP_ALG_ALGSEL_CRC,
-			      OP_ALG_AAI_802 | OP_ALG_AAI_DOC,
-			      OP_ALG_AS_FINALIZE, 0, DIR_ENC);
-		SEQFIFOLOAD(MSG2, 32, VLF | LAST2);
-		SEQSTORE(CONTEXT2, 0, 4, 0);
-	}
+
+	MATHB(SEQINSZ, SUB, MATH2, VSEQINSZ, 4, 0);
+	ALG_OPERATION(OP_ALG_ALGSEL_CRC,
+		      OP_ALG_AAI_802 | OP_ALG_AAI_DOC,
+		      OP_ALG_AS_FINALIZE, 0, DIR_ENC);
+	SEQFIFOLOAD(MSG2, 32, VLF | LAST2);
+	SEQSTORE(CONTEXT2, 0, 4, 0);
+
 	*bufsize = PROGRAM_FINALIZE();
 }
 
