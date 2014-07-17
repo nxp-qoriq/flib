@@ -51,6 +51,7 @@
 #define CMD_MATH		((uint32_t)(0x15 << CMD_SHIFT))
 #define CMD_DESC_HDR		((uint32_t)(0x16 << CMD_SHIFT))
 #define CMD_SHARED_DESC_HDR	((uint32_t)(0x17 << CMD_SHIFT))
+#define CMD_MATHI               ((uint32_t)(0x1d << CMD_SHIFT))
 #define CMD_SEQ_IN_PTR		((uint32_t)(0x1e << CMD_SHIFT))
 #define CMD_SEQ_OUT_PTR		((uint32_t)(0x1f << CMD_SHIFT))
 
@@ -2264,9 +2265,14 @@
 #define MATH_NFU_MASK		(1 << MATH_NFU_SHIFT)
 #define MATH_NFU		BIT(25)
 
+/* STL for MATH, SSEL for MATHI */
 #define MATH_STL_SHIFT		24
 #define MATH_STL_MASK		(1 << MATH_STL_SHIFT)
 #define MATH_STL		BIT(24)
+
+#define MATH_SSEL_SHIFT		24
+#define MATH_SSEL_MASK		(1 << MATH_SSEL_SHIFT)
+#define MATH_SSEL		BIT(24)
 
 #define MATH_SWP_SHIFT		0
 #define MATH_SWP_MASK		(1 << MATH_SWP_SHIFT)
@@ -2285,7 +2291,8 @@
 #define MATH_FUN_LSHIFT		(0x07 << MATH_FUN_SHIFT)
 #define MATH_FUN_RSHIFT		(0x08 << MATH_FUN_SHIFT)
 #define MATH_FUN_SHLD		(0x09 << MATH_FUN_SHIFT)
-#define MATH_FUN_ZBYT		(0x0a << MATH_FUN_SHIFT)
+#define MATH_FUN_ZBYT		(0x0a << MATH_FUN_SHIFT) /* ZBYT is for MATH */
+#define MATH_FUN_FBYT		(0x0a << MATH_FUN_SHIFT) /* FBYT is for MATHI */
 #define MATH_FUN_BSWAP		(0x0b << MATH_FUN_SHIFT)
 
 /* Source 0 selectors */
@@ -2306,6 +2313,7 @@
 
 /* Source 1 selectors */
 #define MATH_SRC1_SHIFT		12
+#define MATHI_SRC1_SHIFT	16
 #define MATH_SRC1_MASK		(0x0f << MATH_SRC1_SHIFT)
 #define MATH_SRC1_REG0		(0x00 << MATH_SRC1_SHIFT)
 #define MATH_SRC1_REG1		(0x01 << MATH_SRC1_SHIFT)
@@ -2323,6 +2331,7 @@
 
 /* Destination selectors */
 #define MATH_DEST_SHIFT		8
+#define MATHI_DEST_SHIFT	12
 #define MATH_DEST_MASK		(0x0f << MATH_DEST_SHIFT)
 #define MATH_DEST_REG0		(0x00 << MATH_DEST_SHIFT)
 #define MATH_DEST_REG1		(0x01 << MATH_DEST_SHIFT)
@@ -2334,6 +2343,10 @@
 #define MATH_DEST_VARSEQINLEN	(0x0a << MATH_DEST_SHIFT)
 #define MATH_DEST_VARSEQOUTLEN	(0x0b << MATH_DEST_SHIFT)
 #define MATH_DEST_NONE		(0x0f << MATH_DEST_SHIFT)
+
+/* MATHI Immediate value */
+#define MATHI_IMM_SHIFT		4
+#define MATHI_IMM_MASK		(0xff << MATHI_IMM_SHIFT)
 
 /* Length selectors */
 #define MATH_LEN_SHIFT		0
