@@ -613,8 +613,8 @@ static inline unsigned rta_get_sec_era(void)
  * @operator: function to be performed: ADD, ADDC, SUB, SUBB, OR, AND, XOR,
  *            LSHIFT, RSHIFT, SHLD.
  * @operand2: second operand: MATH0-MATH3, DPOVRD, VSEQINSZ, VSEQOUTSZ, ABD,
- *            OFIFO, JOBSRC, ZERO, ONE, SEQINSZ, Immediate value. IMM must be
- *            used to indicate immediate value.
+ *            OFIFO, JOBSRC, ZERO, ONE, Immediate value. IMM must be used to
+ *            indicate immediate value.
  * @result: destination for the result: MATH0-MATH3, DPOVRD, SEQINSZ, SEQOUTSZ,
  *          NONE, VSEQINSZ, VSEQOUTSZ.
  * @length: length in bytes of the operation and the immediate value, if there
@@ -629,6 +629,34 @@ static inline unsigned rta_get_sec_era(void)
 #define MATHB(operand1, operator, operand2, result, length, opt) \
 	rta_math(program, operand1, MATH_FUN_##operator, operand2, result, \
 		 length, opt)
+
+/**
+ * MATHI - Configures MATHI command to perform binary operations
+ * @operand: if !SSEL: MATH0-MATH3, DPOVRD, SEQINSZ, SEQOUTSZ, VSEQINSZ,
+ *           VSEQOUTSZ, ZERO, ONE.
+ *           if SSEL: MATH0-MATH3, DPOVRD, VSEQINSZ, VSEQOUTSZ, ABD, OFIFO,
+ *           JOBSRC, ZERO, ONE.
+ * @operator: function to be performed: ADD, ADDC, SUB, SUBB, OR, AND, XOR,
+ *            LSHIFT, RSHIFT, FBYT (for !SSEL only).
+ * @imm: Immediate value (uint8_t). IMM must be used to indicate immediate
+ *       value.
+ * @result: destination for the result: MATH0-MATH3, DPOVRD, SEQINSZ, SEQOUTSZ,
+ *          NONE, VSEQINSZ, VSEQOUTSZ.
+ * @length: length in bytes of the operation and the immediate value, if there
+ *          is one (int). @imm is left-extended with zeros if needed.
+ * @opt: operational flags: NFU, SSEL, SWP
+ *
+ * If !SSEL, @operand <@operator> @imm -> @result
+ * If SSEL, @imm <@operator> @operand -> @result
+ *
+ * Return: On success, descriptor buffer offset where this command is inserted.
+ *         On error, a negative error code; first error program counter will
+ *         point to offset in descriptor buffer where the instruction should
+ *         have been written.
+ */
+#define MATHI(operand, operator, imm, result, length, opt) \
+	rta_mathi(program, operand, MATH_FUN_##operator, imm, result, length, \
+		  opt)
 
 /**
  * MATHU - Configures MATHU command to perform unary operations

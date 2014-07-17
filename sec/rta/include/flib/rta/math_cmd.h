@@ -247,4 +247,142 @@ static inline int rta_math(struct program *program, uint64_t operand1,
 	return ret;
 }
 
+static inline int rta_mathi(struct program *program, uint64_t operand,
+			    int type_op, uint32_t op, uint8_t imm, int type_imm,
+			    uint32_t result, int type_res, int length,
+			    uint32_t options)
+{
+	uint32_t opcode = CMD_MATHI;
+	uint32_t val = 0;
+	int ret = -EINVAL;
+	unsigned start_pc = program->current_pc;
+
+	if (rta_sec_era < RTA_SEC_ERA_6) {
+		pr_err("MATHI: Command not supported by SEC Era %d. SEC PC: %d; Instr: %d\n",
+		       USER_SEC_ERA(rta_sec_era), program->current_pc,
+		       program->current_instruction);
+		goto err;
+	}
+
+	if (type_op == IMM_DATA) {
+		pr_err("MATHI: Invalid operand1, cannot be IMM. SEC PC: %d; Instr: %d\n",
+		       program->current_pc, program->current_instruction);
+		goto err;
+	}
+
+	if (type_imm != IMM_DATA) {
+		pr_err("MATHI: Invalid operand2, must be IMM. SEC PC: %d; Instr: %d\n",
+		       program->current_pc, program->current_instruction);
+		goto err;
+	}
+
+	if (type_res != REG_TYPE) {
+		pr_err("MATHI: Incorrect result type. SEC PC: %d; Instr: %d\n",
+		       program->current_pc, program->current_instruction);
+		goto err;
+	}
+
+	if (((op == MATH_FUN_FBYT) && (options & SSEL))) {
+		pr_err("MATHI: Illegal combination - FBYT and SSEL. SEC PC: %d; Instr: %d\n",
+		       program->current_pc, program->current_instruction);
+		goto err;
+	}
+
+	if ((options & SWP) && (rta_sec_era < RTA_SEC_ERA_7)) {
+		pr_err("MATHI: SWP not supported by SEC Era %d. SEC PC: %d; Instr: %d\n",
+		       USER_SEC_ERA(rta_sec_era), program->current_pc,
+		       program->current_instruction);
+		goto err;
+	}
+
+	/* Write first operand field */
+	if (!(options & SSEL))
+		ret = __rta_map_opcode((uint32_t)operand, math_op1,
+				       math_op1_sz[rta_sec_era], &val);
+	else
+		ret = __rta_map_opcode((uint32_t)operand, math_op2,
+				       math_op2_sz[rta_sec_era], &val);
+	if (ret < 0) {
+		pr_err("MATHI: operand not supported. SEC PC: %d; Instr: %d\n",
+		       program->current_pc, program->current_instruction);
+		goto err;
+	}
+
+	if (!(options & SSEL))
+		opcode |= val;
+	else
+		opcode |= (val << (MATHI_SRC1_SHIFT - MATH_SRC1_SHIFT));
+
+	/* Write second operand field */
+	opcode |= (imm << MATHI_IMM_SHIFT);
+
+	/* Write result field */
+	ret = __rta_map_opcode(result, math_result, math_result_sz[rta_sec_era],
+			       &val);
+	if (ret < 0) {
+		pr_err("MATHI: result not supported. SEC PC: %d; Instr: %d\n",
+		       program->current_pc, program->current_instruction);
+		goto err;
+	}
+	opcode |= (val << (MATHI_DEST_SHIFT - MATH_DEST_SHIFT));
+
+	/*
+	 * as we encode operations with their "real" values, we do not have to
+	 * translate but we do need to validate the value
+	 */
+	switch (op) {
+	case (MATH_FUN_ADD):
+	case (MATH_FUN_ADDC):
+	case (MATH_FUN_SUB):
+	case (MATH_FUN_SUBB):
+	case (MATH_FUN_OR):
+	case (MATH_FUN_AND):
+	case (MATH_FUN_XOR):
+	case (MATH_FUN_LSHIFT):
+	case (MATH_FUN_RSHIFT):
+	case (MATH_FUN_FBYT):
+		opcode |= op;
+		break;
+	default:
+		pr_err("MATHI: operator not supported. SEC PC: %d; Instr: %d\n",
+		       program->current_pc, program->current_instruction);
+		ret = -EINVAL;
+		goto err;
+	}
+
+	opcode |= options;
+
+	/* Verify length */
+	switch (length) {
+	case (1):
+		opcode |= MATH_LEN_1BYTE;
+		break;
+	case (2):
+		opcode |= MATH_LEN_2BYTE;
+		break;
+	case (4):
+		opcode |= MATH_LEN_4BYTE;
+		break;
+	case (8):
+		opcode |= MATH_LEN_8BYTE;
+		break;
+	default:
+		pr_err("MATHI: length %d not supported. SEC PC: %d; Instr: %d\n",
+		       length, program->current_pc,
+		       program->current_instruction);
+		ret = -EINVAL;
+		goto err;
+	}
+
+	__rta_out32(program, opcode);
+	program->current_instruction++;
+
+	return (int)start_pc;
+
+ err:
+	program->first_error_pc = start_pc;
+	program->current_instruction++;
+	return ret;
+}
+
 #endif /* __RTA_MATH_CMD_H__ */

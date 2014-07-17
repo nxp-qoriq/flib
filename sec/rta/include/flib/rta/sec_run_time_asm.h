@@ -434,6 +434,7 @@ enum rta_regs {
 #define IFB         MATH_IFB
 #define NFU         MATH_NFU
 #define STL         MATH_STL
+#define SSEL        MATH_SSEL
 #define SWP         MATH_SWP
 
 /**
