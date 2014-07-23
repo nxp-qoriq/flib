@@ -8,6 +8,11 @@
 #ifndef __RTA_DESC_H__
 #define __RTA_DESC_H__
 
+/* flib/compat.h is not delivered in kernel */
+#ifndef __KERNEL__
+#include "flib/compat.h"
+#endif
+
 /* Max size of any SEC descriptor in 32-bit words, inclusive of header */
 #define MAX_CAAM_DESCSIZE	64
 
