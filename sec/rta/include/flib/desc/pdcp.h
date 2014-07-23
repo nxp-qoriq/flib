@@ -248,8 +248,12 @@ static inline int pdcp_insert_cplane_null_op(struct program *program,
 
 	if (rta_sec_era > RTA_SEC_ERA_2) {
 		MATHB(SEQINSZ, ADD, ZERO, VSEQINSZ, 4, 0);
-		MATHB(SEQINSZ, dir == OP_TYPE_ENCAP_PROTOCOL ? ADD : SUB,
-		      IMM(PDCP_MAC_I_LEN), VSEQOUTSZ, 4, 0);
+		if (dir == OP_TYPE_ENCAP_PROTOCOL)
+			MATHB(SEQINSZ, ADD, IMM(PDCP_MAC_I_LEN), VSEQOUTSZ, 4,
+			      0);
+		else
+			MATHB(SEQINSZ, SUB, IMM(PDCP_MAC_I_LEN), VSEQOUTSZ, 4,
+			      0);
 	} else {
 		MATHB(SEQINSZ, ADD, ONE, VSEQINSZ, 4, 0);
 		MATHB(VSEQINSZ, SUB, ONE, VSEQINSZ, 4, 0);
@@ -687,8 +691,12 @@ static inline int pdcp_insert_cplane_enc_only_op(struct program *program,
 			MATHB(MATH1, ADD, ONE, VSEQINSZ, 4, 0);
 		}
 
-		MATHB(SEQINSZ, dir == OP_TYPE_ENCAP_PROTOCOL ? ADD : SUB,
-		      IMM(PDCP_MAC_I_LEN), VSEQOUTSZ, 4, 0);
+		if (dir == OP_TYPE_ENCAP_PROTOCOL)
+			MATHB(SEQINSZ, ADD, IMM(PDCP_MAC_I_LEN), VSEQOUTSZ, 4,
+			      0);
+		else
+			MATHB(SEQINSZ, SUB, IMM(PDCP_MAC_I_LEN), VSEQOUTSZ, 4,
+			      0);
 		SEQFIFOSTORE(MSG, 0, 0, VLF | CONT);
 		ALG_OPERATION(OP_ALG_ALGSEL_SNOW_F8,
 			      OP_ALG_AAI_F8,
@@ -707,12 +715,13 @@ static inline int pdcp_insert_cplane_enc_only_op(struct program *program,
 			MATHB(MATH1, ADD, ONE, VSEQINSZ, 4, 0);
 		}
 
-		MATHB(SEQINSZ,
-		      dir == OP_TYPE_ENCAP_PROTOCOL ? ADD : SUB,
-			     IMM(PDCP_MAC_I_LEN),
-		      VSEQOUTSZ,
-		      4,
-		      0);
+		if (dir == OP_TYPE_ENCAP_PROTOCOL)
+			MATHB(SEQINSZ, ADD, IMM(PDCP_MAC_I_LEN), VSEQOUTSZ, 4,
+			      0);
+		else
+			MATHB(SEQINSZ, SUB, IMM(PDCP_MAC_I_LEN), VSEQOUTSZ, 4,
+			      0);
+
 		SEQFIFOSTORE(MSG, 0, 0, VLF | CONT);
 		ALG_OPERATION(OP_ALG_ALGSEL_AES,
 			      OP_ALG_AAI_CTR,
@@ -731,12 +740,13 @@ static inline int pdcp_insert_cplane_enc_only_op(struct program *program,
 		MOVE(MATH2, 0, CONTEXT1, 0, IMM(0x08), 0);
 		MOVE(MATH2, 0, CONTEXT1, 0x08, IMM(0x08), WAITCOMP);
 		MATHB(SEQINSZ, SUB, ZERO, VSEQINSZ, 4, 0);
-		MATHB(SEQINSZ,
-		      dir == OP_TYPE_ENCAP_PROTOCOL ? ADD : SUB,
-			     IMM(PDCP_MAC_I_LEN),
-		      VSEQOUTSZ,
-		      4,
-		      0);
+		if (dir == OP_TYPE_ENCAP_PROTOCOL)
+			MATHB(SEQINSZ, ADD, IMM(PDCP_MAC_I_LEN), VSEQOUTSZ, 4,
+			      0);
+		else
+			MATHB(SEQINSZ, SUB, IMM(PDCP_MAC_I_LEN), VSEQOUTSZ, 4,
+			      0);
+
 		SEQFIFOSTORE(MSG, 0, 0, VLF | CONT);
 		ALG_OPERATION(OP_ALG_ALGSEL_ZUCE,
 			      OP_ALG_AAI_F8,
