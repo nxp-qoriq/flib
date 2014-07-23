@@ -168,6 +168,9 @@ static inline void cnstr_shdsc_cbc_blkcipher(uint32_t *descbuf,
  *          is needed for all the packets processed by this shared descriptor
  * @trunc_len: Length of the truncated ICV to be written in the output buffer, 0
  *             if no truncation is needed
+ *
+ * Note: There's no support for keys longer than the corresponding digest size,
+ * according to the selected algorithm.
  */
 static inline void cnstr_shdsc_hmac(uint32_t *descbuf, unsigned *bufsize,
 		      struct alginfo *authdata, uint8_t do_icv,
@@ -175,8 +178,7 @@ static inline void cnstr_shdsc_hmac(uint32_t *descbuf, unsigned *bufsize,
 {
 	struct program prg;
 	struct program *program = &prg;
-	uint8_t storelen;
-	uint8_t opicv;
+	uint8_t storelen, opicv, dir;
 	LABEL(keyjmp);
 	LABEL(jmpprecomp);
 	REFERENCE(pkeyjmp);
@@ -206,9 +208,10 @@ static inline void cnstr_shdsc_hmac(uint32_t *descbuf, unsigned *bufsize,
 		return;
 	}
 
-	storelen = trunc_len && (trunc_len < storelen) ? trunc_len : storelen;
+	trunc_len = trunc_len && (trunc_len < storelen) ? trunc_len : storelen;
 
 	opicv = do_icv ? ICV_CHECK_ENABLE : ICV_CHECK_DISABLE;
+	dir == do_icv ? DIR_DEC : DIR_ENC;
 
 	PROGRAM_CNTXT_INIT(descbuf, 0);
 	SHR_HDR(SHR_SERIAL, 1, SC);
@@ -219,19 +222,19 @@ static inline void cnstr_shdsc_hmac(uint32_t *descbuf, unsigned *bufsize,
 
 	/* Do operation */
 	ALG_OPERATION(authdata->algtype, OP_ALG_AAI_HMAC,
-		      OP_ALG_AS_INITFINAL, opicv, DIR_ENC);
+		      OP_ALG_AS_INITFINAL, opicv, dir);
 
 	pjmpprecomp = JUMP(IMM(jmpprecomp), LOCAL_JUMP, ALL_TRUE, 0);
 	SET_LABEL(keyjmp);
 
 	ALG_OPERATION(authdata->algtype, OP_ALG_AAI_HMAC_PRECOMP,
-		      OP_ALG_AS_INITFINAL, opicv, DIR_ENC);
+		      OP_ALG_AS_INITFINAL, opicv, dir);
 
 	SET_LABEL(jmpprecomp);
 
 	/* compute sequences */
 	if (opicv == ICV_CHECK_ENABLE)
-		MATHB(SEQINSZ, SUB, IMM(storelen), VSEQINSZ, 4, 0);
+		MATHB(SEQINSZ, SUB, IMM(trunc_len), VSEQINSZ, 4, 0);
 	else
 		MATHB(SEQINSZ, SUB, MATH2, VSEQINSZ, 4, 0);
 
@@ -239,9 +242,9 @@ static inline void cnstr_shdsc_hmac(uint32_t *descbuf, unsigned *bufsize,
 	SEQFIFOLOAD(MSG2, 0, VLF | LAST2);
 
 	if (opicv == ICV_CHECK_ENABLE)
-		SEQFIFOLOAD(ICV2, storelen, LAST2);
+		SEQFIFOLOAD(ICV2, trunc_len, LAST2);
 	else
-		SEQSTORE(CONTEXT2, 0, storelen, 0);
+		SEQSTORE(CONTEXT2, 0, trunc_len, 0);
 
 	PATCH_JUMP(pkeyjmp, keyjmp);
 	PATCH_JUMP(pjmpprecomp, jmpprecomp);
