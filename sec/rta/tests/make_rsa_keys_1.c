@@ -47,31 +47,29 @@ unsigned jdesc_pkha_make_rsa_p_q(struct program *prg, uint32_t *buff,
 		SET_LABEL(retry);
 		MATHB(MATH1, SUB, ONE, MATH1, 8, 0);	/* trycounter-- */
 		/* fail on too many tries */
-		JUMP(IMM(0x42), HALT_STATUS, ALL_TRUE, MATH_N);
+		JUMP(0x42, HALT_STATUS, ALL_TRUE, MATH_N);
 
 		/* Get PKHA sizes ready to load values */
-		LOAD(IMM(pq_size), PKNSZ, 0, 4, 0);
-		LOAD(IMM((pq_size - 1)), PKASZ, 0, 4, 0);
+		LOAD(pq_size, PKNSZ, 0, 4, IMMED);
+		LOAD(pq_size - 1, PKASZ, 0, 4, IMMED);
 
 		/* Generate 4 MSB and 1 LSB random bytes for our candidate */
 		NFIFOADD(PAD, MSG, 5, PAD_RANDOM | LAST1);
-		MOVE(IFIFOABD, 0, MATH2, 0, IMM(5), WAITCOMP);
+		MOVE(IFIFOABD, 0, MATH2, 0, 5, WAITCOMP | IMMED);
 		/* Make it odd */
-		MATHB(MATH2, OR, IMM(0x8000000001000000), MATH2, 8, 0);
+		MATHB(MATH2, OR, 0x8000000001000000, MATH2, 8, IMMED2);
 		/* Compare it to sqrt(2) * 2^pq_size ... */
-		MATHB(MATH2, SUB, IMM(0xb504f333ff000000), NONE, 8, 0);
-		pjump1 = JUMP(IMM(retry), LOCAL_JUMP, ANY_TRUE,
-			      MATH_Z | MATH_N);
+		MATHB(MATH2, SUB, 0xb504f333ff000000, NONE, 8, IMMED2);
+		pjump1 = JUMP(retry, LOCAL_JUMP, ANY_TRUE, MATH_Z | MATH_N);
 
 		/* Put the five bytes into the ififo */
-		MOVE(MATH2, 0, IFIFOAB1, 0, IMM(4), 0);
-		MOVE(MATH2, 4, IFIFOAB1, 0, IMM(1), 0);
+		MOVE(MATH2, 0, IFIFOAB1, 0, 4, IMMED);
+		MOVE(MATH2, 4, IFIFOAB1, 0, 1, IMMED);
 		/* And the first four on into pkn */
 		NFIFOADD(IFIFO, PKN, 4, 0);
 		/* skip this next if we're doing very short RSA */
-		MATHB(SEQOUTSZ, SUB, IMM(5), NONE, 4, 0);
-		pjump2 = JUMP(IMM(short_key), LOCAL_JUMP, ANY_TRUE,
-			      MATH_Z | MATH_N);
+		MATHB(SEQOUTSZ, SUB, 5, NONE, 4, IMMED2);
+		pjump2 = JUMP(short_key, LOCAL_JUMP, ANY_TRUE, MATH_Z | MATH_N);
 
 		/* Generate random 'middle bytes' for our candidate */
 		NFIFOADD(PAD, PKN, (pq_size - 5), PAD_RANDOM | EXT);
@@ -81,26 +79,25 @@ unsigned jdesc_pkha_make_rsa_p_q(struct program *prg, uint32_t *buff,
 		NFIFOADD(PAD, PKA, (pq_size - 1),
 			 PAD_RANDOM | FLUSH1 | EXT);
 		/* Put our 'miller-rabin trial count' into pkb */
-		LOAD(IMM(1), PKBSZ, 0, 4, 0);
-		MOVE(MATH0, 0, IFIFOAB1, 0, IMM(1), WAITCOMP);
+		LOAD(1, PKBSZ, 0, 4, IMMED);
+		MOVE(MATH0, 0, IFIFOAB1, 0, 1, WAITCOMP | IMMED);
 		NFIFOADD(IFIFO, PKB, 1, FLUSH1);
 		/* Crunch */
 		PKHA_OPERATION(OP_ALG_PKMODE_MOD_PRIMALITY);
-		pjump5 = JUMP(IMM(retry), LOCAL_JUMP, ANY_FALSE,
-			      PK_PRIME);
+		pjump5 = JUMP(retry, LOCAL_JUMP, ANY_FALSE, PK_PRIME);
 		/* p / q test */
 		MATHB(MATH3, SUB, ONE, MATH3, 4, 0);
-		pjump3 = JUMP(IMM(store_q), LOCAL_JUMP, ALL_TRUE, MATH_N);
+		pjump3 = JUMP(store_q, LOCAL_JUMP, ALL_TRUE, MATH_N);
 		FIFOSTORE(PKN, 0, prv_key_p, pq_size, 0);
-		pjump4 = JUMP(IMM(now_do_q), LOCAL_JUMP, ALL_TRUE, 0);
+		pjump4 = JUMP(now_do_q, LOCAL_JUMP, ALL_TRUE, 0);
 
 		SET_LABEL(store_q);
 		FIFOSTORE(PKN, 0, prv_key_q, pq_size, 0);
 
 		/* pq_count accounting */
 		MATHB(MATH0, SUB, MATH1, MATH1, 4, 0);
-		STORE(MATH1, 4, PTR(pq_count), 4, 0);
-		JUMP(PTR(pkha_make_rsa_check_pq_phys), FAR_JUMP, ALL_TRUE, 0);
+		STORE(MATH1, 4, pq_count, 4, 0);
+		JUMP(pkha_make_rsa_check_pq_phys, FAR_JUMP, ALL_TRUE, 0);
 	}
 	PATCH_JUMP(pjump1, retry);
 	PATCH_JUMP(pjump2, short_key);
@@ -129,7 +126,7 @@ unsigned jdesc_pkha_make_rsa_check_pq(struct program *prg, uint32_t *buff,
 	PROGRAM_CNTXT_INIT(buff, buffpos);
 	JOB_HDR(SHR_NEVER, 0, 0, 0);
 	{
-		LOAD(IMM(0), DCTRL, LDOFF_ENABLE_AUTO_NFIFO, 0, 0);
+		LOAD(0, DCTRL, LDOFF_ENABLE_AUTO_NFIFO, 0, IMMED);
 		/* Finish FIFOSTORE of pkn so FIFOLOAD of pkn doesn't get
 		 * confused */
 		SEQFIFOSTORE(MSG, 0, 0, 0);
@@ -140,39 +137,38 @@ unsigned jdesc_pkha_make_rsa_check_pq(struct program *prg, uint32_t *buff,
 		 *
 		 * Bad when bits are all zero or all 1.
 		 */
-		FIFOLOAD(PKN, PTR(max_n), (pq_size + 1), 0);
-		FIFOLOAD(PKA, PTR(prv_key_p), (pq_size), 0);
-		FIFOLOAD(PKB, PTR(prv_key_q), (pq_size), 0);
+		FIFOLOAD(PKN, max_n, (pq_size + 1), 0);
+		FIFOLOAD(PKA, prv_key_p, (pq_size), 0);
+		FIFOLOAD(PKB, prv_key_q, (pq_size), 0);
 		/* p - q % fffffffffff */
 		PKHA_OPERATION(OP_ALG_PKMODE_MOD_SUB_AB);
-		LOAD(IMM(CCTRL_UNLOAD_PK_B), CCTRL, 0, 4, 0);
+		LOAD(CCTRL_UNLOAD_PK_B, CCTRL, 0, 4, IMMED);
 		/* Get interesting bits */
-		MOVE(OFIFO, 0, MATH2, 0, IMM(16), WAITCOMP);
+		MOVE(OFIFO, 0, MATH2, 0, 16, WAITCOMP | IMMED);
 		/* Trash remaining bits */
-		MOVE(OFIFO, 0, CONTEXT1, 0, IMM((pq_size - 16 + 1)),
-		     WAITCOMP);
+		MOVE(OFIFO, 0, CONTEXT1, 0, pq_size - 16 + 1, WAITCOMP | IMMED);
 		MATHB(ZERO, OR, MATH2, NONE, 8, 0);
-		pjump1 = JUMP(IMM(check_2), LOCAL_JUMP, ALL_TRUE, MATH_N);
-		pjump2 = JUMP(IMM(do_over), LOCAL_JUMP, ALL_TRUE, MATH_Z);
-		MATHB(MATH3, AND, IMM(0xfffffffffff00000), NONE, 8, 0);
+		pjump1 = JUMP(check_2, LOCAL_JUMP, ALL_TRUE, MATH_N);
+		pjump2 = JUMP(do_over, LOCAL_JUMP, ALL_TRUE, MATH_Z);
+		MATHB(MATH3, AND, 0xfffffffffff00000, NONE, 8, IMMED2);
 
-		pjump3 = JUMP(IMM(do_over), LOCAL_JUMP, ALL_TRUE, MATH_Z);
-		pjump4 = JUMP(IMM(pq_ok), LOCAL_JUMP, ALL_TRUE, 0);
+		pjump3 = JUMP(do_over, LOCAL_JUMP, ALL_TRUE, MATH_Z);
+		pjump4 = JUMP(pq_ok, LOCAL_JUMP, ALL_TRUE, 0);
 
 		SET_LABEL(check_2);
-		MATHB(MATH2, XOR, IMM(0xffffffffffffffff), NONE, 8, 0);
-		pjump5 = JUMP(IMM(pq_ok), LOCAL_JUMP, ANY_FALSE, MATH_Z);
+		MATHB(MATH2, XOR, 0xffffffffffffffff, NONE, 8, IMMED2);
+		pjump5 = JUMP(pq_ok, LOCAL_JUMP, ANY_FALSE, MATH_Z);
 
-		MATHB(MATH3, AND, IMM(0xfffffffffff00000), MATH3, 8, 0);
-		MATHB(MATH3, XOR, IMM(0xfffffffffff00000), NONE, 8, 0);
-		pjump6 = JUMP(IMM(pq_ok), LOCAL_JUMP, ANY_FALSE, MATH_Z);
+		MATHB(MATH3, AND, 0xfffffffffff00000, MATH3, 8, IMMED2);
+		MATHB(MATH3, XOR, 0xfffffffffff00000, NONE, 8, IMMED2);
+		pjump6 = JUMP(pq_ok, LOCAL_JUMP, ANY_FALSE, MATH_Z);
 
 		SET_LABEL(do_over);
-		JUMP(PTR(pkha_make_rsa_keys_phys), FAR_JUMP, ALL_TRUE, 0);
+		JUMP(pkha_make_rsa_keys_phys, FAR_JUMP, ALL_TRUE, 0);
 
 		SET_LABEL(pq_ok);
-		FIFOLOAD(PKN, PTR(prv_key_q), pq_size, 0);
-		JUMP(PTR(pkha_make_rsa_d_n_phys), FAR_JUMP, ALL_TRUE, 0);
+		FIFOLOAD(PKN, prv_key_q, pq_size, 0);
+		JUMP(pkha_make_rsa_d_n_phys, FAR_JUMP, ALL_TRUE, 0);
 	}
 	PATCH_JUMP(pjump1, check_2);
 	PATCH_JUMP(pjump2, do_over);
@@ -194,12 +190,12 @@ unsigned jdesc_pkha_make_rsa_keys(struct program *prg, uint32_t *buff,
 	{
 		/* Configure Miller-Rabin test count ||  max random prime
 		 * attempts */
-		MATHB(ZERO, ADD, IMM(0x1000000000004000), MATH0, 8, 0);
-		MATHB(ZERO, ADD, IMM(10), VSEQINSZ, 4, 0);
-		MATHB(ZERO, ADD, IMM(pq_size), SEQOUTSZ, 4, 0);
-		FIFOLOAD(PKA, PTR(0), 0, IMMED);	/* Acquire the PKHA */
-		LOAD(IMM(0), DCTRL, LDOFF_DISABLE_AUTO_NFIFO, 0, 0);
-		JUMP(PTR(pkha_make_rsa_p_q_phys), FAR_JUMP, ALL_TRUE, 0);
+		MATHB(ZERO, ADD, 0x1000000000004000, MATH0, 8, IMMED2);
+		MATHB(ZERO, ADD, 10, VSEQINSZ, 4, IMMED2);
+		MATHB(ZERO, ADD, pq_size, SEQOUTSZ, 4, IMMED2);
+		FIFOLOAD(PKA, 0, 0, IMMED | COPY);	/* Acquire the PKHA */
+		LOAD(0, DCTRL, LDOFF_DISABLE_AUTO_NFIFO, 0, IMMED);
+		JUMP(pkha_make_rsa_p_q_phys, FAR_JUMP, ALL_TRUE, 0);
 	}
 
 	return PROGRAM_FINALIZE();
@@ -217,33 +213,33 @@ unsigned jdesc_pkha_make_rsa_d_n(struct program *prg, uint32_t *buff,
 	JOB_HDR(SHR_NEVER, 0, 0, 0);
 	{
 		PKHA_OPERATION(OP_ALG_PKMODE_COPY_NSZ_N_B);
-		FIFOLOAD(PKA, IMM(0x01), 1, 0);
+		FIFOLOAD(PKA, 0x01, 1, IMMED);
 		PKHA_OPERATION(OP_ALG_PKMODE_MOD_SUB_BA);
 		FIFOSTORE(PKB, 0, prv_key_q, pq_size, 0);
-		FIFOLOAD(PKN, PTR(max_n), n_size, 0);
-		FIFOLOAD(PKB, PTR(prv_key_p), pq_size, 0);
+		FIFOLOAD(PKN, max_n, n_size, 0);
+		FIFOLOAD(PKB, prv_key_p, pq_size, 0);
 		PKHA_OPERATION(OP_ALG_PKMODE_MOD_SUB_BA);
-		FIFOLOAD(PKA, PTR(prv_key_q), pq_size, 0);
+		FIFOLOAD(PKA, prv_key_q, pq_size, 0);
 		PKHA_OPERATION(OP_ALG_PKMODE_MOD_MULT);
 		PKHA_OPERATION(OP_ALG_PKMODE_COPY_SSZ_B_N);
-		FIFOLOAD(PKA, PTR(pub_key_e), e_size, 0);
+		FIFOLOAD(PKA, pub_key_e, e_size, 0);
 		PKHA_OPERATION(OP_ALG_PKMODE_MOD_GCD);
-		pjump1 = JUMP(IMM(phi_e_relatively_prime), LOCAL_JUMP, ALL_TRUE,
+		pjump1 = JUMP(phi_e_relatively_prime, LOCAL_JUMP, ALL_TRUE,
 			      PK_GCD_1);
-		LOAD(IMM(0), DCTRL, LDOFF_DISABLE_AUTO_NFIFO, 0, 0);
-		JUMP(PTR(pkha_make_rsa_keys_phys), FAR_JUMP, ALL_TRUE, 0);
+		LOAD(0, DCTRL, LDOFF_DISABLE_AUTO_NFIFO, 0, IMMED);
+		JUMP(pkha_make_rsa_keys_phys, FAR_JUMP, ALL_TRUE, 0);
 
 		SET_LABEL(phi_e_relatively_prime);
-		FIFOLOAD(PKA, PTR(pub_key_e), e_size, 0);
+		FIFOLOAD(PKA, pub_key_e, e_size, 0);
 		PKHA_OPERATION(OP_ALG_PKMODE_MOD_INV);
 		FIFOSTORE(PKB, 0, prv_key_d, n_size, 0);
 		SEQFIFOSTORE(MSG, 0, 0, 0);
-		FIFOLOAD(PKA, PTR(prv_key_q), pq_size, 0);
-		FIFOLOAD(PKB, IMM(0x01), 1, 0);
+		FIFOLOAD(PKA, prv_key_q, pq_size, 0);
+		FIFOLOAD(PKB, 0x01, 1, IMMED);
 		PKHA_OPERATION(OP_ALG_PKMODE_MOD_ADD);
 		FIFOSTORE(PKB, 0, prv_key_q, pq_size, 0);
-		FIFOLOAD(PKN, PTR(max_n), n_size, 0);
-		FIFOLOAD(PKA, PTR(prv_key_p), pq_size, 0);
+		FIFOLOAD(PKN, max_n, n_size, 0);
+		FIFOLOAD(PKA, prv_key_p, pq_size, 0);
 		PKHA_OPERATION(OP_ALG_PKMODE_MOD_MULT);
 		FIFOSTORE(PKB, 0, pub_key_n, n_size, 0);
 	}

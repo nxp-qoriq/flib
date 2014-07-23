@@ -242,10 +242,11 @@ static inline unsigned rta_get_sec_era(void)
  *       OFIFO, DESCBUF, MATH0-MATH3, IFIFOAB1, IFIFOAB2, IFIFO, PKA, KEY1,
  *       KEY2, ALTSOURCE.
  * @dst_offset: offset in destination data (uint16_t)
- * @length: size of data to be moved: for MOVE should be specified using IMM
- *          macro; for MOVE_LEN should be specified using MATH0-MATH3.
+ * @length: size of data to be moved: for MOVE must be specified as immediate
+ *          value and IMMED flag must be set; for MOVE_LEN must be specified
+ *          using MATH0-MATH3.
  * @opt: operational flags: WAITCOMP, FLUSH1, FLUSH2, LAST1, LAST2, SIZE_WORD,
- *       SIZE_BYTE, SIZE_DWORD.
+ *       SIZE_BYTE, SIZE_DWORD, IMMED (not valid for MOVE_LEN).
  *
  * Return: On success, descriptor buffer offset where this command is inserted.
  *         On error, a negative error code; first error program counter will
@@ -264,10 +265,11 @@ static inline unsigned rta_get_sec_era(void)
  *       OFIFO, DESCBUF, MATH0-MATH3, IFIFOAB1, IFIFOAB2, IFIFO, PKA, KEY1,
  *       KEY2, ALTSOURCE.
  * @dst_offset: offset in destination data (uint16_t)
- * @length: size of data to be moved: for MOVE should be specified using IMM
- *          macro; for MOVE_LEN should be specified using MATH0-MATH3.
+ * @length: size of data to be moved: for MOVE must be specified as immediate
+ *          value and IMMED flag must be set; for MOVE_LEN must be specified
+ *          using MATH0-MATH3.
  * @opt: operational flags: WAITCOMP, FLUSH1, FLUSH2, LAST1, LAST2, SIZE_WORD,
- *       SIZE_BYTE, SIZE_DWORD.
+ *       SIZE_BYTE, SIZE_DWORD, IMMED (not valid for MOVE_LEN).
  *
  * Identical with MOVE command if byte swapping not enabled; else - when src/dst
  * is descriptor buffer or MATH registers, data type is byte array when MOVE
@@ -291,10 +293,11 @@ static inline unsigned rta_get_sec_era(void)
  *       OFIFO, DESCBUF, MATH0-MATH3, IFIFOAB1, IFIFOAB2, IFIFO, PKA, KEY1,
  *       KEY2, ALTSOURCE.
  * @dst_offset: offset in destination data (uint16_t)
- * @length: size of data to be moved: for MOVE should be specified using IMM
- *          macro; for MOVE_LEN should be specified using MATH0-MATH3.
+ * @length: size of data to be moved: for MOVE must be specified as immediate
+ *          value and IMMED flag must be set; for MOVE_LEN must be specified
+ *          using MATH0-MATH3.
  * @opt: operational flags: WAITCOMP, FLUSH1, FLUSH2, LAST1, LAST2, SIZE_WORD,
- *       SIZE_BYTE, SIZE_DWORD.
+ *       SIZE_BYTE, SIZE_DWORD, IMMED (not valid for MOVE_LEN).
  *
  * Identical with MOVE command, with the following differences: data type is
  * 8-byte array; word swapping is performed when SEC is programmed in little
@@ -314,11 +317,11 @@ static inline unsigned rta_get_sec_era(void)
  *            ICV, AAD and bit length message data into Input Data FIFO.
  * @data: input data type to store: PKHA registers, IFIFO, MSG1, MSG2,
  *        MSGOUTSNOOP, MSGINSNOOP, IV1, IV2, AAD1, ICV1, ICV2, BIT_DATA, SKIP.
- * @src: pointer or actual data in case of immediate load; IMM or PTR macros
- *       must be used to indicate type.
+ * @src: pointer or actual data in case of immediate load; IMMED and COPY flags
+ *       indicate action taken (inline imm data, inline ptr, inline from ptr).
  * @length: number of bytes to load (uint32_t)
  * @flags: operational flags: SGF, IMMED, EXT, CLASS1, CLASS2, BOTH, FLUSH1,
- *         LAST1, LAST2.
+ *         LAST1, LAST2, COPY.
  *
  * Return: On success, descriptor buffer offset where this command is inserted.
  *         On error, a negative error code; first error program counter will
@@ -387,10 +390,13 @@ static inline unsigned rta_get_sec_era(void)
  * KEY - Configures KEY and SEQ KEY commands
  * @key_dst: key store location: KEY1, KEY2, PKE, AFHA_SBOX, MDHA_SPLIT_KEY
  * @encrypt_flags: key encryption mode: ENC, EKT, TK, NWB, PTS
- * @src: pointer or actual data in case of immediate load (uint64_t)
+ * @src: pointer or actual data in case of immediate load (uint64_t); IMMED and
+ *       COPY flags indicate action taken (inline imm data, inline ptr, inline
+ *       from ptr).
  * @length: number of bytes to load; can be set to 0 for SEQ command w/ VLF set
  *          (uint32_t).
- * @flags: operational flags: for KEY: SGF, IMMED; for SEQKEY: SEQ, VLF, AIDF
+ * @flags: operational flags: for KEY: SGF, IMMED, COPY; for SEQKEY: SEQ, VLF,
+ *         AIDF.
  *
  * Return: On success, descriptor buffer offset where this command is inserted.
  *         On error, a negative error code; first error program counter will
@@ -495,7 +501,7 @@ static inline unsigned rta_get_sec_era(void)
  *         have been written.
  */
 #define JUMP(addr, jump_type, test_type, cond) \
-	rta_jump(program, addr, jump_type, test_type, cond, _NONE, 0)
+	rta_jump(program, addr, jump_type, test_type, cond, NONE)
 
 /**
  * JUMP_INC - Configures JUMP_INC command
@@ -532,12 +538,13 @@ static inline unsigned rta_get_sec_era(void)
 /**
  * LOAD - Configures LOAD command to load data registers from descriptor or from
  *        a memory location.
- * @addr: immediate value or pointer to the data to be loaded; IMM or PTR macros
- *        must be used to indicate type.
+ * @addr: immediate value or pointer to the data to be loaded; IMMED and COPY
+ *        flags indicate action taken (inline imm data, inline ptr, inline from
+ *        ptr).
  * @dst: destination register (uint64_t)
  * @offset: start point to write data in destination register (uint32_t)
  * @length: number of bytes to load (uint32_t)
- * @flags: operational flags: VLF
+ * @flags: operational flags: VLF, IMMED, COPY
  *
  * Return: On success, descriptor buffer offset where this command is inserted.
  *         On error, a negative error code; first error program counter will
@@ -569,13 +576,13 @@ static inline unsigned rta_get_sec_era(void)
  * @src: immediate value or source register for data to be stored: KEY1SZ,
  *       KEY2SZ, DJQDA, MODE1, MODE2, DJQCTRL, DATA1SZ, DATA2SZ, DSTAT, ICV1SZ,
  *       ICV2SZ, DPID, CCTRL, ICTRL, CLRW, CSTAT, MATH0-MATH3, PKHA registers,
- *       CONTEXT1, CONTEXT2, DESCBUF, JOBDESCBUF, SHAREDESCBUF. IMM must be used
- *       to indicate immediate value.
+ *       CONTEXT1, CONTEXT2, DESCBUF, JOBDESCBUF, SHAREDESCBUF. In case of
+ *       immediate value, IMMED and COPY flags indicate action taken (inline imm
+ *       data, inline ptr, inline from ptr).
  * @offset: start point for reading from source register (uint16_t)
- * @dst: pointer to store location; PTR must be used to indicate pointer value
- *       (uint64_t)
+ * @dst: pointer to store location (uint64_t)
  * @length: number of bytes to store (uint32_t)
- * @flags: operational flags: VLF, IMM
+ * @flags: operational flags: VLF, IMMED, COPY
  *
  * Return: On success, descriptor buffer offset where this command is inserted.
  *         On error, a negative error code; first error program counter will
@@ -591,11 +598,12 @@ static inline unsigned rta_get_sec_era(void)
  * @src: immediate value or source register for data to be stored: KEY1SZ,
  *       KEY2SZ, DJQDA, MODE1, MODE2, DJQCTRL, DATA1SZ, DATA2SZ, DSTAT, ICV1SZ,
  *       ICV2SZ, DPID, CCTRL, ICTRL, CLRW, CSTAT, MATH0-MATH3, PKHA registers,
- *       CONTEXT1, CONTEXT2, DESCBUF, JOBDESCBUF, SHAREDESCBUF. IMM must be used
- *       to indicate immediate value.
+ *       CONTEXT1, CONTEXT2, DESCBUF, JOBDESCBUF, SHAREDESCBUF. In case of
+ *       immediate value, IMMED and COPY flags indicate action taken (inline imm
+ *       data, inline ptr, inline from ptr).
  * @offset: start point for reading from source register (uint16_t)
  * @length: number of bytes to store (uint32_t)
- * @flags: operational flags: SGF
+ * @flags: operational flags: SGF, IMMED, COPY
  *
  * Return: On success, descriptor buffer offset where this command is inserted.
  *         On error, a negative error code; first error program counter will
@@ -608,18 +616,18 @@ static inline unsigned rta_get_sec_era(void)
 /**
  * MATHB - Configures MATHB command to perform binary operations
  * @operand1: first operand: MATH0-MATH3, DPOVRD, SEQINSZ, SEQOUTSZ, VSEQINSZ,
- *            VSEQOUTSZ, ZERO, ONE, NONE, Immediate value. IMM must be used to
+ *            VSEQOUTSZ, ZERO, ONE, NONE, Immediate value. IMMED must be used to
  *            indicate immediate value.
  * @operator: function to be performed: ADD, ADDC, SUB, SUBB, OR, AND, XOR,
  *            LSHIFT, RSHIFT, SHLD.
  * @operand2: second operand: MATH0-MATH3, DPOVRD, VSEQINSZ, VSEQOUTSZ, ABD,
- *            OFIFO, JOBSRC, ZERO, ONE, Immediate value. IMM must be used to
+ *            OFIFO, JOBSRC, ZERO, ONE, Immediate value. IMMED2 must be used to
  *            indicate immediate value.
  * @result: destination for the result: MATH0-MATH3, DPOVRD, SEQINSZ, SEQOUTSZ,
  *          NONE, VSEQINSZ, VSEQOUTSZ.
  * @length: length in bytes of the operation and the immediate value, if there
  *          is one (int).
- * @opt: operational flags: IFB, NFU, STL, SWP
+ * @opt: operational flags: IFB, NFU, STL, SWP, IMMED, IMMED2
  *
  * Return: On success, descriptor buffer offset where this command is inserted.
  *         On error, a negative error code; first error program counter will
@@ -638,13 +646,13 @@ static inline unsigned rta_get_sec_era(void)
  *           JOBSRC, ZERO, ONE.
  * @operator: function to be performed: ADD, ADDC, SUB, SUBB, OR, AND, XOR,
  *            LSHIFT, RSHIFT, FBYT (for !SSEL only).
- * @imm: Immediate value (uint8_t). IMM must be used to indicate immediate
+ * @imm: Immediate value (uint8_t). IMMED must be used to indicate immediate
  *       value.
  * @result: destination for the result: MATH0-MATH3, DPOVRD, SEQINSZ, SEQOUTSZ,
  *          NONE, VSEQINSZ, VSEQOUTSZ.
  * @length: length in bytes of the operation and the immediate value, if there
  *          is one (int). @imm is left-extended with zeros if needed.
- * @opt: operational flags: NFU, SSEL, SWP
+ * @opt: operational flags: NFU, SSEL, SWP, IMMED
  *
  * If !SSEL, @operand <@operator> @imm -> @result
  * If SSEL, @imm <@operator> @operand -> @result
@@ -661,14 +669,14 @@ static inline unsigned rta_get_sec_era(void)
 /**
  * MATHU - Configures MATHU command to perform unary operations
  * @operand1: operand: MATH0-MATH3, DPOVRD, SEQINSZ, SEQOUTSZ, VSEQINSZ,
- *            VSEQOUTSZ, ZERO, ONE, NONE, Immediate value. IMM must be used to
+ *            VSEQOUTSZ, ZERO, ONE, NONE, Immediate value. IMMED must be used to
  *            indicate immediate value.
  * @operator: function to be performed: ZBYT, BSWAP
  * @result: destination for the result: MATH0-MATH3, DPOVRD, SEQINSZ, SEQOUTSZ,
  *          NONE, VSEQINSZ, VSEQOUTSZ.
  * @length: length in bytes of the operation and the immediate value, if there
  *          is one (int).
- * @opt: operational flags: NFU, STL, SWP
+ * @opt: operational flags: NFU, STL, SWP, IMMED
  *
  * Return: On success, descriptor buffer offset where this command is inserted.
  *         On error, a negative error code; first error program counter will
@@ -676,8 +684,8 @@ static inline unsigned rta_get_sec_era(void)
  *         have been written.
  */
 #define MATHU(operand1, operator, result, length, opt) \
-	rta_math(program, operand1, MATH_FUN_##operator, _NONE, 0, result, \
-		 length, opt)
+	rta_math(program, operand1, MATH_FUN_##operator, NONE, result, length, \
+		 opt)
 
 /**
  * SIGNATURE - Configures SIGNATURE command

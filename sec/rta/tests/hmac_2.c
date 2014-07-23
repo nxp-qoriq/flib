@@ -21,12 +21,12 @@ unsigned hmac_2(uint32_t *buff)
 
 	JOB_HDR(SHR_NEVER, 0, 0, 0);
 	{
-		KEY(KEY2, 0, PTR(key_data), keylen, 0);
+		KEY(KEY2, 0, key_data, keylen, 0);
 		ALG_OPERATION(OP_ALG_ALGSEL_SHA256, OP_ALG_AAI_HMAC,
 			      OP_ALG_AS_INITFINAL, ICV_CHECK_ENABLE,
 			      OP_ALG_DECRYPT);
-		FIFOLOAD(MSG2, PTR(msg), msglen, LAST2 | EXT);
-		FIFOLOAD(ICV2, PTR(icv), 32, LAST2);
+		FIFOLOAD(MSG2, msg, msglen, LAST2 | EXT);
+		FIFOLOAD(ICV2, icv, 32, LAST2);
 	}
 
 	return PROGRAM_FINALIZE();

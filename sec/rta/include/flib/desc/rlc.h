@@ -173,11 +173,10 @@ static inline void cnstr_shdsc_rlc_encap(uint32_t *descbuf,
 	case RLC_ACKED_MODE:
 		switch (cipherdata->algtype) {
 		case RLC_CIPHER_TYPE_KASUMI:
-			pkeyjmp = JUMP(IMM(keyjmp), LOCAL_JUMP, ALL_TRUE,
-				       SHRD);
+			pkeyjmp = JUMP(keyjmp, LOCAL_JUMP, ALL_TRUE, SHRD);
 			/* Insert Cipher Key */
-			KEY(KEY1, cipherdata->key_enc_flags,
-			    PTR(cipherdata->key), cipherdata->keylen, 0);
+			KEY(KEY1, cipherdata->key_enc_flags, cipherdata->key,
+			    cipherdata->keylen, 0);
 			SET_LABEL(keyjmp);
 
 			PROTOCOL(OP_TYPE_ENCAP_PROTOCOL,
@@ -198,8 +197,8 @@ static inline void cnstr_shdsc_rlc_encap(uint32_t *descbuf,
 			 */
 
 			/* Insert Cipher Key */
-			KEY(KEY1, cipherdata->key_enc_flags,
-			    PTR(cipherdata->key), cipherdata->keylen, 0);
+			KEY(KEY1, cipherdata->key_enc_flags, cipherdata->key,
+			    cipherdata->keylen, 0);
 
 			PROTOCOL(OP_TYPE_ENCAP_PROTOCOL,
 				 OP_PCLID_3G_RLC_PDU,
@@ -317,11 +316,10 @@ static inline void cnstr_shdsc_rlc_decap(uint32_t *descbuf,
 	case RLC_ACKED_MODE:
 		switch (cipherdata->algtype) {
 		case RLC_CIPHER_TYPE_KASUMI:
-			pkeyjmp = JUMP(IMM(keyjmp), LOCAL_JUMP, ALL_TRUE,
-				       SHRD);
+			pkeyjmp = JUMP(keyjmp, LOCAL_JUMP, ALL_TRUE, SHRD);
 			/* Insert Cipher Key */
-			KEY(KEY1, cipherdata->key_enc_flags,
-			    PTR(cipherdata->key), cipherdata->keylen, 0);
+			KEY(KEY1, cipherdata->key_enc_flags, cipherdata->key,
+			    cipherdata->keylen, 0);
 			SET_LABEL(keyjmp);
 
 			PROTOCOL(OP_TYPE_DECAP_PROTOCOL,
@@ -341,8 +339,8 @@ static inline void cnstr_shdsc_rlc_decap(uint32_t *descbuf,
 			 */
 
 			/* Insert Cipher Key */
-			KEY(KEY1, cipherdata->key_enc_flags,
-			    PTR(cipherdata->key), cipherdata->keylen, 0);
+			KEY(KEY1, cipherdata->key_enc_flags, cipherdata->key,
+			    cipherdata->keylen, 0);
 			SET_LABEL(keyjmp);
 
 			PROTOCOL(OP_TYPE_DECAP_PROTOCOL,

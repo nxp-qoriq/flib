@@ -29,14 +29,14 @@ unsigned f2m_calc_c_test(uint32_t *buff)
 		MATHB(VSEQINSZ, SUB, ONE, MATH2, 4, 0);
 
 		/* Test for 'too big' (to fit into 4096-bit PKHA memory...) */
-		MATHB(MATH2, RSHIFT, IMM(9), MATH1, 4, 0);
-		JUMP(IMM(0x12), HALT_STATUS, ANY_FALSE, MATH_Z);
+		MATHB(MATH2, RSHIFT, 9, MATH1, 4, IMMED2);
+		JUMP(0x12, HALT_STATUS, ANY_FALSE, MATH_Z);
 
 		/* Direct first byte of polynomial to MATH1 via Class 1 CTX */
 		SEQLOAD(CONTEXT1, 0, 1, 0);
 		/* wait for load to complete */
-		JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, NIP);
-		MOVE(CONTEXT1, 0, MATH1, 0, IMM(1), 0);
+		JUMP(1, LOCAL_JUMP, ALL_TRUE, NIP);
+		MOVE(CONTEXT1, 0, MATH1, 0, 1, IMMED);
 
 		/*
 		 * Load full polynomial into PKHA N RAM (after recomputing full
@@ -47,28 +47,27 @@ unsigned f2m_calc_c_test(uint32_t *buff)
 		SEQFIFOLOAD(PKN, 0, VLF);
 
 		/* Start with m = 8 * (poly_size - 1) - 1 */
-		MATHB(MATH2, LSHIFT, IMM(3), MATH0, 4, 0);
+		MATHB(MATH2, LSHIFT, 3, MATH0, 4, IMMED2);
 		MATHB(MATH2, SUB, ONE, MATH2, 4, 0);
 		/* Move first byte from MSB to LSB */
-		MATHB(MATH1, RSHIFT, IMM(56), MATH1, 8, IFB);
-		JUMP(IMM(0x13), HALT_STATUS, ALL_TRUE, MATH_Z);
+		MATHB(MATH1, RSHIFT, 56, MATH1, 8, IFB | IMMED2);
+		JUMP(0x13, HALT_STATUS, ALL_TRUE, MATH_Z);
 
 		SET_LABEL(bit_search_top);
 		MATHB(MATH0, ADD, ONE, MATH0, 2, 0);	/* m = m + 1 */
 		MATHB(MATH1, RSHIFT, ONE, MATH1, 2, 0); /* byte >> 1 */
-		pjump1 = JUMP(IMM(bit_search_top), LOCAL_JUMP, ANY_FALSE,
-			      MATH_Z);
+		pjump1 = JUMP(bit_search_top, LOCAL_JUMP, ANY_FALSE, MATH_Z);
 
-		MATHB(MATH0, SUB, IMM(3), MATH0, 2, 0);	/* m-2 */
-		LOAD(IMM(0), DCTRL, LDOFF_DISABLE_AUTO_NFIFO, 0, 0);
-		LOAD(IMM(2), PKESZ, 0, 4, 0);
-		MATHB(MATH0, LSHIFT, IMM(48), MATH0, 8, IFB);
-		MOVE(MATH0, 0, IFIFOAB1, 0, IMM(2), 0);
+		MATHB(MATH0, SUB, 3, MATH0, 2, IMMED2);	/* m-2 */
+		LOAD(0, DCTRL, LDOFF_DISABLE_AUTO_NFIFO, 0, IMMED);
+		LOAD(2, PKESZ, 0, 4, IMMED);
+		MATHB(MATH0, LSHIFT, 48, MATH0, 8, IFB | IMMED2);
+		MOVE(MATH0, 0, IFIFOAB1, 0, 2, IMMED);
 		NFIFOADD(IFIFO, PKE, 2, FLUSH1);
-		LOAD(IMM(0), DCTRL, LDOFF_ENABLE_AUTO_NFIFO, 0, 0);
+		LOAD(0, DCTRL, LDOFF_ENABLE_AUTO_NFIFO, 0, IMMED);
 
 		/* pke is now 'm-2'; load 2 into pka */
-		FIFOLOAD(PKA, IMM(0x02), 1, 0);
+		FIFOLOAD(PKA, 0x02, 1, IMMED);
 		PKHA_OPERATION(OP_ALG_PKMODE_MOD_EXPO);
 		PKHA_OPERATION(OP_ALG_PKMODE_COPY_SSZ_B_E);
 

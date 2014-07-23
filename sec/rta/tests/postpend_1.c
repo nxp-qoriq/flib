@@ -46,16 +46,15 @@ unsigned postpend(uint32_t *buff)
 			DWORD(0x55c809f8b44767bb);
 			WORD(0x79890a98); /* OptIPHdr */
 		}
-		pjump1 = JUMP(IMM(skip_key_load), LOCAL_JUMP, ALL_TRUE,
-			      SHRD);
-		KEY(MDHA_SPLIT_KEY, 0, PTR((uintptr_t) &key_1), 40,
-		    IMMED);
-		KEY(KEY1, 0, PTR((uintptr_t) &key_2), 16, IMMED);
+		pjump1 = JUMP(skip_key_load, LOCAL_JUMP, ALL_TRUE, SHRD);
+		KEY(MDHA_SPLIT_KEY, 0, (uintptr_t) &key_1, 40,
+		    IMMED | COPY);
+		KEY(KEY1, 0, (uintptr_t) &key_2, 16, IMMED | COPY);
 		SET_LABEL(skip_key_load);
 		PROTOCOL(OP_TYPE_ENCAP_PROTOCOL, OP_PCLID_IPSEC,
 			 OP_PCL_IPSEC_AES_CBC |
 			      OP_PCL_IPSEC_HMAC_SHA1_160);
-		SEQSTORE(PTR((uintptr_t) &data_in), 0, 14, IMMED);
+		SEQSTORE((uintptr_t) &data_in, 0, 14, IMMED | COPY);
 	}
 	PATCH_JUMP(pjump1, skip_key_load);
 

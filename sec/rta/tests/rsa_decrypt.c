@@ -42,7 +42,7 @@ unsigned build_rsa_decrypt_desc(uint32_t *buff, uint32_t n_len, uint32_t p_len,
 		PROTOCOL(OP_TYPE_UNI_PROTOCOL, OP_PCLID_RSADECRYPT,
 			 OP_PCL_RSAPROT_OP_DEC_PQDPDQC |
 			      OP_PCL_RSAPROT_FMT_PKCSV15);
-		STORE(MATH0, 4, PTR(msglen), 4, 0);
+		STORE(MATH0, 4, msglen, 4, 0);
 	}
 	PATCH_HDR(0, pdb_end);
 

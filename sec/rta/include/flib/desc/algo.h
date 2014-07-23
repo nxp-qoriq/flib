@@ -36,13 +36,13 @@ static inline void cnstr_shdsc_snow_f8(uint32_t *descbuf, unsigned *bufsize,
 	PROGRAM_CNTXT_INIT(descbuf, 0);
 	SHR_HDR(SHR_ALWAYS, 1, 0);
 
-	KEY(KEY1, cipherdata->key_enc_flags, PTR(cipherdata->key),
-	    cipherdata->keylen, IMMED);
+	KEY(KEY1, cipherdata->key_enc_flags, cipherdata->key,
+	    cipherdata->keylen, IMMED | COPY);
 	MATHB(SEQINSZ, SUB, MATH2, VSEQINSZ, 4, 0);
 	MATHB(SEQINSZ, SUB, MATH2, VSEQOUTSZ, 4, 0);
 	ALG_OPERATION(OP_ALG_ALGSEL_SNOW_F8, OP_ALG_AAI_F8,
 		      OP_ALG_AS_INITFINAL, 0, dir);
-	LOAD(IMM(context), CONTEXT1, 0, 8, 0);
+	LOAD(context, CONTEXT1, 0, 8, IMMED);
 	SEQFIFOLOAD(MSG1, 0, VLF | LAST1);
 	SEQFIFOSTORE(MSG, 0, 0, VLF);
 
@@ -77,12 +77,12 @@ static inline void cnstr_shdsc_snow_f9(uint32_t *descbuf, unsigned *bufsize,
 	PROGRAM_CNTXT_INIT(descbuf, 0);
 	SHR_HDR(SHR_ALWAYS, 1, 0);
 
-	KEY(KEY2, authdata->key_enc_flags, PTR(authdata->key),
-	    authdata->keylen, IMMED);
+	KEY(KEY2, authdata->key_enc_flags, authdata->key, authdata->keylen,
+	    IMMED | COPY);
 	MATHB(SEQINSZ, SUB, MATH2, VSEQINSZ, 4, 0);
 	ALG_OPERATION(OP_ALG_ALGSEL_SNOW_F9, OP_ALG_AAI_F9,
 		      OP_ALG_AS_INITFINAL, 0, dir);
-	LOAD(PTR((uintptr_t)context), CONTEXT2, 0, 16, IMMED);
+	LOAD((uintptr_t)context, CONTEXT2, 0, 16, IMMED | COPY);
 	SEQFIFOLOAD(BIT_DATA, datalen, CLASS2 | LAST2);
 	/* Save lower half of MAC out into a 32-bit sequence */
 	SEQSTORE(CONTEXT2, 0, 4, 0);
@@ -115,16 +115,16 @@ static inline void cnstr_shdsc_cbc_blkcipher(uint32_t *descbuf,
 	PROGRAM_CNTXT_INIT(descbuf, 0);
 	SHR_HDR(SHR_SERIAL, 1, SC);
 
-	pkeyjmp = JUMP(IMM(keyjmp), LOCAL_JUMP, ALL_TRUE, SHRD);
+	pkeyjmp = JUMP(keyjmp, LOCAL_JUMP, ALL_TRUE, SHRD);
 	/* Insert Key */
-	KEY(KEY1, cipherdata->key_enc_flags, PTR(cipherdata->key),
-	    cipherdata->keylen, IMMED);
+	KEY(KEY1, cipherdata->key_enc_flags, cipherdata->key,
+	    cipherdata->keylen, IMMED | COPY);
 
 	if (is_aes_dec) {
 		ALG_OPERATION(cipherdata->algtype, OP_ALG_AAI_CBC,
 			      OP_ALG_AS_INITFINAL, ICV_CHECK_DISABLE, dir);
 
-		pskipdk = JUMP(IMM(skipdk), LOCAL_JUMP, ALL_TRUE, 0);
+		pskipdk = JUMP(skipdk, LOCAL_JUMP, ALL_TRUE, 0);
 	}
 	SET_LABEL(keyjmp);
 
@@ -139,7 +139,7 @@ static inline void cnstr_shdsc_cbc_blkcipher(uint32_t *descbuf,
 
 	if (iv)
 		/* IV load, convert size */
-		LOAD(PTR((uintptr_t)iv), CONTEXT1, 0, ivlen, IMMED);
+		LOAD((uintptr_t)iv, CONTEXT1, 0, ivlen, IMMED | COPY);
 	else
 		/* IV is present first before the actual message */
 		SEQLOAD(CONTEXT1, 0, ivlen, 0);
@@ -216,15 +216,15 @@ static inline void cnstr_shdsc_hmac(uint32_t *descbuf, unsigned *bufsize,
 	PROGRAM_CNTXT_INIT(descbuf, 0);
 	SHR_HDR(SHR_SERIAL, 1, SC);
 
-	pkeyjmp = JUMP(IMM(keyjmp), LOCAL_JUMP, ALL_TRUE, SHRD);
-	KEY(KEY2, authdata->key_enc_flags, PTR(authdata->key),
-	    storelen, IMMED);
+	pkeyjmp = JUMP(keyjmp, LOCAL_JUMP, ALL_TRUE, SHRD);
+	KEY(KEY2, authdata->key_enc_flags, authdata->key, storelen,
+	    IMMED | COPY);
 
 	/* Do operation */
 	ALG_OPERATION(authdata->algtype, OP_ALG_AAI_HMAC,
 		      OP_ALG_AS_INITFINAL, opicv, dir);
 
-	pjmpprecomp = JUMP(IMM(jmpprecomp), LOCAL_JUMP, ALL_TRUE, 0);
+	pjmpprecomp = JUMP(jmpprecomp, LOCAL_JUMP, ALL_TRUE, 0);
 	SET_LABEL(keyjmp);
 
 	ALG_OPERATION(authdata->algtype, OP_ALG_AAI_HMAC_PRECOMP,
@@ -234,7 +234,7 @@ static inline void cnstr_shdsc_hmac(uint32_t *descbuf, unsigned *bufsize,
 
 	/* compute sequences */
 	if (opicv == ICV_CHECK_ENABLE)
-		MATHB(SEQINSZ, SUB, IMM(trunc_len), VSEQINSZ, 4, 0);
+		MATHB(SEQINSZ, SUB, trunc_len, VSEQINSZ, 4, IMMED2);
 	else
 		MATHB(SEQINSZ, SUB, MATH2, VSEQINSZ, 4, 0);
 
@@ -277,13 +277,13 @@ static inline void cnstr_shdsc_kasumi_f8(uint32_t *descbuf, unsigned *bufsize,
 	PROGRAM_CNTXT_INIT(descbuf, 0);
 	SHR_HDR(SHR_ALWAYS, 1, 0);
 
-	KEY(KEY1, cipherdata->key_enc_flags, PTR(cipherdata->key),
-	    cipherdata->keylen, IMMED);
+	KEY(KEY1, cipherdata->key_enc_flags, cipherdata->key,
+	    cipherdata->keylen, IMMED | COPY);
 	MATHB(SEQINSZ, SUB, MATH2, VSEQINSZ, 4, 0);
 	MATHB(SEQINSZ, SUB, MATH2, VSEQOUTSZ, 4, 0);
 	ALG_OPERATION(OP_ALG_ALGSEL_KASUMI, OP_ALG_AAI_F8,
 		      OP_ALG_AS_INITFINAL, 0, dir);
-	LOAD(IMM(context), CONTEXT1, 0, 8, 0);
+	LOAD(context, CONTEXT1, 0, 8, IMMED);
 	SEQFIFOLOAD(MSG1, 0, VLF | LAST1);
 	SEQFIFOSTORE(MSG, 0, 0, VLF);
 
@@ -321,12 +321,12 @@ static inline void cnstr_shdsc_kasumi_f9(uint32_t *descbuf, unsigned *bufsize,
 	PROGRAM_CNTXT_INIT(descbuf, 0);
 	SHR_HDR(SHR_ALWAYS, 1, 0);
 
-	KEY(KEY1, authdata->key_enc_flags, PTR(authdata->key),
-	    authdata->keylen, IMMED);
+	KEY(KEY1, authdata->key_enc_flags, authdata->key, authdata->keylen,
+	    IMMED | COPY);
 	MATHB(SEQINSZ, SUB, MATH2, VSEQINSZ, 4, 0);
 	ALG_OPERATION(OP_ALG_ALGSEL_KASUMI, OP_ALG_AAI_F9,
 		      OP_ALG_AS_INITFINAL, 0, dir);
-	LOAD(PTR((uintptr_t)context), CONTEXT1, 0, 24, IMMED);
+	LOAD((uintptr_t)context, CONTEXT1, 0, 24, IMMED | COPY);
 	SEQFIFOLOAD(BIT_DATA, datalen, CLASS1 | LAST1);
 	/* Save output MAC of DWORD 2 into a 32-bit sequence */
 	SEQSTORE(CONTEXT1, ctx_offset, 4, 0);

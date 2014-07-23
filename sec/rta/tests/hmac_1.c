@@ -21,11 +21,11 @@ unsigned hmac_1(uint32_t *buff)
 
 	JOB_HDR(SHR_NEVER, 0, 0, 0);
 	{
-		KEY(MDHA_SPLIT_KEY, 0, PTR(key_data), keylen, 0);
+		KEY(MDHA_SPLIT_KEY, 0, key_data, keylen, 0);
 		ALG_OPERATION(OP_ALG_ALGSEL_SHA256, OP_ALG_AAI_HMAC_PRECOMP,
 			      OP_ALG_AS_INITFINAL, 0, OP_ALG_ENCRYPT);
-		FIFOLOAD(MSG2, PTR(msg), msglen, LAST2 | EXT);
-		STORE(CONTEXT2, 0, PTR(hmac), 32, 0);
+		FIFOLOAD(MSG2, msg, msglen, LAST2 | EXT);
+		STORE(CONTEXT2, 0, hmac, 32, 0);
 	}
 
 	return PROGRAM_FINALIZE();

@@ -56,10 +56,10 @@ unsigned deco_dma(uint32_t *buff)
 		 * from 'ififoab1', as the data is already going to the Class 1
 		 * Alignment Block because of the seqfifoload, above.
 		 */
-		LOAD(IMM(0), DCTRL, LDOFF_DISABLE_AUTO_NFIFO, 0, 0);
+		LOAD(0, DCTRL, LDOFF_DISABLE_AUTO_NFIFO, 0, IMMED);
 
 		/* Put MOVE length (chunk size) into Math 1 */
-		MATHB(ZERO, ADD, IMM(move_size), MATH1, 4, 0);
+		MATHB(ZERO, ADD, move_size, MATH1, 4, IMMED2);
 
 		/*
 		 * Put the last MOVE and HALT commands into Math 3
@@ -67,28 +67,27 @@ unsigned deco_dma(uint32_t *buff)
 		 * and no immediate inlined in the command, thus use WORD().
 		 */
 		WORD(0xa80c4308);
-		MOVE(IFIFOAB1, 0, OFIFO, 0, IMM(0), VLF);
-		JUMP(IMM(0), HALT_STATUS, ALL_TRUE, 0);
+		MOVE(IFIFOAB1, 0, OFIFO, 0, 0, VLF | IMMED);
+		JUMP(0, HALT_STATUS, ALL_TRUE, 0);
 
 		SET_LABEL(loop);	/* size each full transfer */
 		MATHB(VSEQINSZ, SUB, MATH1, NONE, 4, 0);
-		pjump2 = JUMP(IMM(done_full), LOCAL_JUMP, ANY_TRUE,
-			      MATH_N | MATH_Z);
+		pjump2 = JUMP(done_full, LOCAL_JUMP, ANY_TRUE, MATH_N | MATH_Z);
 
 		/* Move a 'full chunk' */
-		MOVE(IFIFOAB1, 0, OFIFO, 0, IMM(move_size), VLF);
+		MOVE(IFIFOAB1, 0, OFIFO, 0, move_size, VLF | IMMED);
 		MATHB(VSEQINSZ, SUB, MATH1, VSEQINSZ, 4, 0);
-		pjump1 = JUMP(IMM(loop), LOCAL_JUMP, ALL_TRUE, 0);
+		pjump1 = JUMP(loop, LOCAL_JUMP, ALL_TRUE, 0);
 
 		SET_LABEL(done_full);	/* Only last partial xfer remaining */
 		/*
 		 * Update the last MOVE command and move it and JUMP commands
 		 * to head of descriptor buffer
 		 */
-		MATHB(VSEQINSZ, LSHIFT, IMM(32), MATH1, 8, IFB);
+		MATHB(VSEQINSZ, LSHIFT, 32, MATH1, 8, IFB | IMMED2);
 		MATHB(MATH1, OR, MATH3, MATH3, 8, 0);
-		MOVE(MATH3, 0, DESCBUF, 0, IMM(8), WAITCOMP);
-		JUMP(IMM(0), LOCAL_JUMP, ALL_TRUE, 0);
+		MOVE(MATH3, 0, DESCBUF, 0, 8, WAITCOMP | IMMED);
+		JUMP(0, LOCAL_JUMP, ALL_TRUE, 0);
 	}
 	PATCH_JUMP(pjump1, loop);
 	PATCH_JUMP(pjump2, done_full);

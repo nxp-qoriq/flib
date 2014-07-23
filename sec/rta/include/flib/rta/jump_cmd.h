@@ -34,31 +34,25 @@ static const uint32_t jump_test_math_cond[][2] = {
 };
 
 static const uint32_t jump_src_dst[][2] = {
-	{ _MATH0,     JUMP_SRC_DST_MATH0 },
-	{ _MATH1,     JUMP_SRC_DST_MATH1 },
-	{ _MATH2,     JUMP_SRC_DST_MATH2 },
-	{ _MATH3,     JUMP_SRC_DST_MATH3 },
-	{ _DPOVRD,    JUMP_SRC_DST_DPOVRD },
-	{ _SEQINSZ,   JUMP_SRC_DST_SEQINLEN },
-	{ _SEQOUTSZ,  JUMP_SRC_DST_SEQOUTLEN },
-	{ _VSEQINSZ,  JUMP_SRC_DST_VARSEQINLEN },
-	{ _VSEQOUTSZ, JUMP_SRC_DST_VARSEQOUTLEN }
+	{ MATH0,     JUMP_SRC_DST_MATH0 },
+	{ MATH1,     JUMP_SRC_DST_MATH1 },
+	{ MATH2,     JUMP_SRC_DST_MATH2 },
+	{ MATH3,     JUMP_SRC_DST_MATH3 },
+	{ DPOVRD,    JUMP_SRC_DST_DPOVRD },
+	{ SEQINSZ,   JUMP_SRC_DST_SEQINLEN },
+	{ SEQOUTSZ,  JUMP_SRC_DST_SEQOUTLEN },
+	{ VSEQINSZ,  JUMP_SRC_DST_VARSEQINLEN },
+	{ VSEQOUTSZ, JUMP_SRC_DST_VARSEQOUTLEN }
 };
 
 static inline int rta_jump(struct program *program, uint64_t address,
-			   int address_type, enum rta_jump_type jump_type,
+			   enum rta_jump_type jump_type,
 			   enum rta_jump_cond test_type,
-			   uint32_t test_condition, uint32_t src_dst,
-			   int type_src_dst)
+			   uint32_t test_condition, uint32_t src_dst)
 {
 	uint32_t opcode = CMD_JUMP;
 	unsigned start_pc = program->current_pc;
 	int ret = -EINVAL;
-
-	if ((address_type != IMM_DATA) && (address_type != PTR_DATA)) {
-		pr_err("JUMP: Address must be either IMM or PTR\n");
-		goto err;
-	}
 
 	if (((jump_type == GOSUB) || (jump_type == RETURN)) &&
 	    (rta_sec_era < RTA_SEC_ERA_4)) {
@@ -136,13 +130,6 @@ static inline int rta_jump(struct program *program, uint64_t address,
 				ARRAY_SIZE(jump_test_cond), &opcode);
 	} else {
 		uint32_t val = 0;
-
-		if (type_src_dst != REG_TYPE) {
-			pr_err("JUMP_INCDEC: Incorrect SRC_DST type. SEC PC: %d; Instr: %d\n",
-			       program->current_pc,
-			       program->current_instruction);
-			goto err;
-		}
 
 		ret = __rta_map_opcode(src_dst, jump_src_dst,
 				       ARRAY_SIZE(jump_src_dst), &val);

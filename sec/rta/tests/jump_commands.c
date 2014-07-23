@@ -58,14 +58,14 @@ unsigned jump_cmd_desc1(struct program *prg, uint32_t *buff, unsigned buffpos)
 		SET_LABEL(bbb);
 		bbb = 7;
 
-		MOVE(CONTEXT2, 0, CONTEXT1, 0, IMM(4), 0);
-		pjump1 = JUMP(IMM(aaa), LOCAL_JUMP, ALL_TRUE, 0);
-		pjump2 = JUMP(IMM(bbb), LOCAL_JUMP, ALL_TRUE, 0);
-		ref1_jump_fff = JUMP(IMM(fff), LOCAL_JUMP, ALL_TRUE, 0);
-		ref1_jump_ggg = JUMP(IMM(ggg), LOCAL_JUMP, ALL_TRUE, 0);
-		ref1_jump_zzz = JUMP(IMM(zzz), LOCAL_JUMP, ALL_TRUE, 0);
+		MOVE(CONTEXT2, 0, CONTEXT1, 0, 4, IMMED);
+		pjump1 = JUMP(aaa, LOCAL_JUMP, ALL_TRUE, 0);
+		pjump2 = JUMP(bbb, LOCAL_JUMP, ALL_TRUE, 0);
+		ref1_jump_fff = JUMP(fff, LOCAL_JUMP, ALL_TRUE, 0);
+		ref1_jump_ggg = JUMP(ggg, LOCAL_JUMP, ALL_TRUE, 0);
+		ref1_jump_zzz = JUMP(zzz, LOCAL_JUMP, ALL_TRUE, 0);
 
-		MOVE(CONTEXT2, 0, CONTEXT1, 0, IMM(24), 0);
+		MOVE(CONTEXT2, 0, CONTEXT1, 0, 24, IMMED);
 
 		phdr1 = JOB_HDR(SHR_NEVER, aaa, 0, 0);
 		phdr2 = JOB_HDR(SHR_NEVER, bbb, 0, 0);
@@ -106,14 +106,14 @@ unsigned jump_cmd_desc2(struct program *prg, uint32_t *buff, unsigned buffpos)
 	JOB_HDR(SHR_NEVER, buffpos, sharehdr, SHR);
 	{
 		SET_LABEL(fff);	/* first instruction in job header */
-		MOVE(CONTEXT1, 0, CONTEXT2, 0, IMM(8), 0);
+		MOVE(CONTEXT1, 0, CONTEXT2, 0, 8, IMMED);
 
-		ref1_jump_aaa = JUMP(IMM(aaa), LOCAL_JUMP, ALL_TRUE, 0);
-		ref1_jump_bbb = JUMP(IMM(bbb), LOCAL_JUMP, ALL_TRUE, 0);
-		pjump1 = JUMP(IMM(fff), LOCAL_JUMP, ALL_TRUE, 0);
-		pjump2 = JUMP(IMM(ggg), LOCAL_JUMP, ALL_TRUE, 0);
-		ref1_jump_yyy = JUMP(IMM(yyy), LOCAL_JUMP, ALL_TRUE, 0);
-		ref2_jump_zzz = JUMP(IMM(zzz), LOCAL_JUMP, ALL_TRUE, 0);
+		ref1_jump_aaa = JUMP(aaa, LOCAL_JUMP, ALL_TRUE, 0);
+		ref1_jump_bbb = JUMP(bbb, LOCAL_JUMP, ALL_TRUE, 0);
+		pjump1 = JUMP(fff, LOCAL_JUMP, ALL_TRUE, 0);
+		pjump2 = JUMP(ggg, LOCAL_JUMP, ALL_TRUE, 0);
+		ref1_jump_yyy = JUMP(yyy, LOCAL_JUMP, ALL_TRUE, 0);
+		ref2_jump_zzz = JUMP(zzz, LOCAL_JUMP, ALL_TRUE, 0);
 
 		ref1_job_aaa = JOB_HDR(SHR_NEVER, aaa, 0, 0);
 		ref1_job_bbb = JOB_HDR(SHR_NEVER, bbb, 0, 0);
@@ -129,13 +129,13 @@ unsigned jump_cmd_desc2(struct program *prg, uint32_t *buff, unsigned buffpos)
 		ref1_shr_yyy = SHR_HDR(SHR_NEVER, yyy, 0);
 		ref2_shr_zzz = SHR_HDR(SHR_NEVER, zzz, 0);
 
-		JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, 0);
+		JUMP(1, LOCAL_JUMP, ALL_TRUE, 0);
 
 		SET_LABEL(ggg);
-		MOVE(MATH0, 0, CONTEXT2, 0, IMM(4), 0);
+		MOVE(MATH0, 0, CONTEXT2, 0, 4, IMMED);
 		SET_LABEL(imm_offset);
-		JUMP(IMM(10 - imm_offset), LOCAL_JUMP, ALL_TRUE, 0);
-		JUMP(IMM(-2), LOCAL_JUMP, ALL_TRUE, 0);
+		JUMP(10 - imm_offset, LOCAL_JUMP, ALL_TRUE, 0);
+		JUMP(-2, LOCAL_JUMP, ALL_TRUE, 0);
 	}
 	PATCH_JUMP(pjump1, fff);
 	PATCH_JUMP(pjump2, ggg);
@@ -160,19 +160,19 @@ unsigned jump_cmd_desc3(struct program *prg, uint32_t *buff, unsigned buffpos)
 		SET_LABEL(yyy);
 		yyy = 63;	/* last word in descbuf [63] */
 
-		ref2_jump_aaa = JUMP(IMM(aaa), LOCAL_JUMP, ALL_TRUE, 0);
-		ref2_jump_bbb = JUMP(IMM(bbb), LOCAL_JUMP, ALL_TRUE, 0);
-		pjump1 = JUMP(IMM(yyy), LOCAL_JUMP, ALL_TRUE, 0);
-		ref3_jump_zzz = JUMP(IMM(zzz), LOCAL_JUMP, ALL_TRUE, 0);
+		ref2_jump_aaa = JUMP(aaa, LOCAL_JUMP, ALL_TRUE, 0);
+		ref2_jump_bbb = JUMP(bbb, LOCAL_JUMP, ALL_TRUE, 0);
+		pjump1 = JUMP(yyy, LOCAL_JUMP, ALL_TRUE, 0);
+		ref3_jump_zzz = JUMP(zzz, LOCAL_JUMP, ALL_TRUE, 0);
 
 		ref2_job_aaa = JOB_HDR(SHR_NEVER, aaa, 0, 0);
 		phdr2 = JOB_HDR(SHR_NEVER, yyy, 0, 0);
 		phdr1 = JOB_HDR(SHR_NEVER, zzz, 0, 0);
 
-		JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, 0);
+		JUMP(1, LOCAL_JUMP, ALL_TRUE, 0);
 
 		SET_LABEL(zzz);
-		MOVE(CONTEXT2, 0, CONTEXT1, 0, IMM(44), 0);
+		MOVE(CONTEXT2, 0, CONTEXT1, 0, 44, IMMED);
 	}
 	PATCH_JUMP(pjump1, yyy);
 	PATCH_HDR(phdr1, zzz);
@@ -187,7 +187,7 @@ unsigned jump_cmd_desc4(struct program *prg, uint32_t *buff, unsigned buffpos)
 
 	PROGRAM_CNTXT_INIT(buff, buffpos);
 	{
-		JUMP(IMM(7 - buffpos), LOCAL_JUMP, ALL_TRUE, 0);
+		JUMP(7 - buffpos, LOCAL_JUMP, ALL_TRUE, 0);
 	}
 
 	return PROGRAM_FINALIZE();
@@ -200,15 +200,15 @@ unsigned jump_cmd_desc5(struct program *prg, uint32_t *buff, unsigned buffpos)
 	PROGRAM_CNTXT_INIT(buff, buffpos);
 	{
 		/* class done tests */
-		JUMP(PTR(0x500), FAR_JUMP, ALL_TRUE, CLASS1 | PK_0 | MATH_N);
-		JUMP(PTR(0x500), FAR_JUMP, ALL_FALSE, CLASS1 | MATH_Z | MATH_N);
-		JUMP(PTR(0x500), FAR_JUMP, ALL_TRUE, BOTH | NOP);
-		JUMP(PTR(0x500), FAR_JUMP, ALL_TRUE, CLASS2 | NOP);
-		JUMP(PTR(0x500), FAR_JUMP, ALL_TRUE, CLASS2 | NOP);
+		JUMP(0x500, FAR_JUMP, ALL_TRUE, CLASS1 | PK_0 | MATH_N);
+		JUMP(0x500, FAR_JUMP, ALL_FALSE, CLASS1 | MATH_Z | MATH_N);
+		JUMP(0x500, FAR_JUMP, ALL_TRUE, BOTH | NOP);
+		JUMP(0x500, FAR_JUMP, ALL_TRUE, CLASS2 | NOP);
+		JUMP(0x500, FAR_JUMP, ALL_TRUE, CLASS2 | NOP);
 
-		JUMP(PTR(0), HALT, ALL_TRUE, CALM | NOP | SHRD);
-		JUMP(PTR(0x42), HALT_STATUS, ANY_FALSE, PK_0 | MATH_Z);
-		JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, CLASS1 | CLASS2);
+		JUMP(0, HALT, ALL_TRUE, CALM | NOP | SHRD);
+		JUMP(0x42, HALT_STATUS, ANY_FALSE, PK_0 | MATH_Z);
+		JUMP(1, LOCAL_JUMP, ALL_TRUE, CLASS1 | CLASS2);
 	}
 
 	return PROGRAM_FINALIZE();
@@ -221,24 +221,22 @@ unsigned jump_cmd_desc6(struct program *prg, uint32_t *buff, unsigned buffpos)
 	PROGRAM_CNTXT_INIT(buff, buffpos);
 	JOB_HDR(SHR_NEVER, 0, 0, 0);
 	{
-		JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, NIFP);
-		JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, NIFP | NIP);
-		JUMP(IMM(-1), LOCAL_JUMP, ALL_TRUE, 0);
-		JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, NIFP);
-		JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, NIFP | NIP);
-		JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, NIFP | SHRD);
-		JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, NIFP | SHRD);
-		JUMP(IMM(1), LOCAL_JUMP, ANY_FALSE, NIFP | SHRD);
-		JUMP(IMM(1), LOCAL_JUMP, ANY_FALSE, NIFP | SHRD);
-		JUMP(IMM(1), LOCAL_JUMP, ANY_FALSE, NIFP | SHRD);
-		JUMP(IMM(1), LOCAL_JUMP, ALL_FALSE,
-		     CLASS1 | PK_PRIME | MATH_N);
-		JUMP(IMM(1), LOCAL_JUMP, ALL_FALSE,
-		     CLASS1 | PK_PRIME | MATH_N);
-		JUMP(IMM(2), LOCAL_JUMP, ANY_FALSE, CLASS1 | JQP);
-		JUMP(IMM(2), LOCAL_JUMP, ANY_TRUE, MATH_Z | MATH_N);
-		JUMP(IMM(2), LOCAL_JUMP, ANY_FALSE, MATH_Z | MATH_N);
-		JUMP(IMM(2), LOCAL_JUMP, ANY_FALSE, MATH_Z | MATH_N);
+		JUMP(1, LOCAL_JUMP, ALL_TRUE, NIFP);
+		JUMP(1, LOCAL_JUMP, ALL_TRUE, NIFP | NIP);
+		JUMP(-1, LOCAL_JUMP, ALL_TRUE, 0);
+		JUMP(1, LOCAL_JUMP, ALL_TRUE, NIFP);
+		JUMP(1, LOCAL_JUMP, ALL_TRUE, NIFP | NIP);
+		JUMP(1, LOCAL_JUMP, ALL_TRUE, NIFP | SHRD);
+		JUMP(1, LOCAL_JUMP, ALL_TRUE, NIFP | SHRD);
+		JUMP(1, LOCAL_JUMP, ANY_FALSE, NIFP | SHRD);
+		JUMP(1, LOCAL_JUMP, ANY_FALSE, NIFP | SHRD);
+		JUMP(1, LOCAL_JUMP, ANY_FALSE, NIFP | SHRD);
+		JUMP(1, LOCAL_JUMP, ALL_FALSE, CLASS1 | PK_PRIME | MATH_N);
+		JUMP(1, LOCAL_JUMP, ALL_FALSE, CLASS1 | PK_PRIME | MATH_N);
+		JUMP(2, LOCAL_JUMP, ANY_FALSE, CLASS1 | JQP);
+		JUMP(2, LOCAL_JUMP, ANY_TRUE, MATH_Z | MATH_N);
+		JUMP(2, LOCAL_JUMP, ANY_FALSE, MATH_Z | MATH_N);
+		JUMP(2, LOCAL_JUMP, ANY_FALSE, MATH_Z | MATH_N);
 	}
 
 	return PROGRAM_FINALIZE();

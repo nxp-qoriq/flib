@@ -23,11 +23,11 @@ unsigned test_decryption(uint32_t *buff)
 
 	JOB_HDR(SHR_NEVER, 0, 0, 0);
 	{
-		LOAD(PTR(iv), CONTEXT1, 0, ivlen, 0);
-		KEY(KEY1, 0, PTR(key_data), keylen, 0);
+		LOAD(iv, CONTEXT1, 0, ivlen, 0);
+		KEY(KEY1, 0, key_data, keylen, 0);
 		ALG_OPERATION(OP_ALG_ALGSEL_AES, OP_ALG_AAI_CBC,
 			      OP_ALG_AS_INITFINAL, 0, OP_ALG_DECRYPT);
-		FIFOLOAD(MSG1, PTR(data_in), datasz, LAST1);
+		FIFOLOAD(MSG1, data_in, datasz, LAST1);
 		FIFOSTORE(MSG, 0, data_out, datasz, EXT);
 	}
 
