@@ -52,14 +52,6 @@ enum rta_sec_era {
  */
 #define INTL_SEC_ERA(sec_era)	(sec_era - 1)
 
-/* Convenience macros */
-#define IMM_DATA 1
-#define PTR_DATA 2
-#define REG_TYPE 3
-
-#define IMM(VAL)    VAL, IMM_DATA
-#define PTR(VAL)    VAL, PTR_DATA
-
 /**
  * enum rta_jump_type - Types of action taken by JUMP command
  * @LOCAL_JUMP: conditional jump to an offset within the descriptor buffer
@@ -131,213 +123,111 @@ enum rta_share_type {
 /* Registers definitions */
 enum rta_regs {
 	/* CCB Registers */
-	_CONTEXT1 = 1,
-#define CONTEXT1        _CONTEXT1, REG_TYPE
-	_CONTEXT2,
-#define CONTEXT2        _CONTEXT2, REG_TYPE
-	_KEY1,
-#define KEY1            _KEY1, REG_TYPE
-	_KEY2,
-#define KEY2            _KEY2, REG_TYPE
-	_KEY1SZ,
-#define KEY1SZ          _KEY1SZ, REG_TYPE
-	_KEY2SZ,
-#define KEY2SZ          _KEY2SZ, REG_TYPE
-	_ICV1SZ,
-#define ICV1SZ          _ICV1SZ, REG_TYPE
-	_ICV2SZ,
-#define ICV2SZ          _ICV2SZ, REG_TYPE
-	_DATA1SZ,
-#define DATA1SZ         _DATA1SZ, REG_TYPE
-	_DATA2SZ,
-#define DATA2SZ         _DATA2SZ, REG_TYPE
-	_ALTDS1,
-#define ALTDS1          _ALTDS1, REG_TYPE
-	_IV1SZ,
-#define IV1SZ           _IV1SZ, REG_TYPE
-	_AAD1SZ,
-#define AAD1SZ          _AAD1SZ, REG_TYPE
-	_MODE1,
-#define MODE1           _MODE1, REG_TYPE
-	_MODE2,
-#define MODE2           _MODE2, REG_TYPE
-	_CCTRL,
-#define CCTRL           _CCTRL, REG_TYPE
-	_DCTRL,
-#define DCTRL           _DCTRL, REG_TYPE
-	_ICTRL,
-#define ICTRL           _ICTRL, REG_TYPE
-	_CLRW,
-#define CLRW            _CLRW, REG_TYPE
-	_CSTAT,
-#define CSTAT           _CSTAT, REG_TYPE
-	_IFIFO,
-#define IFIFO           _IFIFO, REG_TYPE
-	_NFIFO,
-#define NFIFO           _NFIFO, REG_TYPE
-	_OFIFO,
-#define OFIFO           _OFIFO, REG_TYPE
-	_PKASZ,
-#define PKASZ           _PKASZ, REG_TYPE
-	_PKBSZ,
-#define PKBSZ           _PKBSZ, REG_TYPE
-	_PKNSZ,
-#define PKNSZ           _PKNSZ, REG_TYPE
-	_PKESZ,
-#define PKESZ           _PKESZ, REG_TYPE
+	CONTEXT1 = 1,
+	CONTEXT2,
+	KEY1,
+	KEY2,
+	KEY1SZ,
+	KEY2SZ,
+	ICV1SZ,
+	ICV2SZ,
+	DATA1SZ,
+	DATA2SZ,
+	ALTDS1,
+	IV1SZ,
+	AAD1SZ,
+	MODE1,
+	MODE2,
+	CCTRL,
+	DCTRL,
+	ICTRL,
+	CLRW,
+	CSTAT,
+	IFIFO,
+	NFIFO,
+	OFIFO,
+	PKASZ,
+	PKBSZ,
+	PKNSZ,
+	PKESZ,
 	/* DECO Registers */
-	_MATH0,
-#define MATH0           _MATH0, REG_TYPE
-	_MATH1,
-#define MATH1           _MATH1, REG_TYPE
-	_MATH2,
-#define MATH2           _MATH2, REG_TYPE
-	_MATH3,
-#define MATH3           _MATH3, REG_TYPE
-	_DESCBUF,
-#define DESCBUF         _DESCBUF, REG_TYPE
-	_JOBDESCBUF,
-#define JOBDESCBUF      _JOBDESCBUF, REG_TYPE
-	_SHAREDESCBUF,
-#define SHAREDESCBUF    _SHAREDESCBUF, REG_TYPE
-	_DPOVRD,
-#define DPOVRD          _DPOVRD, REG_TYPE
-	_DJQDA,
-#define DJQDA           _DJQDA, REG_TYPE
-	_DSTAT,
-#define DSTAT           _DSTAT, REG_TYPE
-	_DPID,
-#define DPID            _DPID, REG_TYPE
-	_DJQCTRL,
-#define DJQCTRL         _DJQCTRL, REG_TYPE
-	_ALTSOURCE,
-#define ALTSOURCE       _ALTSOURCE, REG_TYPE
-	_SEQINSZ,
-#define SEQINSZ         _SEQINSZ, REG_TYPE
-	_SEQOUTSZ,
-#define SEQOUTSZ        _SEQOUTSZ, REG_TYPE
-	_VSEQINSZ,
-#define VSEQINSZ        _VSEQINSZ, REG_TYPE
-	_VSEQOUTSZ,
-#define VSEQOUTSZ        _VSEQOUTSZ, REG_TYPE
+	MATH0,
+	MATH1,
+	MATH2,
+	MATH3,
+	DESCBUF,
+	JOBDESCBUF,
+	SHAREDESCBUF,
+	DPOVRD,
+	DJQDA,
+	DSTAT,
+	DPID,
+	DJQCTRL,
+	ALTSOURCE,
+	SEQINSZ,
+	SEQOUTSZ,
+	VSEQINSZ,
+	VSEQOUTSZ,
 	/* PKHA Registers */
-	_PKA,
-#define PKA             _PKA, REG_TYPE
-	_PKN,
-#define PKN             _PKN, REG_TYPE
-	_PKA0,
-#define PKA0            _PKA0, REG_TYPE
-	_PKA1,
-#define PKA1            _PKA1, REG_TYPE
-	_PKA2,
-#define PKA2            _PKA2, REG_TYPE
-	_PKA3,
-#define PKA3            _PKA3, REG_TYPE
-	_PKB,
-#define PKB             _PKB, REG_TYPE
-	_PKB0,
-#define PKB0            _PKB0, REG_TYPE
-	_PKB1,
-#define PKB1            _PKB1, REG_TYPE
-	_PKB2,
-#define PKB2            _PKB2, REG_TYPE
-	_PKB3,
-#define PKB3            _PKB3, REG_TYPE
-	_PKE,
-#define PKE             _PKE, REG_TYPE
+	PKA,
+	PKN,
+	PKA0,
+	PKA1,
+	PKA2,
+	PKA3,
+	PKB,
+	PKB0,
+	PKB1,
+	PKB2,
+	PKB3,
+	PKE,
 	/* Pseudo registers */
-	_AB1,
-#define AB1             _AB1, REG_TYPE
-	_AB2,
-#define AB2             _AB2, REG_TYPE
-	_ABD,
-#define ABD             _ABD, REG_TYPE
-	_IFIFOABD,
-#define IFIFOABD        _IFIFOABD, REG_TYPE
-	_IFIFOAB1,
-#define IFIFOAB1        _IFIFOAB1, REG_TYPE
-	_IFIFOAB2,
-#define IFIFOAB2        _IFIFOAB2, REG_TYPE
-	_AFHA_SBOX,
-#define AFHA_SBOX       _AFHA_SBOX, REG_TYPE
-	_MDHA_SPLIT_KEY,
-#define MDHA_SPLIT_KEY  _MDHA_SPLIT_KEY, REG_TYPE
-	_JOBSRC,
-#define JOBSRC          _JOBSRC, REG_TYPE
-	_ZERO,
-#define ZERO            _ZERO, REG_TYPE
-	_ONE,
-#define ONE             _ONE, REG_TYPE
-	_AAD1,
-#define AAD1            _AAD1, REG_TYPE
-	_IV1,
-#define IV1             _IV1, REG_TYPE
-	_IV2,
-#define IV2             _IV2, REG_TYPE
-	_MSG1,
-#define MSG1            _MSG1, REG_TYPE
-	_MSG2,
-#define MSG2            _MSG2, REG_TYPE
-	_MSG,
-#define MSG             _MSG, REG_TYPE
-	_MSGOUTSNOOP,
-#define MSGOUTSNOOP     _MSGOUTSNOOP, REG_TYPE
-	_MSGINSNOOP,
-#define MSGINSNOOP      _MSGINSNOOP, REG_TYPE
-	_ICV1,
-#define ICV1            _ICV1, REG_TYPE
-	_ICV2,
-#define ICV2            _ICV2, REG_TYPE
-	_SKIP,
-#define SKIP            _SKIP, REG_TYPE
-	_NONE,
-#define NONE            _NONE, REG_TYPE
-	_RNGOFIFO,
-#define RNGOFIFO        _RNGOFIFO, REG_TYPE
-	_RNG,
-#define RNG             _RNG, REG_TYPE
-	_IDFNS,
-#define IDFNS           _IDFNS, REG_TYPE
-	_ODFNS,
-#define ODFNS           _ODFNS, REG_TYPE
-	_NFIFOSZ,
-#define NFIFOSZ         _NFIFOSZ, REG_TYPE
-	_SZ,
-#define SZ              _SZ, REG_TYPE
-	_PAD,
-#define PAD             _PAD, REG_TYPE
-	_SAD1,
-#define SAD1            _SAD1, REG_TYPE
-	_AAD2,
-#define AAD2            _AAD2, REG_TYPE
-	_BIT_DATA,
-#define BIT_DATA        _BIT_DATA, REG_TYPE
-	_NFIFO_SZL,
-#define NFIFO_SZL	_NFIFO_SZL, REG_TYPE
-	_NFIFO_SZM,
-#define NFIFO_SZM	_NFIFO_SZM, REG_TYPE
-	_NFIFO_L,
-#define NFIFO_L		_NFIFO_L, REG_TYPE
-	_NFIFO_M,
-#define NFIFO_M		_NFIFO_M, REG_TYPE
-	_SZL,
-#define SZL		_SZL, REG_TYPE
-	_SZM,
-#define SZM		_SZM, REG_TYPE
-	_JOBDESCBUF_EFF,
-#define JOBDESCBUF_EFF	_JOBDESCBUF_EFF, REG_TYPE
-	_SHAREDESCBUF_EFF,
-#define SHAREDESCBUF_EFF	_SHAREDESCBUF_EFF, REG_TYPE
-	_METADATA,
-#define METADATA	_METADATA, REG_TYPE
-	_GTR,
-#define GTR		_GTR, REG_TYPE
-	_STR,
-#define STR		_STR, REG_TYPE
-	_OFIFO_SYNC,
-#define OFIFO_SYNC      _OFIFO_SYNC, REG_TYPE
-	_MSGOUTSNOOP_ALT
-#define MSGOUTSNOOP_ALT  _MSGOUTSNOOP_ALT, REG_TYPE
+	AB1,
+	AB2,
+	ABD,
+	IFIFOABD,
+	IFIFOAB1,
+	IFIFOAB2,
+	AFHA_SBOX,
+	MDHA_SPLIT_KEY,
+	JOBSRC,
+	ZERO,
+	ONE,
+	AAD1,
+	IV1,
+	IV2,
+	MSG1,
+	MSG2,
+	MSG,
+	MSGOUTSNOOP,
+	MSGINSNOOP,
+	ICV1,
+	ICV2,
+	SKIP,
+	NONE,
+	RNGOFIFO,
+	RNG,
+	IDFNS,
+	ODFNS,
+	NFIFOSZ,
+	SZ,
+	PAD,
+	SAD1,
+	AAD2,
+	BIT_DATA,
+	NFIFO_SZL,
+	NFIFO_SZM,
+	NFIFO_L,
+	NFIFO_M,
+	SZL,
+	SZM,
+	JOBDESCBUF_EFF,
+	SHAREDESCBUF_EFF,
+	METADATA,
+	GTR,
+	STR,
+	OFIFO_SYNC,
+	MSGOUTSNOOP_ALT
 };
 
 /* Command flags */
@@ -352,10 +242,11 @@ enum rta_regs {
 #define SEQ             BIT(8)
 #define AIDF		BIT(9)
 #define FLUSH2          BIT(10)
-
 #define CLASS1          BIT(11)
 #define CLASS2          BIT(12)
 #define BOTH            BIT(13)
+#define COPY		BIT(31) /*command param is pointer (not immediate)
+				  valid only in combination when IMMED */
 
 /* SEQ IN/OUT PTR Command specific flags */
 #define RBS             BIT(16)
@@ -436,6 +327,7 @@ enum rta_regs {
 #define STL         MATH_STL
 #define SSEL        MATH_SSEL
 #define SWP         MATH_SWP
+#define IMMED2      BIT(31)
 
 /**
  * struct program - descriptor buffer management structure
@@ -568,9 +460,9 @@ static inline unsigned rta_copy_data(struct program *program, uint8_t *data,
 }
 
 static inline void __rta_inline_data(struct program *program, uint64_t data,
-				     int data_type, uint32_t length)
+				     bool copy_data, uint32_t length)
 {
-	if (data_type == IMM_DATA) {
+	if (!copy_data) {
 		__rta_out64(program, length > 4, data);
 	} else {
 		uint8_t *tmp = (uint8_t *)&program->buffer[program->current_pc];

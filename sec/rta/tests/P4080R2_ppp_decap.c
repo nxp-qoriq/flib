@@ -102,70 +102,70 @@ unsigned build_shr_desc_ppp_decap(struct program *prg, uint32_t *buff,
 	SHR_HDR(SHR_NEVER, 46, 0);
 	{
 		SET_LABEL(b);
-		MATHB(ZERO, ADD, IMM(128), VSEQINSZ, 4, 0);
-		MATHB(SEQINSZ, SUB, IMM(128), MATH0, 8, IFB);
-		pjumpd = JUMP(IMM(d), LOCAL_JUMP, ANY_FALSE, MATH_N);
+		MATHB(ZERO, ADD, 128, VSEQINSZ, 4, IMMED2);
+		MATHB(SEQINSZ, SUB, 128, MATH0, 8, IFB | IMMED2);
+		pjumpd = JUMP(d, LOCAL_JUMP, ANY_FALSE, MATH_N);
 		/*
 		 * RTA does not support generating MATH commands with LEN = 8
 		 * and no immediate inlined in the command, thus use WORD().
 		 */
 		WORD(0xaa240108);
 		NFIFOADD(PAD, MSG1, 0, PAD_ZERO | LAST1);
-		pmove1 = MOVE(MATH1, 0, DESCBUF, 0, IMM(8), 0);
+		pmove1 = MOVE(MATH1, 0, DESCBUF, 0, 8, IMMED);
 		MATHB(VSEQINSZ, ADD, MATH0, VSEQINSZ, 4, NFU);
 
 		SET_LABEL(d);
 		SEQFIFOLOAD(MSG1, 0, VLF);
-		pmoves = MOVE(CONTEXT1, 0, DESCBUF, 0, IMM(64), 0);
-		pjumpe = JUMP(IMM(e), LOCAL_JUMP, ANY_FALSE, MATH_N);
+		pmoves = MOVE(CONTEXT1, 0, DESCBUF, 0, 64, IMMED);
+		pjumpe = JUMP(e, LOCAL_JUMP, ANY_FALSE, MATH_N);
 
 		SET_LABEL(do_nfifo);
 		WORD(0);
 		WORD(0);
 
 		SET_LABEL(e);
-		MATHB(ZERO, ADD, IMM(16), VSEQOUTSZ, 4, 0);
-		LOAD(IMM(0), DCTRL, LDOFF_DISABLE_AUTO_NFIFO, 0, 0);
-		MOVE(IFIFOAB1, 0, OFIFO, 0, IMM(128), 0);
+		MATHB(ZERO, ADD, 16, VSEQOUTSZ, 4, IMMED2);
+		LOAD(0, DCTRL, LDOFF_DISABLE_AUTO_NFIFO, 0, IMMED);
+		MOVE(IFIFOAB1, 0, OFIFO, 0, 128, IMMED);
 
 		SET_LABEL(a);
-		LOAD(IMM(0), DCTRL, LDOFF_DISABLE_AUTO_NFIFO, 0, 0);
-		pjumps = JUMP(IMM(s), LOCAL_JUMP, ALL_TRUE, NOP);
+		LOAD(0, DCTRL, LDOFF_DISABLE_AUTO_NFIFO, 0, IMMED);
+		pjumps = JUMP(s, LOCAL_JUMP, ALL_TRUE, NOP);
 		/* End of Main Loop - all 8 dwords have been handled */
 
 		SET_LABEL(h);
-		LOAD(IMM(0), DCTRL, LDOFF_ENABLE_AUTO_NFIFO, 0, 0);
+		LOAD(0, DCTRL, LDOFF_ENABLE_AUTO_NFIFO, 0, IMMED);
 		MATHB(VSEQINSZ, ADD, MATH2, VSEQOUTSZ, 4, 0);
 		SEQFIFOSTORE(MSG, 0, 0, VLF);
 		MATHB(ZERO, ADD, MATH3, NONE, 4, 0);
-		pjumpp = JUMP(IMM(p), LOCAL_JUMP, ALL_TRUE, MATH_Z);
-		MATHB(MATH3, SUB, IMM(8), MATH3, 8, IFB);
-		MOVE(IFIFOABD, 0, OFIFO, 0, IMM(8), 0);
+		pjumpp = JUMP(p, LOCAL_JUMP, ALL_TRUE, MATH_Z);
+		MATHB(MATH3, SUB, 8, MATH3, 8, IFB | IMMED2);
+		MOVE(IFIFOABD, 0, OFIFO, 0, 8, IMMED);
 
 		SET_LABEL(r);
-		LOAD(IMM(0x7E), IFIFO, 0, 1, 0);
+		LOAD(0x7E, IFIFO, 0, 1, IMMED);
 		MATHB(MATH3, ADD, ONE, MATH3, 4, 0);
-		pjumpr = JUMP(IMM(r), LOCAL_JUMP, ANY_FALSE, MATH_Z);
+		pjumpr = JUMP(r, LOCAL_JUMP, ANY_FALSE, MATH_Z);
 
 		SET_LABEL(p);
 		MATHB(SEQINSZ, SUB, ONE, NONE, 4, 0);
-		JUMP(IMM(0), HALT_STATUS, ALL_TRUE, MATH_N);
-		pjumpb1 = JUMP(IMM(b), LOCAL_JUMP, ALL_TRUE, 0);
+		JUMP(0, HALT_STATUS, ALL_TRUE, MATH_N);
+		pjumpb1 = JUMP(b, LOCAL_JUMP, ALL_TRUE, 0);
 
 		SET_LABEL(q);
-		MATHB(ZERO, ADD, IMM(0x80), MATH2, 4, 0);
+		MATHB(ZERO, ADD, 0x80, MATH2, 4, IMMED2);
 
 		SET_LABEL(l);
 		MATHB(MATH1, AND, MATH2, NONE, 4, 0);
-		ref_jumpk = JUMP(IMM(k), LOCAL_JUMP, ANY_FALSE, MATH_Z);
-		MOVE(MATH0, 0, IFIFOAB1, 0, IMM(1), 0);
+		ref_jumpk = JUMP(k, LOCAL_JUMP, ANY_FALSE, MATH_Z);
+		MOVE(MATH0, 0, IFIFOAB1, 0, 1, IMMED);
 		MATHB(MATH3, ADD, ONE, MATH3, 8, 0);
-		MATHB(MATH3, AND, IMM(7), MATH3, 8, IFB);
-		ref_jumpt = JUMP(IMM(t), LOCAL_JUMP, ANY_FALSE, MATH_Z);
+		MATHB(MATH3, AND, 7, MATH3, 8, IFB | IMMED2);
+		ref_jumpt = JUMP(t, LOCAL_JUMP, ANY_FALSE, MATH_Z);
 
 		SET_LABEL(s);
-		LOAD(PTR(c1_ctx_addr), CONTEXT1, 0, 64, 0);
-		LOAD(PTR(c2_ctx_addr), CONTEXT2, 0, 72, 0);
+		LOAD(c1_ctx_addr, CONTEXT1, 0, 64, 0);
+		LOAD(c2_ctx_addr, CONTEXT2, 0, 72, 0);
 		pjumpb2 = SHR_HDR(SHR_NEVER, b, 0);
 		WORD(0);
 		WORD(0);
@@ -194,24 +194,24 @@ unsigned build_extra_cmds(struct program *prg, uint32_t *buff, unsigned buffpos)
 	PROGRAM_CNTXT_INIT(buff, buffpos);
 	{
 		MATHB(ZERO, ADD, OFIFO, MATH0, 8, 0);
-		MATHB(MATH0, XOR, IMM(0x7d7d7d7d7d7d7d7d), MATH1, 8, 0);
+		MATHB(MATH0, XOR, 0x7d7d7d7d7d7d7d7d, MATH1, 8, IMMED2);
 		/* in case last of prev dword was special */
 		MATHB(MATH0, XOR, MATH2, MATH0, 8, 0);
 		MATHB(ZERO, AND, MATH2, MATH2, 8, 0);
 		MATHU(MATH1, ZBYT, MATH1, 8, 0);
-		pjumpg = JUMP(IMM(g), LOCAL_JUMP, ALL_TRUE, MATH_Z);
-		ref1_moves = MOVE(CONTEXT2, 0, DESCBUF, 0, IMM(72),
-				  WAITCOMP);
+		pjumpg = JUMP(g, LOCAL_JUMP, ALL_TRUE, MATH_Z);
+		ref1_moves = MOVE(CONTEXT2, 0, DESCBUF, 0, 72,
+				  WAITCOMP | IMMED);
 		refq_shr = SHR_HDR(SHR_NEVER, q, 0);
 
 		SET_LABEL(g);
-		MOVE(MATH0, 0, IFIFOAB1, 0, IMM(8), 0);
-		LOAD(IMM(0), DCTRL, LDOFF_ENABLE_AUTO_NFIFO, 0, 0);
-		MOVE(IFIFOABD, 0, OFIFO, 0, IMM(8), 0);
+		MOVE(MATH0, 0, IFIFOAB1, 0, 8, IMMED);
+		LOAD(0, DCTRL, LDOFF_ENABLE_AUTO_NFIFO, 0, IMMED);
+		MOVE(IFIFOABD, 0, OFIFO, 0, 8, IMMED);
 
 		SET_LABEL(c);
 		MATHB(VSEQOUTSZ, SUB, ONE, VSEQOUTSZ, 4, 0);
-		ref1_jumpa = JUMP(IMM(a), LOCAL_JUMP, ANY_FALSE, MATH_Z);
+		ref1_jumpa = JUMP(a, LOCAL_JUMP, ANY_FALSE, MATH_Z);
 		refh_shr = SHR_HDR(SHR_NEVER, h, 0);
 	}
 	PATCH_JUMP(pjumpg, g);
@@ -230,26 +230,26 @@ unsigned build_more_cmds(struct program *prg, uint32_t *buff, unsigned buffpos)
 	PROGRAM_CNTXT_INIT(buff, buffpos);
 	{
 		NFIFOADD(IFIFO, MSG, 8, 0);
-		MOVE(IFIFOABD, 0, OFIFO, 0, IMM(8), 0);
+		MOVE(IFIFOABD, 0, OFIFO, 0, 8, IMMED);
 
 		SET_LABEL(t);
-		MATHB(MATH0, LSHIFT, IMM(8), MATH0, 8, IFB);
+		MATHB(MATH0, LSHIFT, 8, MATH0, 8, IFB | IMMED2);
 		MATHB(MATH2, RSHIFT, ONE, MATH2, 4, 0);
-		ref_jumpl = JUMP(IMM(l), LOCAL_JUMP, ANY_FALSE, MATH_Z);
+		ref_jumpl = JUMP(l, LOCAL_JUMP, ANY_FALSE, MATH_Z);
 
 		SET_LABEL(i);
-		ref2_moves = MOVE(CONTEXT1, 0, DESCBUF, 0, IMM(64),
-				  WAITCOMP);
+		ref2_moves = MOVE(CONTEXT1, 0, DESCBUF, 0, 64,
+				  WAITCOMP | IMMED);
 		refc_shr = SHR_HDR(SHR_NEVER, c, 0);
 
 		SET_LABEL(k);
-		MATHB(MATH0, XOR, IMM(0x0020000000000000), MATH0, 8, 0);
+		MATHB(MATH0, XOR, 0x0020000000000000, MATH0, 8, IMMED2);
 		MATHB(VSEQINSZ, SUB, ONE, VSEQINSZ, 4, 0);
 		MATHB(MATH2, SUB, ONE, NONE, 8, 0);
 
-		pjumpt = JUMP(IMM(t), LOCAL_JUMP, ANY_FALSE, MATH_Z);
-		MATHB(MATH2, LSHIFT, IMM(61), MATH2, 8, IFB);
-		pjumpi = JUMP(IMM(i), LOCAL_JUMP, ALL_TRUE, 0);
+		pjumpt = JUMP(t, LOCAL_JUMP, ANY_FALSE, MATH_Z);
+		MATHB(MATH2, LSHIFT, 61, MATH2, 8, IFB | IMMED2);
+		pjumpi = JUMP(i, LOCAL_JUMP, ALL_TRUE, 0);
 	}
 	PATCH_JUMP(pjumpt, t);
 	PATCH_JUMP(pjumpi, i);
@@ -269,9 +269,9 @@ unsigned build_jbdesc_ppp_decap(struct program *prg, uint32_t *buff,
 	PROGRAM_CNTXT_INIT(buff, buffpos);
 	JOB_HDR(SHR_NEVER, buffpos, shr_addr, REO | SHR);
 	{
-		JUMP(IMM(3), LOCAL_JUMP, ALL_TRUE, 0);
-		JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, 0);
-		JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, 0);
+		JUMP(3, LOCAL_JUMP, ALL_TRUE, 0);
+		JUMP(1, LOCAL_JUMP, ALL_TRUE, 0);
+		JUMP(1, LOCAL_JUMP, ALL_TRUE, 0);
 		SEQOUTPTR(out_addr, out_len, EXT);
 		SEQINPTR(in_addr, in_len, EXT);
 	}

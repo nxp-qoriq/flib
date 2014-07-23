@@ -350,19 +350,19 @@ static inline void cnstr_shdsc_tls(uint32_t *descbuf, unsigned *bufsize,
 		PROGRAM_SET_36BIT_ADDR();
 	SHR_HDR(SHR_SERIAL, ++startidx, 0);
 	COPY_DATA(pdb, pdb_len);
-	pkeyjmp = JUMP(IMM(keyjmp), LOCAL_JUMP, ALL_TRUE, BOTH|SHRD|SELF);
+	pkeyjmp = JUMP(keyjmp, LOCAL_JUMP, ALL_TRUE, BOTH|SHRD|SELF);
 	/*
 	 * SSL3.0 uses SSL-MAC (SMAC) instead of HMAC, thus MDHA Split Key
 	 * does not apply.
 	 */
 	if (protcmd->protid == OP_PCLID_SSL30)
-		KEY(KEY2, authdata->key_enc_flags, PTR(authdata->key),
-		    authdata->keylen, IMMED);
+		KEY(KEY2, authdata->key_enc_flags, authdata->key,
+		    authdata->keylen, IMMED | COPY);
 	else
-		KEY(MDHA_SPLIT_KEY, authdata->key_enc_flags, PTR(authdata->key),
-		    authdata->keylen, IMMED);
-	KEY(KEY1, cipherdata->key_enc_flags, PTR(cipherdata->key),
-	    cipherdata->keylen, IMMED);
+		KEY(MDHA_SPLIT_KEY, authdata->key_enc_flags, authdata->key,
+		    authdata->keylen, IMMED | COPY);
+	KEY(KEY1, cipherdata->key_enc_flags, cipherdata->key,
+	    cipherdata->keylen, IMMED | COPY);
 	SET_LABEL(keyjmp);
 	PROTOCOL(protcmd->optype, protcmd->protid, protcmd->protinfo);
 

@@ -46,27 +46,27 @@ unsigned build_shdesc_kasumi_dcrc_encap(struct program *prg, uint32_t *buff,
 			WORD(0x44444444);
 			WORD(0x55555555);
 		}
-		pjump1 = JUMP(IMM(do_dcrc), LOCAL_JUMP, ALL_TRUE, MATH_N);
+		pjump1 = JUMP(do_dcrc, LOCAL_JUMP, ALL_TRUE, MATH_N);
 
 		/* Start bringing in Preamble */
-		LOAD(IMM(0), DCTRL, LDOFF_DISABLE_AUTO_NFIFO, 0, 0);
+		LOAD(0, DCTRL, LDOFF_DISABLE_AUTO_NFIFO, 0, IMMED);
 		SEQFIFOLOAD(PKA0, 60, 0);
-		LOAD(IMM(0), DCTRL, LDOFF_ENABLE_AUTO_NFIFO, 0, 0);
-		pmove1 = MOVE(IFIFOABD, 0, DESCBUF, 0, IMM(12), 0);
-		MOVE(IFIFOABD, 0, KEY1, 0, IMM(key_size), 0);
-		MOVE(IFIFOABD, 0, CONTEXT2, 32, IMM(32), 0);
-		LOAD(IMM(key_size), KEY1SZ, 0, 4, 0);
-		MOVE(CONTEXT2, 32, MATH0, 0, IMM(32), 0);
+		LOAD(0, DCTRL, LDOFF_ENABLE_AUTO_NFIFO, 0, IMMED);
+		pmove1 = MOVE(IFIFOABD, 0, DESCBUF, 0, 12, IMMED);
+		MOVE(IFIFOABD, 0, KEY1, 0, key_size, IMMED);
+		MOVE(IFIFOABD, 0, CONTEXT2, 32, 32, IMMED);
+		LOAD(key_size, KEY1SZ, 0, 4, IMMED);
+		MOVE(CONTEXT2, 32, MATH0, 0, 32, IMMED);
 		/* Get SEQ IN PTR command from Job Descriptor */
-		ref_job_seqout = MOVE(DESCBUF, 0, MATH2, 0, IMM(12),
-				      WAITCOMP);
+		ref_job_seqout = MOVE(DESCBUF, 0, MATH2, 0, 12,
+				      WAITCOMP | IMMED);
 		/* Mask out the bit so SOP becomes SIP; maintain ptr value */
-		MATHB(MATH2, AND, IMM(0xf7ffffffffffffff), MATH2, 8, 0);
+		MATHB(MATH2, AND, 0xf7ffffffffffffff, MATH2, 8, IMMED2);
 		MATHB(SEQINSZ, ADD, MATH3, MATH3, 8, NFU);
 		/* swap words */
 		MATHB(MATH0, SHLD, MATH3, MATH3, 8, 0);
-		ref_job_seqin = MOVE(MATH2, 0, DESCBUF, 0, IMM(12), 0);
-		MOVE(CONTEXT2, 48, MATH2, 0, IMM(16), WAITCOMP);
+		ref_job_seqin = MOVE(MATH2, 0, DESCBUF, 0, 12, IMMED);
+		MOVE(CONTEXT2, 48, MATH2, 0, 16, WAITCOMP | IMMED);
 
 		/* Build a MOVE command to process input data */
 		SET_LABEL(build_move);
@@ -75,41 +75,38 @@ unsigned build_shdesc_kasumi_dcrc_encap(struct program *prg, uint32_t *buff,
 		 * and no immediate inlined in the command, thus use WORD().
 		 */
 		WORD(0xaa004004);
-		MOVE(IFIFOABD, 0, OFIFO, 0, IMM(0), 0);
+		MOVE(IFIFOABD, 0, OFIFO, 0, 0, IMMED);
 
 		MATHB(ZERO, ADD, MATH0, VSEQINSZ, 2, NFU);
 		MATHB(ZERO, ADD, MATH0, VSEQOUTSZ, 2, NFU);
 		MATHB(MATH0, SHLD, MATH0, MATH0, 8, NFU);
-		pmove4 = MOVE(MATH0, 0, DESCBUF, 0, IMM(4), WAITCOMP);
-		LOAD(IMM(0), DCTRL, LDOFF_DISABLE_AUTO_NFIFO, 0, 0);
+		pmove4 = MOVE(MATH0, 0, DESCBUF, 0, 4, WAITCOMP | IMMED);
+		LOAD(0, DCTRL, LDOFF_DISABLE_AUTO_NFIFO, 0, IMMED);
 		SEQFIFOLOAD(PKA0, 0, VLF);
 		SEQFIFOSTORE(MSG, 0, 0, VLF);
-		LOAD(IMM(0), DCTRL, LDOFF_ENABLE_AUTO_NFIFO, 0, 0);
+		LOAD(0, DCTRL, LDOFF_ENABLE_AUTO_NFIFO, 0, IMMED);
 
 		SET_LABEL(get_data);
 		WORD(0);
-		ref_all_done = JUMP(IMM(all_done), LOCAL_JUMP, ALL_TRUE,
-				    MATH_N);
+		ref_all_done = JUMP(all_done, LOCAL_JUMP, ALL_TRUE, MATH_N);
 
 		SET_LABEL(process_pdu);
 		MATHB(ZERO, ADD, MATH1, SEQINSZ, 4, 0);
 		PROTOCOL(OP_TYPE_ENCAP_PROTOCOL, OP_PCLID_3G_RLC_PDU,
 			 OP_PCL_3G_RLC_KASUMI);
-		LOAD(IMM
-		     (CLRW_CLR_C1CTX | CLRW_CLR_C1ICV | CLRW_CLR_C1MODE |
-		      CLRW_CLR_C1DATAS), CLRW, 0, 4, 0);
-		LOAD(IMM(CCTRL_RESET_CHA_KFHA), CCTRL, 0, 4, 0);
-		MOVE(CONTEXT2, 32, MATH0, 0, IMM(32), WAITCOMP);
+		LOAD(CLRW_CLR_C1CTX | CLRW_CLR_C1ICV | CLRW_CLR_C1MODE |
+		     CLRW_CLR_C1DATAS, CLRW, 0, 4, IMMED);
+		LOAD(CCTRL_RESET_CHA_KFHA, CCTRL, 0, 4, IMMED);
+		MOVE(CONTEXT2, 32, MATH0, 0, 32, WAITCOMP | IMMED);
 		MATHB(MATH3, SUB, ONE, MATH3, 8, 0);
-		MOVE(MATH3, 0, CONTEXT2, 56, IMM(8), 0);
-		pjump3 = JUMP(IMM(process_pdu), LOCAL_JUMP, ANY_FALSE,
-			      MATH_Z);
-		MATHB(MATH0, LSHIFT, IMM(48), MATH0, 8, IFB);
-		MOVE(MATH0, 0, DESCBUF, 4, IMM(4), 0);
+		MOVE(MATH3, 0, CONTEXT2, 56, 8, IMMED);
+		pjump3 = JUMP(process_pdu, LOCAL_JUMP, ANY_FALSE, MATH_Z);
+		MATHB(MATH0, LSHIFT, 48, MATH0, 8, IFB | IMMED2);
+		MOVE(MATH0, 0, DESCBUF, 4, 4, IMMED);
 		MATHB(ZERO, SUB, ONE, NONE, 4, 0);
 		MATHB(ZERO, ADD, MATH2, SEQINSZ, 4, NFU);
 		MATHB(ZERO, ADD, MATH2, MATH0, 4, NFU);
-		pjump4 = JUMP(IMM(build_move), LOCAL_JUMP, ALL_TRUE, 0);
+		pjump4 = JUMP(build_move, LOCAL_JUMP, ALL_TRUE, 0);
 
 		SET_LABEL(do_dcrc);
 		PROTOCOL(OP_TYPE_ENCAP_PROTOCOL, OP_PCLID_3G_DCRC,

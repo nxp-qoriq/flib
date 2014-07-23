@@ -69,26 +69,25 @@ unsigned build_dtls_sharedesc(uint32_t *buff, uint32_t seqnum,
 		 *     mask to turn the SEQ-OUT-PTR cmd into a SEQ-IN-PTR cmd
 		 *     put new SEQ-IN-PTR command in-line in shared descriptor
 		 */
-		pmove1 = MOVE(DESCBUF, 0, MATH0, 0, IMM(16), WAITCOMP);
-		MATHB(MATH0, XOR, IMM(0x0840010000000000), MATH0, 8, 0);
+		pmove1 = MOVE(DESCBUF, 0, MATH0, 0, 16, WAITCOMP | IMMED);
+		MATHB(MATH0, XOR, 0x0840010000000000, MATH0, 8, IMMED2);
 		/*(8 needs to be 12 if 64-bit pointers are being used */
-		pmove2 = MOVE(MATH0, 0, DESCBUF, 0, IMM(8), 0);
+		pmove2 = MOVE(MATH0, 0, DESCBUF, 0, 8, IMMED);
 		/*
 		 * s2: Customer has defined that every packet has 46 bytes of
 		 *     what we call metadata -- data that we are to pass
 		 *     unadulterated from input frame to output frame
 		 */
 		SEQFIFOLOAD(IFIFO, mdatalen, 0);
-		MOVE(IFIFOABD, 0, OFIFO, 0, IMM(mdatalen), 0);
+		MOVE(IFIFOABD, 0, OFIFO, 0, mdatalen, IMMED);
 		SEQFIFOSTORE(MSG, 0, mdatalen, 0);
 		/* s3: Skip key commands when sharing permits */
-		pjump1 = JUMP(IMM(skip_keyloading), LOCAL_JUMP, ALL_TRUE,
-			      SHRD);
-		KEY(MDHA_SPLIT_KEY, ENC, PTR((uintptr_t) hmac_key), 40,
-		    IMMED);
+		pjump1 = JUMP(skip_keyloading, LOCAL_JUMP, ALL_TRUE, SHRD);
+		KEY(MDHA_SPLIT_KEY, ENC, (uintptr_t) hmac_key, 40,
+		    IMMED | COPY);
 
 		/* load DTLS HMAC authentication key */
-		KEY(KEY1, 0, PTR((uintptr_t) aes_key), 16, IMMED);
+		KEY(KEY1, 0, (uintptr_t) aes_key, 16, IMMED | COPY);
 		/* load DTLS AES confidentiality key */
 		SET_LABEL(skip_keyloading);
 		/* s4: Execute DTLS protocol thread */
@@ -101,7 +100,7 @@ unsigned build_dtls_sharedesc(uint32_t *buff, uint32_t seqnum,
 		WORD(0x00000000);
 		/* Reread the IV that was written out by the DTLS protocol
 		 * thread */
-		JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, 0);
+		JUMP(1, LOCAL_JUMP, ALL_TRUE, 0);
 
 		/*
 		 * s6: Skip the "metadata" and the DTLS header material
@@ -110,28 +109,27 @@ unsigned build_dtls_sharedesc(uint32_t *buff, uint32_t seqnum,
 		SEQFIFOLOAD(SKIP, 59, 0);
 		SEQLOAD(MATH2, 0, 16, 0);
 		/* Load last frame's output IV into math0/math1 */
-		pmove3 = MOVE(DESCBUF, 0, MATH0, 0, IMM(16), WAITCOMP);
+		pmove3 = MOVE(DESCBUF, 0, MATH0, 0, 16, WAITCOMP | IMMED);
 		/* Wait for loads to complete */
-		JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, CALM);
+		JUMP(1, LOCAL_JUMP, ALL_TRUE, CALM);
 		/* Compare upper half of two IVs */
 		MATHB(MATH0, XOR, MATH2, NONE, 8, 0);
 		/* If two upper halves are different, then zero is not set and
 		 * jump to */
-		pjump2 = JUMP(IMM(new_IV_OK), LOCAL_JUMP, ANY_FALSE,
-			      MATH_Z);
+		pjump2 = JUMP(new_IV_OK, LOCAL_JUMP, ANY_FALSE, MATH_Z);
 		/* Compare lower half of two IVs */
 		MATHB(MATH1, XOR, MATH3, NONE, 8, 0);
 		/*
 		 * If we got here with zero set, then both halves were
 		 * identical --this is an ERROR
 		 */
-		JUMP(IMM(255), HALT_STATUS, ALL_TRUE, MATH_Z);
+		JUMP(255, HALT_STATUS, ALL_TRUE, MATH_Z);
 		SET_LABEL(new_IV_OK);
 		/*
 		 * s7: Store back both IVs; math2/3 for next compare; math0/1
 		 * for software to check if need be
 		 */
-		pmove4 = MOVE(MATH0, 0, DESCBUF, 0, IMM(32), 0);
+		pmove4 = MOVE(MATH0, 0, DESCBUF, 0, 32, IMMED);
 		/* Store back both IVs to the shared descriptor in system
 		 * memory */
 		STORE(SHAREDESCBUF, 4 * word_size, NONE, 8 * word_size, 0);

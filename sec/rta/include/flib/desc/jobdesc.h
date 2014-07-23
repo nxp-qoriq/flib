@@ -60,14 +60,14 @@ static inline void cnstr_jobdesc_mdsplitkey(uint32_t *descbuf,
 	if (ps)
 		PROGRAM_SET_36BIT_ADDR();
 	JOB_HDR(SHR_NEVER, 1, 0, 0);
-	KEY(KEY2, 0, PTR(alg_key), keylen, 0);
+	KEY(KEY2, 0, alg_key, keylen, 0);
 	ALG_OPERATION(cipher,
 		      OP_ALG_AAI_HMAC,
 		      OP_ALG_AS_INIT,
 		      ICV_CHECK_DISABLE,
 		      OP_ALG_DECRYPT);
-	FIFOLOAD(MSG2, PTR(0), 0, LAST2 | IMMED);
-	JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, CLASS2);
+	FIFOLOAD(MSG2, 0, 0, LAST2 | IMMED | COPY);
+	JUMP(1, LOCAL_JUMP, ALL_TRUE, CLASS2);
 	FIFOSTORE(MDHA_SPLIT_KEY, 0, padbuf, split_key_len, 0);
 	*bufsize = PROGRAM_FINALIZE();
 }

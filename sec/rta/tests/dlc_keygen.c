@@ -38,7 +38,7 @@ unsigned dlc_keygen(uint32_t *buff)
 	JOB_HDR(SHR_NEVER, 0, 0, 0);
 	{
 		/* Step A. Load the modulus (prime) we will be using for DH. */
-		FIFOLOAD(PKN, PTR(mod), field_size, 0);	/* N <= Modulus */
+		FIFOLOAD(PKN, mod, field_size, 0);	/* N <= Modulus */
 
 		/* Step B. Generate random private key. */
 		/* Note that it is 'good practice' to generate eight (8) more
@@ -48,7 +48,7 @@ unsigned dlc_keygen(uint32_t *buff)
 		SET_LABEL(retry);
 		/* Step B.1. Prime 'PKHA A SIZE' register with number of bytes
 		 * to expect */
-		LOAD(IMM((field_size + 8)), PKASZ, 0, 4, 0);
+		LOAD(field_size + 8, PKASZ, 0, 4, IMMED);
 
 		/* Step B.2. Generate random 'value' for private key */
 		NFIFOADD(PAD, PKA, (field_size + 8), PAD_RANDOM | EXT);
@@ -60,24 +60,24 @@ unsigned dlc_keygen(uint32_t *buff)
 		/* 'Good practice' says to make sure this value is not 0, 1,
 		 * or p-1 ... */
 		/* Retry if key is 0 */
-		p1_retry = JUMP(IMM(retry), LOCAL_JUMP, ALL_TRUE, PK_0);
+		p1_retry = JUMP(retry, LOCAL_JUMP, ALL_TRUE, PK_0);
 
 		/* Step B.4. Store the private key for later use. */
 		FIFOSTORE(PKB, 0, private_key, field_size, 0);
 
-		FIFOLOAD(PKA, IMM(0x01), 1, 0);
+		FIFOLOAD(PKA, 0x01, 1, IMMED);
 		PKHA_OPERATION(OP_ALG_PKMODE_MOD_ADD);
 		/* Retry if key is -1 */
-		p2_retry = JUMP(IMM(retry), LOCAL_JUMP, ALL_TRUE, PK_0);
+		p2_retry = JUMP(retry, LOCAL_JUMP, ALL_TRUE, PK_0);
 
-		FIFOLOAD(PKA, IMM(0x02), 1, 0);
+		FIFOLOAD(PKA, 0x02, 1, IMMED);
 		PKHA_OPERATION(OP_ALG_PKMODE_MOD_SUB_BA);
 		/* Retry if key is 1 */
-		p3_retry = JUMP(IMM(retry), LOCAL_JUMP, ALL_TRUE, PK_0);
+		p3_retry = JUMP(retry, LOCAL_JUMP, ALL_TRUE, PK_0);
 
 		/* Step C.  Generate the public key */
 		/* A <= Generator (2) */
-		FIFOLOAD(PKA, IMM(0x02), 1, 0);
+		FIFOLOAD(PKA, 0x02, 1, IMMED);
 		/* E <= Private key */
 		PKHA_OPERATION(OP_ALG_PKMODE_COPY_NSZ_B_E);
 		/* B <= Public Key */

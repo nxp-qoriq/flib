@@ -35,11 +35,11 @@ unsigned var_test(uint32_t *buff)
 	/* RSA Encrypt */
 	JOB_HDR(SHR_NEVER, 0, 0, 0);
 	{
-		FIFOLOAD(PKN, PTR((uintptr_t) &modulus), (sizeof(modulus)),
-			 IMMED);
-		FIFOLOAD(PKA, PTR((uintptr_t) &secret), secret_len,
-			 IMMED);
-		KEY(PKE, 0, IMM(0x03), 1, 0);
+		FIFOLOAD(PKN, (uintptr_t) &modulus, (sizeof(modulus)),
+			 IMMED | COPY);
+		FIFOLOAD(PKA, (uintptr_t) &secret, secret_len,
+			 IMMED | COPY);
+		KEY(PKE, 0, 0x03, 1, IMMED);
 		PKHA_OPERATION(OP_ALG_PKMODE_MOD_EXPO);
 		FIFOSTORE(PKB, 0, secret_out, (sizeof(modulus)), 0);
 	}

@@ -37,24 +37,23 @@ unsigned build_shdesc_kasumi_dcrc_decap(struct program *prg, uint32_t *buff,
 			WORD(0x44444444);
 			WORD(0x55555555);
 		}
-		pjump1 = JUMP(IMM(handle_kasumi), LOCAL_JUMP, ALL_TRUE,
-			      MATH_N);
+		pjump1 = JUMP(handle_kasumi, LOCAL_JUMP, ALL_TRUE, MATH_N);
 		/*
 		 * bring in all the "extra" stuff with an extra word to make
 		 * things space out correctly
 		 * Start bringing in Preamble and set up PDB for DCRC
 		 */
-		LOAD(IMM(0), DCTRL, LDOFF_DISABLE_AUTO_NFIFO, 0, 0);
+		LOAD(0, DCTRL, LDOFF_DISABLE_AUTO_NFIFO, 0, IMMED);
 		SEQFIFOLOAD(PKA0, 60, 0);
-		LOAD(IMM(0), DCTRL, LDOFF_ENABLE_AUTO_NFIFO, 0, 0);
-		MOVE(IFIFOABD, 0, CONTEXT1, 0, IMM(12), 0);
-		MOVE(IFIFOABD, 0, KEY1, 0, IMM(key_size), 0);
-		MOVE(IFIFOABD, 0, CONTEXT1, 32, IMM(32), 0);
-		LOAD(IMM(key_size), KEY1SZ, 0, 4, 0);
-		MOVE(CONTEXT1, 36, MATH0, 0, IMM(4), WAITCOMP);
+		LOAD(0, DCTRL, LDOFF_ENABLE_AUTO_NFIFO, 0, IMMED);
+		MOVE(IFIFOABD, 0, CONTEXT1, 0, 12, IMMED);
+		MOVE(IFIFOABD, 0, KEY1, 0, key_size, IMMED);
+		MOVE(IFIFOABD, 0, CONTEXT1, 32, 32, IMMED);
+		LOAD(key_size, KEY1SZ, 0, 4, IMMED);
+		MOVE(CONTEXT1, 36, MATH0, 0, 4, WAITCOMP | IMMED);
 		/* get PDU len in left 2 bytes */
-		MATHB(MATH0, LSHIFT, IMM(16), MATH0, 8, IFB);
-		pmove1 = MOVE(MATH0, 0, DESCBUF, 0, IMM(4), 0);
+		MATHB(MATH0, LSHIFT, 16, MATH0, 8, IFB | IMMED2);
+		pmove1 = MOVE(MATH0, 0, DESCBUF, 0, 4, IMMED);
 		PROTOCOL(OP_TYPE_DECAP_PROTOCOL, OP_PCLID_3G_DCRC,
 			 OP_PCL_3G_DCRC_CRC7);
 		MATHB(ZERO, SUB, ONE, NONE, 4, 0);
@@ -62,43 +61,40 @@ unsigned build_shdesc_kasumi_dcrc_decap(struct program *prg, uint32_t *buff,
 		ref_decap_job = SHR_HDR(SHR_NEVER, decap_job_seqoutptr, 0);
 
 		SET_LABEL(handle_kasumi);
-		MOVE(CONTEXT1, 32, MATH0, 0, IMM(32), 0);
-		pmove2 = MOVE(CONTEXT1, 0, DESCBUF, 0, IMM(12), 0);
+		MOVE(CONTEXT1, 32, MATH0, 0, 32, IMMED);
+		pmove2 = MOVE(CONTEXT1, 0, DESCBUF, 0, 12, IMMED);
 		/* skip over the preamble and the DCRC header */
-		MATHB(MATH0, ADD, IMM(60), VSEQINSZ, 4, 0);
+		MATHB(MATH0, ADD, 60, VSEQINSZ, 4, IMMED2);
 		SEQFIFOLOAD(SKIP, 0, VLF);
 		/*
 		 * store the Math register stuff back in the Class 2 Context
 		 * Register - only need #PDUs and size
 		 */
-		MOVE(MATH1, 0, CONTEXT2, 8, IMM(8), 0);
-		MOVE(MATH3, 0, CONTEXT2, 0, IMM(8), 0);
+		MOVE(MATH1, 0, CONTEXT2, 8, 8, IMMED);
+		MOVE(MATH3, 0, CONTEXT2, 0, 8, IMMED);
 		/* need to clear the Class 1 Context prior to first run! */
-		LOAD(IMM
-		     (CLRW_CLR_C1CTX | CLRW_CLR_C1ICV | CLRW_CLR_C1MODE |
-		      CLRW_CLR_C1DATAS), CLRW, 0, 4, 0);
-		LOAD(IMM(CCTRL_RESET_CHA_KFHA), CCTRL, 0, 4, 0);
+		LOAD(CLRW_CLR_C1CTX | CLRW_CLR_C1ICV | CLRW_CLR_C1MODE |
+		     CLRW_CLR_C1DATAS, CLRW, 0, 4, IMMED);
+		LOAD(CCTRL_RESET_CHA_KFHA, CCTRL, 0, 4, IMMED);
 
 		SET_LABEL(process_pdu);
 		MATHB(MATH1, ADD, ONE, SEQINSZ, 4, 0);
 		PROTOCOL(OP_TYPE_DECAP_PROTOCOL, OP_PCLID_3G_RLC_PDU,
 			 OP_PCL_3G_RLC_KASUMI);
 		/* Give up KFHA so somebody else can use it during DCRC */
-		LOAD(IMM
-		     (CLRW_CLR_C1CTX | CLRW_CLR_C1ICV | CLRW_CLR_C1MODE |
-		      CLRW_CLR_C1DATAS), CLRW, 0, 4, 0);
-		LOAD(IMM(CCTRL_RESET_CHA_KFHA), CCTRL, 0, 4, 0);
-		MOVE(CONTEXT2, 0, MATH0, 0, IMM(16), WAITCOMP);
+		LOAD(CLRW_CLR_C1CTX | CLRW_CLR_C1ICV | CLRW_CLR_C1MODE |
+		     CLRW_CLR_C1DATAS, CLRW, 0, 4, IMMED);
+		LOAD(CCTRL_RESET_CHA_KFHA, CCTRL, 0, 4, IMMED);
+		MOVE(CONTEXT2, 0, MATH0, 0, 16, WAITCOMP | IMMED);
 		MATHB(MATH0, SUB, ONE, MATH0, 8, 0);
-		MOVE(MATH0, 0, CONTEXT2, 0, IMM(8), 0);
-		pjump2 = JUMP(IMM(process_pdu), LOCAL_JUMP, ANY_FALSE,
-			      MATH_Z);
+		MOVE(MATH0, 0, CONTEXT2, 0, 8, IMMED);
+		pjump2 = JUMP(process_pdu, LOCAL_JUMP, ANY_FALSE, MATH_Z);
 		/*
 		 * For ERA < 5: WORKAROUND FOR INPUT FIFO NIBBLE SHIFT
 		 * REGISTER BUG
-		 * MOVE(MATH0, 0, IFIFOAB1, 0, IMM(1), 0);
-		 * LOAD(IMM(0), DCTRL, LDOFF_ENABLE_AUTO_IFIFO, 0, 0);
-		 * MOVE(IFIFOAB2, 0, OFIFO, 0, IMM(1), FLUSH2|WAITCOMP);
+		 * MOVE(MATH0, 0, IFIFOAB1, 0, 1, IMMED);
+		 * LOAD(0, DCTRL, LDOFF_ENABLE_AUTO_IFIFO, 0, IMMED);
+		 * MOVE(IFIFOAB2, 0, OFIFO, 0, 1, FLUSH2 | WAITCOMP | IMMED);
 		 */
 		SET_LABEL(decap_share_end);
 	}

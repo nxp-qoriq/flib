@@ -25,8 +25,8 @@ unsigned test_blkcipher_seq(uint32_t *buff)
 	JOB_HDR(SHR_NEVER, 0, 0, 0);
 	SEQINPTR((uintptr_t) data_in, datasz, 0);
 	SEQOUTPTR((uintptr_t) data_out, datasz, 0);
-	LOAD(PTR((uintptr_t) iv), CONTEXT1, 0, ivlen, 0);
-	KEY(KEY1, 0, PTR((uintptr_t) key_addr), keylen, 0);
+	LOAD((uintptr_t) iv, CONTEXT1, 0, ivlen, 0);
+	KEY(KEY1, 0, (uintptr_t) key_addr, keylen, 0);
 	MATHB(SEQINSZ, ADD, ZERO, VSEQINSZ, 4, 0);
 	MATHB(SEQOUTSZ, ADD, ZERO, VSEQOUTSZ, 4, 0);
 	ALG_OPERATION(OP_ALG_ALGSEL_AES, OP_ALG_AAI_CBC, 0, 0, OP_ALG_ENCRYPT);

@@ -23,7 +23,7 @@ unsigned test_blob_example(uint32_t *buff)
 	PROGRAM_CNTXT_INIT(buff, 0);
 	JOB_HDR(SHR_NEVER, 0, 0, 0);
 	{
-		KEY(KEY2, 0, PTR((uintptr_t) key_mod_addr), 16, 0);
+		KEY(KEY2, 0, (uintptr_t) key_mod_addr, 16, 0);
 		SEQINPTR((uintptr_t) data_in_addr, data_length, 0);
 		SEQOUTPTR((uintptr_t) blob_out_addr, blob_length, 0);
 		PROTOCOL(OP_TYPE_ENCAP_PROTOCOL, OP_PCLID_BLOB,

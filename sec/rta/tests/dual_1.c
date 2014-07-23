@@ -29,18 +29,18 @@ unsigned dual_1(uint32_t *buff)
 
 	JOB_HDR(SHR_NEVER, 0, 0, 0);
 	{
-		LOAD(PTR(ctx), CONTEXT1, 0, ctx_size, 0);
-		KEY(KEY1, 0, PTR(cipher_key), cipher_key_size, 0);
-		KEY(KEY2, 0, PTR(auth_key), auth_key_size, 0);
+		LOAD(ctx, CONTEXT1, 0, ctx_size, 0);
+		KEY(KEY1, 0, cipher_key, cipher_key_size, 0);
+		KEY(KEY2, 0, auth_key, auth_key_size, 0);
 		ALG_OPERATION(OP_ALG_ALGSEL_SHA256, OP_ALG_AAI_HMAC,
 			      OP_ALG_AS_INITFINAL, 0, OP_ALG_ENCRYPT);
-		MOVE(CONTEXT1, 0, IFIFOAB2, 0, IMM(ctx_size), WAITCOMP);
+		MOVE(CONTEXT1, 0, IFIFOAB2, 0, ctx_size, WAITCOMP | IMMED);
 		ALG_OPERATION(OP_ALG_ALGSEL_AES, OP_ALG_AAI_CBC,
 			      OP_ALG_AS_INITFINAL, 0, OP_ALG_ENCRYPT);
-		FIFOLOAD(MSG2, PTR(auth), auth_size, 0);
-		FIFOLOAD(MSGINSNOOP, PTR(pt_in), msg_len, LAST1 | LAST2);
+		FIFOLOAD(MSG2, auth, auth_size, 0);
+		FIFOLOAD(MSGINSNOOP, pt_in, msg_len, LAST1 | LAST2);
 		FIFOSTORE(MSG, 0, ct_out, msg_len, 0);
-		STORE(CONTEXT2, 0, PTR(mac), mac_size, 0);
+		STORE(CONTEXT2, 0, mac, mac_size, 0);
 	}
 
 	return PROGRAM_FINALIZE();

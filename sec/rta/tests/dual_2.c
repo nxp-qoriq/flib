@@ -29,19 +29,19 @@ unsigned dual_2(uint32_t *buff)
 
 	JOB_HDR(SHR_NEVER, 0, 0, 0);
 	{
-		LOAD(PTR(ctx), CONTEXT1, 0, ctx_size, 0);
-		KEY(KEY1, 0, PTR(cipher_key), cipher_key_size, 0);
-		KEY(KEY2, 0, PTR(auth_key), auth_key_size, 0);
+		LOAD(ctx, CONTEXT1, 0, ctx_size, 0);
+		KEY(KEY1, 0, cipher_key, cipher_key_size, 0);
+		KEY(KEY2, 0, auth_key, auth_key_size, 0);
 		ALG_OPERATION(OP_ALG_ALGSEL_SHA256, OP_ALG_AAI_HMAC,
 			      OP_ALG_AS_INITFINAL, ICV_CHECK_ENABLE,
 			      OP_ALG_DECRYPT);
-		MOVE(CONTEXT1, 0, IFIFOAB2, 0, IMM(ctx_size), WAITCOMP);
+		MOVE(CONTEXT1, 0, IFIFOAB2, 0, ctx_size, WAITCOMP | IMMED);
 		ALG_OPERATION(OP_ALG_ALGSEL_AES, OP_ALG_AAI_CBC,
 			      OP_ALG_AS_INITFINAL, 0, OP_ALG_DECRYPT);
-		FIFOLOAD(MSG2, PTR(auth), auth_size, 0);
-		FIFOLOAD(MSGOUTSNOOP, PTR(ct_in), msg_len, LAST1 | LAST2);
+		FIFOLOAD(MSG2, auth, auth_size, 0);
+		FIFOLOAD(MSGOUTSNOOP, ct_in, msg_len, LAST1 | LAST2);
 		FIFOSTORE(MSG, 0, pt_out, msg_len, 0);
-		FIFOLOAD(ICV2, PTR(icv), icv_size, LAST2);
+		FIFOLOAD(ICV2, icv, icv_size, LAST2);
 	}
 
 	return PROGRAM_FINALIZE();

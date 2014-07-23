@@ -465,11 +465,11 @@ static inline void cnstr_shdsc_ipsec_encap(uint32_t *descbuf,
 	COPY_DATA((uint8_t *)pdb,
 		  sizeof(struct ipsec_encap_pdb) + pdb->ip_hdr_len);
 	SET_LABEL(hdr);
-	pkeyjmp = JUMP(IMM(keyjmp), LOCAL_JUMP, ALL_TRUE, BOTH|SHRD);
-	KEY(MDHA_SPLIT_KEY, authdata->key_enc_flags, PTR(authdata->key),
-	    authdata->keylen, IMMED);
-	KEY(KEY1, cipherdata->key_enc_flags, PTR(cipherdata->key),
-	    cipherdata->keylen, IMMED);
+	pkeyjmp = JUMP(keyjmp, LOCAL_JUMP, ALL_TRUE, BOTH|SHRD);
+	KEY(MDHA_SPLIT_KEY, authdata->key_enc_flags, authdata->key,
+	    authdata->keylen, IMMED | COPY);
+	KEY(KEY1, cipherdata->key_enc_flags, cipherdata->key,
+	    cipherdata->keylen, IMMED | COPY);
 	SET_LABEL(keyjmp);
 	PROTOCOL(OP_TYPE_ENCAP_PROTOCOL,
 		 OP_PCLID_IPSEC,
@@ -515,11 +515,11 @@ static inline void cnstr_shdsc_ipsec_decap(uint32_t *descbuf,
 	phdr = SHR_HDR(SHR_SERIAL, hdr, 0);
 	COPY_DATA((uint8_t *)pdb, sizeof(struct ipsec_decap_pdb));
 	SET_LABEL(hdr);
-	pkeyjmp = JUMP(IMM(keyjmp), LOCAL_JUMP, ALL_TRUE, BOTH|SHRD);
-	KEY(MDHA_SPLIT_KEY, authdata->key_enc_flags, PTR(authdata->key),
-	    authdata->keylen, IMMED);
-	KEY(KEY1, cipherdata->key_enc_flags, PTR(cipherdata->key),
-	    cipherdata->keylen, IMMED);
+	pkeyjmp = JUMP(keyjmp, LOCAL_JUMP, ALL_TRUE, BOTH|SHRD);
+	KEY(MDHA_SPLIT_KEY, authdata->key_enc_flags, authdata->key,
+	    authdata->keylen, IMMED | COPY);
+	KEY(KEY1, cipherdata->key_enc_flags, cipherdata->key,
+	    cipherdata->keylen, IMMED | COPY);
 	SET_LABEL(keyjmp);
 	PROTOCOL(OP_TYPE_DECAP_PROTOCOL,
 		 OP_PCLID_IPSEC,
@@ -583,7 +583,7 @@ static inline void cnstr_shdsc_ipsec_encap_des_aes_xcbc(uint32_t *descbuf,
 	COPY_DATA((uint8_t *)pdb,
 		  sizeof(struct ipsec_encap_pdb) + pdb->ip_hdr_len);
 	SET_LABEL(hdr);
-	pkeyjump = JUMP(IMM(keyjump), LOCAL_JUMP, ALL_TRUE, SHRD | SELF);
+	pkeyjump = JUMP(keyjump, LOCAL_JUMP, ALL_TRUE, SHRD | SELF);
 	/*
 	 * Hard-coded KEY arguments. The descriptor uses all the benefits of
 	 * the built-in protocol by computing the IPsec ESP with a hardware
@@ -595,40 +595,40 @@ static inline void cnstr_shdsc_ipsec_encap_des_aes_xcbc(uint32_t *descbuf,
 	 * the authentication key (in order to use it also with HMAC-MD5-96),
 	 * even when using a shorter key for the AES-XCBC-MAC-96.
 	 */
-	KEY(MDHA_SPLIT_KEY, 0, PTR(authdata->key), 32, 0);
+	KEY(MDHA_SPLIT_KEY, 0, authdata->key, 32, 0);
 	SET_LABEL(keyjump);
-	LOAD(IMM(LDST_SRCDST_WORD_CLRW | CLRW_CLR_C1MODE | CLRW_CLR_C1DATAS |
-		 CLRW_CLR_C1CTX | CLRW_CLR_C1KEY | CLRW_RESET_CLS1_CHA),
-	     CLRW, 0, 4, 0);
-	KEY(KEY1, cipherdata->key_enc_flags, PTR(cipherdata->key),
+	LOAD(LDST_SRCDST_WORD_CLRW | CLRW_CLR_C1MODE | CLRW_CLR_C1DATAS |
+	     CLRW_CLR_C1CTX | CLRW_CLR_C1KEY | CLRW_RESET_CLS1_CHA, CLRW, 0, 4,
+	     IMMED);
+	KEY(KEY1, cipherdata->key_enc_flags, cipherdata->key,
 	    cipherdata->keylen, 0);
 	PROTOCOL(OP_TYPE_ENCAP_PROTOCOL, OP_PCLID_IPSEC,
 		 (uint16_t)(cipherdata->algtype | OP_PCL_IPSEC_HMAC_MD5_96));
 	/* Swap SEQINPTR to SEQOUTPTR. */
-	move_seqout_ptr = MOVE(DESCBUF, 0, MATH1, 0, IMM(16), WAITCOMP);
-	MATHB(MATH1, AND, IMM(~(CMD_SEQ_IN_PTR ^ CMD_SEQ_OUT_PTR)), MATH1,
-	      8, IFB);
+	move_seqout_ptr = MOVE(DESCBUF, 0, MATH1, 0, 16, WAITCOMP | IMMED);
+	MATHB(MATH1, AND, ~(CMD_SEQ_IN_PTR ^ CMD_SEQ_OUT_PTR), MATH1,
+	      8, IFB | IMMED2);
 /*
  * TODO: RTA currently doesn't support creating a LOAD command
  * with another command as IMM.
  * To be changed when proper support is added in RTA.
  */
-	LOAD(IMM(0xa00000e5), MATH3, 4, 4, 0);
+	LOAD(0xa00000e5, MATH3, 4, 4, IMMED);
 	MATHB(MATH3, SHLD, MATH3, MATH3,  8, 0);
-	write_swapped_seqin_ptr = MOVE(MATH1, 0, DESCBUF, 0, IMM(20), WAITCOMP);
-	swapped_seqin_ptr_jump = JUMP(IMM(swapped_seqin_ptr), LOCAL_JUMP,
-				      ALL_TRUE, 0);
-	LOAD(IMM(LDST_SRCDST_WORD_CLRW | CLRW_CLR_C1MODE | CLRW_CLR_C1DATAS |
-		 CLRW_CLR_C1CTX | CLRW_CLR_C1KEY | CLRW_RESET_CLS1_CHA),
-	     CLRW, 0, 4, 0);
+	write_swapped_seqin_ptr = MOVE(MATH1, 0, DESCBUF, 0, 20, WAITCOMP |
+				       IMMED);
+	swapped_seqin_ptr_jump = JUMP(swapped_seqin_ptr, LOCAL_JUMP, ALL_TRUE,
+				      0);
+	LOAD(LDST_SRCDST_WORD_CLRW | CLRW_CLR_C1MODE | CLRW_CLR_C1DATAS |
+	     CLRW_CLR_C1CTX | CLRW_CLR_C1KEY | CLRW_RESET_CLS1_CHA, CLRW, 0, 4,
+	     0);
 	SEQOUTPTR(0, 65535, RTO);
-	move_outlen = MOVE(DESCBUF, 0, MATH0, 4, IMM(8), WAITCOMP);
+	move_outlen = MOVE(DESCBUF, 0, MATH0, 4, 8, WAITCOMP | IMMED);
 	MATHB(MATH0, SUB,
-	      IMM((uint64_t)(pdb->ip_hdr_len + IPSEC_ICV_MD5_TRUNC_SIZE)),
-	      VSEQINSZ, 4, 0);
-	MATHB(MATH0, SUB, IMM(IPSEC_ICV_MD5_TRUNC_SIZE), VSEQOUTSZ, 4, 0);
-	KEY(KEY1, authdata->key_enc_flags, PTR(authdata->key), authdata->keylen,
-	    0);
+	      (uint64_t)(pdb->ip_hdr_len + IPSEC_ICV_MD5_TRUNC_SIZE),
+	      VSEQINSZ, 4, IMMED2);
+	MATHB(MATH0, SUB, IPSEC_ICV_MD5_TRUNC_SIZE, VSEQOUTSZ, 4, IMMED2);
+	KEY(KEY1, authdata->key_enc_flags, authdata->key, authdata->keylen, 0);
 	ALG_OPERATION(OP_ALG_ALGSEL_AES, OP_ALG_AAI_XCBC_MAC,
 		      OP_ALG_AS_INITFINAL, ICV_CHECK_DISABLE, OP_ALG_ENCRYPT);
 	SEQFIFOLOAD(SKIP, pdb->ip_hdr_len, 0);
@@ -719,7 +719,7 @@ static inline void cnstr_shdsc_ipsec_decap_des_aes_xcbc(uint32_t *descbuf,
 	phdr = SHR_HDR(SHR_SERIAL, hdr, 0);
 	COPY_DATA((uint8_t *)pdb, sizeof(struct ipsec_decap_pdb));
 	SET_LABEL(hdr);
-	pkeyjump = JUMP(IMM(keyjump), LOCAL_JUMP, ALL_TRUE, SHRD | SELF);
+	pkeyjump = JUMP(keyjump, LOCAL_JUMP, ALL_TRUE, SHRD | SELF);
 	/*
 	 * Hard-coded KEY arguments. The descriptor uses all the benefits of
 	 * the built-in protocol by computing the IPsec ESP with a hardware
@@ -731,16 +731,15 @@ static inline void cnstr_shdsc_ipsec_decap_des_aes_xcbc(uint32_t *descbuf,
 	 * the authentication key (in order to use it also with HMAC-MD5-96),
 	 * even when using a shorter key for the AES-XCBC-MAC-96.
 	 */
-	KEY(MDHA_SPLIT_KEY, 0, PTR(authdata->key), 32, 0);
+	KEY(MDHA_SPLIT_KEY, 0, authdata->key, 32, 0);
 	SET_LABEL(keyjump);
-	LOAD(IMM(LDST_SRCDST_WORD_CLRW | CLRW_CLR_C1MODE | CLRW_CLR_C1DATAS |
-		 CLRW_CLR_C1CTX | CLRW_CLR_C1KEY | CLRW_RESET_CLS1_CHA),
-	     CLRW, 0, 4, 0);
-	KEY(KEY1, authdata->key_enc_flags, PTR(authdata->key), authdata->keylen,
-	    0);
+	LOAD(LDST_SRCDST_WORD_CLRW | CLRW_CLR_C1MODE | CLRW_CLR_C1DATAS |
+	     CLRW_CLR_C1CTX | CLRW_CLR_C1KEY | CLRW_RESET_CLS1_CHA, CLRW, 0, 4,
+	     0);
+	KEY(KEY1, authdata->key_enc_flags, authdata->key, authdata->keylen, 0);
 	MATHB(SEQINSZ, SUB,
-	      IMM((uint64_t)(pdb->ip_hdr_len + IPSEC_ICV_MD5_TRUNC_SIZE)),
-	      MATH0, 4, 0);
+	      (uint64_t)(pdb->ip_hdr_len + IPSEC_ICV_MD5_TRUNC_SIZE),
+	      MATH0, 4, IMMED2);
 	MATHB(MATH0, SUB, ZERO, VSEQINSZ, 4, 0);
 	ALG_OPERATION(OP_ALG_ALGSEL_MD5, OP_ALG_AAI_HMAC_PRECOMP,
 		      OP_ALG_AS_INITFINAL, ICV_CHECK_DISABLE, OP_ALG_ENCRYPT);
@@ -750,20 +749,20 @@ static inline void cnstr_shdsc_ipsec_decap_des_aes_xcbc(uint32_t *descbuf,
 	SEQFIFOLOAD(MSG1, 0, VLF | FLUSH1);
 	SEQFIFOLOAD(ICV1, IPSEC_ICV_MD5_TRUNC_SIZE, FLUSH1 | LAST1);
 	/* Swap SEQOUTPTR to SEQINPTR. */
-	move_seqin_ptr = MOVE(DESCBUF, 0, MATH1, 0, IMM(16), WAITCOMP);
-	MATHB(MATH1, OR, IMM(CMD_SEQ_IN_PTR ^ CMD_SEQ_OUT_PTR), MATH1, 8,
-	      IFB);
+	move_seqin_ptr = MOVE(DESCBUF, 0, MATH1, 0, 16, WAITCOMP | IMMED);
+	MATHB(MATH1, OR, CMD_SEQ_IN_PTR ^ CMD_SEQ_OUT_PTR, MATH1, 8,
+	      IFB | IMMED2);
 /*
  * TODO: RTA currently doesn't support creating a LOAD command
  * with another command as IMM.
  * To be changed when proper support is added in RTA.
  */
-	LOAD(IMM(0xA00000e1), MATH3, 4, 4, 0);
+	LOAD(0xA00000e1, MATH3, 4, 4, IMMED);
 	MATHB(MATH3, SHLD, MATH3, MATH3,  8, 0);
-	write_swapped_seqout_ptr = MOVE(MATH1, 0, DESCBUF, 0, IMM(20),
-					WAITCOMP);
-	swapped_seqout_ptr_jump = JUMP(IMM(swapped_seqout_ptr), LOCAL_JUMP,
-				       ALL_TRUE, 0);
+	write_swapped_seqout_ptr = MOVE(MATH1, 0, DESCBUF, 0, 20, WAITCOMP |
+					IMMED);
+	swapped_seqout_ptr_jump = JUMP(swapped_seqout_ptr, LOCAL_JUMP, ALL_TRUE,
+				       0);
 /*
  * TODO: To be changed when proper support is added in RTA (can't load
  * a command that is also written by RTA).
@@ -773,24 +772,24 @@ static inline void cnstr_shdsc_ipsec_decap_des_aes_xcbc(uint32_t *descbuf,
 	WORD(0xA00000f3);
 	SEQINPTR(0, 65535, RTO);
 	MATHB(MATH0, SUB, ZERO, VSEQINSZ, 4, 0);
-	MATHB(MATH0, ADD, IMM(pdb->ip_hdr_len), VSEQOUTSZ, 4, 0);
-	move_jump = MOVE(DESCBUF, 0, OFIFO, 0, IMM(8), WAITCOMP);
-	move_jump_back = MOVE(OFIFO, 0, DESCBUF, 0, IMM(8), 0);
+	MATHB(MATH0, ADD, pdb->ip_hdr_len, VSEQOUTSZ, 4, IMMED2);
+	move_jump = MOVE(DESCBUF, 0, OFIFO, 0, 8, WAITCOMP | IMMED);
+	move_jump_back = MOVE(OFIFO, 0, DESCBUF, 0, 8, IMMED);
 	SEQFIFOLOAD(SKIP, pdb->ip_hdr_len, 0);
 	SEQFIFOLOAD(MSG2, 0, VLF | LAST2);
 	SEQFIFOSTORE(SKIP, 0, 0, VLF);
 	SEQSTORE(CONTEXT2, 0, IPSEC_ICV_MD5_TRUNC_SIZE, 0);
-	seqout_ptr_jump = JUMP(IMM(seqout_ptr), LOCAL_JUMP, ALL_TRUE, CALM);
+	seqout_ptr_jump = JUMP(seqout_ptr, LOCAL_JUMP, ALL_TRUE, CALM);
 
-	LOAD(IMM(LDST_SRCDST_WORD_CLRW | CLRW_CLR_C1MODE | CLRW_CLR_C1DATAS |
-		 CLRW_CLR_C1CTX | CLRW_CLR_C1KEY | CLRW_CLR_C2MODE |
-		 CLRW_CLR_C2DATAS | CLRW_CLR_C2CTX | CLRW_RESET_CLS1_CHA),
-	     CLRW, 0, 4, 0);
+	LOAD(LDST_SRCDST_WORD_CLRW | CLRW_CLR_C1MODE | CLRW_CLR_C1DATAS |
+	     CLRW_CLR_C1CTX | CLRW_CLR_C1KEY | CLRW_CLR_C2MODE |
+	     CLRW_CLR_C2DATAS | CLRW_CLR_C2CTX | CLRW_RESET_CLS1_CHA, CLRW, 0,
+	     4, 0);
 	SEQINPTR(0, 65535, RTO);
 	MATHB(MATH0, ADD,
-	      IMM((uint64_t)(pdb->ip_hdr_len + IPSEC_ICV_MD5_TRUNC_SIZE)),
-	      SEQINSZ, 4, 0);
-	KEY(KEY1, cipherdata->key_enc_flags, PTR(cipherdata->key),
+	      (uint64_t)(pdb->ip_hdr_len + IPSEC_ICV_MD5_TRUNC_SIZE),
+	      SEQINSZ, 4, IMMED2);
+	KEY(KEY1, cipherdata->key_enc_flags, cipherdata->key,
 	    cipherdata->keylen, 0);
 	PROTOCOL(OP_TYPE_DECAP_PROTOCOL, OP_PCLID_IPSEC,
 		 (uint16_t)(cipherdata->algtype | OP_PCL_IPSEC_HMAC_MD5_96));
@@ -894,12 +893,12 @@ static inline void cnstr_shdsc_ipsec_new_encap(uint32_t *descbuf,
 	}
 	SET_LABEL(hdr);
 
-	pkeyjmp = JUMP(IMM(keyjmp), LOCAL_JUMP, ALL_TRUE, SHRD);
+	pkeyjmp = JUMP(keyjmp, LOCAL_JUMP, ALL_TRUE, SHRD);
 	if (authdata->keylen)
-		KEY(MDHA_SPLIT_KEY, authdata->key_enc_flags, PTR(authdata->key),
+		KEY(MDHA_SPLIT_KEY, authdata->key_enc_flags, authdata->key,
 		    authdata->keylen, 0);
 	if (cipherdata->keylen)
-		KEY(KEY1, cipherdata->key_enc_flags, PTR(cipherdata->key),
+		KEY(KEY1, cipherdata->key_enc_flags, cipherdata->key,
 		    cipherdata->keylen, 0);
 	SET_LABEL(keyjmp);
 	PROTOCOL(OP_TYPE_ENCAP_PROTOCOL,
@@ -955,12 +954,12 @@ static inline void cnstr_shdsc_ipsec_new_decap(uint32_t *descbuf,
 	phdr = SHR_HDR(SHR_SERIAL, hdr, 0);
 	COPY_DATA((uint8_t *)pdb, sizeof(struct ipsec_decap_pdb));
 	SET_LABEL(hdr);
-	pkeyjmp = JUMP(IMM(keyjmp), LOCAL_JUMP, ALL_TRUE, SHRD);
+	pkeyjmp = JUMP(keyjmp, LOCAL_JUMP, ALL_TRUE, SHRD);
 	if (authdata->keylen)
-		KEY(MDHA_SPLIT_KEY, authdata->key_enc_flags, PTR(authdata->key),
+		KEY(MDHA_SPLIT_KEY, authdata->key_enc_flags, authdata->key,
 		    authdata->keylen, 0);
 	if (cipherdata->keylen)
-		KEY(KEY1, cipherdata->key_enc_flags, PTR(cipherdata->key),
+		KEY(KEY1, cipherdata->key_enc_flags, cipherdata->key,
 		    cipherdata->keylen, 0);
 	SET_LABEL(keyjmp);
 	PROTOCOL(OP_TYPE_DECAP_PROTOCOL,

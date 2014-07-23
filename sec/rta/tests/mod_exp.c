@@ -35,11 +35,11 @@ unsigned mod_exp(uint32_t *buff)
 	PROGRAM_CNTXT_INIT(buff, 0);
 	JOB_HDR(SHR_NEVER, 0, 0, 0);
 	{
-		FIFOLOAD(PKN, PTR(mod), field_size, 0);
-		KEY(PKE, 0, PTR(exp), 20, 0);
-		FIFOLOAD(PKA, PTR(base + 1), 1, 0);
+		FIFOLOAD(PKN, mod, field_size, 0);
+		KEY(PKE, 0, exp, 20, 0);
+		FIFOLOAD(PKA, base + 1, 1, 0);
 		PKHA_OPERATION(OP_ALG_PKMODE_MOD_EXPO);
-		JUMP(IMM(0x42), HALT_STATUS, ALL_TRUE, PK_0);
+		JUMP(0x42, HALT_STATUS, ALL_TRUE, PK_0);
 		FIFOSTORE(PKB, 0, res, field_size, 0);
 	}
 

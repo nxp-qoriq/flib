@@ -119,9 +119,9 @@ static inline void cnstr_shdsc_wifi_encap(uint32_t *descbuf, unsigned *bufsize,
 	phdr = SHR_HDR(SHR_SERIAL, pdbend, SC);
 	COPY_DATA((uint8_t *)&pdb, sizeof(struct wifi_encap_pdb));
 	SET_LABEL(pdbend);
-	pkeyjump = JUMP(IMM(keyjump), LOCAL_JUMP, ALL_TRUE, SHRD | SELF);
-	KEY(KEY1, cipherdata->key_enc_flags, PTR(cipherdata->key),
-	    cipherdata->keylen, IMMED);
+	pkeyjump = JUMP(keyjump, LOCAL_JUMP, ALL_TRUE, SHRD | SELF);
+	KEY(KEY1, cipherdata->key_enc_flags, cipherdata->key,
+	    cipherdata->keylen, IMMED | COPY);
 	SET_LABEL(keyjump);
 	PROTOCOL(OP_TYPE_ENCAP_PROTOCOL, OP_PCLID_WIFI, OP_PCL_WIFI);
 
@@ -132,8 +132,8 @@ static inline void cnstr_shdsc_wifi_encap(uint32_t *descbuf, unsigned *bufsize,
 		 * to be used later in CCMP header reconstruction.
 		 */
 		MATHB(ZERO, AND, MATH3, MATH3, 8, IFB|NFU);
-		MOVE(DESCBUF, 0, MATH2, 0, IMM(6), 0);
-		MOVE(DESCBUF, 20, MATH3, 0, IMM(4), 0);
+		MOVE(DESCBUF, 0, MATH2, 0, 6, IMMED);
+		MOVE(DESCBUF, 20, MATH3, 0, 4, IMMED);
 
 		/*
 		 * Protocol operation leaves in MATH0 the incremented PN as
@@ -144,19 +144,19 @@ static inline void cnstr_shdsc_wifi_encap(uint32_t *descbuf, unsigned *bufsize,
 		MATHB(MATH0, SUB, ONE, MATH0, 8, IFB|NFU);
 		MATHB(ZERO, ADD, MATH0, MATH1, 2, IFB|NFU);
 		MATHB(MATH0, XOR, MATH1, MATH0, 8, IFB|NFU);
-		MATHB(MATH0, LSHIFT, IMM(16), MATH0, 8, IFB|NFU);
+		MATHB(MATH0, LSHIFT, 16, MATH0, 8, IFB|NFU|IMMED2);
 		MATHB(MATH1, OR, MATH0, MATH0, 8, IFB|NFU);
 
 		/*
 		 * Prepare to byte-reverse MATH0: copy MATH0 input into Input
 		 * DATA FIFO and place loop value (8) into MATH1.
 		 */
-		LOAD(IMM(0), DCTRL, LDOFF_DISABLE_AUTO_NFIFO, 0, 0);
-		MOVE(MATH0, 0, IFIFOAB1, 0, IMM(8), 0);
-		LOAD(IMM(0), DCTRL, LDOFF_ENABLE_AUTO_NFIFO, 0, 0);
+		LOAD(0, DCTRL, LDOFF_DISABLE_AUTO_NFIFO, 0, IMMED);
+		MOVE(MATH0, 0, IFIFOAB1, 0, 8, IMMED);
+		LOAD(0, DCTRL, LDOFF_ENABLE_AUTO_NFIFO, 0, IMMED);
 
-		MOVE(IFIFOABD, 0, MATH0, 0, IMM(1), 0);
-		MATHB(ZERO, ADD, IMM(8), MATH1, 4, IFB|NFU);
+		MOVE(IFIFOABD, 0, MATH0, 0, 1, IMMED);
+		MATHB(ZERO, ADD, 8, MATH1, 4, IFB|NFU|IMMED2);
 		MATHB(MATH1, SUB, ONE, VSEQINSZ, 4, IFB|NFU);
 
 		/*
@@ -168,18 +168,16 @@ static inline void cnstr_shdsc_wifi_encap(uint32_t *descbuf, unsigned *bufsize,
 		SET_LABEL(startloop);
 		MATHB(VSEQINSZ, SUB, ONE, VSEQINSZ, 4, IFB);
 		MATHB(MATH0, RSHIFT, MATH1, MATH0, 8, IFB|NFU);
-		MOVE(IFIFOABD, 0, MATH0, 0, IMM(1), 0);
-		JUMP(IMM(1), LOCAL_JUMP, ALL_TRUE, 0);
-		pstartloop = JUMP(IMM(startloop), LOCAL_JUMP, ALL_FALSE,
-				  MATH_Z);
+		MOVE(IFIFOABD, 0, MATH0, 0, 1, IMMED);
+		JUMP(1, LOCAL_JUMP, ALL_TRUE, 0);
+		pstartloop = JUMP(startloop, LOCAL_JUMP, ALL_FALSE, MATH_Z);
 
 		/*
 		 * Prepare to write the correct CCMP header to output frame.
 		 * Copy MAC Header Len into VSOL and complete CCMP header in
 		 * MATH3 with Const + keyID.
 		 */
-		MATHB(MATH2, RSHIFT, IMM(16), VSEQOUTSZ, 2,
-		      IFB|NFU);
+		MATHB(MATH2, RSHIFT, 16, VSEQOUTSZ, 2, IFB|NFU|IMMED2);
 		MATHB(MATH0, OR, MATH3, MATH3, 8, IFB|NFU);
 
 		/*
@@ -238,9 +236,9 @@ static inline void cnstr_shdsc_wifi_decap(uint32_t *descbuf, unsigned *bufsize,
 	phdr = SHR_HDR(SHR_SERIAL, pdbend, SC);
 	COPY_DATA((uint8_t *)&pdb, sizeof(struct wifi_decap_pdb));
 	SET_LABEL(pdbend);
-	pkeyjump = JUMP(IMM(keyjump), LOCAL_JUMP, ALL_TRUE, SHRD | SELF);
-	KEY(KEY1, cipherdata->key_enc_flags, PTR(cipherdata->key),
-	    cipherdata->keylen, IMMED);
+	pkeyjump = JUMP(keyjump, LOCAL_JUMP, ALL_TRUE, SHRD | SELF);
+	KEY(KEY1, cipherdata->key_enc_flags, cipherdata->key,
+	    cipherdata->keylen, IMMED | COPY);
 	SET_LABEL(keyjump);
 	PROTOCOL(OP_TYPE_DECAP_PROTOCOL, OP_PCLID_WIFI, OP_PCL_WIFI);
 

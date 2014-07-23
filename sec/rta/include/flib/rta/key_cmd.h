@@ -18,18 +18,12 @@ static const uint32_t key_enc_flags[] = {
 };
 
 static inline int rta_key(struct program *program, uint32_t key_dst,
-			  int key_type, uint32_t encrypt_flags, uint64_t src,
-			  int src_type, uint32_t length, uint32_t flags)
+			  uint32_t encrypt_flags, uint64_t src, uint32_t length,
+			  uint32_t flags)
 {
 	uint32_t opcode = 0;
 	bool is_seq_cmd = false;
 	unsigned start_pc = program->current_pc;
-
-	if (key_type != REG_TYPE) {
-		pr_err("KEY: Incorrect key type. SEC PC: %d; Instr: %d\n",
-		       program->current_pc, program->current_instruction);
-		goto err;
-	}
 
 	if (encrypt_flags & ~key_enc_flags[rta_sec_era]) {
 		pr_err("KEY: Flag(s) not supported by SEC Era %d\n",
@@ -44,9 +38,6 @@ static inline int rta_key(struct program *program, uint32_t key_dst,
 	} else {
 		opcode = CMD_KEY;
 	}
-
-	if (src_type == IMM_DATA)
-		flags |= IMMED;
 
 	/* check parameters */
 	if (is_seq_cmd) {
@@ -79,13 +70,13 @@ static inline int rta_key(struct program *program, uint32_t key_dst,
 
 	if ((encrypt_flags & PTS) &&
 	    ((encrypt_flags & ENC) || (encrypt_flags & NWB) ||
-	     (key_dst == _PKE))) {
+	     (key_dst == PKE))) {
 		pr_err("KEY: Invalid flag / destination. SEC PC: %d; Instr: %d\n",
 		       program->current_pc, program->current_instruction);
 		goto err;
 	}
 
-	if (key_dst == _AFHA_SBOX) {
+	if (key_dst == AFHA_SBOX) {
 		if (rta_sec_era == RTA_SEC_ERA_7) {
 			pr_err("KEY: AFHA S-box not supported by SEC Era %d\n",
 			       USER_SEC_ERA(rta_sec_era));
@@ -113,19 +104,19 @@ static inline int rta_key(struct program *program, uint32_t key_dst,
 
 	/* write key destination and class fields */
 	switch (key_dst) {
-	case (_KEY1):
+	case (KEY1):
 		opcode |= KEY_DEST_CLASS1;
 		break;
-	case (_KEY2):
+	case (KEY2):
 		opcode |= KEY_DEST_CLASS2;
 		break;
-	case (_PKE):
+	case (PKE):
 		opcode |= KEY_DEST_CLASS1 | KEY_DEST_PKHA_E;
 		break;
-	case (_AFHA_SBOX):
+	case (AFHA_SBOX):
 		opcode |= KEY_DEST_CLASS1 | KEY_DEST_AFHA_SBOX;
 		break;
-	case (_MDHA_SPLIT_KEY):
+	case (MDHA_SPLIT_KEY):
 		opcode |= KEY_DEST_CLASS2 | KEY_DEST_MDHA_SPLIT;
 		break;
 	default:
@@ -177,7 +168,7 @@ static inline int rta_key(struct program *program, uint32_t key_dst,
 	program->current_instruction++;
 
 	if (flags & IMMED)
-		__rta_inline_data(program, src, src_type, length);
+		__rta_inline_data(program, src, flags & COPY, length);
 	else
 		__rta_out64(program, program->ps, src);
 
