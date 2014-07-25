@@ -37,13 +37,13 @@ The files in sec/rta/include/flib/desc directory contain several real-world
 descriptors written with RTA. You can use them as-is or adapt them to your
 needs.
 
-RTA routines assume that your code defines a local variable named "program":
+RTA routines require a pointer to struct program as first parameter:
 
     struct program prg;
-    struct program *program = &prg;
+    struct program *p = &prg;
 
-This variable is passed behind the scene to all RTA API calls. It contains
-several housekeeping information that are used during descriptor creation.
+This variable contains several housekeeping information that are used during
+descriptor creation.
 
 RTA creates the descriptors and saves them in buffers. It is the user's job
 to allocate memory for these buffers before passing them to RTA program

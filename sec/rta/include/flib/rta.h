@@ -54,65 +54,72 @@
  * PROGRAM_CNTXT_INIT - must be called before any descriptor run-time assembly
  *                      call type field carry info i.e. whether descriptor is
  *                      shared or job descriptor.
+ * @program: pointer to struct program
  * @buffer: input buffer where the descriptor will be placed (uint32_t *)
  * @offset: offset in input buffer from where the data will be written
  *          (unsigned)
  */
-#define PROGRAM_CNTXT_INIT(buffer, offset) \
+#define PROGRAM_CNTXT_INIT(program, buffer, offset) \
 	rta_program_cntxt_init(program, buffer, offset)
 
 /**
  * PROGRAM_FINALIZE - must be called to mark completion of RTA call.
+ * @program: pointer to struct program
  *
  * Return: total size of the descriptor in words (unsigned).
  */
-#define PROGRAM_FINALIZE() rta_program_finalize(program)
+#define PROGRAM_FINALIZE(program) rta_program_finalize(program)
 
 /**
  * PROGRAM_SET_36BIT_ADDR - must be called to set pointer size to 36 bits
+ * @program: pointer to struct program
  *
  * Return: current size of the descriptor in words (unsigned).
  */
-#define PROGRAM_SET_36BIT_ADDR() rta_program_set_36bit_addr(program)
+#define PROGRAM_SET_36BIT_ADDR(program) rta_program_set_36bit_addr(program)
 
 /**
  * PROGRAM_SET_BSWAP - must be called to enable byte swapping
+ * @program: pointer to struct program
  *
  * Byte swapping on a 4-byte boundary will be performed at the end - when
  * calling PROGRAM_FINALIZE().
  *
  * Return: current size of the descriptor in words (unsigned).
  */
-#define PROGRAM_SET_BSWAP() rta_program_set_bswap(program)
+#define PROGRAM_SET_BSWAP(program) rta_program_set_bswap(program)
 
 /**
  * WORD - must be called to insert in descriptor buffer a 32bit value
+ * @program: pointer to struct program
  * @val: input value to be written in descriptor buffer (uint32_t)
  *
  * Return: the descriptor buffer offset where this command is inserted
  * (unsigned).
  */
-#define WORD(val) rta_word(program, val)
+#define WORD(program, val) rta_word(program, val)
 
 /**
  * DWORD - must be called to insert in descriptor buffer a 64bit value
+ * @program: pointer to struct program
  * @val: input value to be written in descriptor buffer (uint64_t)
  *
  * Return: the descriptor buffer offset where this command is inserted
  * (unsigned).
  */
-#define DWORD(val) rta_dword(program, val)
+#define DWORD(program, val) rta_dword(program, val)
 
 /**
  * COPY_DATA - must be called to insert in descriptor buffer data larger than
  *             64bits.
+ * @program: pointer to struct program
  * @data: input data to be written in descriptor buffer (uint8_t *)
  * @len: length of input data (unsigned)
  *
  * Return: the descriptor buffer offset where this command is inserted
  * (unsigned).
  */
-#define COPY_DATA(data, len) rta_copy_data(program, (data), (len))
+#define COPY_DATA(program, data, len) rta_copy_data(program, (data), (len))
 
 /**
  * DESC_LEN -  determines job / shared descriptor buffer length (in words)
@@ -183,6 +190,7 @@ static inline unsigned rta_get_sec_era(void)
 
 /**
  * SHR_HDR - Configures Shared Descriptor HEADER command
+ * @program: pointer to struct program
  * @share: descriptor share state (enum rta_share_type)
  * @start_idx: index in descriptor buffer where the execution of the shared
  *             descriptor should start (@c unsigned).
@@ -193,11 +201,12 @@ static inline unsigned rta_get_sec_era(void)
  *         point to offset in descriptor buffer where the instruction should
  *         have been written.
  */
-#define SHR_HDR(share, start_idx, flags) \
+#define SHR_HDR(program, share, start_idx, flags) \
 	rta_shr_header(program, share, start_idx, flags)
 
 /**
  * JOB_HDR - Configures JOB Descriptor HEADER command
+ * @program: pointer to struct program
  * @share: descriptor share state (enum rta_share_type)
  * @start_idx: index in descriptor buffer where the execution of the job
  *             descriptor should start (unsigned). In case SHR bit is present
@@ -210,11 +219,12 @@ static inline unsigned rta_get_sec_era(void)
  *         point to offset in descriptor buffer where the instruction should
  *         have been written.
  */
-#define JOB_HDR(share, start_idx, share_desc, flags) \
+#define JOB_HDR(program, share, start_idx, share_desc, flags) \
 	rta_job_header(program, share, start_idx, share_desc, flags, 0)
 
 /**
  * JOB_HDR_EXT - Configures JOB Descriptor HEADER command
+ * @program: pointer to struct program
  * @share: descriptor share state (enum rta_share_type)
  * @start_idx: index in descriptor buffer where the execution of the job
  *             descriptor should start (unsigned). In case SHR bit is present
@@ -229,12 +239,13 @@ static inline unsigned rta_get_sec_era(void)
  *         point to offset in descriptor buffer where the instruction should
  *         have been written.
  */
-#define JOB_HDR_EXT(share, start_idx, share_desc, flags, ext_flags) \
+#define JOB_HDR_EXT(program, share, start_idx, share_desc, flags, ext_flags) \
 	rta_job_header(program, share, start_idx, share_desc, flags | EXT, \
 		       ext_flags)
 
 /**
  * MOVE - Configures MOVE and MOVE_LEN commands
+ * @program: pointer to struct program
  * @src: internal source of data that will be moved: CONTEXT1, CONTEXT2, OFIFO,
  *       DESCBUF, MATH0-MATH3, IFIFOABD, IFIFOAB1, IFIFOAB2, AB1, AB2, ABD.
  * @src_offset: offset in source data (uint16_t)
@@ -253,11 +264,12 @@ static inline unsigned rta_get_sec_era(void)
  *         point to offset in descriptor buffer where the instruction should
  *         have been written.
  */
-#define MOVE(src, src_offset, dst, dst_offset, length, opt) \
+#define MOVE(program, src, src_offset, dst, dst_offset, length, opt) \
 	rta_move(program, __MOVE, src, src_offset, dst, dst_offset, length, opt)
 
 /**
  * MOVEB - Configures MOVEB command
+ * @program: pointer to struct program
  * @src: internal source of data that will be moved: CONTEXT1, CONTEXT2, OFIFO,
  *       DESCBUF, MATH0-MATH3, IFIFOABD, IFIFOAB1, IFIFOAB2, AB1, AB2, ABD.
  * @src_offset: offset in source data (uint16_t)
@@ -280,12 +292,13 @@ static inline unsigned rta_get_sec_era(void)
  *         point to offset in descriptor buffer where the instruction should
  *         have been written.
  */
-#define MOVEB(src, src_offset, dst, dst_offset, length, opt) \
+#define MOVEB(program, src, src_offset, dst, dst_offset, length, opt) \
 	rta_move(program, __MOVEB, src, src_offset, dst, dst_offset, length, \
 		 opt)
 
 /**
  * MOVEDW - Configures MOVEDW command
+ * @program: pointer to struct program
  * @src: internal source of data that will be moved: CONTEXT1, CONTEXT2, OFIFO,
  *       DESCBUF, MATH0-MATH3, IFIFOABD, IFIFOAB1, IFIFOAB2, AB1, AB2, ABD.
  * @src_offset: offset in source data (uint16_t)
@@ -308,13 +321,14 @@ static inline unsigned rta_get_sec_era(void)
  *         point to offset in descriptor buffer where the instruction should
  *         have been written.
  */
-#define MOVEDW(src, src_offset, dst, dst_offset, length, opt) \
+#define MOVEDW(program, src, src_offset, dst, dst_offset, length, opt) \
 	rta_move(program, __MOVEDW, src, src_offset, dst, dst_offset, length, \
 		 opt)
 
 /**
  * FIFOLOAD - Configures FIFOLOAD command to load message data, PKHA data, IV,
  *            ICV, AAD and bit length message data into Input Data FIFO.
+ * @program: pointer to struct program
  * @data: input data type to store: PKHA registers, IFIFO, MSG1, MSG2,
  *        MSGOUTSNOOP, MSGINSNOOP, IV1, IV2, AAD1, ICV1, ICV2, BIT_DATA, SKIP.
  * @src: pointer or actual data in case of immediate load; IMMED and COPY flags
@@ -328,13 +342,14 @@ static inline unsigned rta_get_sec_era(void)
  *         point to offset in descriptor buffer where the instruction should
  *         have been written.
  */
-#define FIFOLOAD(data, src, length, flags) \
+#define FIFOLOAD(program, data, src, length, flags) \
 	rta_fifo_load(program, data, src, length, flags)
 
 /**
  * SEQFIFOLOAD - Configures SEQ FIFOLOAD command to load message data, PKHA
  *               data, IV, ICV, AAD and bit length message data into Input Data
  *               FIFO.
+ * @program: pointer to struct program
  * @data: input data type to store: PKHA registers, IFIFO, MSG1, MSG2,
  *        MSGOUTSNOOP, MSGINSNOOP, IV1, IV2, AAD1, ICV1, ICV2, BIT_DATA, SKIP.
  * @length: number of bytes to load; can be set to 0 for SEQ command w/ VLF set
@@ -347,12 +362,13 @@ static inline unsigned rta_get_sec_era(void)
  *         point to offset in descriptor buffer where the instruction should
  *         have been written.
  */
-#define SEQFIFOLOAD(data, length, flags) \
+#define SEQFIFOLOAD(program, data, length, flags) \
 	rta_fifo_load(program, data, NONE, length, flags|SEQ)
 
 /**
  * FIFOSTORE - Configures FIFOSTORE command, to move data from Output Data FIFO
  *             to external memory via DMA.
+ * @program: pointer to struct program
  * @data: output data type to store: PKHA registers, IFIFO, OFIFO, RNG,
  *        RNGOFIFO, AFHA_SBOX, MDHA_SPLIT_KEY, MSG, KEY1, KEY2, SKIP.
  * @encrypt_flags: store data encryption mode: EKT, TK
@@ -365,12 +381,13 @@ static inline unsigned rta_get_sec_era(void)
  *         point to offset in descriptor buffer where the instruction should
  *         have been written.
  */
-#define FIFOSTORE(data, encrypt_flags, dst, length, flags) \
+#define FIFOSTORE(program, data, encrypt_flags, dst, length, flags) \
 	rta_fifo_store(program, data, encrypt_flags, dst, length, flags)
 
 /**
  * SEQFIFOSTORE - Configures SEQ FIFOSTORE command, to move data from Output
  *                Data FIFO to external memory via DMA.
+ * @program: pointer to struct program
  * @data: output data type to store: PKHA registers, IFIFO, OFIFO, RNG,
  *        RNGOFIFO, AFHA_SBOX, MDHA_SPLIT_KEY, MSG, KEY1, KEY2, METADATA, SKIP.
  * @encrypt_flags: store data encryption mode: EKT, TK
@@ -383,11 +400,12 @@ static inline unsigned rta_get_sec_era(void)
  *         point to offset in descriptor buffer where the instruction should
  *         have been written.
  */
-#define SEQFIFOSTORE(data, encrypt_flags, length, flags) \
+#define SEQFIFOSTORE(program, data, encrypt_flags, length, flags) \
 	rta_fifo_store(program, data, encrypt_flags, 0, length, flags|SEQ)
 
 /**
  * KEY - Configures KEY and SEQ KEY commands
+ * @program: pointer to struct program
  * @key_dst: key store location: KEY1, KEY2, PKE, AFHA_SBOX, MDHA_SPLIT_KEY
  * @encrypt_flags: key encryption mode: ENC, EKT, TK, NWB, PTS
  * @src: pointer or actual data in case of immediate load (uint64_t); IMMED and
@@ -403,11 +421,12 @@ static inline unsigned rta_get_sec_era(void)
  *         point to offset in descriptor buffer where the instruction should
  *         have been written.
  */
-#define KEY(key_dst, encrypt_flags, src, length, flags) \
+#define KEY(program, key_dst, encrypt_flags, src, length, flags) \
 	rta_key(program, key_dst, encrypt_flags, src, length, flags)
 
 /**
  * SEQINPTR - Configures SEQ IN PTR command
+ * @program: pointer to struct program
  * @src: starting address for Input Sequence (uint64_t)
  * @length: number of bytes in (or to be added to) Input Sequence (uint32_t)
  * @flags: operational flags: RBS, INL, SGF, PRE, EXT, RTO, RJD, SOP (when PRE,
@@ -418,11 +437,12 @@ static inline unsigned rta_get_sec_era(void)
  *         point to offset in descriptor buffer where the instruction should
  *         have been written.
  */
-#define SEQINPTR(src, length, flags) \
+#define SEQINPTR(program, src, length, flags) \
 	rta_seq_in_ptr(program, src, length, flags)
 
 /**
  * SEQOUTPTR - Configures SEQ OUT PTR command
+ * @program: pointer to struct program
  * @dst: starting address for Output Sequence (uint64_t)
  * @length: number of bytes in (or to be added to) Output Sequence (uint32_t)
  * @flags: operational flags: SGF, PRE, EXT, RTO, RST, EWS (when PRE or RTO are
@@ -433,11 +453,12 @@ static inline unsigned rta_get_sec_era(void)
  *         point to offset in descriptor buffer where the instruction should
  *         have been written.
  */
-#define SEQOUTPTR(dst, length, flags) \
+#define SEQOUTPTR(program, dst, length, flags) \
 	rta_seq_out_ptr(program, dst, length, flags)
 
 /**
  * ALG_OPERATION - Configures ALGORITHM OPERATION command
+ * @program: pointer to struct program
  * @cipher_alg: algorithm to be used
  * @aai: Additional Algorithm Information; contains mode information that is
  *       associated with the algorithm (check desc.h for specific values).
@@ -454,11 +475,12 @@ static inline unsigned rta_get_sec_era(void)
  *         point to offset in descriptor buffer where the instruction should
  *         have been written.
  */
-#define ALG_OPERATION(cipher_alg, aai, algo_state, icv_check, enc) \
+#define ALG_OPERATION(program, cipher_alg, aai, algo_state, icv_check, enc) \
 	rta_operation(program, cipher_alg, aai, algo_state, icv_check, enc)
 
 /**
  * PROTOCOL - Configures PROTOCOL OPERATION command
+ * @program: pointer to struct program
  * @optype: operation type: OP_TYPE_UNI_PROTOCOL / OP_TYPE_DECAP_PROTOCOL /
  *          OP_TYPE_ENCAP_PROTOCOL.
  * @protid: protocol identifier value (check desc.h file for specific values)
@@ -469,11 +491,12 @@ static inline unsigned rta_get_sec_era(void)
  *         point to offset in descriptor buffer where the instruction should
  *         have been written.
  */
-#define PROTOCOL(optype, protid, protoinfo) \
+#define PROTOCOL(program, optype, protid, protoinfo) \
 	rta_proto_operation(program, optype, protid, protoinfo)
 
 /**
  * PKHA_OPERATION - Configures PKHA OPERATION command
+ * @program: pointer to struct program
  * @op_pkha: PKHA operation; indicates the modular arithmetic function to
  *           execute (check desc.h file for specific values).
  *
@@ -482,10 +505,11 @@ static inline unsigned rta_get_sec_era(void)
  *         point to offset in descriptor buffer where the instruction should
  *         have been written.
  */
-#define PKHA_OPERATION(op_pkha)   rta_pkha_operation(program, op_pkha)
+#define PKHA_OPERATION(program, op_pkha)   rta_pkha_operation(program, op_pkha)
 
 /**
  * JUMP - Configures JUMP command
+ * @program: pointer to struct program
  * @addr: local offset for local jumps or address pointer for non-local jumps;
  *        IMM or PTR macros must be used to indicate type.
  * @jump_type: type of action taken by jump (enum rta_jump_type)
@@ -500,11 +524,12 @@ static inline unsigned rta_get_sec_era(void)
  *         point to offset in descriptor buffer where the instruction should
  *         have been written.
  */
-#define JUMP(addr, jump_type, test_type, cond) \
+#define JUMP(program, addr, jump_type, test_type, cond) \
 	rta_jump(program, addr, jump_type, test_type, cond, NONE)
 
 /**
  * JUMP_INC - Configures JUMP_INC command
+ * @program: pointer to struct program
  * @addr: local offset; IMM or PTR macros must be used to indicate type
  * @test_type: defines how jump conditions are evaluated (enum rta_jump_cond)
  * @cond: jump conditions: Math status conditions (JSL = 0): Z, N, NV, C
@@ -516,11 +541,12 @@ static inline unsigned rta_get_sec_era(void)
  *         point to offset in descriptor buffer where the instruction should
  *         have been written.
  */
-#define JUMP_INC(addr, test_type, cond, src_dst) \
+#define JUMP_INC(program, addr, test_type, cond, src_dst) \
 	rta_jump(program, addr, LOCAL_JUMP_INC, test_type, cond, src_dst)
 
 /**
  * JUMP_DEC - Configures JUMP_DEC command
+ * @program: pointer to struct program
  * @addr: local offset; IMM or PTR macros must be used to indicate type
  * @test_type: defines how jump conditions are evaluated (enum rta_jump_cond)
  * @cond: jump conditions: Math status conditions (JSL = 0): Z, N, NV, C
@@ -532,12 +558,13 @@ static inline unsigned rta_get_sec_era(void)
  *         point to offset in descriptor buffer where the instruction should
  *         have been written.
  */
-#define JUMP_DEC(addr, test_type, cond, src_dst) \
+#define JUMP_DEC(program, addr, test_type, cond, src_dst) \
 	rta_jump(program, addr, LOCAL_JUMP_DEC, test_type, cond, src_dst)
 
 /**
  * LOAD - Configures LOAD command to load data registers from descriptor or from
  *        a memory location.
+ * @program: pointer to struct program
  * @addr: immediate value or pointer to the data to be loaded; IMMED and COPY
  *        flags indicate action taken (inline imm data, inline ptr, inline from
  *        ptr).
@@ -551,12 +578,13 @@ static inline unsigned rta_get_sec_era(void)
  *         point to offset in descriptor buffer where the instruction should
  *         have been written.
  */
-#define LOAD(addr, dst, offset, length, flags) \
+#define LOAD(program, addr, dst, offset, length, flags) \
 	rta_load(program, addr, dst, offset, length, flags)
 
 /**
  * SEQLOAD - Configures SEQ LOAD command to load data registers from descriptor
  *           or from a memory location.
+ * @program: pointer to struct program
  * @dst: destination register (uint64_t)
  * @offset: start point to write data in destination register (uint32_t)
  * @length: number of bytes to load (uint32_t)
@@ -567,12 +595,13 @@ static inline unsigned rta_get_sec_era(void)
  *         point to offset in descriptor buffer where the instruction should
  *         have been written.
  */
-#define SEQLOAD(dst, offset, length, flags) \
+#define SEQLOAD(program, dst, offset, length, flags) \
 	rta_load(program, NONE, dst, offset, length, flags|SEQ)
 
 /**
  * STORE - Configures STORE command to read data from registers and write them
  *         to a memory location.
+ * @program: pointer to struct program
  * @src: immediate value or source register for data to be stored: KEY1SZ,
  *       KEY2SZ, DJQDA, MODE1, MODE2, DJQCTRL, DATA1SZ, DATA2SZ, DSTAT, ICV1SZ,
  *       ICV2SZ, DPID, CCTRL, ICTRL, CLRW, CSTAT, MATH0-MATH3, PKHA registers,
@@ -589,12 +618,13 @@ static inline unsigned rta_get_sec_era(void)
  *         point to offset in descriptor buffer where the instruction should
  *         have been written.
  */
-#define STORE(src, offset, dst, length, flags) \
+#define STORE(program, src, offset, dst, length, flags) \
 	rta_store(program, src, offset, dst, length, flags)
 
 /**
  * SEQSTORE - Configures SEQ STORE command to read data from registers and write
  *            them to a memory location.
+ * @program: pointer to struct program
  * @src: immediate value or source register for data to be stored: KEY1SZ,
  *       KEY2SZ, DJQDA, MODE1, MODE2, DJQCTRL, DATA1SZ, DATA2SZ, DSTAT, ICV1SZ,
  *       ICV2SZ, DPID, CCTRL, ICTRL, CLRW, CSTAT, MATH0-MATH3, PKHA registers,
@@ -610,11 +640,12 @@ static inline unsigned rta_get_sec_era(void)
  *         point to offset in descriptor buffer where the instruction should
  *         have been written.
  */
-#define SEQSTORE(src, offset, length, flags) \
+#define SEQSTORE(program, src, offset, length, flags) \
 	rta_store(program, src, offset, NONE, length, flags|SEQ)
 
 /**
  * MATHB - Configures MATHB command to perform binary operations
+ * @program: pointer to struct program
  * @operand1: first operand: MATH0-MATH3, DPOVRD, SEQINSZ, SEQOUTSZ, VSEQINSZ,
  *            VSEQOUTSZ, ZERO, ONE, NONE, Immediate value. IMMED must be used to
  *            indicate immediate value.
@@ -634,12 +665,13 @@ static inline unsigned rta_get_sec_era(void)
  *         point to offset in descriptor buffer where the instruction should
  *         have been written.
  */
-#define MATHB(operand1, operator, operand2, result, length, opt) \
+#define MATHB(program, operand1, operator, operand2, result, length, opt) \
 	rta_math(program, operand1, MATH_FUN_##operator, operand2, result, \
 		 length, opt)
 
 /**
  * MATHI - Configures MATHI command to perform binary operations
+ * @program: pointer to struct program
  * @operand: if !SSEL: MATH0-MATH3, DPOVRD, SEQINSZ, SEQOUTSZ, VSEQINSZ,
  *           VSEQOUTSZ, ZERO, ONE.
  *           if SSEL: MATH0-MATH3, DPOVRD, VSEQINSZ, VSEQOUTSZ, ABD, OFIFO,
@@ -662,12 +694,13 @@ static inline unsigned rta_get_sec_era(void)
  *         point to offset in descriptor buffer where the instruction should
  *         have been written.
  */
-#define MATHI(operand, operator, imm, result, length, opt) \
+#define MATHI(program, operand, operator, imm, result, length, opt) \
 	rta_mathi(program, operand, MATH_FUN_##operator, imm, result, length, \
 		  opt)
 
 /**
  * MATHU - Configures MATHU command to perform unary operations
+ * @program: pointer to struct program
  * @operand1: operand: MATH0-MATH3, DPOVRD, SEQINSZ, SEQOUTSZ, VSEQINSZ,
  *            VSEQOUTSZ, ZERO, ONE, NONE, Immediate value. IMMED must be used to
  *            indicate immediate value.
@@ -683,12 +716,13 @@ static inline unsigned rta_get_sec_era(void)
  *         point to offset in descriptor buffer where the instruction should
  *         have been written.
  */
-#define MATHU(operand1, operator, result, length, opt) \
+#define MATHU(program, operand1, operator, result, length, opt) \
 	rta_math(program, operand1, MATH_FUN_##operator, NONE, result, length, \
 		 opt)
 
 /**
  * SIGNATURE - Configures SIGNATURE command
+ * @program: pointer to struct program
  * @sign_type: signature type: SIGN_TYPE_FINAL, SIGN_TYPE_FINAL_RESTORE,
  *             SIGN_TYPE_FINAL_NONZERO, SIGN_TYPE_IMM_2, SIGN_TYPE_IMM_3,
  *             SIGN_TYPE_IMM_4.
@@ -701,11 +735,12 @@ static inline unsigned rta_get_sec_era(void)
  *         point to offset in descriptor buffer where the instruction should
  *         have been written.
  */
-#define SIGNATURE(sign_type)   rta_signature(program, sign_type)
+#define SIGNATURE(program, sign_type)   rta_signature(program, sign_type)
 
 /**
  * NFIFOADD - Configures NFIFO command, a shortcut of RTA Load command to write
  *            to iNfo FIFO.
+ * @program: pointer to struct program
  * @src: source for the input data in Alignment Block:IFIFO, OFIFO, PAD,
  *       MSGOUTSNOOP, ALTSOURCE, OFIFO_SYNC, MSGOUTSNOOP_ALT.
  * @data: type of data that is going through the Input Data FIFO: MSG, MSG1,
@@ -723,7 +758,7 @@ static inline unsigned rta_get_sec_era(void)
  *         point to offset in descriptor buffer where the instruction should
  *         have been written.
  */
-#define NFIFOADD(src, data, length, flags) \
+#define NFIFOADD(program, src, data, length, flags) \
 	rta_nfifo_load(program, src, data, length, flags)
 
 /**
@@ -750,13 +785,15 @@ static inline unsigned rta_get_sec_era(void)
 
 /**
  * SET_LABEL - set a LABEL value
+ * @program: pointer to struct program
  * @label: value that will be inserted in a line previously written in the
  *         descriptor buffer.
  */
-#define SET_LABEL(label)  label = rta_set_label(program)
+#define SET_LABEL(program, label)  label = rta_set_label(program)
 
 /**
  * PATCH_JUMP - Auxiliary command to resolve self referential code
+ * @program: buffer to be updated (struct program *)
  * @line: position in descriptor buffer where the update will be done; this
  *        value is previously retained in program flow using a reference near
  *        the sequence to be modified.
@@ -767,7 +804,8 @@ static inline unsigned rta_get_sec_era(void)
  *
  * Return: 0 in case of success, a negative error code if it fails
  */
-#define PATCH_JUMP(line, new_ref) rta_patch_jmp(program, line, new_ref, false)
+#define PATCH_JUMP(program, line, new_ref) \
+	rta_patch_jmp(program, line, new_ref, false)
 
 /**
  * PATCH_JUMP_NON_LOCAL - Auxiliary command to resolve referential code between
@@ -788,6 +826,7 @@ static inline unsigned rta_get_sec_era(void)
 
 /**
  * PATCH_MOVE - Auxiliary command to resolve self referential code
+ * @program: buffer to be updated (struct program *)
  * @line: position in descriptor buffer where the update will be done; this
  *        value is previously retained in program flow using a reference near
  *        the sequence to be modified.
@@ -798,7 +837,8 @@ static inline unsigned rta_get_sec_era(void)
  *
  * Return: 0 in case of success, a negative error code if it fails
  */
-#define PATCH_MOVE(line, new_ref) rta_patch_move(program, line, new_ref, false)
+#define PATCH_MOVE(program, line, new_ref) \
+	rta_patch_move(program, line, new_ref, false)
 
 /**
  * PATCH_MOVE_NON_LOCAL - Auxiliary command to resolve referential code between
@@ -820,6 +860,7 @@ static inline unsigned rta_get_sec_era(void)
 
 /**
  * PATCH_LOAD - Auxiliary command to resolve self referential code
+ * @program: buffer to be updated (struct program *)
  * @line: position in descriptor buffer where the update will be done; this
  *        value is previously retained in program flow using a reference near
  *        the sequence to be modified.
@@ -830,10 +871,12 @@ static inline unsigned rta_get_sec_era(void)
  *
  * Return: 0 in case of success, a negative error code if it fails
  */
-#define PATCH_LOAD(line, new_ref) rta_patch_load(program, line, new_ref)
+#define PATCH_LOAD(program, line, new_ref) \
+	rta_patch_load(program, line, new_ref)
 
 /**
  * PATCH_STORE - Auxiliary command to resolve self referential code
+ * @program: buffer to be updated (struct program *)
  * @line: position in descriptor buffer where the update will be done; this
  *        value is previously retained in program flow using a reference near
  *        the sequence to be modified.
@@ -844,7 +887,7 @@ static inline unsigned rta_get_sec_era(void)
  *
  * Return: 0 in case of success, a negative error code if it fails
  */
-#define PATCH_STORE(line, new_ref) \
+#define PATCH_STORE(program, line, new_ref) \
 	rta_patch_store(program, line, new_ref, false)
 
 /**
@@ -867,6 +910,7 @@ static inline unsigned rta_get_sec_era(void)
 
 /**
  * PATCH_HDR - Auxiliary command to resolve self referential code
+ * @program: buffer to be updated (struct program *)
  * @line: position in descriptor buffer where the update will be done; this
  *        value is previously retained in program flow using a reference near
  *        the sequence to be modified.
@@ -877,7 +921,8 @@ static inline unsigned rta_get_sec_era(void)
  *
  * Return: 0 in case of success, a negative error code if it fails
  */
-#define PATCH_HDR(line, new_ref) rta_patch_header(program, line, new_ref, false)
+#define PATCH_HDR(program, line, new_ref) \
+	rta_patch_header(program, line, new_ref, false)
 
 /**
  * PATCH_HDR_NON_LOCAL - Auxiliary command to resolve referential code between
@@ -899,6 +944,7 @@ static inline unsigned rta_get_sec_era(void)
 
 /**
  * PATCH_RAW - Auxiliary command to resolve self referential code
+ * @program: buffer to be updated (struct program *)
  * @line: position in descriptor buffer where the update will be done; this
  *        value is previously retained in program flow using a reference near
  *        the sequence to be modified.
@@ -910,7 +956,7 @@ static inline unsigned rta_get_sec_era(void)
  *
  * Return: 0 in case of success, a negative error code if it fails
  */
-#define PATCH_RAW(line, mask, new_val) \
+#define PATCH_RAW(program, line, mask, new_val) \
 	rta_patch_raw(program, line, mask, new_val, false)
 
 /**

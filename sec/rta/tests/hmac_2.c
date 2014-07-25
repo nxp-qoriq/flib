@@ -9,27 +9,27 @@ enum rta_sec_era rta_sec_era;
 unsigned hmac_2(uint32_t *buff)
 {
 	struct program prg;
-	struct program *program = &prg;
+	struct program *p = &prg;
 	uint64_t key_data = (uint64_t) 0xab8050640ull;
 	int keylen = 61;
 	uint64_t msg = (uint64_t) 0x806d8f600ull;
 	int msglen = 1601;
 	uint64_t icv = (uint64_t) 0xde5ebe080ull;
 
-	PROGRAM_CNTXT_INIT(buff, 0);
-	PROGRAM_SET_36BIT_ADDR();
+	PROGRAM_CNTXT_INIT(p, buff, 0);
+	PROGRAM_SET_36BIT_ADDR(p);
 
-	JOB_HDR(SHR_NEVER, 0, 0, 0);
+	JOB_HDR(p, SHR_NEVER, 0, 0, 0);
 	{
-		KEY(KEY2, 0, key_data, keylen, 0);
-		ALG_OPERATION(OP_ALG_ALGSEL_SHA256, OP_ALG_AAI_HMAC,
+		KEY(p, KEY2, 0, key_data, keylen, 0);
+		ALG_OPERATION(p, OP_ALG_ALGSEL_SHA256, OP_ALG_AAI_HMAC,
 			      OP_ALG_AS_INITFINAL, ICV_CHECK_ENABLE,
 			      OP_ALG_DECRYPT);
-		FIFOLOAD(MSG2, msg, msglen, LAST2 | EXT);
-		FIFOLOAD(ICV2, icv, 32, LAST2);
+		FIFOLOAD(p, MSG2, msg, msglen, LAST2 | EXT);
+		FIFOLOAD(p, ICV2, icv, 32, LAST2);
 	}
 
-	return PROGRAM_FINALIZE();
+	return PROGRAM_FINALIZE(p);
 }
 
 uint32_t prg_buff[1000];

@@ -30,7 +30,7 @@ unsigned build_dtls_sharedesc(uint32_t *buff, uint32_t seqnum,
 			      uint32_t mdatalen, uint16_t cipher_alg)
 {
 	struct program prg;
-	struct program *program = &prg;
+	struct program *p = &prg;
 	int word_size = sizeof(uint32_t);
 
 	LABEL(encap_iv);
@@ -46,93 +46,93 @@ unsigned build_dtls_sharedesc(uint32_t *buff, uint32_t seqnum,
 	REFERENCE(pjump2);
 	LABEL(new_IV_OK);
 
-	PROGRAM_CNTXT_INIT(buff, 0);
-	SHR_HDR(SHR_SERIAL, 12, 0);
+	PROGRAM_CNTXT_INIT(p, buff, 0);
+	SHR_HDR(p, SHR_SERIAL, 12, 0);
 	{
 		{	/* Custom DTLS Encap AES-CBC */
-			WORD(0x017feff00); /* type 0x17 / protocol version */
-			WORD(0x00010000); /* Epoch / upper bits of SeqNum */
-			WORD(seqnum); /* Lower bits of SeqNum */
+			WORD(p, 0x017feff00); /* type 0x17 / protocol version */
+			WORD(p, 0x00010000); /* Epoch / upper bits of SeqNum */
+			WORD(p, seqnum); /* Lower bits of SeqNum */
 
-			SET_LABEL(encap_iv);
-			SET_LABEL(previous_iv);
+			SET_LABEL(p, encap_iv);
+			SET_LABEL(p, previous_iv);
 			/* Location of the extra, custom part of PDB */
 			previous_iv += 4;
 			/* All of the IV, both next and previous */
-			DWORD(0x0000000000000000);
-			DWORD(0x0000000000000000);
-			DWORD(0x0000000000000000);
-			DWORD(0x0000000000000000);
+			DWORD(p, 0x0000000000000000);
+			DWORD(p, 0x0000000000000000);
+			DWORD(p, 0x0000000000000000);
+			DWORD(p, 0x0000000000000000);
 		}
 		/*
 		 * s1: Copy SEQ-OUT-PTR cmd from Job Descriptor
 		 *     mask to turn the SEQ-OUT-PTR cmd into a SEQ-IN-PTR cmd
 		 *     put new SEQ-IN-PTR command in-line in shared descriptor
 		 */
-		pmove1 = MOVE(DESCBUF, 0, MATH0, 0, 16, WAITCOMP | IMMED);
-		MATHB(MATH0, XOR, 0x0840010000000000, MATH0, 8, IMMED2);
+		pmove1 = MOVE(p, DESCBUF, 0, MATH0, 0, 16, WAITCOMP | IMMED);
+		MATHB(p, MATH0, XOR, 0x0840010000000000, MATH0, 8, IMMED2);
 		/*(8 needs to be 12 if 64-bit pointers are being used */
-		pmove2 = MOVE(MATH0, 0, DESCBUF, 0, 8, IMMED);
+		pmove2 = MOVE(p, MATH0, 0, DESCBUF, 0, 8, IMMED);
 		/*
 		 * s2: Customer has defined that every packet has 46 bytes of
 		 *     what we call metadata -- data that we are to pass
 		 *     unadulterated from input frame to output frame
 		 */
-		SEQFIFOLOAD(IFIFO, mdatalen, 0);
-		MOVE(IFIFOABD, 0, OFIFO, 0, mdatalen, IMMED);
-		SEQFIFOSTORE(MSG, 0, mdatalen, 0);
+		SEQFIFOLOAD(p, IFIFO, mdatalen, 0);
+		MOVE(p, IFIFOABD, 0, OFIFO, 0, mdatalen, IMMED);
+		SEQFIFOSTORE(p, MSG, 0, mdatalen, 0);
 		/* s3: Skip key commands when sharing permits */
-		pjump1 = JUMP(skip_keyloading, LOCAL_JUMP, ALL_TRUE, SHRD);
-		KEY(MDHA_SPLIT_KEY, ENC, (uintptr_t) hmac_key, 40,
+		pjump1 = JUMP(p, skip_keyloading, LOCAL_JUMP, ALL_TRUE, SHRD);
+		KEY(p, MDHA_SPLIT_KEY, ENC, (uintptr_t) hmac_key, 40,
 		    IMMED | COPY);
 
 		/* load DTLS HMAC authentication key */
-		KEY(KEY1, 0, (uintptr_t) aes_key, 16, IMMED | COPY);
+		KEY(p, KEY1, 0, (uintptr_t) aes_key, 16, IMMED | COPY);
 		/* load DTLS AES confidentiality key */
-		SET_LABEL(skip_keyloading);
+		SET_LABEL(p, skip_keyloading);
 		/* s4: Execute DTLS protocol thread */
-		PROTOCOL(OP_TYPE_ENCAP_PROTOCOL, OP_PCLID_DTLS10,
+		PROTOCOL(p, OP_TYPE_ENCAP_PROTOCOL, OP_PCLID_DTLS10,
 			 cipher_alg);
-		SET_LABEL(new_seqinptr);
+		SET_LABEL(p, new_seqinptr);
 		/* s5: These 3 words reserved for a new SEQ-IN-PTR cmd to
 		 * set up to */
-		WORD(0x00000000);
-		WORD(0x00000000);
+		WORD(p, 0x00000000);
+		WORD(p, 0x00000000);
 		/* Reread the IV that was written out by the DTLS protocol
 		 * thread */
-		JUMP(1, LOCAL_JUMP, ALL_TRUE, 0);
+		JUMP(p, 1, LOCAL_JUMP, ALL_TRUE, 0);
 
 		/*
 		 * s6: Skip the "metadata" and the DTLS header material
 		 *     set input ptr to IV
 		 *     Load IV from output frame into math2/math3 */
-		SEQFIFOLOAD(SKIP, 59, 0);
-		SEQLOAD(MATH2, 0, 16, 0);
+		SEQFIFOLOAD(p, SKIP, 59, 0);
+		SEQLOAD(p, MATH2, 0, 16, 0);
 		/* Load last frame's output IV into math0/math1 */
-		pmove3 = MOVE(DESCBUF, 0, MATH0, 0, 16, WAITCOMP | IMMED);
+		pmove3 = MOVE(p, DESCBUF, 0, MATH0, 0, 16, WAITCOMP | IMMED);
 		/* Wait for loads to complete */
-		JUMP(1, LOCAL_JUMP, ALL_TRUE, CALM);
+		JUMP(p, 1, LOCAL_JUMP, ALL_TRUE, CALM);
 		/* Compare upper half of two IVs */
-		MATHB(MATH0, XOR, MATH2, NONE, 8, 0);
+		MATHB(p, MATH0, XOR, MATH2, NONE, 8, 0);
 		/* If two upper halves are different, then zero is not set and
 		 * jump to */
-		pjump2 = JUMP(new_IV_OK, LOCAL_JUMP, ANY_FALSE, MATH_Z);
+		pjump2 = JUMP(p, new_IV_OK, LOCAL_JUMP, ANY_FALSE, MATH_Z);
 		/* Compare lower half of two IVs */
-		MATHB(MATH1, XOR, MATH3, NONE, 8, 0);
+		MATHB(p, MATH1, XOR, MATH3, NONE, 8, 0);
 		/*
 		 * If we got here with zero set, then both halves were
 		 * identical --this is an ERROR
 		 */
-		JUMP(255, HALT_STATUS, ALL_TRUE, MATH_Z);
-		SET_LABEL(new_IV_OK);
+		JUMP(p, 255, HALT_STATUS, ALL_TRUE, MATH_Z);
+		SET_LABEL(p, new_IV_OK);
 		/*
 		 * s7: Store back both IVs; math2/3 for next compare; math0/1
 		 * for software to check if need be
 		 */
-		pmove4 = MOVE(MATH0, 0, DESCBUF, 0, 32, IMMED);
+		pmove4 = MOVE(p, MATH0, 0, DESCBUF, 0, 32, IMMED);
 		/* Store back both IVs to the shared descriptor in system
 		 * memory */
-		STORE(SHAREDESCBUF, 4 * word_size, NONE, 8 * word_size, 0);
+		STORE(p, SHAREDESCBUF, 4 * word_size, NONE, 8 * word_size, 0);
 		/*
 		 * Get past JOB HEADER and init ptr (needs to be 12 for 64-bit
 		 * pointers). (There could be 'magic labels' for use by Shared
@@ -141,17 +141,17 @@ unsigned build_dtls_sharedesc(uint32_t *buff, uint32_t seqnum,
 		 * seq out ptr, the ptr, the ext length, same series for the
 		 * seq in ptr, etc.)
 		 */
-		SET_LABEL(seqoutptr);
+		SET_LABEL(p, seqoutptr);
 		seqoutptr += 2;
 	}
-	PATCH_MOVE(pmove1, seqoutptr);
-	PATCH_MOVE(pmove2, new_seqinptr);
-	PATCH_MOVE(pmove4, encap_iv);
-	PATCH_JUMP(pjump1, skip_keyloading);
-	PATCH_MOVE(pmove3, previous_iv);
-	PATCH_JUMP(pjump2, new_IV_OK);
+	PATCH_MOVE(p, pmove1, seqoutptr);
+	PATCH_MOVE(p, pmove2, new_seqinptr);
+	PATCH_MOVE(p, pmove4, encap_iv);
+	PATCH_JUMP(p, pjump1, skip_keyloading);
+	PATCH_MOVE(p, pmove3, previous_iv);
+	PATCH_JUMP(p, pjump2, new_IV_OK);
 
-	return PROGRAM_FINALIZE();
+	return PROGRAM_FINALIZE(p);
 }
 
 uint32_t prg_buff[1000];

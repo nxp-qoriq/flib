@@ -10,18 +10,18 @@ uint32_t prg_buff[1000];
 unsigned test_seq_ptr_op(uint32_t *buff)
 {
 	struct program prg;
-	struct program *program = &prg;
+	struct program *p = &prg;
 	int data_size = 512;
 	uint64_t data_in = 0x1234567;
 	uint64_t data_out = 0x6123475;
 
-	PROGRAM_CNTXT_INIT(buff, 0);
-	SEQINPTR(data_in, data_size, 0);
-	SEQOUTPTR(data_out, data_size, 0);
-	SEQINPTR(0, 0, RTO);
-	SEQOUTPTR(0, 0, RTO);
+	PROGRAM_CNTXT_INIT(p, buff, 0);
+	SEQINPTR(p, data_in, data_size, 0);
+	SEQOUTPTR(p, data_out, data_size, 0);
+	SEQINPTR(p, 0, 0, RTO);
+	SEQOUTPTR(p, 0, 0, RTO);
 
-	return PROGRAM_FINALIZE();
+	return PROGRAM_FINALIZE(p);
 }
 
 int main(int argc, char **argv)

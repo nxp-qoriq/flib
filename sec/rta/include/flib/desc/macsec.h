@@ -75,7 +75,7 @@ static inline void cnstr_shdsc_macsec_encap(uint32_t *descbuf,
 					    uint8_t tci_an, uint32_t pn)
 {
 	struct program prg;
-	struct program *program = &prg;
+	struct program *p = &prg;
 	struct macsec_encap_pdb pdb;
 	uint32_t startidx;
 
@@ -95,20 +95,20 @@ static inline void cnstr_shdsc_macsec_encap(uint32_t *descbuf,
 
 	startidx = sizeof(struct macsec_encap_pdb) >> 2;
 
-	PROGRAM_CNTXT_INIT(descbuf, 0);
-	SHR_HDR(SHR_SERIAL, ++startidx, SC);
+	PROGRAM_CNTXT_INIT(p, descbuf, 0);
+	SHR_HDR(p, SHR_SERIAL, ++startidx, SC);
 	{
-		COPY_DATA((uint8_t *)&pdb, sizeof(struct macsec_encap_pdb));
-		pkeyjump = JUMP(keyjump, LOCAL_JUMP, ALL_TRUE,
+		COPY_DATA(p, (uint8_t *)&pdb, sizeof(struct macsec_encap_pdb));
+		pkeyjump = JUMP(p, keyjump, LOCAL_JUMP, ALL_TRUE,
 				SHRD | SELF | BOTH);
-		KEY(KEY1, cipherdata->key_enc_flags, cipherdata->key,
+		KEY(p, KEY1, cipherdata->key_enc_flags, cipherdata->key,
 		    cipherdata->keylen, IMMED | COPY);
-		SET_LABEL(keyjump);
-		PROTOCOL(OP_TYPE_ENCAP_PROTOCOL, OP_PCLID_MACSEC,
+		SET_LABEL(p, keyjump);
+		PROTOCOL(p, OP_TYPE_ENCAP_PROTOCOL, OP_PCLID_MACSEC,
 			 OP_PCL_MACSEC);
 	}
-	PATCH_JUMP(pkeyjump, keyjump);
-	*bufsize = PROGRAM_FINALIZE();
+	PATCH_JUMP(p, pkeyjump, keyjump);
+	*bufsize = PROGRAM_FINALIZE(p);
 }
 
 /**
@@ -125,7 +125,7 @@ static inline void cnstr_shdsc_macsec_decap(uint32_t *descbuf,
 					    uint64_t sci, uint32_t pn)
 {
 	struct program prg;
-	struct program *program = &prg;
+	struct program *p = &prg;
 	struct macsec_decap_pdb pdb;
 	uint32_t startidx;
 
@@ -143,20 +143,20 @@ static inline void cnstr_shdsc_macsec_decap(uint32_t *descbuf,
 
 	startidx = sizeof(struct macsec_decap_pdb) >> 2;
 
-	PROGRAM_CNTXT_INIT(descbuf, 0);
-	SHR_HDR(SHR_SERIAL, ++startidx, SC);
+	PROGRAM_CNTXT_INIT(p, descbuf, 0);
+	SHR_HDR(p, SHR_SERIAL, ++startidx, SC);
 	{
-		COPY_DATA((uint8_t *)&pdb, sizeof(struct macsec_decap_pdb));
-		pkeyjump = JUMP(keyjump, LOCAL_JUMP, ALL_TRUE,
+		COPY_DATA(p, (uint8_t *)&pdb, sizeof(struct macsec_decap_pdb));
+		pkeyjump = JUMP(p, keyjump, LOCAL_JUMP, ALL_TRUE,
 				SHRD | SELF | BOTH);
-		KEY(KEY1, cipherdata->key_enc_flags, cipherdata->key,
+		KEY(p, KEY1, cipherdata->key_enc_flags, cipherdata->key,
 		    cipherdata->keylen, IMMED | COPY);
-		SET_LABEL(keyjump);
-		PROTOCOL(OP_TYPE_DECAP_PROTOCOL, OP_PCLID_MACSEC,
+		SET_LABEL(p, keyjump);
+		PROTOCOL(p, OP_TYPE_DECAP_PROTOCOL, OP_PCLID_MACSEC,
 			 OP_PCL_MACSEC);
 	}
-	PATCH_JUMP(pkeyjump, keyjump);
-	*bufsize = PROGRAM_FINALIZE();
+	PATCH_JUMP(p, pkeyjump, keyjump);
+	*bufsize = PROGRAM_FINALIZE(p);
 }
 
 #endif /* __DESC_MACSEC_H__ */

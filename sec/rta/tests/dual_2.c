@@ -9,7 +9,7 @@ enum rta_sec_era rta_sec_era;
 unsigned dual_2(uint32_t *buff)
 {
 	struct program prg;
-	struct program *program = &prg;
+	struct program *p = &prg;
 	uint64_t ctx = (uint64_t) 0xdf8093280ull;
 	int ctx_size = 16;
 	uint64_t cipher_key = (uint64_t) 0x5c36c3700ull;
@@ -24,27 +24,27 @@ unsigned dual_2(uint32_t *buff)
 	uint64_t icv = (uint64_t) 0x91cad53b0ull;
 	int icv_size = 32;
 
-	PROGRAM_CNTXT_INIT(buff, 0);
-	PROGRAM_SET_36BIT_ADDR();
+	PROGRAM_CNTXT_INIT(p, buff, 0);
+	PROGRAM_SET_36BIT_ADDR(p);
 
-	JOB_HDR(SHR_NEVER, 0, 0, 0);
+	JOB_HDR(p, SHR_NEVER, 0, 0, 0);
 	{
-		LOAD(ctx, CONTEXT1, 0, ctx_size, 0);
-		KEY(KEY1, 0, cipher_key, cipher_key_size, 0);
-		KEY(KEY2, 0, auth_key, auth_key_size, 0);
-		ALG_OPERATION(OP_ALG_ALGSEL_SHA256, OP_ALG_AAI_HMAC,
+		LOAD(p, ctx, CONTEXT1, 0, ctx_size, 0);
+		KEY(p, KEY1, 0, cipher_key, cipher_key_size, 0);
+		KEY(p, KEY2, 0, auth_key, auth_key_size, 0);
+		ALG_OPERATION(p, OP_ALG_ALGSEL_SHA256, OP_ALG_AAI_HMAC,
 			      OP_ALG_AS_INITFINAL, ICV_CHECK_ENABLE,
 			      OP_ALG_DECRYPT);
-		MOVE(CONTEXT1, 0, IFIFOAB2, 0, ctx_size, WAITCOMP | IMMED);
-		ALG_OPERATION(OP_ALG_ALGSEL_AES, OP_ALG_AAI_CBC,
+		MOVE(p, CONTEXT1, 0, IFIFOAB2, 0, ctx_size, WAITCOMP | IMMED);
+		ALG_OPERATION(p, OP_ALG_ALGSEL_AES, OP_ALG_AAI_CBC,
 			      OP_ALG_AS_INITFINAL, 0, OP_ALG_DECRYPT);
-		FIFOLOAD(MSG2, auth, auth_size, 0);
-		FIFOLOAD(MSGOUTSNOOP, ct_in, msg_len, LAST1 | LAST2);
-		FIFOSTORE(MSG, 0, pt_out, msg_len, 0);
-		FIFOLOAD(ICV2, icv, icv_size, LAST2);
+		FIFOLOAD(p, MSG2, auth, auth_size, 0);
+		FIFOLOAD(p, MSGOUTSNOOP, ct_in, msg_len, LAST1 | LAST2);
+		FIFOSTORE(p, MSG, 0, pt_out, msg_len, 0);
+		FIFOLOAD(p, ICV2, icv, icv_size, LAST2);
 	}
 
-	return PROGRAM_FINALIZE();
+	return PROGRAM_FINALIZE(p);
 }
 
 uint32_t prg_buff[1000];

@@ -9,7 +9,7 @@ enum rta_sec_era rta_sec_era;
 unsigned prepend(uint32_t *buff)
 {
 	struct program prg;
-	struct program *program = &prg;
+	struct program *p = &prg;
 	uint8_t key_1[40] = {
 		0xc8, 0xc1, 0xd7, 0xbf, 0xa4, 0xe3, 0xee, 0x84,
 		0xb1, 0x52, 0x37, 0x06, 0x38, 0x97, 0xac, 0x9f,
@@ -29,39 +29,39 @@ unsigned prepend(uint32_t *buff)
 	LABEL(skip_key_load);
 	REFERENCE(pjump1);
 
-	PROGRAM_CNTXT_INIT(buff, 0);
-	PROGRAM_SET_36BIT_ADDR();
+	PROGRAM_CNTXT_INIT(p, buff, 0);
+	PROGRAM_SET_36BIT_ADDR(p);
 
-	SHR_HDR(SHR_SERIAL, 15, RIF);
+	SHR_HDR(p, SHR_SERIAL, 15, RIF);
 	{
 		{	/* IPSEC ESP ENCAP (CBC) PDB */
 			/* Options:NextHdr=0x09 NHOffset=0 ChainedIV
 			 * IPHeaderInPDB PrependOptIPHdr tunnel */
-			WORD(0x0009000D);
-			WORD(0x41311751);	/* ESN */
-			WORD(0x00000001);	/* Seq Num = 1 */
-			DWORD(0x92cd6ce9ab7c728c);
-			DWORD(0x153a85cefd12ab79);
-			WORD(1);	/* SPI=0x00000001 */
-			WORD(20);	/* OptIPHdrLength=20 */
-			DWORD(0x45a6001458335cb7);
-			DWORD(0x55c809f8b44767bb);
-			WORD(0x79890a98);	/* Opt IP Hdr */
+			WORD(p, 0x0009000D);
+			WORD(p, 0x41311751);	/* ESN */
+			WORD(p, 0x00000001);	/* Seq Num = 1 */
+			DWORD(p, 0x92cd6ce9ab7c728c);
+			DWORD(p, 0x153a85cefd12ab79);
+			WORD(p, 1);	/* SPI=0x00000001 */
+			WORD(p, 20);	/* OptIPHdrLength=20 */
+			DWORD(p, 0x45a6001458335cb7);
+			DWORD(p, 0x55c809f8b44767bb);
+			WORD(p, 0x79890a98);	/* Opt IP Hdr */
 		}
 
-		SEQSTORE((uintptr_t) &data_in, 0, 14, IMMED | COPY);
-		pjump1 = JUMP(skip_key_load, LOCAL_JUMP, ALL_TRUE, SHRD);
-		KEY(MDHA_SPLIT_KEY, 0, (uintptr_t) &key_1, 40,
+		SEQSTORE(p, (uintptr_t) &data_in, 0, 14, IMMED | COPY);
+		pjump1 = JUMP(p, skip_key_load, LOCAL_JUMP, ALL_TRUE, SHRD);
+		KEY(p, MDHA_SPLIT_KEY, 0, (uintptr_t) &key_1, 40,
 		    IMMED | COPY);
-		KEY(KEY1, 0, (uintptr_t) &key_2, 16, IMMED | COPY);
-		SET_LABEL(skip_key_load);
-		PROTOCOL(OP_TYPE_ENCAP_PROTOCOL, OP_PCLID_IPSEC,
+		KEY(p, KEY1, 0, (uintptr_t) &key_2, 16, IMMED | COPY);
+		SET_LABEL(p, skip_key_load);
+		PROTOCOL(p, OP_TYPE_ENCAP_PROTOCOL, OP_PCLID_IPSEC,
 			 OP_PCL_IPSEC_AES_CBC |
 			      OP_PCL_IPSEC_HMAC_SHA1_160);
 	}
-	PATCH_JUMP(pjump1, skip_key_load);
+	PATCH_JUMP(p, pjump1, skip_key_load);
 
-	return PROGRAM_FINALIZE();
+	return PROGRAM_FINALIZE(p);
 }
 
 uint32_t prg_buff[1000];

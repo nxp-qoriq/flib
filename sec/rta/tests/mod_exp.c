@@ -25,25 +25,25 @@ uint8_t generator[2] = {
 unsigned mod_exp(uint32_t *buff)
 {
 	struct program prg;
-	struct program *program = &prg;
+	struct program *p = &prg;
 	int field_size = 20;
 	uint64_t mod = (uint64_t) 0x08049668;	/* I/O address for modulus; */
 	uint64_t exp = (uint64_t) 0x0804967C;	/* I/O address for exponent; */
 	uint64_t base = (uint64_t) 0x08049690;	/* I/O address for generator; */
 	uint64_t res = (uint64_t) 0x332244514ull;
 
-	PROGRAM_CNTXT_INIT(buff, 0);
-	JOB_HDR(SHR_NEVER, 0, 0, 0);
+	PROGRAM_CNTXT_INIT(p, buff, 0);
+	JOB_HDR(p, SHR_NEVER, 0, 0, 0);
 	{
-		FIFOLOAD(PKN, mod, field_size, 0);
-		KEY(PKE, 0, exp, 20, 0);
-		FIFOLOAD(PKA, base + 1, 1, 0);
-		PKHA_OPERATION(OP_ALG_PKMODE_MOD_EXPO);
-		JUMP(0x42, HALT_STATUS, ALL_TRUE, PK_0);
-		FIFOSTORE(PKB, 0, res, field_size, 0);
+		FIFOLOAD(p, PKN, mod, field_size, 0);
+		KEY(p, PKE, 0, exp, 20, 0);
+		FIFOLOAD(p, PKA, base + 1, 1, 0);
+		PKHA_OPERATION(p, OP_ALG_PKMODE_MOD_EXPO);
+		JUMP(p, 0x42, HALT_STATUS, ALL_TRUE, PK_0);
+		FIFOSTORE(p, PKB, 0, res, field_size, 0);
 	}
 
-	return PROGRAM_FINALIZE();
+	return PROGRAM_FINALIZE(p);
 }
 
 uint32_t prg_buff[1000];

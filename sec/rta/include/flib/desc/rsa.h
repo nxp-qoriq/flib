@@ -280,20 +280,20 @@ static inline void cnstr_shdsc_rsa(uint32_t *descbuf, unsigned *bufsize,
 				   struct protcmd *protcmd)
 {
 	struct program prg;
-	struct program *program = &prg;
+	struct program *p = &prg;
 
 	LABEL(phdr);
 	REFERENCE(pdbend);
 
-	PROGRAM_CNTXT_INIT(descbuf, 0);
+	PROGRAM_CNTXT_INIT(p, descbuf, 0);
 	if (ps)
-		PROGRAM_SET_36BIT_ADDR();
-	phdr = SHR_HDR(SHR_SERIAL, pdbend, 0);
-	COPY_DATA(pdb, pdb_len);
-	SET_LABEL(pdbend);
-	PROTOCOL(protcmd->optype, protcmd->protid, protcmd->protinfo);
-	PATCH_HDR(phdr, pdbend);
-	*bufsize = PROGRAM_FINALIZE();
+		PROGRAM_SET_36BIT_ADDR(p);
+	phdr = SHR_HDR(p, SHR_SERIAL, pdbend, 0);
+	COPY_DATA(p, pdb, pdb_len);
+	SET_LABEL(p, pdbend);
+	PROTOCOL(p, protcmd->optype, protcmd->protid, protcmd->protinfo);
+	PATCH_HDR(p, phdr, pdbend);
+	*bufsize = PROGRAM_FINALIZE(p);
 }
 
 #endif /* __DESC_RSA_H__ */

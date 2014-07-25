@@ -17,36 +17,36 @@ unsigned build_rsa_decrypt_desc(uint32_t *buff, uint32_t n_len, uint32_t p_len,
 				const uint64_t msglen)
 {
 	struct program prg;
-	struct program *program = &prg;
+	struct program *pp = &prg;
 	LABEL(pdb_end);
 
-	PROGRAM_CNTXT_INIT(buff, 0);
-	PROGRAM_SET_36BIT_ADDR();
+	PROGRAM_CNTXT_INIT(pp, buff, 0);
+	PROGRAM_SET_36BIT_ADDR(pp);
 
-	JOB_HDR(SHR_NEVER, 0, 0, 0);
+	JOB_HDR(pp, SHR_NEVER, 0, 0, 0);
 	{
 		{	/* RSA Decrypt */
-			WORD(n_len);
-			DWORD(g);
-			DWORD(f);
-			DWORD(c);
-			DWORD(p);
-			DWORD(dq);
-			DWORD(dp);
-			DWORD(q);
-			DWORD(t1);
-			DWORD(t2);
-			WORD(((q_len << 12) | p_len));
-			SET_LABEL(pdb_end);
+			WORD(pp, n_len);
+			DWORD(pp, g);
+			DWORD(pp, f);
+			DWORD(pp, c);
+			DWORD(pp, p);
+			DWORD(pp, dq);
+			DWORD(pp, dp);
+			DWORD(pp, q);
+			DWORD(pp, t1);
+			DWORD(pp, t2);
+			WORD(pp, ((q_len << 12) | p_len));
+			SET_LABEL(pp, pdb_end);
 		}
-		PROTOCOL(OP_TYPE_UNI_PROTOCOL, OP_PCLID_RSADECRYPT,
+		PROTOCOL(pp, OP_TYPE_UNI_PROTOCOL, OP_PCLID_RSADECRYPT,
 			 OP_PCL_RSAPROT_OP_DEC_PQDPDQC |
 			      OP_PCL_RSAPROT_FMT_PKCSV15);
-		STORE(MATH0, 4, msglen, 4, 0);
+		STORE(pp, MATH0, 4, msglen, 4, 0);
 	}
-	PATCH_HDR(0, pdb_end);
+	PATCH_HDR(pp, 0, pdb_end);
 
-	return PROGRAM_FINALIZE();
+	return PROGRAM_FINALIZE(pp);
 }
 
 unsigned test_rsa_decrypt(uint32_t *buff)

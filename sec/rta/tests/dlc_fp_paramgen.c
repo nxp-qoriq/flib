@@ -31,195 +31,187 @@ uint64_t make_X_addr = 0x861776ed8ull;
 uint64_t make_q_addr = 0x4b633925aull;
 uint64_t make_g_addr = 0x7aa7742f1ull;
 
-unsigned generate_dlc_fp_params(struct program *prg, uint32_t *buff)
+unsigned generate_dlc_fp_params(struct program *p, uint32_t *buff)
 {
-	struct program *program = prg;
-
 	LABEL(new_r);
 	REFERENCE(ref_new_r);
 
-	PROGRAM_CNTXT_INIT(buff, 0);
-	PROGRAM_SET_36BIT_ADDR();
+	PROGRAM_CNTXT_INIT(p, buff, 0);
+	PROGRAM_SET_36BIT_ADDR(p);
 
-	JOB_HDR(SHR_NEVER, 0, 0, 0);
+	JOB_HDR(p, SHR_NEVER, 0, 0, 0);
 	{
-		SEQFIFOLOAD(PKA, 0, 0);	/* acquire / wake up the PKHA */
+		SEQFIFOLOAD(p, PKA, 0, 0);	/* acquire / wake up the PKHA */
 
 		/* 1. Generate a random prime r */
-		SET_LABEL(new_r);
-		LOAD(r_size, PKNSZ, 0, 4, IMMED);
-		LOAD(r_size - 1, PKASZ, 0, 4, IMMED);
-		LOAD(0, DCTRL, LDOFF_DISABLE_AUTO_NFIFO, 0, IMMED);
+		SET_LABEL(p, new_r);
+		LOAD(p, r_size, PKNSZ, 0, 4, IMMED);
+		LOAD(p, r_size - 1, PKASZ, 0, 4, IMMED);
+		LOAD(p, 0, DCTRL, LDOFF_DISABLE_AUTO_NFIFO, 0, IMMED);
 		/* Get random MSB and LSB do abd */
-		NFIFOADD(PAD, MSG, 2, PAD_RANDOM | LAST1);
+		NFIFOADD(p, PAD, MSG, 2, PAD_RANDOM | LAST1);
 		/* Now into math0 */
-		MOVE(IFIFOABD, 0, MATH0, 4, 2, WAITCOMP | IMMED);
+		MOVE(p, IFIFOABD, 0, MATH0, 4, 2, WAITCOMP | IMMED);
 		/* Turn on MSb and LSb */
-		MATHB(MATH0, OR, 0x80010000, MATH0, 4, IMMED2);
+		MATHB(p, MATH0, OR, 0x80010000, MATH0, 4, IMMED2);
 		/* Send them to the ififo */
-		MOVE(MATH0, 4, IFIFOAB1, 0, 2, IMMED);
+		MOVE(p, MATH0, 4, IFIFOAB1, 0, 2, IMMED);
 		/* Send MSB to pkn */
-		NFIFOADD(IFIFO, PKN, 1, 0);
+		NFIFOADD(p, IFIFO, PKN, 1, 0);
 		/* and middle random bytes */
-		NFIFOADD(PAD, PKN, (r_size - 2), PAD_RANDOM | EXT);
+		NFIFOADD(p, PAD, PKN, (r_size - 2), PAD_RANDOM | EXT);
 		/* Send LSB to pkn (with flush1, so loading finishes) */
-		NFIFOADD(IFIFO, PKN, 1, FLUSH1);
-		LOAD(0, DCTRL, LDOFF_ENABLE_AUTO_NFIFO, 0, IMMED);
+		NFIFOADD(p, IFIFO, PKN, 1, FLUSH1);
+		LOAD(p, 0, DCTRL, LDOFF_ENABLE_AUTO_NFIFO, 0, IMMED);
 		/* Random seed for the Miller-Rabin primality test */
-		NFIFOADD(PAD, PKA, (r_size - 1),
+		NFIFOADD(p, PAD, PKA, (r_size - 1),
 			 FLUSH1 | PAD_RANDOM | EXT);
 		/* Iteration count */
-		FIFOLOAD(PKB, 0x32, 1, IMMED);
-		PKHA_OPERATION(OP_ALG_PKMODE_MOD_PRIMALITY);
+		FIFOLOAD(p, PKB, 0x32, 1, IMMED);
+		PKHA_OPERATION(p, OP_ALG_PKMODE_MOD_PRIMALITY);
 
 		/* If r did not test prime, go try another */
-		ref_new_r = JUMP(new_r, LOCAL_JUMP, ANY_FALSE, PK_PRIME);
-		FIFOSTORE(PKN, 0, dom_r_addr, r_size, 0);
+		ref_new_r = JUMP(p, new_r, LOCAL_JUMP, ANY_FALSE, PK_PRIME);
+		FIFOSTORE(p, PKN, 0, dom_r_addr, r_size, 0);
 
 		/* Set up maximum number of tries to compute a q from this r */
-		MATHB(ZERO, ADD, 4096, MATH3, 4, IMMED2);
-		JUMP(make_X_addr, FAR_JUMP, ALL_TRUE, 0);
+		MATHB(p, ZERO, ADD, 4096, MATH3, 4, IMMED2);
+		JUMP(p, make_X_addr, FAR_JUMP, ALL_TRUE, 0);
 	}
-	PATCH_JUMP(ref_new_r, new_r);
+	PATCH_JUMP(p, ref_new_r, new_r);
 
-	return PROGRAM_FINALIZE();
+	return PROGRAM_FINALIZE(p);
 }
 
-unsigned dlc_fp_make_x(struct program *prg, uint32_t *buff)
+unsigned dlc_fp_make_x(struct program *p, uint32_t *buff)
 {
-	struct program *program = prg;
+	PROGRAM_CNTXT_INIT(p, buff, 0);
+	PROGRAM_SET_36BIT_ADDR(p);
 
-	PROGRAM_CNTXT_INIT(buff, 0);
-	PROGRAM_SET_36BIT_ADDR();
-
-	JOB_HDR(SHR_NEVER, 0, 0, 0);
+	JOB_HDR(p, SHR_NEVER, 0, 0, 0);
 	{
 		/* 2. Generate a random prime q */
-		LOAD(q_size, PKNSZ, 0, 4, IMMED);
+		LOAD(p, q_size, PKNSZ, 0, 4, IMMED);
 		/*
 		 * Start with a random value X with MSb and LSb set
 		 * (This is the same 'generate random' recipe as used for r,
 		 * but with a different size)
 		 */
-		LOAD(0, DCTRL, LDOFF_DISABLE_AUTO_NFIFO, 0, IMMED);
-		NFIFOADD(PAD, MSG, 2, PAD_RANDOM | LAST1);
-		MOVE(IFIFOABD, 0, MATH0, 4, 2, WAITCOMP | IMMED);
-		MATHB(MATH0, OR, 0x80010000, MATH0, 4, IMMED2);
-		MOVE(MATH0, 4, IFIFOAB1, 0, 2, IMMED);
-		NFIFOADD(IFIFO, PKN, 1, 0);
-		NFIFOADD(PAD, PKN, (q_size - 2), EXT | PAD_RANDOM);
-		NFIFOADD(IFIFO, PKN, 1, FLUSH1);
-		LOAD(0, DCTRL, LDOFF_ENABLE_AUTO_NFIFO, 0, IMMED);
+		LOAD(p, 0, DCTRL, LDOFF_DISABLE_AUTO_NFIFO, 0, IMMED);
+		NFIFOADD(p, PAD, MSG, 2, PAD_RANDOM | LAST1);
+		MOVE(p, IFIFOABD, 0, MATH0, 4, 2, WAITCOMP | IMMED);
+		MATHB(p, MATH0, OR, 0x80010000, MATH0, 4, IMMED2);
+		MOVE(p, MATH0, 4, IFIFOAB1, 0, 2, IMMED);
+		NFIFOADD(p, IFIFO, PKN, 1, 0);
+		NFIFOADD(p, PAD, PKN, (q_size - 2), EXT | PAD_RANDOM);
+		NFIFOADD(p, IFIFO, PKN, 1, FLUSH1);
+		LOAD(p, 0, DCTRL, LDOFF_ENABLE_AUTO_NFIFO, 0, IMMED);
 
 		/* Let X finish loading into pkn before storing it */
-		JUMP(1, LOCAL_JUMP, ALL_TRUE, NIFP);
-		FIFOSTORE(PKN, 0, dom_q_addr, q_size, 0);
-		JUMP(make_q_addr, FAR_JUMP, ALL_TRUE, 0);
+		JUMP(p, 1, LOCAL_JUMP, ALL_TRUE, NIFP);
+		FIFOSTORE(p, PKN, 0, dom_q_addr, q_size, 0);
+		JUMP(p, make_q_addr, FAR_JUMP, ALL_TRUE, 0);
 	}
 
-	return PROGRAM_FINALIZE();
+	return PROGRAM_FINALIZE(p);
 }
 
-unsigned dlc_fp_make_q(struct program *prg, uint32_t *buff)
+unsigned dlc_fp_make_q(struct program *p, uint32_t *buff)
 {
-	struct program *program = prg;
-
 	LABEL(store_q);
 	REFERENCE(ref_store_q);
 
-	PROGRAM_CNTXT_INIT(buff, 0);
-	PROGRAM_SET_36BIT_ADDR();
+	PROGRAM_CNTXT_INIT(p, buff, 0);
+	PROGRAM_SET_36BIT_ADDR(p);
 
-	JOB_HDR(SHR_NEVER, 0, 0, 0);
+	JOB_HDR(p, SHR_NEVER, 0, 0, 0);
 	{
 		/* Calculate 2r */
-		FIFOLOAD(PKA, dom_r_addr, r_size, 0);
-		PKHA_OPERATION(OP_ALG_PKMODE_CLEARMEM_B);
-		PKHA_OPERATION(OP_ALG_PKMODE_COPY_NSZ_A_B);
+		FIFOLOAD(p, PKA, dom_r_addr, r_size, 0);
+		PKHA_OPERATION(p, OP_ALG_PKMODE_CLEARMEM_B);
+		PKHA_OPERATION(p, OP_ALG_PKMODE_COPY_NSZ_A_B);
 		/* 2r  ( % X) */
-		PKHA_OPERATION(OP_ALG_PKMODE_MOD_ADD);
-		PKHA_OPERATION(OP_ALG_PKMODE_COPY_NSZ_B_N);
+		PKHA_OPERATION(p, OP_ALG_PKMODE_MOD_ADD);
+		PKHA_OPERATION(p, OP_ALG_PKMODE_COPY_NSZ_B_N);
 
 		/* Calculate c = X % 2r   ( % X) */
-		FIFOLOAD(PKA, dom_q_addr, q_size, 0);	/* X */
+		FIFOLOAD(p, PKA, dom_q_addr, q_size, 0);	/* X */
 		/* Set pknsz to byte count of 2*r -always one more than r */
-		LOAD(r_size + 1, PKNSZ, 0, 4, IMMED);
+		LOAD(p, r_size + 1, PKNSZ, 0, 4, IMMED);
 		/* c = X % 2r  ( % X) */
-		PKHA_OPERATION(OP_ALG_PKMODE_MOD_REDUCT);
+		PKHA_OPERATION(p, OP_ALG_PKMODE_MOD_REDUCT);
 
 		/*
 		 * q = X - c + 1   ( % X)
 		 * This guarantees that (q - 1) % 2r === 0
 		 */
 		/* X */
-		FIFOLOAD(PKN, dom_q_addr, q_size, 0);
-		PKHA_OPERATION(OP_ALG_PKMODE_CLEARMEM_A);
-		PKHA_OPERATION(OP_ALG_PKMODE_COPY_SSZ_B_A);
+		FIFOLOAD(p, PKN, dom_q_addr, q_size, 0);
+		PKHA_OPERATION(p, OP_ALG_PKMODE_CLEARMEM_A);
+		PKHA_OPERATION(p, OP_ALG_PKMODE_COPY_SSZ_B_A);
 		/* c */
-		PKHA_OPERATION(OP_ALG_PKMODE_COPY_NSZ_N_B);
+		PKHA_OPERATION(p, OP_ALG_PKMODE_COPY_NSZ_N_B);
 		/* X - c   ( % X) */
-		PKHA_OPERATION(OP_ALG_PKMODE_MOD_SUB_BA);
-		FIFOLOAD(PKA, 0x01, 1, IMMED);
+		PKHA_OPERATION(p, OP_ALG_PKMODE_MOD_SUB_BA);
+		FIFOLOAD(p, PKA, 0x01, 1, IMMED);
 		/* q = X - c + 1   ( % X) */
-		PKHA_OPERATION(OP_ALG_PKMODE_MOD_ADD);
+		PKHA_OPERATION(p, OP_ALG_PKMODE_MOD_ADD);
 
 		/* Set up prime test for q */
-		PKHA_OPERATION(OP_ALG_PKMODE_COPY_NSZ_B_N);
-		LOAD(q_size - 1, PKASZ, 0, 4, IMMED);
-		NFIFOADD(PAD, PKA, q_size - 1, PAD_RANDOM | EXT | FLUSH1);
-		FIFOLOAD(PKB, 0x14, 1, IMMED);
-		PKHA_OPERATION(OP_ALG_PKMODE_MOD_PRIMALITY);
+		PKHA_OPERATION(p, OP_ALG_PKMODE_COPY_NSZ_B_N);
+		LOAD(p, q_size - 1, PKASZ, 0, 4, IMMED);
+		NFIFOADD(p, PAD, PKA, q_size - 1, PAD_RANDOM | EXT | FLUSH1);
+		FIFOLOAD(p, PKB, 0x14, 1, IMMED);
+		PKHA_OPERATION(p, OP_ALG_PKMODE_MOD_PRIMALITY);
 
-		ref_store_q = JUMP(store_q, LOCAL_JUMP, ALL_TRUE, PK_PRIME);
+		ref_store_q = JUMP(p, store_q, LOCAL_JUMP, ALL_TRUE, PK_PRIME);
 
 		/* Decrement try-X counter */
-		MATHB(MATH3, SUB, ONE, MATH3, 4, 0);
+		MATHB(p, MATH3, SUB, ONE, MATH3, 4, 0);
 		/* Go get another X */
-		JUMP(make_X_addr, FAR_JUMP, ANY_FALSE, MATH_Z);
+		JUMP(p, make_X_addr, FAR_JUMP, ANY_FALSE, MATH_Z);
 		/* Start over with a new r */
-		JUMP(generate_dlc_fp_params_addr, FAR_JUMP, ALL_TRUE, 0);
+		JUMP(p, generate_dlc_fp_params_addr, FAR_JUMP, ALL_TRUE, 0);
 
-		SET_LABEL(store_q);
-		FIFOSTORE(PKN, 0, dom_q_addr, q_size, 0);
-		JUMP(make_g_addr, FAR_JUMP, ALL_TRUE, 0);
+		SET_LABEL(p, store_q);
+		FIFOSTORE(p, PKN, 0, dom_q_addr, q_size, 0);
+		JUMP(p, make_g_addr, FAR_JUMP, ALL_TRUE, 0);
 	}
-	PATCH_JUMP(ref_store_q, store_q);
+	PATCH_JUMP(p, ref_store_q, store_q);
 
-	return PROGRAM_FINALIZE();
+	return PROGRAM_FINALIZE(p);
 }
 
-unsigned dlc_fp_make_g(struct program *prg, uint32_t *buff)
+unsigned dlc_fp_make_g(struct program *p, uint32_t *buff)
 {
-	struct program *program = prg;
-
 	LABEL(h_loop);
 	REFERENCE(ref_h_loop);
 	LABEL(found_g);
 	REFERENCE(ref_found_g);
 
-	PROGRAM_CNTXT_INIT(buff, 0);
-	PROGRAM_SET_36BIT_ADDR();
+	PROGRAM_CNTXT_INIT(p, buff, 0);
+	PROGRAM_SET_36BIT_ADDR(p);
 
-	JOB_HDR(SHR_NEVER, 0, 0, 0);
+	JOB_HDR(p, SHR_NEVER, 0, 0, 0);
 	{
 		/*
 		 * 3. Let k = (q - 1) / r
 		 * Compute 1/r % q  ( % q )
 		 */
-		FIFOLOAD(PKA, dom_r_addr, r_size, 0);
-		PKHA_OPERATION(OP_ALG_PKMODE_MOD_INV);	/* 1/r */
-		FIFOSTORE(PKB, 0, dom_g_addr, q_size, 0); /* tmp */
+		FIFOLOAD(p, PKA, dom_r_addr, r_size, 0);
+		PKHA_OPERATION(p, OP_ALG_PKMODE_MOD_INV);	/* 1/r */
+		FIFOSTORE(p, PKB, 0, dom_g_addr, q_size, 0); /* tmp */
 
 		/* Compute q-1  ( % q ) */
-		PKHA_OPERATION(OP_ALG_PKMODE_COPY_NSZ_N_A);
-		FIFOLOAD(PKB, 0x01, 1, IMMED);
-		PKHA_OPERATION(OP_ALG_PKMODE_MOD_SUB_AB);
+		PKHA_OPERATION(p, OP_ALG_PKMODE_COPY_NSZ_N_A);
+		FIFOLOAD(p, PKB, 0x01, 1, IMMED);
+		PKHA_OPERATION(p, OP_ALG_PKMODE_MOD_SUB_AB);
 
 		/* k = q-1 / r  ( % q ) */
-		FIFOLOAD(PKA, dom_g_addr, q_size, 0);
-		PKHA_OPERATION(OP_ALG_PKMODE_MOD_MULT);
+		FIFOLOAD(p, PKA, dom_g_addr, q_size, 0);
+		PKHA_OPERATION(p, OP_ALG_PKMODE_MOD_MULT);
 
-		PKHA_OPERATION(OP_ALG_PKMODE_COPY_NSZ_B_E);
+		PKHA_OPERATION(p, OP_ALG_PKMODE_COPY_NSZ_B_E);
 
 		/*
 		 * Algorithm to look for g
@@ -230,46 +222,46 @@ unsigned dlc_fp_make_g(struct program *prg, uint32_t *buff)
 		 * h++
 		 * } while true
 		 */
-		FIFOLOAD(PKB, 0x02, 1, IMMED);	/* h = 2 */
-		PKHA_OPERATION(OP_ALG_PKMODE_CLEARMEM_A);
+		FIFOLOAD(p, PKB, 0x02, 1, IMMED);	/* h = 2 */
+		PKHA_OPERATION(p, OP_ALG_PKMODE_CLEARMEM_A);
 		/* get q-sized 2 into pka */
-		PKHA_OPERATION(OP_ALG_PKMODE_MOD_ADD | OP_ALG_PKMODE_OUT_A);
+		PKHA_OPERATION(p, OP_ALG_PKMODE_MOD_ADD | OP_ALG_PKMODE_OUT_A);
 
 		/* 5. Choose an integer h, not already chosen, satisfying
 		 * 1 < h < q - 1 */
-		SET_LABEL(h_loop);
+		SET_LABEL(p, h_loop);
 		/* save h */
-		FIFOSTORE(PKB, 0, dom_g_addr, q_size, 0);
+		FIFOSTORE(p, PKB, 0, dom_g_addr, q_size, 0);
 		/* 6. Compute g = h^e % q */
-		PKHA_OPERATION(OP_ALG_PKMODE_MOD_EXPO);
+		PKHA_OPERATION(p, OP_ALG_PKMODE_MOD_EXPO);
 
 		/*
 		 * 7. If g = 1 then go to step 5
 		 * Test g != 1 by calculating checking (g-1) != 0
 		 */
-		FIFOLOAD(PKA, 0x01, 1, IMMED);
-		PKHA_OPERATION(OP_ALG_PKMODE_MOD_SUB_BA);
-		ref_found_g = JUMP(found_g, LOCAL_JUMP, ANY_FALSE, PK_0);
+		FIFOLOAD(p, PKA, 0x01, 1, IMMED);
+		PKHA_OPERATION(p, OP_ALG_PKMODE_MOD_SUB_BA);
+		ref_found_g = JUMP(p, found_g, LOCAL_JUMP, ANY_FALSE, PK_0);
 
 		/* H++ */
-		FIFOLOAD(PKB, dom_g_addr, q_size, 0);
-		FIFOLOAD(PKA, 0x01, 1, IMMED);
-		PKHA_OPERATION(OP_ALG_PKMODE_MOD_ADD);
-		ref_h_loop = JUMP(h_loop, LOCAL_JUMP, ALL_TRUE, 0);
+		FIFOLOAD(p, PKB, dom_g_addr, q_size, 0);
+		FIFOLOAD(p, PKA, 0x01, 1, IMMED);
+		PKHA_OPERATION(p, OP_ALG_PKMODE_MOD_ADD);
+		ref_h_loop = JUMP(p, h_loop, LOCAL_JUMP, ALL_TRUE, 0);
 
-		SET_LABEL(found_g);
+		SET_LABEL(p, found_g);
 
 		/* Restore g = g+1 */
-		FIFOLOAD(PKA, 0x01, 1, IMMED);
-		PKHA_OPERATION(OP_ALG_PKMODE_MOD_ADD);
+		FIFOLOAD(p, PKA, 0x01, 1, IMMED);
+		PKHA_OPERATION(p, OP_ALG_PKMODE_MOD_ADD);
 
 		/* 8. Output q, r, g */
-		FIFOSTORE(PKB, 0, dom_g_addr, q_size, 0);
+		FIFOSTORE(p, PKB, 0, dom_g_addr, q_size, 0);
 	}
-	PATCH_JUMP(ref_h_loop, h_loop);
-	PATCH_JUMP(ref_found_g, found_g);
+	PATCH_JUMP(p, ref_h_loop, h_loop);
+	PATCH_JUMP(p, ref_found_g, found_g);
 
-	return PROGRAM_FINALIZE();
+	return PROGRAM_FINALIZE(p);
 }
 
 int main(int argc, char **argv)

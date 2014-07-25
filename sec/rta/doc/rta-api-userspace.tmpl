@@ -106,18 +106,8 @@ full user manual separately; part of it is embedded in this SGML template.
 	them to your needs.
       </para>
       <para>
-        RTA routines assume that your code defines a local variable named
-	"program":
-	<itemizedlist mark='opencircle'>
-	  <listitem>
-	    <para>struct program prg;</para>
-	  </listitem>
-	  <listitem>
-	    <para>struct program *program = &amp;prg;</para>
-	  </listitem>
-	</itemizedlist>
-        This variable is passed behind the scene to all RTA API calls.
-	It contains several housekeeping information that are used during
+        RTA routines take as first parameter a pointer to a "struct program"
+	variable. It contains housekeeping information that is used during
 	descriptor creation.
       </para>
       <para>

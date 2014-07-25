@@ -21,7 +21,7 @@ uint8_t exponent[20] = {
 unsigned dlc_keygen(uint32_t *buff)
 {
 	struct program prg;
-	struct program *program = &prg;
+	struct program *p = &prg;
 	int field_size = 20;
 	uint64_t mod = 0x08049668;	/* I/O address for modulus */
 	uint64_t private_key = 0x32244514ull;
@@ -32,64 +32,64 @@ unsigned dlc_keygen(uint32_t *buff)
 	REFERENCE(p2_retry);
 	REFERENCE(p3_retry);
 
-	PROGRAM_CNTXT_INIT(buff, 0);
-	PROGRAM_SET_36BIT_ADDR();
+	PROGRAM_CNTXT_INIT(p, buff, 0);
+	PROGRAM_SET_36BIT_ADDR(p);
 
-	JOB_HDR(SHR_NEVER, 0, 0, 0);
+	JOB_HDR(p, SHR_NEVER, 0, 0, 0);
 	{
 		/* Step A. Load the modulus (prime) we will be using for DH. */
-		FIFOLOAD(PKN, mod, field_size, 0);	/* N <= Modulus */
+		FIFOLOAD(p, PKN, mod, field_size, 0);	/* N <= Modulus */
 
 		/* Step B. Generate random private key. */
 		/* Note that it is 'good practice' to generate eight (8) more
 		 * bytes than desired, to avoid skew.  This is obviously not
 		 * possible when the desired length wouldn't fit into the PKHA
 		 */
-		SET_LABEL(retry);
+		SET_LABEL(p, retry);
 		/* Step B.1. Prime 'PKHA A SIZE' register with number of bytes
 		 * to expect */
-		LOAD(field_size + 8, PKASZ, 0, 4, IMMED);
+		LOAD(p, field_size + 8, PKASZ, 0, 4, IMMED);
 
 		/* Step B.2. Generate random 'value' for private key */
-		NFIFOADD(PAD, PKA, (field_size + 8), PAD_RANDOM | EXT);
+		NFIFOADD(p, PAD, PKA, (field_size + 8), PAD_RANDOM | EXT);
 
 		/* Step B.3. Reduce the private key down to within the
 		 * modulus */
 		/* B <= private key */
-		PKHA_OPERATION(OP_ALG_PKMODE_MOD_REDUCT);
+		PKHA_OPERATION(p, OP_ALG_PKMODE_MOD_REDUCT);
 		/* 'Good practice' says to make sure this value is not 0, 1,
 		 * or p-1 ... */
 		/* Retry if key is 0 */
-		p1_retry = JUMP(retry, LOCAL_JUMP, ALL_TRUE, PK_0);
+		p1_retry = JUMP(p, retry, LOCAL_JUMP, ALL_TRUE, PK_0);
 
 		/* Step B.4. Store the private key for later use. */
-		FIFOSTORE(PKB, 0, private_key, field_size, 0);
+		FIFOSTORE(p, PKB, 0, private_key, field_size, 0);
 
-		FIFOLOAD(PKA, 0x01, 1, IMMED);
-		PKHA_OPERATION(OP_ALG_PKMODE_MOD_ADD);
+		FIFOLOAD(p, PKA, 0x01, 1, IMMED);
+		PKHA_OPERATION(p, OP_ALG_PKMODE_MOD_ADD);
 		/* Retry if key is -1 */
-		p2_retry = JUMP(retry, LOCAL_JUMP, ALL_TRUE, PK_0);
+		p2_retry = JUMP(p, retry, LOCAL_JUMP, ALL_TRUE, PK_0);
 
-		FIFOLOAD(PKA, 0x02, 1, IMMED);
-		PKHA_OPERATION(OP_ALG_PKMODE_MOD_SUB_BA);
+		FIFOLOAD(p, PKA, 0x02, 1, IMMED);
+		PKHA_OPERATION(p, OP_ALG_PKMODE_MOD_SUB_BA);
 		/* Retry if key is 1 */
-		p3_retry = JUMP(retry, LOCAL_JUMP, ALL_TRUE, PK_0);
+		p3_retry = JUMP(p, retry, LOCAL_JUMP, ALL_TRUE, PK_0);
 
 		/* Step C.  Generate the public key */
 		/* A <= Generator (2) */
-		FIFOLOAD(PKA, 0x02, 1, IMMED);
+		FIFOLOAD(p, PKA, 0x02, 1, IMMED);
 		/* E <= Private key */
-		PKHA_OPERATION(OP_ALG_PKMODE_COPY_NSZ_B_E);
+		PKHA_OPERATION(p, OP_ALG_PKMODE_COPY_NSZ_B_E);
 		/* B <= Public Key */
-		PKHA_OPERATION(OP_ALG_PKMODE_MOD_EXPO_TEQ);
+		PKHA_OPERATION(p, OP_ALG_PKMODE_MOD_EXPO_TEQ);
 
-		FIFOSTORE(PKB, 0, public_key, field_size, 0);
+		FIFOSTORE(p, PKB, 0, public_key, field_size, 0);
 	}
-	PATCH_JUMP(p1_retry, retry);
-	PATCH_JUMP(p2_retry, retry);
-	PATCH_JUMP(p3_retry, retry);
+	PATCH_JUMP(p, p1_retry, retry);
+	PATCH_JUMP(p, p2_retry, retry);
+	PATCH_JUMP(p, p3_retry, retry);
 
-	return PROGRAM_FINALIZE();
+	return PROGRAM_FINALIZE(p);
 }
 
 uint32_t prg_buff[1000];

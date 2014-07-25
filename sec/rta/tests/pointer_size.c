@@ -10,33 +10,33 @@ int shdesc_len = 5;
 unsigned pointer_size_1(uint32_t *buff)
 {
 	struct program prg;
-	struct program *program = &prg;
+	struct program *p = &prg;
 
-	PROGRAM_CNTXT_INIT(buff, 0);
-	JOB_HDR(SHR_NEVER, shdesc_len, 200, SHR);
+	PROGRAM_CNTXT_INIT(p, buff, 0);
+	JOB_HDR(p, SHR_NEVER, shdesc_len, 200, SHR);
 	{
-		FIFOLOAD(PKN, 0x4, 4, 0);
-		PKHA_OPERATION(OP_ALG_PKMODE_MOD_EXPO);
+		FIFOLOAD(p, PKN, 0x4, 4, 0);
+		PKHA_OPERATION(p, OP_ALG_PKMODE_MOD_EXPO);
 	}
 
-	return PROGRAM_FINALIZE();
+	return PROGRAM_FINALIZE(p);
 }
 
 unsigned pointer_size_2(uint32_t *buff)
 {
 	struct program prg;
-	struct program *program = &prg;
+	struct program *p = &prg;
 
-	PROGRAM_CNTXT_INIT(buff, 0);
-	PROGRAM_SET_36BIT_ADDR();
+	PROGRAM_CNTXT_INIT(p, buff, 0);
+	PROGRAM_SET_36BIT_ADDR(p);
 
-	JOB_HDR(SHR_NEVER, shdesc_len, 200, SHR);
+	JOB_HDR(p, SHR_NEVER, shdesc_len, 200, SHR);
 	{
-		FIFOLOAD(PKN, 0x4, 4, 0);
-		PKHA_OPERATION(OP_ALG_PKMODE_MOD_EXPO);
+		FIFOLOAD(p, PKN, 0x4, 4, 0);
+		PKHA_OPERATION(p, OP_ALG_PKMODE_MOD_EXPO);
 	}
 
-	return PROGRAM_FINALIZE();
+	return PROGRAM_FINALIZE(p);
 }
 
 uint32_t prg_buff[1000];

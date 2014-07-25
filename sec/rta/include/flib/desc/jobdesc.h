@@ -51,25 +51,25 @@ static inline void cnstr_jobdesc_mdsplitkey(uint32_t *descbuf,
 	};
 	uint32_t split_key_len, idx;
 	struct program prg;
-	struct program *program = &prg;
+	struct program *p = &prg;
 
 	idx = (cipher & OP_ALG_ALGSEL_SUBMASK) >> OP_ALG_ALGSEL_SHIFT;
 	split_key_len = (uint32_t)(mdpadlen[idx] * 2);
 
-	PROGRAM_CNTXT_INIT(descbuf, 0);
+	PROGRAM_CNTXT_INIT(p, descbuf, 0);
 	if (ps)
-		PROGRAM_SET_36BIT_ADDR();
-	JOB_HDR(SHR_NEVER, 1, 0, 0);
-	KEY(KEY2, 0, alg_key, keylen, 0);
-	ALG_OPERATION(cipher,
+		PROGRAM_SET_36BIT_ADDR(p);
+	JOB_HDR(p, SHR_NEVER, 1, 0, 0);
+	KEY(p, KEY2, 0, alg_key, keylen, 0);
+	ALG_OPERATION(p, cipher,
 		      OP_ALG_AAI_HMAC,
 		      OP_ALG_AS_INIT,
 		      ICV_CHECK_DISABLE,
 		      OP_ALG_DECRYPT);
-	FIFOLOAD(MSG2, 0, 0, LAST2 | IMMED | COPY);
-	JUMP(1, LOCAL_JUMP, ALL_TRUE, CLASS2);
-	FIFOSTORE(MDHA_SPLIT_KEY, 0, padbuf, split_key_len, 0);
-	*bufsize = PROGRAM_FINALIZE();
+	FIFOLOAD(p, MSG2, 0, 0, LAST2 | IMMED | COPY);
+	JUMP(p, 1, LOCAL_JUMP, ALL_TRUE, CLASS2);
+	FIFOSTORE(p, MDHA_SPLIT_KEY, 0, padbuf, split_key_len, 0);
+	*bufsize = PROGRAM_FINALIZE(p);
 }
 
 #endif /* __DESC_JOBDESC_H__ */

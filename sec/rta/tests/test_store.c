@@ -20,7 +20,7 @@ LABEL(shr_loc);
 unsigned test_store_cmds(uint32_t *buff)
 {
 	struct program prg;
-	struct program *program = &prg;
+	struct program *p = &prg;
 	uintptr_t ctx = (uintptr_t) 0x55330087ull;
 	uintptr_t sgtable = (uintptr_t) 0x22223333ull;
 	int ivlen = 16;
@@ -28,123 +28,119 @@ unsigned test_store_cmds(uint32_t *buff)
 	uint8_t abc[] = {0x61, 0x62, 0x63};
 	uint here = 32;
 
-	PROGRAM_CNTXT_INIT(buff, 0);
+	PROGRAM_CNTXT_INIT(p, buff, 0);
 	/* Class-independent CCB registers */
-	STORE(CLRW, 0, foo, 4, 0);
-	STORE(CCTRL, 0, foo, 4, 0);
-	STORE(ICTRL, 0, foo, 4, 0);
-	STORE(CSTAT, 0, foo, 4, 0);
+	STORE(p, CLRW, 0, foo, 4, 0);
+	STORE(p, CCTRL, 0, foo, 4, 0);
+	STORE(p, ICTRL, 0, foo, 4, 0);
+	STORE(p, CSTAT, 0, foo, 4, 0);
 
 	/* Class 1 CCB registers */
-	STORE(MODE1, 0, foo, 4, 0);
-	STORE(KEY1SZ, 0, foo, 4, 0);
-	STORE(DATA1SZ, 0, foo, 4, 0);
-	STORE(ICV1SZ, 0, foo, 4, 0);
+	STORE(p, MODE1, 0, foo, 4, 0);
+	STORE(p, KEY1SZ, 0, foo, 4, 0);
+	STORE(p, DATA1SZ, 0, foo, 4, 0);
+	STORE(p, ICV1SZ, 0, foo, 4, 0);
 	/* Class 1 Additional Data Size */
-	STORE(AAD1SZ, 0, foo, 4, 0);
-	STORE(IV1SZ, 0, foo, 4, 0);
-	STORE(PKASZ, 0, foo, 4, 0);
-	STORE(PKBSZ, 0, foo, 4, 0);
-	STORE(PKNSZ, 0, foo, 4, 0);
-	STORE(PKESZ, 0, foo, 4, 0);
+	STORE(p, AAD1SZ, 0, foo, 4, 0);
+	STORE(p, IV1SZ, 0, foo, 4, 0);
+	STORE(p, PKASZ, 0, foo, 4, 0);
+	STORE(p, PKBSZ, 0, foo, 4, 0);
+	STORE(p, PKNSZ, 0, foo, 4, 0);
+	STORE(p, PKESZ, 0, foo, 4, 0);
 
-	STORE(CONTEXT1, 0, sgtable, ivlen, SGF);
-	STORE(CONTEXT1, 5, foo, 7, 0);
+	STORE(p, CONTEXT1, 0, sgtable, ivlen, SGF);
+	STORE(p, CONTEXT1, 5, foo, 7, 0);
 
 	/* Class 2 CCB registers */
-	STORE(MODE2, 0, foo, 4, 0);
-	STORE(KEY2SZ, 0, foo, 4, 0);
-	STORE(DATA2SZ, 0, foo, 4, 0);
-	STORE(ICV2SZ, 0, foo, 4, 0);
-	STORE(CONTEXT2, 0, ctx, 16, 0);
-	STORE(CONTEXT2, 8, foo, 4, 0);
+	STORE(p, MODE2, 0, foo, 4, 0);
+	STORE(p, KEY2SZ, 0, foo, 4, 0);
+	STORE(p, DATA2SZ, 0, foo, 4, 0);
+	STORE(p, ICV2SZ, 0, foo, 4, 0);
+	STORE(p, CONTEXT2, 0, ctx, 16, 0);
+	STORE(p, CONTEXT2, 8, foo, 4, 0);
 
 	/* DECO / SEC registers */
-	STORE(DJQCTRL, 0, foo, 8, 0);
+	STORE(p, DJQCTRL, 0, foo, 8, 0);
 	/* DECO JQ Descriptor Address */
-	STORE(DJQDA, 0, foo, 8, 0);
-	STORE(DSTAT, 0, foo, 8, 0);
-	STORE(DPID, 0, foo, 8, 0);
+	STORE(p, DJQDA, 0, foo, 8, 0);
+	STORE(p, DSTAT, 0, foo, 8, 0);
+	STORE(p, DPID, 0, foo, 8, 0);
 
-	SEQSTORE(MATH0, 0, 1, 0);
-	SEQSTORE(MATH1, 0, 0, VLF);
-	STORE(MATH2, 0, foo, 4, 0);
-	STORE(MATH3, 0, foo, 4, 0);
-	STORE(DESCBUF, 20 * word_size, descwords, 4 * word_size, 0);
+	SEQSTORE(p, MATH0, 0, 1, 0);
+	SEQSTORE(p, MATH1, 0, 0, VLF);
+	STORE(p, MATH2, 0, foo, 4, 0);
+	STORE(p, MATH3, 0, foo, 4, 0);
+	STORE(p, DESCBUF, 20 * word_size, descwords, 4 * word_size, 0);
 
-	STORE(DESCBUF, here, descwords, 8 * word_size, 0);
-	SEQSTORE(DESCBUF, here, 12 * word_size, 0);
+	STORE(p, DESCBUF, here, descwords, 8 * word_size, 0);
+	SEQSTORE(p, DESCBUF, here, 12 * word_size, 0);
 
 	/* Immediate data */
-	STORE(0x010203, 0, foo, 3, IMMED);
-	STORE((uintptr_t) &abc, 0, foo, 3, IMMED | COPY);
-	SEQSTORE(0x010203, 0, 3, IMMED);
-	SEQSTORE(0x01020304050607, 0, 7, IMMED | VLF);
-	SEQSTORE((uintptr_t) &abc, 0, 3, IMMED | COPY);
+	STORE(p, 0x010203, 0, foo, 3, IMMED);
+	STORE(p, (uintptr_t) &abc, 0, foo, 3, IMMED | COPY);
+	SEQSTORE(p, 0x010203, 0, 3, IMMED);
+	SEQSTORE(p, 0x01020304050607, 0, 7, IMMED | VLF);
+	SEQSTORE(p, (uintptr_t) &abc, 0, 3, IMMED | COPY);
 
-	return PROGRAM_FINALIZE();
+	return PROGRAM_FINALIZE(p);
 }
 
 unsigned test_store_jd1(uint32_t *buff, unsigned buffpos)
 {
 	struct program prg;
-	struct program *program = &prg;
+	struct program *p = &prg;
 	REFERENCE(pstore);
 	LABEL(mod_loc1);
 
-	PROGRAM_CNTXT_INIT(buff, 0);
+	PROGRAM_CNTXT_INIT(p, buff, 0);
 
-	JOB_HDR(SHR_NEVER, buffpos, 0, 0);
-	pstore = STORE(JOBDESCBUF, mod_loc1, 0, 4 * word_size, 0);
-	SET_LABEL(mod_loc1);
-	MOVE(CONTEXT1, 0, CONTEXT2, 0, 1, IMMED);
+	JOB_HDR(p, SHR_NEVER, buffpos, 0, 0);
+	pstore = STORE(p, JOBDESCBUF, mod_loc1, 0, 4 * word_size, 0);
+	SET_LABEL(p, mod_loc1);
+	MOVE(p, CONTEXT1, 0, CONTEXT2, 0, 1, IMMED);
 
-	PATCH_STORE(pstore, mod_loc1);
+	PATCH_STORE(p, pstore, mod_loc1);
 
-	return PROGRAM_FINALIZE();
+	return PROGRAM_FINALIZE(p);
 }
 
-unsigned test_store_sd(struct program *share_desc, uint32_t *buff,
-		       unsigned buffpos)
+unsigned test_store_sd(struct program *p, uint32_t *buff, unsigned buffpos)
 {
-	struct program *program = share_desc;
 	REFERENCE(pstore);
 
-	PROGRAM_CNTXT_INIT(buff, 0);
+	PROGRAM_CNTXT_INIT(p, buff, 0);
 
-	SHR_HDR(SHR_NEVER, buffpos, 0);
-	pstore = STORE(SHAREDESCBUF, shr_loc, 0, 4 * word_size, 0);
-	SET_LABEL(shr_loc);
-	MOVE(CONTEXT1, 0, CONTEXT2, 0, 1, IMMED);
-	MATHB(ZERO, ADD, ONE, MATH1, 1, 0);
-	MATHB(ZERO, ADD, ONE, MATH1, 1, 0);
-	MATHB(ZERO, ADD, ONE, MATH1, 1, 0);
-	pstore2 = STORE(JOBDESCBUF, 0, 0, 4 * word_size, 0);
+	SHR_HDR(p, SHR_NEVER, buffpos, 0);
+	pstore = STORE(p, SHAREDESCBUF, shr_loc, 0, 4 * word_size, 0);
+	SET_LABEL(p, shr_loc);
+	MOVE(p, CONTEXT1, 0, CONTEXT2, 0, 1, IMMED);
+	MATHB(p, ZERO, ADD, ONE, MATH1, 1, 0);
+	MATHB(p, ZERO, ADD, ONE, MATH1, 1, 0);
+	MATHB(p, ZERO, ADD, ONE, MATH1, 1, 0);
+	pstore2 = STORE(p, JOBDESCBUF, 0, 0, 4 * word_size, 0);
 
-	PATCH_STORE(pstore, shr_loc);
+	PATCH_STORE(p, pstore, shr_loc);
 
-	return PROGRAM_FINALIZE();
+	return PROGRAM_FINALIZE(p);
 }
 
-unsigned test_store_jd2(struct program *job_desc, uint32_t *buff,
-			unsigned buffpos)
+unsigned test_store_jd2(struct program *p, uint32_t *buff, unsigned buffpos)
 {
-	struct program *program = job_desc;
 	uint64_t shrloc = 0x72650040ull;
 
-	PROGRAM_CNTXT_INIT(buff, 0);
+	PROGRAM_CNTXT_INIT(p, buff, 0);
 
-	JOB_HDR(SHR_NEVER, buffpos, shrloc, SHR);
-	MATHB(ZERO, ADD, ONE, MATH1, 1, 0);
-	SET_LABEL(mod_loc2);
-	MOVE(CONTEXT1, 0, CONTEXT2, 0, 1, IMMED);
-	STORE(DESCBUF, mod_loc2 * word_size, descwords, 4 * word_size, 0);
-	MATHB(ZERO, ADD, ONE, MATH1, 1, 0);
-	MATHB(ZERO, ADD, ONE, MATH1, 1, 0);
-	pstore3 = STORE(JOBDESCBUF, 0, 0, 4 * word_size, 0);
-	pstore4 = STORE(SHAREDESCBUF, 0, 0, 4 * word_size, 0);
+	JOB_HDR(p, SHR_NEVER, buffpos, shrloc, SHR);
+	MATHB(p, ZERO, ADD, ONE, MATH1, 1, 0);
+	SET_LABEL(p, mod_loc2);
+	MOVE(p, CONTEXT1, 0, CONTEXT2, 0, 1, IMMED);
+	STORE(p, DESCBUF, mod_loc2 * word_size, descwords, 4 * word_size, 0);
+	MATHB(p, ZERO, ADD, ONE, MATH1, 1, 0);
+	MATHB(p, ZERO, ADD, ONE, MATH1, 1, 0);
+	pstore3 = STORE(p, JOBDESCBUF, 0, 0, 4 * word_size, 0);
+	pstore4 = STORE(p, SHAREDESCBUF, 0, 0, 4 * word_size, 0);
 
-	return PROGRAM_FINALIZE();
+	return PROGRAM_FINALIZE(p);
 }
 
 int main(int argc, char **argv)
