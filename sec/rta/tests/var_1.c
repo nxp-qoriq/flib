@@ -25,26 +25,26 @@ uint8_t secret[20] = {
 unsigned var_test(uint32_t *buff)
 {
 	struct program prg;
-	struct program *program = &prg;
+	struct program *p = &prg;
 	int secret_len = sizeof(secret);
 	uint64_t secret_out = 0x3000200;
 
-	PROGRAM_SET_36BIT_ADDR();
+	PROGRAM_SET_36BIT_ADDR(p);
 
-	PROGRAM_CNTXT_INIT(buff, 0);
+	PROGRAM_CNTXT_INIT(p, buff, 0);
 	/* RSA Encrypt */
-	JOB_HDR(SHR_NEVER, 0, 0, 0);
+	JOB_HDR(p, SHR_NEVER, 0, 0, 0);
 	{
-		FIFOLOAD(PKN, (uintptr_t) &modulus, (sizeof(modulus)),
+		FIFOLOAD(p, PKN, (uintptr_t) &modulus, (sizeof(modulus)),
 			 IMMED | COPY);
-		FIFOLOAD(PKA, (uintptr_t) &secret, secret_len,
+		FIFOLOAD(p, PKA, (uintptr_t) &secret, secret_len,
 			 IMMED | COPY);
-		KEY(PKE, 0, 0x03, 1, IMMED);
-		PKHA_OPERATION(OP_ALG_PKMODE_MOD_EXPO);
-		FIFOSTORE(PKB, 0, secret_out, (sizeof(modulus)), 0);
+		KEY(p, PKE, 0, 0x03, 1, IMMED);
+		PKHA_OPERATION(p, OP_ALG_PKMODE_MOD_EXPO);
+		FIFOSTORE(p, PKB, 0, secret_out, (sizeof(modulus)), 0);
 	}
 
-	return PROGRAM_FINALIZE();
+	return PROGRAM_FINALIZE(p);
 }
 
 uint32_t prg_buff[1000];

@@ -12,7 +12,7 @@ enum rta_sec_era rta_sec_era;
 unsigned test_blkcipher_seq(uint32_t *buff)
 {
 	struct program prg;
-	struct program *program = &prg;
+	struct program *p = &prg;
 	void *data_in = (void *)0x1234567;
 	void *data_out = (void *)0x6123475;
 	void *key_addr = (void *)0x778899AA;
@@ -21,19 +21,20 @@ unsigned test_blkcipher_seq(uint32_t *buff)
 	int ivlen = 16;
 	int keylen = 32;
 
-	PROGRAM_CNTXT_INIT(buff, 0);
-	JOB_HDR(SHR_NEVER, 0, 0, 0);
-	SEQINPTR((uintptr_t) data_in, datasz, 0);
-	SEQOUTPTR((uintptr_t) data_out, datasz, 0);
-	LOAD((uintptr_t) iv, CONTEXT1, 0, ivlen, 0);
-	KEY(KEY1, 0, (uintptr_t) key_addr, keylen, 0);
-	MATHB(SEQINSZ, ADD, ZERO, VSEQINSZ, 4, 0);
-	MATHB(SEQOUTSZ, ADD, ZERO, VSEQOUTSZ, 4, 0);
-	ALG_OPERATION(OP_ALG_ALGSEL_AES, OP_ALG_AAI_CBC, 0, 0, OP_ALG_ENCRYPT);
-	SEQFIFOLOAD(MSG1, 0, VLF | LAST1);
-	SEQFIFOSTORE(MSG, 0, 0, VLF);
+	PROGRAM_CNTXT_INIT(p, buff, 0);
+	JOB_HDR(p, SHR_NEVER, 0, 0, 0);
+	SEQINPTR(p, (uintptr_t) data_in, datasz, 0);
+	SEQOUTPTR(p, (uintptr_t) data_out, datasz, 0);
+	LOAD(p, (uintptr_t) iv, CONTEXT1, 0, ivlen, 0);
+	KEY(p, KEY1, 0, (uintptr_t) key_addr, keylen, 0);
+	MATHB(p, SEQINSZ, ADD, ZERO, VSEQINSZ, 4, 0);
+	MATHB(p, SEQOUTSZ, ADD, ZERO, VSEQOUTSZ, 4, 0);
+	ALG_OPERATION(p, OP_ALG_ALGSEL_AES, OP_ALG_AAI_CBC, 0, 0,
+		      OP_ALG_ENCRYPT);
+	SEQFIFOLOAD(p, MSG1, 0, VLF | LAST1);
+	SEQFIFOSTORE(p, MSG, 0, 0, VLF);
 
-	return PROGRAM_FINALIZE();
+	return PROGRAM_FINALIZE(p);
 }
 
 uint32_t prg_buff[1000];

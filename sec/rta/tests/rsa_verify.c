@@ -10,28 +10,28 @@ unsigned build_rsa_verify_desc(uint32_t *buff, uint32_t n_len, uint32_t e_len,
 			       const uint64_t f, const uint64_t g)
 {
 	struct program prg;
-	struct program *program = &prg;
+	struct program *p = &prg;
 	LABEL(pdb_end);
 
-	PROGRAM_SET_36BIT_ADDR();
+	PROGRAM_SET_36BIT_ADDR(p);
 
-	PROGRAM_CNTXT_INIT(buff, 0);
-	JOB_HDR(SHR_NEVER, 0, 0, 0);
+	PROGRAM_CNTXT_INIT(p, buff, 0);
+	JOB_HDR(p, SHR_NEVER, 0, 0, 0);
 	{
 		{	/* RSA Verify */
-			WORD(((e_len << 12) + n_len));	/* e length, n length */
-			DWORD(f);	/* output */
-			DWORD(g);	/* input */
-			DWORD(n);	/* modulus */
-			DWORD(e);	/* public expnenent */
-			WORD(n_len);	/* g length */
-			SET_LABEL(pdb_end);
+			WORD(p, ((e_len << 12) + n_len)); /* e len, n len */
+			DWORD(p, f);	/* output */
+			DWORD(p, g);	/* input */
+			DWORD(p, n);	/* modulus */
+			DWORD(p, e);	/* public expnenent */
+			WORD(p, n_len);	/* g length */
+			SET_LABEL(p, pdb_end);
 		}
-		PROTOCOL(OP_TYPE_UNI_PROTOCOL, OP_PCLID_RSAENCRYPT, 0);
+		PROTOCOL(p, OP_TYPE_UNI_PROTOCOL, OP_PCLID_RSAENCRYPT, 0);
 	}
-	PATCH_HDR(0, pdb_end);
+	PATCH_HDR(p, 0, pdb_end);
 
-	return PROGRAM_FINALIZE();
+	return PROGRAM_FINALIZE(p);
 }
 
 unsigned test_rsa_verify(uint32_t *buff)

@@ -9,7 +9,7 @@ enum rta_sec_era rta_sec_era;
 unsigned postpend(uint32_t *buff)
 {
 	struct program prg;
-	struct program *program = &prg;
+	struct program *p = &prg;
 	uint8_t key_1[40] = {
 		0xc8, 0xc1, 0xd7, 0xbf, 0xa4, 0xe3, 0xee, 0x84,
 		0xb1, 0x52, 0x37, 0x06, 0x38, 0x97, 0xac, 0x9f,
@@ -29,36 +29,36 @@ unsigned postpend(uint32_t *buff)
 	LABEL(skip_key_load);
 	REFERENCE(pjump1);
 
-	PROGRAM_CNTXT_INIT(buff, 0);
-	PROGRAM_SET_36BIT_ADDR();
+	PROGRAM_CNTXT_INIT(p, buff, 0);
+	PROGRAM_SET_36BIT_ADDR(p);
 
-	SHR_HDR(SHR_SERIAL, 15, RIF);
+	SHR_HDR(p, SHR_SERIAL, 15, RIF);
 	{
 		{	/* IPSEC ESP ENCAP (CBC) PDB */
-			WORD(0x0009000D); /* opt word */
-			WORD(0x41311751); /* ESN */
-			WORD(1); /* seq num */
-			DWORD(0x92cd6ce9ab7c728c);
-			DWORD(0x153a85cefd12ab79); /* IV */
-			WORD(1); /* SPI */
-			WORD(20); /* optIPHdrLen */
-			DWORD(0xe1a6001458335cb7);
-			DWORD(0x55c809f8b44767bb);
-			WORD(0x79890a98); /* OptIPHdr */
+			WORD(p, 0x0009000D); /* opt word */
+			WORD(p, 0x41311751); /* ESN */
+			WORD(p, 1); /* seq num */
+			DWORD(p, 0x92cd6ce9ab7c728c);
+			DWORD(p, 0x153a85cefd12ab79); /* IV */
+			WORD(p, 1); /* SPI */
+			WORD(p, 20); /* optIPHdrLen */
+			DWORD(p, 0xe1a6001458335cb7);
+			DWORD(p, 0x55c809f8b44767bb);
+			WORD(p, 0x79890a98); /* OptIPHdr */
 		}
-		pjump1 = JUMP(skip_key_load, LOCAL_JUMP, ALL_TRUE, SHRD);
-		KEY(MDHA_SPLIT_KEY, 0, (uintptr_t) &key_1, 40,
+		pjump1 = JUMP(p, skip_key_load, LOCAL_JUMP, ALL_TRUE, SHRD);
+		KEY(p, MDHA_SPLIT_KEY, 0, (uintptr_t) &key_1, 40,
 		    IMMED | COPY);
-		KEY(KEY1, 0, (uintptr_t) &key_2, 16, IMMED | COPY);
-		SET_LABEL(skip_key_load);
-		PROTOCOL(OP_TYPE_ENCAP_PROTOCOL, OP_PCLID_IPSEC,
+		KEY(p, KEY1, 0, (uintptr_t) &key_2, 16, IMMED | COPY);
+		SET_LABEL(p, skip_key_load);
+		PROTOCOL(p, OP_TYPE_ENCAP_PROTOCOL, OP_PCLID_IPSEC,
 			 OP_PCL_IPSEC_AES_CBC |
 			      OP_PCL_IPSEC_HMAC_SHA1_160);
-		SEQSTORE((uintptr_t) &data_in, 0, 14, IMMED | COPY);
+		SEQSTORE(p, (uintptr_t) &data_in, 0, 14, IMMED | COPY);
 	}
-	PATCH_JUMP(pjump1, skip_key_load);
+	PATCH_JUMP(p, pjump1, skip_key_load);
 
-	return PROGRAM_FINALIZE();
+	return PROGRAM_FINALIZE(p);
 }
 
 uint32_t prg_buff[1000];

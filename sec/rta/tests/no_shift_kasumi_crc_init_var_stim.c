@@ -47,11 +47,9 @@ const uint32_t num_ctx1_extras =
     /*num_even_more_extras_bytes */ 11 * 4 + 4 +
     /*num_still_more_extras_bytes */ 2 * 4;
 
-unsigned generate_lte_code(struct program *prg, uint32_t *buff, int mdatalen,
+unsigned generate_lte_code(struct program *p, uint32_t *buff, int mdatalen,
 			   unsigned buffpos)
 {
-	struct program *program = prg;
-
 	LABEL(last_info);
 	LABEL(datasz_len);
 	LABEL(datasz1_len);
@@ -70,54 +68,54 @@ unsigned generate_lte_code(struct program *prg, uint32_t *buff, int mdatalen,
 	REFERENCE(pmove8);
 	REFERENCE(pmove9);
 
-	PROGRAM_CNTXT_INIT(buff, 0);
+	PROGRAM_CNTXT_INIT(p, buff, 0);
 
-	SHR_HDR(SHR_ALWAYS, 0, 0);
+	SHR_HDR(p, SHR_ALWAYS, 0, 0);
 	{
-		WORD(0x04800004);
-		WORD(0x80050000);
+		WORD(p, 0x04800004);
+		WORD(p, 0x80050000);
 
 		/* NOTE Math 0 contains 0 at this point */
-		MATHB(SEQINSZ, ADD, MATH0, VSEQINSZ, 4, 0);
-		LOAD(0, DCTRL, 8, 0, IMMED);
-		SEQFIFOLOAD(MSG1, 0, VLF);
-		LOAD(0, DCTRL, 4, 0, IMMED);
+		MATHB(p, SEQINSZ, ADD, MATH0, VSEQINSZ, 4, 0);
+		LOAD(p, 0, DCTRL, 8, 0, IMMED);
+		SEQFIFOLOAD(p, MSG1, 0, VLF);
+		LOAD(p, 0, DCTRL, 4, 0, IMMED);
 		/* First extra command words */
-		pmove1 = MOVE(IFIFOABD, 0, DESCBUF, 0, num_more_extras_bytes,
+		pmove1 = MOVE(p, IFIFOABD, 0, DESCBUF, 0, num_more_extras_bytes,
 			      FLUSH1 | WAITCOMP | IMMED);
-		pjump1 = JUMP(0, LOCAL_JUMP, ALL_TRUE, 0);
+		pjump1 = JUMP(p, 0, LOCAL_JUMP, ALL_TRUE, 0);
 
-		SET_LABEL(back_from_extras);
+		SET_LABEL(p, back_from_extras);
 
 		/* here is the main loop */
-		SET_LABEL(loop_start);
+		SET_LABEL(p, loop_start);
 		/* get length of this PDU */
-		MOVE(IFIFOABD, 0, MATH0, 4, 4, FLUSH1 | IMMED);
+		MOVE(p, IFIFOABD, 0, MATH0, 4, 4, FLUSH1 | IMMED);
 
 		/* calculate the data size for CRC */
-		pmove2 = MOVE(DESCBUF, 0, MATH0, 0, 4, IMMED);
-		pmove3 = MOVE(MATH0, 0, DESCBUF, 0, 8, IMMED);
+		pmove2 = MOVE(p, DESCBUF, 0, MATH0, 0, 4, IMMED);
+		pmove3 = MOVE(p, MATH0, 0, DESCBUF, 0, 8, IMMED);
 
 		/*
 		 * The input to cipher is 2 bytes less than B. And the amount
 		 * to SEQ FIFO STORE is equal to B
 		 */
-		MATHB(ZERO, ADD, MATH0, VSEQOUTSZ, 2, 0);
+		MATHB(p, ZERO, ADD, MATH0, VSEQOUTSZ, 2, 0);
 		/* B-2: Size of each PDU not including the header */
-		MATHB(MATH0, SUB, 2, MATH0, 2, IMMED2);
+		MATHB(p, MATH0, SUB, 2, MATH0, 2, IMMED2);
 
-		pmove4 = MOVE(DESCBUF, 0, MATH0, 0, 4, IMMED);
-		pmove5 = MOVE(MATH0, 0, DESCBUF, 0, 8, IMMED);
+		pmove4 = MOVE(p, DESCBUF, 0, MATH0, 0, 4, IMMED);
+		pmove5 = MOVE(p, MATH0, 0, DESCBUF, 0, 8, IMMED);
 
 		/* calculate the info fifo size for CRC */
 		/* get stuff that precedes where INFO LENGTH goes */
-		pmove6 = MOVE(DESCBUF, 0, MATH0, 0, 6, IMMED);
+		pmove6 = MOVE(p, DESCBUF, 0, MATH0, 0, 6, IMMED);
 		/* put it back */
-		pmove7 = MOVE(MATH0, 0, DESCBUF, 0, 8, IMMED);
+		pmove7 = MOVE(p, MATH0, 0, DESCBUF, 0, 8, IMMED);
 		/* get stuff that precedes where INFO LENGTH goes */
-		pmove8 = MOVE(DESCBUF, 0, MATH0, 0, 6, IMMED);
+		pmove8 = MOVE(p, DESCBUF, 0, MATH0, 0, 6, IMMED);
 		/* put it back */
-		pmove9 = MOVE(MATH0, 0, DESCBUF, 0, 8, IMMED);
+		pmove9 = MOVE(p, MATH0, 0, DESCBUF, 0, 8, IMMED);
 
 		/*
 		 * MATH3 - HFN/Bearer
@@ -136,208 +134,200 @@ unsigned generate_lte_code(struct program *prg, uint32_t *buff, int mdatalen,
 		 */
 
 		/* Get PDU header */
-		MOVE(IFIFOABD, 0, CONTEXT1, 0, 2, FLUSH1 | IMMED);
+		MOVE(p, IFIFOABD, 0, CONTEXT1, 0, 2, FLUSH1 | IMMED);
 
-		SET_LABEL(datasz_len);
-		LOAD(0, DATA2SZ, 0, 4, IMMED);
-		SET_LABEL(datasz1_len);
-		LOAD(0, DATA1SZ, 0, 4, IMMED);
+		SET_LABEL(p, datasz_len);
+		LOAD(p, 0, DATA2SZ, 0, 4, IMMED);
+		SET_LABEL(p, datasz1_len);
+		LOAD(p, 0, DATA1SZ, 0, 4, IMMED);
 
 		/* PDU Header to Math 3 */
-		MOVE(CONTEXT1, 0, MATH0, 0, 8, WAITCOMP | IMMED);
+		MOVE(p, CONTEXT1, 0, MATH0, 0, 8, WAITCOMP | IMMED);
 		/* Get PDU into right 2 bytes */
-		MATHB(MATH0, RSHIFT, 48, MATH0, 8, IFB | IMMED2);
+		MATHB(p, MATH0, RSHIFT, 48, MATH0, 8, IFB | IMMED2);
 		/* PDU Header to Math 3 left 2 bytes */
-		MOVE(CONTEXT1, 0, MATH0, 0, 2, IMMED);
+		MOVE(p, CONTEXT1, 0, MATH0, 0, 2, IMMED);
 		/* Put it where CRC can snoop & FIFO STORE can get it */
-		MOVE(MATH0, 0, OFIFO, 0, 8, IMMED);
+		MOVE(p, MATH0, 0, OFIFO, 0, 8, IMMED);
 
 		/* now extract the SEQ NUM for context. mask out all but the
 		 * SEQ NUM */
-		MATHB(MATH0, AND, 0x7FF8, MATH0, 4, IMMED2);
+		MATHB(p, MATH0, AND, 0x7FF8, MATH0, 4, IMMED2);
 		/* get SEQ NUM to right 12 bits of left word */
-		MATHB(MATH0, LSHIFT, 29, MATH0, 8, IFB | IMMED2);
+		MATHB(p, MATH0, LSHIFT, 29, MATH0, 8, IFB | IMMED2);
 		/* merge in HFN, bearer, D */
-		MATHB(MATH0, OR, MATH3, MATH0, 8, 0);
+		MATHB(p, MATH0, OR, MATH3, MATH0, 8, 0);
 		/* get context in place */
-		MOVE(MATH0, 0, CONTEXT1, 0, 8, IMMED);
+		MOVE(p, MATH0, 0, CONTEXT1, 0, 8, IMMED);
 
-		ALG_OPERATION(OP_ALG_ALGSEL_KASUMI,
+		ALG_OPERATION(p, OP_ALG_ALGSEL_KASUMI,
 			      OP_ALG_AAI_F8, OP_ALG_AS_INITFINAL,
 			      ICV_CHECK_DISABLE, DIR_ENC);
 		/* Have CRC grab the PDU */
-		LOAD(NFIFOENTRY_STYPE_OFIFO | NFIFOENTRY_DEST_CLASS2 |
+		LOAD(p, NFIFOENTRY_STYPE_OFIFO | NFIFOENTRY_DEST_CLASS2 |
 		     NFIFOENTRY_DTYPE_MSG | 2, NFIFO, 0, 4, IMMED);
 
 		/* need to know if both C & N are 0 */
-		MATHB(MATH1, ADD, MATH2, MATH0, 2, 0);
+		MATHB(p, MATH1, ADD, MATH2, MATH0, 2, 0);
 		/* but haven't decremented N yet */
-		MATHB(MATH0, SUB, ONE, MATH0, 2, 0);
+		MATHB(p, MATH0, SUB, ONE, MATH0, 2, 0);
 		/* do the final entry */
-		pjump2 = JUMP(0, LOCAL_JUMP, ALL_TRUE, MATH_Z);
-		SET_LABEL(info_len);
-		LOAD(NFIFOENTRY_STYPE_SNOOP | NFIFOENTRY_DEST_BOTH |
+		pjump2 = JUMP(p, 0, LOCAL_JUMP, ALL_TRUE, MATH_Z);
+		SET_LABEL(p, info_len);
+		LOAD(p, NFIFOENTRY_STYPE_SNOOP | NFIFOENTRY_DEST_BOTH |
 		     NFIFOENTRY_DTYPE_MSG | NFIFOENTRY_LC1, NFIFO, 0, 4, IMMED);
 
 		/* skip over the last entry */
-		pjump3 = JUMP(after_info, LOCAL_JUMP, ALL_TRUE, 0);
-		SET_LABEL(last_info);
-		LOAD(NFIFOENTRY_STYPE_SNOOP | NFIFOENTRY_DEST_BOTH |
+		pjump3 = JUMP(p, after_info, LOCAL_JUMP, ALL_TRUE, 0);
+		SET_LABEL(p, last_info);
+		LOAD(p, NFIFOENTRY_STYPE_SNOOP | NFIFOENTRY_DEST_BOTH |
 		     NFIFOENTRY_DTYPE_MSG | NFIFOENTRY_LC1 | NFIFOENTRY_LC2,
 		     NFIFO, 0, 4, IMMED);
-		SET_LABEL(after_info);
+		SET_LABEL(p, after_info);
 
 		/* Create offset in output FIFO of 6 */
-		WORD(0x16860016);
-		SEQFIFOSTORE(MSG, 0, 0, VLF);
+		WORD(p, 0x16860016);
+		SEQFIFOSTORE(p, MSG, 0, 0, VLF);
 
-		JUMP(1, LOCAL_JUMP, ALL_TRUE, CLASS1 | NOP);
-		LOAD(CLRW_CLR_C1MODE | CLRW_CLR_C1DATAS | CLRW_CLR_C1ICV |
+		JUMP(p, 1, LOCAL_JUMP, ALL_TRUE, CLASS1 | NOP);
+		LOAD(p, CLRW_CLR_C1MODE | CLRW_CLR_C1DATAS | CLRW_CLR_C1ICV |
 		     CLRW_CLR_C1CTX, CLRW, 0, 4, IMMED);
 
-		SET_LABEL(encap_share_end);
+		SET_LABEL(p, encap_share_end);
 	}
 
 	/* Patch section */
-	PATCH_JUMP(pjump1, encap_share_end);
-	PATCH_JUMP(pjump2, last_info);
-	PATCH_JUMP(pjump3, after_info);
+	PATCH_JUMP(p, pjump1, encap_share_end);
+	PATCH_JUMP(p, pjump2, last_info);
+	PATCH_JUMP(p, pjump3, after_info);
 
-	PATCH_MOVE(pmove1, encap_share_end);
-	PATCH_MOVE(pmove2, datasz_len);
-	PATCH_MOVE(pmove3, datasz_len);
-	PATCH_MOVE(pmove4, datasz1_len);
-	PATCH_MOVE(pmove5, datasz1_len);
-	PATCH_MOVE(pmove6, info_len);
-	PATCH_MOVE(pmove7, info_len);
-	PATCH_MOVE(pmove8, last_info);
-	PATCH_MOVE(pmove9, last_info);
+	PATCH_MOVE(p, pmove1, encap_share_end);
+	PATCH_MOVE(p, pmove2, datasz_len);
+	PATCH_MOVE(p, pmove3, datasz_len);
+	PATCH_MOVE(p, pmove4, datasz1_len);
+	PATCH_MOVE(p, pmove5, datasz1_len);
+	PATCH_MOVE(p, pmove6, info_len);
+	PATCH_MOVE(p, pmove7, info_len);
+	PATCH_MOVE(p, pmove8, last_info);
+	PATCH_MOVE(p, pmove9, last_info);
 
-	return PROGRAM_FINALIZE();
+	return PROGRAM_FINALIZE(p);
 }
 
 /*
  * This command group goes in last and is there when the descriptor finishes
  * This command group waits at the end of CTX2 until it is put in place
  */
-unsigned generate_extra_desc_code(struct program *prg, uint32_t *buff,
+unsigned generate_extra_desc_code(struct program *p, uint32_t *buff,
 				  int mdatalen, unsigned buffpos)
 {
-	struct program *program = prg;
+	PROGRAM_CNTXT_INIT(p, buff, buffpos);
 
-	PROGRAM_CNTXT_INIT(buff, buffpos);
-
-	MATHB(MATH2, SUB, ONE, MATH2, 4, 0);	/* Done with a PDU */
+	MATHB(p, MATH2, SUB, ONE, MATH2, 4, 0);	/* Done with a PDU */
 
 	/* back to loop start if not zero & Kasumi done */
-	loop_start_ref1 = JUMP(loop_start, LOCAL_JUMP, ALL_FALSE, MATH_Z);
+	loop_start_ref1 = JUMP(p, loop_start, LOCAL_JUMP, ALL_FALSE, MATH_Z);
 	/* done with loop, move the tail */
-	MATHB(ZERO, ADD, MATH1, VSEQOUTSZ, 2, 0);
+	MATHB(p, ZERO, ADD, MATH1, VSEQOUTSZ, 2, 0);
 	/* get the Tail */
-	MOVE(IFIFOABD, 0, MATH1, 0, 0, IMMED);
+	MOVE(p, IFIFOABD, 0, MATH1, 0, 0, IMMED);
 	/* label tail_move_i really goes here */
-	MOVE(MATH1, 0, IFIFOAB2, 0, 0, LAST2 | IMMED);
+	MOVE(p, MATH1, 0, IFIFOAB2, 0, 0, LAST2 | IMMED);
 	/* put it out there; MOVE makes sure store data is there */
-	SEQSTORE(MATH1, 0, 0, VLF);
-	SEQSTORE(CONTEXT2, 0, 2, 0);
+	SEQSTORE(p, MATH1, 0, 0, VLF);
+	SEQSTORE(p, CONTEXT2, 0, 2, 0);
 
-	JUMP(NONE, HALT_STATUS, ALL_TRUE, 0);
+	JUMP(p, NONE, HALT_STATUS, ALL_TRUE, 0);
 
-	return PROGRAM_FINALIZE();
+	return PROGRAM_FINALIZE(p);
 }
 
 /*
  * This command group goes directly to the descriptor buffer,
  * it is never in context
  */
-unsigned generate_more_extra_desc_code(struct program *prg, uint32_t *buff,
+unsigned generate_more_extra_desc_code(struct program *p, uint32_t *buff,
 				       int mdatalen, unsigned buffpos)
 {
-	struct program *program = prg;
-
-	PROGRAM_CNTXT_INIT(buff, buffpos);
+	PROGRAM_CNTXT_INIT(p, buff, buffpos);
 
 	/* end extras to C2 context for later use */
-	MOVE(IFIFOABD, 0, CONTEXT2, 0, num_ctx2_extras, FLUSH1 | IMMED);
-	MOVE(IFIFOABD, 0, CONTEXT1, 0, num_ctx1_extras, FLUSH1 | IMMED);
-	MOVE(IFIFOABD, 0, MATH0, 4, 28, FLUSH1 | IMMED);
+	MOVE(p, IFIFOABD, 0, CONTEXT2, 0, num_ctx2_extras, FLUSH1 | IMMED);
+	MOVE(p, IFIFOABD, 0, CONTEXT1, 0, num_ctx1_extras, FLUSH1 | IMMED);
+	MOVE(p, IFIFOABD, 0, MATH0, 4, 28, FLUSH1 | IMMED);
 
-	MOVE(CONTEXT2, 48, MATH1, 0, 6, IMMED); /* fix up the tail length */
-	MOVE(MATH1, 0, CONTEXT2, 48, 8, IMMED);
-	MOVE(CONTEXT2, 52, MATH1, 0, 6, IMMED); /* fix up the tail length */
-	MOVE(MATH1, 0, CONTEXT1, 52, 8, IMMED);
+	MOVE(p, CONTEXT2, 48, MATH1, 0, 6, IMMED); /* fix up the tail length */
+	MOVE(p, MATH1, 0, CONTEXT2, 48, 8, IMMED);
+	MOVE(p, CONTEXT2, 52, MATH1, 0, 6, IMMED); /* fix up the tail length */
+	MOVE(p, MATH1, 0, CONTEXT1, 52, 8, IMMED);
 
-	MATHB(ZERO, ADD, MATH0, VSEQOUTSZ, 4, 0);	/* size of the header */
-	MOVE(CONTEXT2, 4, MATH0, 0, 4, IMMED);	/* fix up head size */
-	encap_share_end_ref3 = MOVE(CONTEXT1, 0, DESCBUF, 0,
+	MATHB(p, ZERO, ADD, MATH0, VSEQOUTSZ, 4, 0);	/* size of the header */
+	MOVE(p, CONTEXT2, 4, MATH0, 0, 4, IMMED);	/* fix up head size */
+	encap_share_end_ref3 = MOVE(p, CONTEXT1, 0, DESCBUF, 0,
 				    num_even_more_extras_bytes,
 				    WAITCOMP | IMMED);
-	encap_share_end_ref4 = JUMP(0, LOCAL_JUMP, ALL_TRUE, 0);
+	encap_share_end_ref4 = JUMP(p, 0, LOCAL_JUMP, ALL_TRUE, 0);
 
-	return PROGRAM_FINALIZE();
+	return PROGRAM_FINALIZE(p);
 }
 
 /*
  * This command group sits at the start of CTX1 until needed.
  * It is the 2nd group to go in.
  */
-unsigned generate_even_more_extra_desc_code(struct program *prg, uint32_t *buff,
+unsigned generate_even_more_extra_desc_code(struct program *p, uint32_t *buff,
 					    int mdatalen, unsigned buffpos)
 {
-	struct program *program = prg;
+	PROGRAM_CNTXT_INIT(p, buff, buffpos);
 
-	PROGRAM_CNTXT_INIT(buff, buffpos);
-
-	MOVE(MATH0, 0, CONTEXT2, 4, 8, IMMED);
+	MOVE(p, MATH0, 0, CONTEXT2, 4, 8, IMMED);
 	/* fix up head info FIFO entry */
-	MOVE(CONTEXT2, 8, MATH0, 0, 6, IMMED);
-	MOVE(MATH0, 0, CONTEXT2, 8, 8, IMMED);
-	MOVE(CONTEXT2, 16, MATH0, 0, 6, IMMED);	/* fix up head move */
-	MOVE(MATH0, 0, CONTEXT2, 16, 8, IMMED);
-	MOVE(IFIFOABD, 0, KEY1, 0, 16, FLUSH1 | IMMED);
+	MOVE(p, CONTEXT2, 8, MATH0, 0, 6, IMMED);
+	MOVE(p, MATH0, 0, CONTEXT2, 8, 8, IMMED);
+	MOVE(p, CONTEXT2, 16, MATH0, 0, 6, IMMED);	/* fix up head move */
+	MOVE(p, MATH0, 0, CONTEXT2, 16, 8, IMMED);
+	MOVE(p, IFIFOABD, 0, KEY1, 0, 16, FLUSH1 | IMMED);
 
-	LOAD(16, KEY1SZ, 0, 4, IMMED);
+	LOAD(p, 16, KEY1SZ, 0, 4, IMMED);
 
-	encap_share_end_ref5 = MOVE(CONTEXT2, 0, DESCBUF, 0,
+	encap_share_end_ref5 = MOVE(p, CONTEXT2, 0, DESCBUF, 0,
 				    num_yet_more_extras_bytes, IMMED);
-	yet_more_ref1 = MOVE(CONTEXT1, 48, DESCBUF, 0,
+	yet_more_ref1 = MOVE(p, CONTEXT1, 48, DESCBUF, 0,
 			     num_still_more_extras_bytes, IMMED);
-	encap_share_end_ref6 = JUMP(0, LOCAL_JUMP, ALL_TRUE, 0);
+	encap_share_end_ref6 = JUMP(p, 0, LOCAL_JUMP, ALL_TRUE, 0);
 
-	return PROGRAM_FINALIZE();
+	return PROGRAM_FINALIZE(p);
 }
 
 /*
  * This command group sits in the first 8 words of CTX2 until needed.
  * It is the 3rd group to go in.
  */
-unsigned generate_yet_more_extra_desc_code(struct program *prg, uint32_t *buff,
+unsigned generate_yet_more_extra_desc_code(struct program *p, uint32_t *buff,
 					   int mdatalen, unsigned buffpos)
 {
-	struct program *program = prg;
-
-	PROGRAM_CNTXT_INIT(buff, buffpos);
+	PROGRAM_CNTXT_INIT(p, buff, buffpos);
 
 	/* get CRC init value into place */
-	MOVE(IFIFOABD, 0, CONTEXT2, 0, 4, FLUSH1 | IMMED);
+	MOVE(p, IFIFOABD, 0, CONTEXT2, 0, 4, FLUSH1 | IMMED);
 
-	LOAD(0, DATA2SZ, 0, 4, IMMED);
-	MOVE(IFIFOABD, 0, OFIFO, 0, 0, FLUSH1 | IMMED);
-	LOAD(NFIFOENTRY_STYPE_OFIFO | NFIFOENTRY_DEST_CLASS2 |
+	LOAD(p, 0, DATA2SZ, 0, 4, IMMED);
+	MOVE(p, IFIFOABD, 0, OFIFO, 0, 0, FLUSH1 | IMMED);
+	LOAD(p, NFIFOENTRY_STYPE_OFIFO | NFIFOENTRY_DEST_CLASS2 |
 	     NFIFOENTRY_DTYPE_MSG | 2, NFIFO, 0, 4, IMMED);
 
 	/*
 	 * It's a race - but the needed commands should be in the pipeline
 	 * before the MOVE overwrites them!
 	 */
-	encap_share_end_ref7 = MOVE(CONTEXT2, 32, DESCBUF, 0, num_extras_bytes,
-				    IMMED);
-	ALG_OPERATION(OP_ALG_ALGSEL_CRC,
+	encap_share_end_ref7 = MOVE(p, CONTEXT2, 32, DESCBUF, 0,
+				    num_extras_bytes, IMMED);
+	ALG_OPERATION(p, OP_ALG_ALGSEL_CRC,
 		      OP_ALG_AAI_CUST_POLY | OP_ALG_AAI_IVZ | OP_ALG_AAI_DOC |
 		      OP_ALG_AAI_DIS | OP_ALG_AAI_DOS, OP_ALG_AS_FINALIZE,
 		      ICV_CHECK_DISABLE, DIR_ENC);
 
-	return PROGRAM_FINALIZE();
+	return PROGRAM_FINALIZE(p);
 }
 
 /*
@@ -345,19 +335,17 @@ unsigned generate_yet_more_extra_desc_code(struct program *prg, uint32_t *buff,
  * It is the 4th group to go in. (It is actually present at the same time as
  * the 3rd group!
  */
-unsigned generate_still_more_extra_desc_code(struct program *prg,
-					     uint32_t *buff, int mdatalen,
-					     unsigned buffpos)
+unsigned generate_still_more_extra_desc_code(struct program *p, uint32_t *buff,
+					     int mdatalen, unsigned buffpos)
 {
-	struct program *program = prg;
+	PROGRAM_CNTXT_INIT(p, buff, buffpos);
 
-	PROGRAM_CNTXT_INIT(buff, buffpos);
+	SET_LABEL(p, yet_more);
+	SEQFIFOSTORE(p, MSG, 0, 0, VLF);
+	back_from_extras_ref1 = JUMP(p, back_from_extras, LOCAL_JUMP, ALL_TRUE,
+				     0);
 
-	SET_LABEL(yet_more);
-	SEQFIFOSTORE(MSG, 0, 0, VLF);
-	back_from_extras_ref1 = JUMP(back_from_extras, LOCAL_JUMP, ALL_TRUE, 0);
-
-	return PROGRAM_FINALIZE();
+	return PROGRAM_FINALIZE(p);
 }
 
 int main(int argc, char *argv[])

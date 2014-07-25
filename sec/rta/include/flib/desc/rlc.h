@@ -118,19 +118,19 @@ static inline void cnstr_shdsc_rlc_encap(uint32_t *descbuf,
 		struct alginfo *cipherdata)
 {
 	struct program prg;
-	struct program *program = &prg;
+	struct program *p = &prg;
 	struct rlc_pdb pdb;
 	LABEL(pdb_end);
 	LABEL(keyjmp);
 	REFERENCE(phdr);
 	REFERENCE(pkeyjmp);
 
-	PROGRAM_CNTXT_INIT(descbuf, 0);
+	PROGRAM_CNTXT_INIT(p, descbuf, 0);
 
 	if (ps)
-		PROGRAM_SET_36BIT_ADDR();
+		PROGRAM_SET_36BIT_ADDR(p);
 
-	phdr = SHR_HDR(SHR_SERIAL, 0, 0);
+	phdr = SHR_HDR(p, SHR_SERIAL, 0, 0);
 
 	memset(&pdb, 0, sizeof(struct rlc_pdb));
 
@@ -161,11 +161,11 @@ static inline void cnstr_shdsc_rlc_encap(uint32_t *descbuf,
 				 (direction << RLC_PDB_DIR_SHIFT));
 
 	/* copy PDB in descriptor*/
-	COPY_DATA((uint8_t *)&pdb, sizeof(struct rlc_pdb));
+	COPY_DATA(p, (uint8_t *)&pdb, sizeof(struct rlc_pdb));
 
-	SET_LABEL(pdb_end);
+	SET_LABEL(p, pdb_end);
 
-	if (insert_hfn_ov_op(program, mode, RLC_PDB_TYPE_FULL_PDB, 0))
+	if (insert_hfn_ov_op(p, mode, RLC_PDB_TYPE_FULL_PDB, 0))
 		return;
 
 	switch (mode) {
@@ -173,17 +173,17 @@ static inline void cnstr_shdsc_rlc_encap(uint32_t *descbuf,
 	case RLC_ACKED_MODE:
 		switch (cipherdata->algtype) {
 		case RLC_CIPHER_TYPE_KASUMI:
-			pkeyjmp = JUMP(keyjmp, LOCAL_JUMP, ALL_TRUE, SHRD);
+			pkeyjmp = JUMP(p, keyjmp, LOCAL_JUMP, ALL_TRUE, SHRD);
 			/* Insert Cipher Key */
-			KEY(KEY1, cipherdata->key_enc_flags, cipherdata->key,
+			KEY(p, KEY1, cipherdata->key_enc_flags, cipherdata->key,
 			    cipherdata->keylen, 0);
-			SET_LABEL(keyjmp);
+			SET_LABEL(p, keyjmp);
 
-			PROTOCOL(OP_TYPE_ENCAP_PROTOCOL,
+			PROTOCOL(p, OP_TYPE_ENCAP_PROTOCOL,
 				 OP_PCLID_3G_RLC_PDU,
 				 (uint16_t)cipherdata->algtype);
 
-			PATCH_JUMP(pkeyjmp, keyjmp);
+			PATCH_JUMP(p, pkeyjmp, keyjmp);
 
 			break;
 
@@ -197,17 +197,17 @@ static inline void cnstr_shdsc_rlc_encap(uint32_t *descbuf,
 			 */
 
 			/* Insert Cipher Key */
-			KEY(KEY1, cipherdata->key_enc_flags, cipherdata->key,
+			KEY(p, KEY1, cipherdata->key_enc_flags, cipherdata->key,
 			    cipherdata->keylen, 0);
 
-			PROTOCOL(OP_TYPE_ENCAP_PROTOCOL,
+			PROTOCOL(p, OP_TYPE_ENCAP_PROTOCOL,
 				 OP_PCLID_3G_RLC_PDU,
 				 (uint16_t)cipherdata->algtype);
 
 			break;
 
 		case RLC_CIPHER_TYPE_NULL:
-			insert_copy_frame_op(program,
+			insert_copy_frame_op(p,
 					     cipherdata,
 					     OP_TYPE_ENCAP_PROTOCOL);
 			break;
@@ -223,8 +223,8 @@ static inline void cnstr_shdsc_rlc_encap(uint32_t *descbuf,
 		break;
 	}
 
-	PATCH_HDR(phdr, pdb_end);
-	*bufsize = PROGRAM_FINALIZE();
+	PATCH_HDR(p, phdr, pdb_end);
+	*bufsize = PROGRAM_FINALIZE(p);
 }
 
 /**
@@ -261,19 +261,19 @@ static inline void cnstr_shdsc_rlc_decap(uint32_t *descbuf,
 		struct alginfo *cipherdata)
 {
 	struct program prg;
-	struct program *program = &prg;
+	struct program *p = &prg;
 	struct rlc_pdb pdb;
 	LABEL(pdb_end);
 	LABEL(keyjmp);
 	REFERENCE(phdr);
 	REFERENCE(pkeyjmp);
 
-	PROGRAM_CNTXT_INIT(descbuf, 0);
+	PROGRAM_CNTXT_INIT(p, descbuf, 0);
 
 	if (ps)
-		PROGRAM_SET_36BIT_ADDR();
+		PROGRAM_SET_36BIT_ADDR(p);
 
-	phdr = SHR_HDR(SHR_SERIAL, 0, 0);
+	phdr = SHR_HDR(p, SHR_SERIAL, 0, 0);
 
 	memset(&pdb, 0, sizeof(struct rlc_pdb));
 
@@ -304,11 +304,11 @@ static inline void cnstr_shdsc_rlc_decap(uint32_t *descbuf,
 				 (direction << RLC_PDB_DIR_SHIFT));
 
 	/* copy PDB in descriptor*/
-	COPY_DATA((uint8_t *)&pdb, sizeof(struct rlc_pdb));
+	COPY_DATA(p, (uint8_t *)&pdb, sizeof(struct rlc_pdb));
 
-	SET_LABEL(pdb_end);
+	SET_LABEL(p, pdb_end);
 
-	if (insert_hfn_ov_op(program, mode, RLC_PDB_TYPE_FULL_PDB, 0))
+	if (insert_hfn_ov_op(p, mode, RLC_PDB_TYPE_FULL_PDB, 0))
 		return;
 
 	switch (mode) {
@@ -316,17 +316,17 @@ static inline void cnstr_shdsc_rlc_decap(uint32_t *descbuf,
 	case RLC_ACKED_MODE:
 		switch (cipherdata->algtype) {
 		case RLC_CIPHER_TYPE_KASUMI:
-			pkeyjmp = JUMP(keyjmp, LOCAL_JUMP, ALL_TRUE, SHRD);
+			pkeyjmp = JUMP(p, keyjmp, LOCAL_JUMP, ALL_TRUE, SHRD);
 			/* Insert Cipher Key */
-			KEY(KEY1, cipherdata->key_enc_flags, cipherdata->key,
+			KEY(p, KEY1, cipherdata->key_enc_flags, cipherdata->key,
 			    cipherdata->keylen, 0);
-			SET_LABEL(keyjmp);
+			SET_LABEL(p, keyjmp);
 
-			PROTOCOL(OP_TYPE_DECAP_PROTOCOL,
+			PROTOCOL(p, OP_TYPE_DECAP_PROTOCOL,
 				 OP_PCLID_3G_RLC_PDU,
 				 (uint16_t)cipherdata->algtype);
 
-			PATCH_JUMP(pkeyjmp, keyjmp);
+			PATCH_JUMP(p, pkeyjmp, keyjmp);
 			break;
 
 		case RLC_CIPHER_TYPE_SNOW:
@@ -339,18 +339,18 @@ static inline void cnstr_shdsc_rlc_decap(uint32_t *descbuf,
 			 */
 
 			/* Insert Cipher Key */
-			KEY(KEY1, cipherdata->key_enc_flags, cipherdata->key,
+			KEY(p, KEY1, cipherdata->key_enc_flags, cipherdata->key,
 			    cipherdata->keylen, 0);
-			SET_LABEL(keyjmp);
+			SET_LABEL(p, keyjmp);
 
-			PROTOCOL(OP_TYPE_DECAP_PROTOCOL,
+			PROTOCOL(p, OP_TYPE_DECAP_PROTOCOL,
 				 OP_PCLID_3G_RLC_PDU,
 				 (uint16_t)cipherdata->algtype);
 
 			break;
 
 		case RLC_CIPHER_TYPE_NULL:
-			insert_copy_frame_op(program,
+			insert_copy_frame_op(p,
 					     cipherdata,
 					     OP_TYPE_ENCAP_PROTOCOL);
 			break;
@@ -367,8 +367,8 @@ static inline void cnstr_shdsc_rlc_decap(uint32_t *descbuf,
 		break;
 	}
 
-	PATCH_HDR(phdr, pdb_end);
-	*bufsize = PROGRAM_FINALIZE();
+	PATCH_HDR(p, phdr, pdb_end);
+	*bufsize = PROGRAM_FINALIZE(p);
 }
 
 #endif  /* __DESC_RLC_H__ */

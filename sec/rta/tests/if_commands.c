@@ -9,47 +9,47 @@ enum rta_sec_era rta_sec_era;
 unsigned if_command_test(uint32_t *buff, uint8_t len)
 {
 	struct program prg;
-	struct program *program = &prg;
+	struct program *p = &prg;
 
-	PROGRAM_SET_36BIT_ADDR();
+	PROGRAM_SET_36BIT_ADDR(p);
 
-	PROGRAM_CNTXT_INIT(buff, 0);
+	PROGRAM_CNTXT_INIT(p, buff, 0);
 
 	if (len == 16)
-		MOVE(CONTEXT1, 0, CONTEXT2, 0, 15, IMMED);
+		MOVE(p, CONTEXT1, 0, CONTEXT2, 0, 15, IMMED);
 	if (len > 16)
-		MOVE(CONTEXT1, 0, CONTEXT2, 0, 16, IMMED);
+		MOVE(p, CONTEXT1, 0, CONTEXT2, 0, 16, IMMED);
 	else
-		MOVE(CONTEXT1, 0, CONTEXT2, 0, 17, IMMED);
+		MOVE(p, CONTEXT1, 0, CONTEXT2, 0, 17, IMMED);
 	if (len > 21)
-		MOVE(CONTEXT1, 0, CONTEXT2, 0, 16, IMMED);
+		MOVE(p, CONTEXT1, 0, CONTEXT2, 0, 16, IMMED);
 	else if (len == 16)
-		MOVE(CONTEXT1, 0, CONTEXT2, 0, 18, IMMED);
+		MOVE(p, CONTEXT1, 0, CONTEXT2, 0, 18, IMMED);
 
 	if (len > 21)
-		MOVE(CONTEXT1, 0, CONTEXT2, 0, 16, IMMED);
+		MOVE(p, CONTEXT1, 0, CONTEXT2, 0, 16, IMMED);
 	else if (len == 16)
-		MOVE(CONTEXT1, 0, CONTEXT2, 0, 19, IMMED);
+		MOVE(p, CONTEXT1, 0, CONTEXT2, 0, 19, IMMED);
 	else if (len > 16)
-		MOVE(CONTEXT1, 0, CONTEXT2, 0, 16, IMMED);
+		MOVE(p, CONTEXT1, 0, CONTEXT2, 0, 16, IMMED);
 
 	if (len > 21)
-		MOVE(CONTEXT1, 0, CONTEXT2, 0, 16, IMMED);
+		MOVE(p, CONTEXT1, 0, CONTEXT2, 0, 16, IMMED);
 	else if (len < 16)
-		MOVE(CONTEXT1, 0, CONTEXT2, 0, 16, IMMED);
+		MOVE(p, CONTEXT1, 0, CONTEXT2, 0, 16, IMMED);
 	else if (len == 16)
-		MOVE(CONTEXT1, 0, CONTEXT2, 0, 20, IMMED);
+		MOVE(p, CONTEXT1, 0, CONTEXT2, 0, 20, IMMED);
 
 	if (len > 21)
-		MOVE(CONTEXT1, 0, CONTEXT2, 0, 16, IMMED);
+		MOVE(p, CONTEXT1, 0, CONTEXT2, 0, 16, IMMED);
 	else if (len < 16)
-		MOVE(CONTEXT1, 0, CONTEXT2, 0, 16, IMMED);
+		MOVE(p, CONTEXT1, 0, CONTEXT2, 0, 16, IMMED);
 	else if (len > 16)
-		MOVE(CONTEXT1, 0, CONTEXT2, 0, 16, IMMED);
+		MOVE(p, CONTEXT1, 0, CONTEXT2, 0, 16, IMMED);
 	else
-		MOVE(CONTEXT1, 0, CONTEXT2, 0, 22, IMMED);
+		MOVE(p, CONTEXT1, 0, CONTEXT2, 0, 22, IMMED);
 
-	return PROGRAM_FINALIZE();
+	return PROGRAM_FINALIZE(p);
 }
 
 uint32_t prg_buff[1000];

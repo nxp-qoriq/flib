@@ -338,36 +338,36 @@ static inline void cnstr_shdsc_tls(uint32_t *descbuf, unsigned *bufsize,
 				   struct alginfo *authdata)
 {
 	struct program prg;
-	struct program *program = &prg;
+	struct program *p = &prg;
 	unsigned startidx;
 
 	LABEL(keyjmp);
 	REFERENCE(pkeyjmp);
 
 	startidx = pdb_len >> 2;
-	PROGRAM_CNTXT_INIT(descbuf, 0);
+	PROGRAM_CNTXT_INIT(p, descbuf, 0);
 	if (ps)
-		PROGRAM_SET_36BIT_ADDR();
-	SHR_HDR(SHR_SERIAL, ++startidx, 0);
-	COPY_DATA(pdb, pdb_len);
-	pkeyjmp = JUMP(keyjmp, LOCAL_JUMP, ALL_TRUE, BOTH|SHRD|SELF);
+		PROGRAM_SET_36BIT_ADDR(p);
+	SHR_HDR(p, SHR_SERIAL, ++startidx, 0);
+	COPY_DATA(p, pdb, pdb_len);
+	pkeyjmp = JUMP(p, keyjmp, LOCAL_JUMP, ALL_TRUE, BOTH|SHRD|SELF);
 	/*
 	 * SSL3.0 uses SSL-MAC (SMAC) instead of HMAC, thus MDHA Split Key
 	 * does not apply.
 	 */
 	if (protcmd->protid == OP_PCLID_SSL30)
-		KEY(KEY2, authdata->key_enc_flags, authdata->key,
+		KEY(p, KEY2, authdata->key_enc_flags, authdata->key,
 		    authdata->keylen, IMMED | COPY);
 	else
-		KEY(MDHA_SPLIT_KEY, authdata->key_enc_flags, authdata->key,
+		KEY(p, MDHA_SPLIT_KEY, authdata->key_enc_flags, authdata->key,
 		    authdata->keylen, IMMED | COPY);
-	KEY(KEY1, cipherdata->key_enc_flags, cipherdata->key,
+	KEY(p, KEY1, cipherdata->key_enc_flags, cipherdata->key,
 	    cipherdata->keylen, IMMED | COPY);
-	SET_LABEL(keyjmp);
-	PROTOCOL(protcmd->optype, protcmd->protid, protcmd->protinfo);
+	SET_LABEL(p, keyjmp);
+	PROTOCOL(p, protcmd->optype, protcmd->protid, protcmd->protinfo);
 
-	PATCH_JUMP(pkeyjmp, keyjmp);
-	*bufsize = PROGRAM_FINALIZE();
+	PATCH_JUMP(p, pkeyjmp, keyjmp);
+	*bufsize = PROGRAM_FINALIZE(p);
 }
 
 #endif /* __DESC_TLS_H__ */

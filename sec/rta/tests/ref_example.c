@@ -15,25 +15,25 @@ uint32_t job_buf[1000];
 LABEL(label_different_desc);
 REFERENCE(label_different_ref);
 
-unsigned generate_capwap_code(struct program *program, uint32_t *buff)
+unsigned generate_capwap_code(struct program *p, uint32_t *buff)
 {
-	PROGRAM_CNTXT_INIT(buff, 0);
-	SHR_HDR(SHR_ALWAYS, 0, 0);
+	PROGRAM_CNTXT_INIT(p, buff, 0);
+	SHR_HDR(p, SHR_ALWAYS, 0, 0);
 
-	label_different_ref = JUMP(label_different_desc, LOCAL_JUMP, ALL_TRUE,
-				   0);
+	label_different_ref = JUMP(p, label_different_desc, LOCAL_JUMP,
+				   ALL_TRUE, 0);
 
-	return PROGRAM_FINALIZE();
+	return PROGRAM_FINALIZE(p);
 }
 
-unsigned generate_job_desc(struct program *program, uint32_t *buff)
+unsigned generate_job_desc(struct program *p, uint32_t *buff)
 {
-	PROGRAM_CNTXT_INIT(buff, 0x20);
-	SET_LABEL(label_different_desc);
-	MATHB(MATH2, XOR, MATH1, MATH3, 4, 0);
-	MATHU(MATH2, BSWAP, MATH3, 2, NFU);
+	PROGRAM_CNTXT_INIT(p, buff, 0x20);
+	SET_LABEL(p, label_different_desc);
+	MATHB(p, MATH2, XOR, MATH1, MATH3, 4, 0);
+	MATHU(p, MATH2, BSWAP, MATH3, 2, NFU);
 
-	return PROGRAM_FINALIZE();
+	return PROGRAM_FINALIZE(p);
 }
 
 int main(int argc, char **argv)

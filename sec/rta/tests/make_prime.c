@@ -9,61 +9,61 @@ enum rta_sec_era rta_sec_era;
 unsigned make_prime_test(uint32_t *buff)
 {
 	struct program prg;
-	struct program *program = &prg;
+	struct program *p = &prg;
 	int prime_size = 5;
 	uint64_t prime = (uint64_t) 0xeb9f70300ull;
 
 	LABEL(gen);
 	REFERENCE(pjump1);
 
-	PROGRAM_CNTXT_INIT(buff, 0);
-	JOB_HDR(SHR_NEVER, 0, 0, 0);
+	PROGRAM_CNTXT_INIT(p, buff, 0);
+	JOB_HDR(p, SHR_NEVER, 0, 0, 0);
 	{
 		/* Acquire the PKHA */
-		FIFOLOAD(PKA, 0, 0, IMMED | COPY);
+		FIFOLOAD(p, PKA, 0, 0, IMMED | COPY);
 		/* Write the PKHA N size, getting it ready to load */
-		LOAD(prime_size, PKNSZ, 0, 4, IMMED);
+		LOAD(p, prime_size, PKNSZ, 0, 4, IMMED);
 		/* Write the PKHA A size, getting it ready to load */
-		LOAD(prime_size - 1, PKASZ, 0, 4, IMMED);
-		SET_LABEL(gen);
+		LOAD(p, prime_size - 1, PKASZ, 0, 4, IMMED);
+		SET_LABEL(p, gen);
 		/* Turn off auto info-fifo entries */
-		LOAD(0, DCTRL, LDOFF_DISABLE_AUTO_NFIFO, 0, IMMED);
+		LOAD(p, 0, DCTRL, LDOFF_DISABLE_AUTO_NFIFO, 0, IMMED);
 
 		/*
 		   Send six bytes of random padding to DECO AB and then to
 		   MATH0. The upper four will be ignored, and the next two
 		   will become the first and last bytes of our candidate.
 		 */
-		NFIFOADD(PAD, MSG, 6, PAD_RANDOM | LAST1);
-		MOVE(ABD, 0, MATH0, 0, 6, WAITCOMP | IMMED);
+		NFIFOADD(p, PAD, MSG, 6, PAD_RANDOM | LAST1);
+		MOVE(p, ABD, 0, MATH0, 0, 6, WAITCOMP | IMMED);
 		/* Turn on MSb of first byte and LSb of last byte */
-		MATHB(MATH0, OR, 0x80010000, MATH0, 4, IMMED2);
+		MATHB(p, MATH0, OR, 0x80010000, MATH0, 4, IMMED2);
 		/* Send the first and last bytes to the input data fifo */
-		MOVE(MATH0, 4, IFIFOAB1, 0, 2, IMMED);
+		MOVE(p, MATH0, 4, IFIFOAB1, 0, 2, IMMED);
 
 		/* Send MSB from Input FIFO to PKHA N */
-		NFIFOADD(IFIFO, PKN, 1, 0);
+		NFIFOADD(p, IFIFO, PKN, 1, 0);
 		/* Send middle bytes to PKHA N */
-		NFIFOADD(PAD, PKN, (prime_size - 2), PAD_RANDOM | EXT);
+		NFIFOADD(p, PAD, PKN, (prime_size - 2), PAD_RANDOM | EXT);
 		/* Send LSB byte from Input FIFO to PKHA N */
-		NFIFOADD(IFIFO, PKN, 1, FLUSH1);
+		NFIFOADD(p, IFIFO, PKN, 1, FLUSH1);
 		/* Turn on auto info-fifo entries */
-		LOAD(0, DCTRL, LDOFF_ENABLE_AUTO_NFIFO, 0, IMMED);
+		LOAD(p, 0, DCTRL, LDOFF_ENABLE_AUTO_NFIFO, 0, IMMED);
 		/*
 		 * Now set up other inputs size the PRIME_TEST test
 		 * Send random seed to PKHA A
 		 */
-		NFIFOADD(PAD, PKA, (prime_size - 1),
+		NFIFOADD(p, PAD, PKA, (prime_size - 1),
 			 PAD_RANDOM | FLUSH1 | EXT);
 		/* Miller-Rabin iteration count (either-endian) */
-		FIFOLOAD(PKB, 0x07, 1, IMMED);
-		PKHA_OPERATION(OP_ALG_PKMODE_MOD_PRIMALITY);
-		pjump1 = JUMP(gen, LOCAL_JUMP, ANY_FALSE, PK_PRIME);
-		FIFOSTORE(PKN, 0, prime, prime_size, 0);
+		FIFOLOAD(p, PKB, 0x07, 1, IMMED);
+		PKHA_OPERATION(p, OP_ALG_PKMODE_MOD_PRIMALITY);
+		pjump1 = JUMP(p, gen, LOCAL_JUMP, ANY_FALSE, PK_PRIME);
+		FIFOSTORE(p, PKN, 0, prime, prime_size, 0);
 	}
-	PATCH_JUMP(pjump1, gen);
+	PATCH_JUMP(p, pjump1, gen);
 
-	return PROGRAM_FINALIZE();
+	return PROGRAM_FINALIZE(p);
 }
 
 uint32_t prg_buff[1000];

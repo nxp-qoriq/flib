@@ -9,16 +9,16 @@ enum rta_sec_era rta_sec_era;
 unsigned test_key_op(uint32_t *buff)
 {
 	struct program prg;
-	struct program *program = &prg;
+	struct program *p = &prg;
 	uint8_t key_imm[] = { 0x12, 0x13, 0x14, 0x15 };
 	uintptr_t addr = (uintptr_t) &key_imm;
 
-	PROGRAM_CNTXT_INIT(buff, 0);
-	KEY(MDHA_SPLIT_KEY, ENC, addr, 4, IMMED);
-	KEY(MDHA_SPLIT_KEY, ENC, addr, 4, 0);
-	KEY(KEY1, EKT, addr, 4, IMMED);
+	PROGRAM_CNTXT_INIT(p, buff, 0);
+	KEY(p, MDHA_SPLIT_KEY, ENC, addr, 4, IMMED);
+	KEY(p, MDHA_SPLIT_KEY, ENC, addr, 4, 0);
+	KEY(p, KEY1, EKT, addr, 4, IMMED);
 
-	return PROGRAM_FINALIZE();
+	return PROGRAM_FINALIZE(p);
 }
 
 uint32_t prg_buff[1000];

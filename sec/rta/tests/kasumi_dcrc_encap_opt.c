@@ -16,10 +16,9 @@ LABEL(encap_share_end);
 
 uint64_t desc_addr_1 = 0x00000040ull;
 
-unsigned build_shdesc_kasumi_dcrc_encap(struct program *prg, uint32_t *buff,
+unsigned build_shdesc_kasumi_dcrc_encap(struct program *p, uint32_t *buff,
 					unsigned buffpos)
 {
-	struct program *program = prg;
 	uint32_t key_size = 16;
 
 	LABEL(foo);
@@ -33,116 +32,115 @@ unsigned build_shdesc_kasumi_dcrc_encap(struct program *prg, uint32_t *buff,
 	LABEL(build_move);
 	REFERENCE(pjump4);
 
-	PROGRAM_SET_36BIT_ADDR();
+	PROGRAM_SET_36BIT_ADDR(p);
 
-	PROGRAM_CNTXT_INIT(buff, buffpos);
-	SHR_HDR(SHR_NEVER, 6, 0);
+	PROGRAM_CNTXT_INIT(p, buff, buffpos);
+	SHR_HDR(p, SHR_NEVER, 6, 0);
 	{
 		{	/* 3G RLC ENCAP PDB */
-			SET_LABEL(foo);
-			WORD(0);
-			WORD(0);
-			WORD(0);
-			WORD(0x44444444);
-			WORD(0x55555555);
+			SET_LABEL(p, foo);
+			WORD(p, 0);
+			WORD(p, 0);
+			WORD(p, 0);
+			WORD(p, 0x44444444);
+			WORD(p, 0x55555555);
 		}
-		pjump1 = JUMP(do_dcrc, LOCAL_JUMP, ALL_TRUE, MATH_N);
+		pjump1 = JUMP(p, do_dcrc, LOCAL_JUMP, ALL_TRUE, MATH_N);
 
 		/* Start bringing in Preamble */
-		LOAD(0, DCTRL, LDOFF_DISABLE_AUTO_NFIFO, 0, IMMED);
-		SEQFIFOLOAD(PKA0, 60, 0);
-		LOAD(0, DCTRL, LDOFF_ENABLE_AUTO_NFIFO, 0, IMMED);
-		pmove1 = MOVE(IFIFOABD, 0, DESCBUF, 0, 12, IMMED);
-		MOVE(IFIFOABD, 0, KEY1, 0, key_size, IMMED);
-		MOVE(IFIFOABD, 0, CONTEXT2, 32, 32, IMMED);
-		LOAD(key_size, KEY1SZ, 0, 4, IMMED);
-		MOVE(CONTEXT2, 32, MATH0, 0, 32, IMMED);
+		LOAD(p, 0, DCTRL, LDOFF_DISABLE_AUTO_NFIFO, 0, IMMED);
+		SEQFIFOLOAD(p, PKA0, 60, 0);
+		LOAD(p, 0, DCTRL, LDOFF_ENABLE_AUTO_NFIFO, 0, IMMED);
+		pmove1 = MOVE(p, IFIFOABD, 0, DESCBUF, 0, 12, IMMED);
+		MOVE(p, IFIFOABD, 0, KEY1, 0, key_size, IMMED);
+		MOVE(p, IFIFOABD, 0, CONTEXT2, 32, 32, IMMED);
+		LOAD(p, key_size, KEY1SZ, 0, 4, IMMED);
+		MOVE(p, CONTEXT2, 32, MATH0, 0, 32, IMMED);
 		/* Get SEQ IN PTR command from Job Descriptor */
-		ref_job_seqout = MOVE(DESCBUF, 0, MATH2, 0, 12,
+		ref_job_seqout = MOVE(p, DESCBUF, 0, MATH2, 0, 12,
 				      WAITCOMP | IMMED);
 		/* Mask out the bit so SOP becomes SIP; maintain ptr value */
-		MATHB(MATH2, AND, 0xf7ffffffffffffff, MATH2, 8, IMMED2);
-		MATHB(SEQINSZ, ADD, MATH3, MATH3, 8, NFU);
+		MATHB(p, MATH2, AND, 0xf7ffffffffffffff, MATH2, 8, IMMED2);
+		MATHB(p, SEQINSZ, ADD, MATH3, MATH3, 8, NFU);
 		/* swap words */
-		MATHB(MATH0, SHLD, MATH3, MATH3, 8, 0);
-		ref_job_seqin = MOVE(MATH2, 0, DESCBUF, 0, 12, IMMED);
-		MOVE(CONTEXT2, 48, MATH2, 0, 16, WAITCOMP | IMMED);
+		MATHB(p, MATH0, SHLD, MATH3, MATH3, 8, 0);
+		ref_job_seqin = MOVE(p, MATH2, 0, DESCBUF, 0, 12, IMMED);
+		MOVE(p, CONTEXT2, 48, MATH2, 0, 16, WAITCOMP | IMMED);
 
 		/* Build a MOVE command to process input data */
-		SET_LABEL(build_move);
+		SET_LABEL(p, build_move);
 		/*
 		 * RTA does not support generating MATH commands with LEN = 8
-		 * and no immediate inlined in the command, thus use WORD().
+		 * and no immediate inlined in the command, thus use WORD(p, ).
 		 */
-		WORD(0xaa004004);
-		MOVE(IFIFOABD, 0, OFIFO, 0, 0, IMMED);
+		WORD(p, 0xaa004004);
+		MOVE(p, IFIFOABD, 0, OFIFO, 0, 0, IMMED);
 
-		MATHB(ZERO, ADD, MATH0, VSEQINSZ, 2, NFU);
-		MATHB(ZERO, ADD, MATH0, VSEQOUTSZ, 2, NFU);
-		MATHB(MATH0, SHLD, MATH0, MATH0, 8, NFU);
-		pmove4 = MOVE(MATH0, 0, DESCBUF, 0, 4, WAITCOMP | IMMED);
-		LOAD(0, DCTRL, LDOFF_DISABLE_AUTO_NFIFO, 0, IMMED);
-		SEQFIFOLOAD(PKA0, 0, VLF);
-		SEQFIFOSTORE(MSG, 0, 0, VLF);
-		LOAD(0, DCTRL, LDOFF_ENABLE_AUTO_NFIFO, 0, IMMED);
+		MATHB(p, ZERO, ADD, MATH0, VSEQINSZ, 2, NFU);
+		MATHB(p, ZERO, ADD, MATH0, VSEQOUTSZ, 2, NFU);
+		MATHB(p, MATH0, SHLD, MATH0, MATH0, 8, NFU);
+		pmove4 = MOVE(p, MATH0, 0, DESCBUF, 0, 4, WAITCOMP | IMMED);
+		LOAD(p, 0, DCTRL, LDOFF_DISABLE_AUTO_NFIFO, 0, IMMED);
+		SEQFIFOLOAD(p, PKA0, 0, VLF);
+		SEQFIFOSTORE(p, MSG, 0, 0, VLF);
+		LOAD(p, 0, DCTRL, LDOFF_ENABLE_AUTO_NFIFO, 0, IMMED);
 
-		SET_LABEL(get_data);
-		WORD(0);
-		ref_all_done = JUMP(all_done, LOCAL_JUMP, ALL_TRUE, MATH_N);
+		SET_LABEL(p, get_data);
+		WORD(p, 0);
+		ref_all_done = JUMP(p, all_done, LOCAL_JUMP, ALL_TRUE, MATH_N);
 
-		SET_LABEL(process_pdu);
-		MATHB(ZERO, ADD, MATH1, SEQINSZ, 4, 0);
-		PROTOCOL(OP_TYPE_ENCAP_PROTOCOL, OP_PCLID_3G_RLC_PDU,
+		SET_LABEL(p, process_pdu);
+		MATHB(p, ZERO, ADD, MATH1, SEQINSZ, 4, 0);
+		PROTOCOL(p, OP_TYPE_ENCAP_PROTOCOL, OP_PCLID_3G_RLC_PDU,
 			 OP_PCL_3G_RLC_KASUMI);
-		LOAD(CLRW_CLR_C1CTX | CLRW_CLR_C1ICV | CLRW_CLR_C1MODE |
+		LOAD(p, CLRW_CLR_C1CTX | CLRW_CLR_C1ICV | CLRW_CLR_C1MODE |
 		     CLRW_CLR_C1DATAS, CLRW, 0, 4, IMMED);
-		LOAD(CCTRL_RESET_CHA_KFHA, CCTRL, 0, 4, IMMED);
-		MOVE(CONTEXT2, 32, MATH0, 0, 32, WAITCOMP | IMMED);
-		MATHB(MATH3, SUB, ONE, MATH3, 8, 0);
-		MOVE(MATH3, 0, CONTEXT2, 56, 8, IMMED);
-		pjump3 = JUMP(process_pdu, LOCAL_JUMP, ANY_FALSE, MATH_Z);
-		MATHB(MATH0, LSHIFT, 48, MATH0, 8, IFB | IMMED2);
-		MOVE(MATH0, 0, DESCBUF, 4, 4, IMMED);
-		MATHB(ZERO, SUB, ONE, NONE, 4, 0);
-		MATHB(ZERO, ADD, MATH2, SEQINSZ, 4, NFU);
-		MATHB(ZERO, ADD, MATH2, MATH0, 4, NFU);
-		pjump4 = JUMP(build_move, LOCAL_JUMP, ALL_TRUE, 0);
+		LOAD(p, CCTRL_RESET_CHA_KFHA, CCTRL, 0, 4, IMMED);
+		MOVE(p, CONTEXT2, 32, MATH0, 0, 32, WAITCOMP | IMMED);
+		MATHB(p, MATH3, SUB, ONE, MATH3, 8, 0);
+		MOVE(p, MATH3, 0, CONTEXT2, 56, 8, IMMED);
+		pjump3 = JUMP(p, process_pdu, LOCAL_JUMP, ANY_FALSE, MATH_Z);
+		MATHB(p, MATH0, LSHIFT, 48, MATH0, 8, IFB | IMMED2);
+		MOVE(p, MATH0, 0, DESCBUF, 4, 4, IMMED);
+		MATHB(p, ZERO, SUB, ONE, NONE, 4, 0);
+		MATHB(p, ZERO, ADD, MATH2, SEQINSZ, 4, NFU);
+		MATHB(p, ZERO, ADD, MATH2, MATH0, 4, NFU);
+		pjump4 = JUMP(p, build_move, LOCAL_JUMP, ALL_TRUE, 0);
 
-		SET_LABEL(do_dcrc);
-		PROTOCOL(OP_TYPE_ENCAP_PROTOCOL, OP_PCLID_3G_DCRC,
+		SET_LABEL(p, do_dcrc);
+		PROTOCOL(p, OP_TYPE_ENCAP_PROTOCOL, OP_PCLID_3G_DCRC,
 			 OP_PCL_3G_DCRC_CRC7);
-		SET_LABEL(encap_share_end);
+		SET_LABEL(p, encap_share_end);
 	}
 
-	PATCH_JUMP(pjump1, do_dcrc);
-	PATCH_JUMP(pjump3, process_pdu);
-	PATCH_JUMP(pjump4, build_move);
-	PATCH_MOVE(pmove1, foo);
-	PATCH_MOVE(pmove4, get_data);
+	PATCH_JUMP(p, pjump1, do_dcrc);
+	PATCH_JUMP(p, pjump3, process_pdu);
+	PATCH_JUMP(p, pjump4, build_move);
+	PATCH_MOVE(p, pmove1, foo);
+	PATCH_MOVE(p, pmove4, get_data);
 
-	return PROGRAM_FINALIZE();
+	return PROGRAM_FINALIZE(p);
 }
 
-unsigned build_jbdesc_kasumi_dcrc_encap(struct program *prg, uint32_t *buff,
+unsigned build_jbdesc_kasumi_dcrc_encap(struct program *p, uint32_t *buff,
 					unsigned buffpos)
 {
-	struct program *program = prg;
 	uint32_t input_frame_length = 2356;
 	uint32_t output_frame_length = 2302;
 	uint64_t pdu_in_addr_1 = 0x155ull;
 	uint64_t pdu_out_addr_1 = 0x095a0967ull;
 
-	PROGRAM_CNTXT_INIT(buff, buffpos);
-	JOB_HDR(SHR_ALWAYS, buffpos, desc_addr_1, REO | SHR);
+	PROGRAM_CNTXT_INIT(p, buff, buffpos);
+	JOB_HDR(p, SHR_ALWAYS, buffpos, desc_addr_1, REO | SHR);
 	{
-		SET_LABEL(encap_job_seqout);
-		SET_LABEL(all_done);
-		SEQOUTPTR(pdu_out_addr_1, output_frame_length, EXT);
-		SET_LABEL(encap_job_seqin);
-		SEQINPTR(pdu_in_addr_1, input_frame_length, EXT);
+		SET_LABEL(p, encap_job_seqout);
+		SET_LABEL(p, all_done);
+		SEQOUTPTR(p, pdu_out_addr_1, output_frame_length, EXT);
+		SET_LABEL(p, encap_job_seqin);
+		SEQINPTR(p, pdu_in_addr_1, input_frame_length, EXT);
 	}
 
-	return PROGRAM_FINALIZE();
+	return PROGRAM_FINALIZE(p);
 }
 
 int main(int argc, char **argv)
