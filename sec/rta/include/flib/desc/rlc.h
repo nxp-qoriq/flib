@@ -88,9 +88,6 @@ struct rlc_pdb {
  * cnstr_shdsc_rlc_encap - Function for creating a WCDMA RLC encapsulation
  *                         descriptor.
  * @descbuf: pointer to buffer for descriptor construction
- * @bufsize: size of descriptor written. Once the function returns, the value of
- *           this parameter can be used for reclaiming the space that wasn't
- *           used for the descriptor.
  * @ps: if 36/40bit addressing is desired, this parameter must be true
  * @mode: indicates if ACKed or non-ACKed mode is used
  * @hfn: starting Hyper Frame Number to be used together with the SN from the
@@ -102,13 +99,15 @@ struct rlc_pdb {
  * @cipherdata: pointer to block cipher transform definitions
  *              Valid algorithm values are those from cipher_type_rlc enum.
  *
+ * Return: size of descriptor written in words. Once the function returns, the
+ *         value of this parameter can be used for reclaiming the space that
+ *         wasn't used for the descriptor.
+ *
  * Note: descbuf must be large enough to contain a full 256 byte long
  * descriptor; after the function returns, by subtracting the actual number of
- * bytes used (using bufsize), the user can reuse the remaining buffer space for
- * other purposes.
+ * bytes used, the user can reuse the remaining buffer space for other purposes.
  */
-static inline void cnstr_shdsc_rlc_encap(uint32_t *descbuf,
-		unsigned *bufsize,
+static inline int cnstr_shdsc_rlc_encap(uint32_t *descbuf,
 		bool ps,
 		enum rlc_mode mode,
 		uint32_t hfn,
@@ -153,7 +152,7 @@ static inline void cnstr_shdsc_rlc_encap(uint32_t *descbuf,
 
 	default:
 		pr_debug("Invalid RLC mode setting in PDB\n");
-		return;
+		return 0;
 	}
 
 	pdb.bearer_dir_res = (uint32_t)
@@ -166,7 +165,7 @@ static inline void cnstr_shdsc_rlc_encap(uint32_t *descbuf,
 	SET_LABEL(p, pdb_end);
 
 	if (insert_hfn_ov_op(p, mode, RLC_PDB_TYPE_FULL_PDB, 0))
-		return;
+		return 0;
 
 	switch (mode) {
 	case RLC_UNACKED_MODE:
@@ -215,7 +214,7 @@ static inline void cnstr_shdsc_rlc_encap(uint32_t *descbuf,
 			pr_debug("%s: Invalid encrypt algorithm selected: %d\n",
 				 "cnstr_shdsc_rlc_encap",
 				 cipherdata->algtype);
-			return;
+			return 0;
 		}
 		break;
 
@@ -224,16 +223,13 @@ static inline void cnstr_shdsc_rlc_encap(uint32_t *descbuf,
 	}
 
 	PATCH_HDR(p, phdr, pdb_end);
-	*bufsize = PROGRAM_FINALIZE(p);
+	return PROGRAM_FINALIZE(p);
 }
 
 /**
  * cnstr_shdsc_rlc_decap - Function for creating a WCDMA RLC decapsulation
  *                         descriptor.
  * @descbuf: pointer to buffer for descriptor construction
- * @bufsize: size of descriptor written. Once the function returns, the value of
- *           this parameter can be used for reclaiming the space that wasn't
- *           used for the descriptor.
  * @ps: if 36/40bit addressing is desired, this parameter must be true
  * @mode: indicates if ACKed or non-ACKed mode is used
  * @hfn: starting Hyper Frame Number to be used together with the SN from the
@@ -245,13 +241,15 @@ static inline void cnstr_shdsc_rlc_encap(uint32_t *descbuf,
  * @cipherdata: pointer to block cipher transform definitions
  *              Valid algorithm values are those from cipher_type_rlc enum.
  *
+ * Return: size of descriptor written in words. Once the function returns, the
+ *         value of this parameter can be used for reclaiming the space that
+ *         wasn't used for the descriptor.
+ *
  * Note: descbuf must be large enough to contain a full 256 byte long
  * descriptor; after the function returns, by subtracting the actual number of
- * bytes used (using bufsize), the user can reuse the remaining buffer space for
- * other purposes.
+ * bytes used, the user can reuse the remaining buffer space for other purposes.
  */
-static inline void cnstr_shdsc_rlc_decap(uint32_t *descbuf,
-		unsigned *bufsize,
+static inline int cnstr_shdsc_rlc_decap(uint32_t *descbuf,
 		bool ps,
 		enum rlc_mode mode,
 		uint32_t hfn,
@@ -296,7 +294,7 @@ static inline void cnstr_shdsc_rlc_decap(uint32_t *descbuf,
 
 	default:
 		pr_debug("Invalid RLC mode setting in PDB\n");
-		return;
+		return 0;
 	}
 
 	pdb.bearer_dir_res = (uint32_t)
@@ -309,7 +307,7 @@ static inline void cnstr_shdsc_rlc_decap(uint32_t *descbuf,
 	SET_LABEL(p, pdb_end);
 
 	if (insert_hfn_ov_op(p, mode, RLC_PDB_TYPE_FULL_PDB, 0))
-		return;
+		return 0;
 
 	switch (mode) {
 	case RLC_UNACKED_MODE:
@@ -359,7 +357,7 @@ static inline void cnstr_shdsc_rlc_decap(uint32_t *descbuf,
 			pr_debug("%s: Invalid encrypt algorithm selected: %d\n",
 				 "cnstr_shdsc_rlc_decap",
 				 cipherdata->algtype);
-			return;
+			return 0;
 		}
 		break;
 
@@ -368,7 +366,7 @@ static inline void cnstr_shdsc_rlc_decap(uint32_t *descbuf,
 	}
 
 	PATCH_HDR(p, phdr, pdb_end);
-	*bufsize = PROGRAM_FINALIZE(p);
+	return PROGRAM_FINALIZE(p);
 }
 
 #endif  /* __DESC_RLC_H__ */

@@ -60,19 +60,19 @@ struct macsec_decap_pdb {
 /**
  * cnstr_shdsc_macsec_encap - MACsec(802.1AE) encapsulation
  * @descbuf: pointer to descriptor-under-construction buffer
- * @bufsize: points to size to be updated at completion
  * @cipherdata: pointer to block cipher transform definitions
  * @sci: PDB Secure Channel Identifier
  * @ethertype: PDB EtherType
  * @tci_an: TAG Control Information and Association Number are treated as a
  *          single field of 8 bits in PDB.
  * @pn: PDB Packet Number
+ *
+ * Return: size of descriptor written in words
  */
-static inline void cnstr_shdsc_macsec_encap(uint32_t *descbuf,
-					    unsigned *bufsize,
-					    struct alginfo *cipherdata,
-					    uint64_t sci, uint16_t ethertype,
-					    uint8_t tci_an, uint32_t pn)
+static inline int cnstr_shdsc_macsec_encap(uint32_t *descbuf,
+					   struct alginfo *cipherdata,
+					   uint64_t sci, uint16_t ethertype,
+					   uint8_t tci_an, uint32_t pn)
 {
 	struct program prg;
 	struct program *p = &prg;
@@ -108,21 +108,21 @@ static inline void cnstr_shdsc_macsec_encap(uint32_t *descbuf,
 			 OP_PCL_MACSEC);
 	}
 	PATCH_JUMP(p, pkeyjump, keyjump);
-	*bufsize = PROGRAM_FINALIZE(p);
+	return PROGRAM_FINALIZE(p);
 }
 
 /**
  * cnstr_shdsc_macsec_decap - MACsec(802.1AE) decapsulation
  * @descbuf: pointer to descriptor-under-construction buffer
- * @bufsize: points to size to be updated at completion
  * @cipherdata: pointer to block cipher transform definitions
  * @sci: PDB Secure Channel Identifier
  * @pn: PDB Packet Number
+ *
+ * Return: size of descriptor written in words
  */
-static inline void cnstr_shdsc_macsec_decap(uint32_t *descbuf,
-					    unsigned *bufsize,
-					    struct alginfo *cipherdata,
-					    uint64_t sci, uint32_t pn)
+static inline int cnstr_shdsc_macsec_decap(uint32_t *descbuf,
+					   struct alginfo *cipherdata,
+					   uint64_t sci, uint32_t pn)
 {
 	struct program prg;
 	struct program *p = &prg;
@@ -156,7 +156,7 @@ static inline void cnstr_shdsc_macsec_decap(uint32_t *descbuf,
 			 OP_PCL_MACSEC);
 	}
 	PATCH_JUMP(p, pkeyjump, keyjump);
-	*bufsize = PROGRAM_FINALIZE(p);
+	return PROGRAM_FINALIZE(p);
 }
 
 #endif /* __DESC_MACSEC_H__ */

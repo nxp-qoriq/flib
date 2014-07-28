@@ -432,7 +432,6 @@ struct ipsec_new_decap_deco_dpovrd {
  * cnstr_shdsc_ipsec_encap - IPSec ESP encapsulation protocol-level shared
  *                           descriptor. Requires an MDHA split key.
  * @descbuf: pointer to buffer used for descriptor construction
- * @bufsize: pointer to descriptor size to be written back upon completion
  * @ps: if 36/40bit addressing is desired, this parameter must be true
  * @pdb: pointer to the PDB to be used with this descriptor
  *       This structure will be copied inline to the descriptor under
@@ -443,12 +442,13 @@ struct ipsec_new_decap_deco_dpovrd {
  * @authdata: pointer to authentication transform definitions. Note that since a
  *            split key is to be used, the size of the split key itself is
  *            specified. Valid algorithm values - one of OP_PCL_IPSEC_*
+ *
+ * Return: size of descriptor written in words
  */
-static inline void cnstr_shdsc_ipsec_encap(uint32_t *descbuf,
-					   unsigned *bufsize, bool ps,
-					   struct ipsec_encap_pdb *pdb,
-					   struct alginfo *cipherdata,
-					   struct alginfo *authdata)
+static inline int cnstr_shdsc_ipsec_encap(uint32_t *descbuf, bool ps,
+					  struct ipsec_encap_pdb *pdb,
+					  struct alginfo *cipherdata,
+					  struct alginfo *authdata)
 {
 	struct program prg;
 	struct program *p = &prg;
@@ -476,14 +476,13 @@ static inline void cnstr_shdsc_ipsec_encap(uint32_t *descbuf,
 		 (uint16_t)(cipherdata->algtype | authdata->algtype));
 	PATCH_JUMP(p, pkeyjmp, keyjmp);
 	PATCH_HDR(p, phdr, hdr);
-	*bufsize = PROGRAM_FINALIZE(p);
+	return PROGRAM_FINALIZE(p);
 }
 
 /**
  * cnstr_shdsc_ipsec_decap - IPSec ESP decapsulation protocol-level sharedesc
  *                           Requires an MDHA split key.
  * @descbuf: pointer to buffer used for descriptor construction
- * @bufsize: pointer to descriptor size to be written back upon completion
  * @ps: if 36/40bit addressing is desired, this parameter must be true
  * @pdb: pointer to the PDB to be used with this descriptor
  *       This structure will be copied inline to the descriptor under
@@ -494,12 +493,13 @@ static inline void cnstr_shdsc_ipsec_encap(uint32_t *descbuf,
  * @authdata: pointer to authentication transform definitions. Note that since a
  *            split key is to be used, the size of the split key itself is
  *            specified. Valid algorithm values - one of OP_PCL_IPSEC_*
+ *
+ * Return: size of descriptor written in words
  */
-static inline void cnstr_shdsc_ipsec_decap(uint32_t *descbuf,
-					   unsigned *bufsize, bool ps,
-					   struct ipsec_decap_pdb *pdb,
-					   struct alginfo *cipherdata,
-					   struct alginfo *authdata)
+static inline int cnstr_shdsc_ipsec_decap(uint32_t *descbuf, bool ps,
+					  struct ipsec_decap_pdb *pdb,
+					  struct alginfo *cipherdata,
+					  struct alginfo *authdata)
 {
 	struct program prg;
 	struct program *p = &prg;
@@ -526,14 +526,13 @@ static inline void cnstr_shdsc_ipsec_decap(uint32_t *descbuf,
 		 (uint16_t)(cipherdata->algtype | authdata->algtype));
 	PATCH_JUMP(p, pkeyjmp, keyjmp);
 	PATCH_HDR(p, phdr, hdr);
-	*bufsize = PROGRAM_FINALIZE(p);
+	return PROGRAM_FINALIZE(p);
 }
 
 /**
  * cnstr_shdsc_ipsec_encap_des_aes_xcbc - IPSec DES-CBC/3DES-CBC and
  *     AES-XCBC-MAC-96 ESP encapsulation shared descriptor.
  * @descbuf: pointer to buffer used for descriptor construction
- * @bufsize: pointer to descriptor size to be written back upon completion
  * @pdb: pointer to the PDB to be used with this descriptor
  *       This structure will be copied inline to the descriptor under
  *       construction. No error checking will be made. Refer to the
@@ -557,10 +556,12 @@ static inline void cnstr_shdsc_ipsec_decap(uint32_t *descbuf,
  * Warning: The user must allocate at least 32 bytes for the authentication key
  * (in order to use it also with HMAC-MD5-96),even when using a shorter key
  * for the AES-XCBC-MAC-96.
+ *
+ * Return: size of descriptor written in words
  */
-static inline void cnstr_shdsc_ipsec_encap_des_aes_xcbc(uint32_t *descbuf,
-		unsigned *bufsize, struct ipsec_encap_pdb *pdb,
-		struct alginfo *cipherdata, struct alginfo *authdata)
+static inline int cnstr_shdsc_ipsec_encap_des_aes_xcbc(uint32_t *descbuf,
+		struct ipsec_encap_pdb *pdb, struct alginfo *cipherdata,
+		struct alginfo *authdata)
 {
 	struct program prg;
 	struct program *p = &prg;
@@ -659,14 +660,13 @@ static inline void cnstr_shdsc_ipsec_encap_des_aes_xcbc(uint32_t *descbuf,
 	PATCH_MOVE(p, move_outlen, outptr);
 	PATCH_MOVE(p, move_seqout_ptr, shd_ptr);
 	PATCH_MOVE(p, write_swapped_seqin_ptr, swapped_seqin_fields);
-	*bufsize = PROGRAM_FINALIZE(p);
+	return PROGRAM_FINALIZE(p);
 }
 
 /**
  * cnstr_shdsc_ipsec_decap_des_aes_xcbc - IPSec DES-CBC/3DES-CBC and
  *     AES-XCBC-MAC-96 ESP decapsulation shared descriptor.
  * @descbuf: pointer to buffer used for descriptor construction
- * @bufsize: pointer to descriptor size to be written back upon completion
  * @pdb: pointer to the PDB to be used with this descriptor
  *       This structure will be copied inline to the descriptor under
  *       construction. No error checking will be made. Refer to the
@@ -691,10 +691,12 @@ static inline void cnstr_shdsc_ipsec_encap_des_aes_xcbc(uint32_t *descbuf,
  * Warning: The user must allocate at least 32 bytes for the authentication key
  * (in order to use it also with HMAC-MD5-96),even when using a shorter key
  * for the AES-XCBC-MAC-96.
+ *
+ * Return: size of descriptor written in words
  */
-static inline void cnstr_shdsc_ipsec_decap_des_aes_xcbc(uint32_t *descbuf,
-		unsigned *bufsize, struct ipsec_decap_pdb *pdb,
-		struct alginfo *cipherdata, struct alginfo *authdata)
+static inline int cnstr_shdsc_ipsec_decap_des_aes_xcbc(uint32_t *descbuf,
+		struct ipsec_decap_pdb *pdb, struct alginfo *cipherdata,
+		struct alginfo *authdata)
 {
 	struct program prg;
 	struct program *p = &prg;
@@ -823,7 +825,7 @@ static inline void cnstr_shdsc_ipsec_decap_des_aes_xcbc(uint32_t *descbuf,
 	PATCH_MOVE(p, move_jump_back, seqin_ptr);
 	PATCH_MOVE(p, move_seqin_ptr, outlen);
 	PATCH_MOVE(p, write_swapped_seqout_ptr, swapped_seqout_fields);
-	*bufsize = PROGRAM_FINALIZE(p);
+	return PROGRAM_FINALIZE(p);
 }
 
 /**
@@ -831,7 +833,6 @@ static inline void cnstr_shdsc_ipsec_decap_des_aes_xcbc(uint32_t *descbuf,
  *     protocol-level shared descriptor. If an authentication key is required by
  *     the protocol, it must be a MDHA split key.
  * @descbuf: pointer to buffer used for descriptor construction
- * @bufsize: pointer to descriptor size to be written back upon completion
  * @ps: if 36/40bit addressing is desired, this parameter must be true
  * @pdb: pointer to the PDB to be used with this descriptor
  *       This structure will be copied inline to the descriptor under
@@ -849,13 +850,14 @@ static inline void cnstr_shdsc_ipsec_decap_des_aes_xcbc(uint32_t *descbuf,
  * @authdata: pointer to authentication transform definitions. Note that since a
  *            split key is to be used, the size of the split key itself is
  *            specified. Valid algorithm values - one of OP_PCL_IPSEC_*
+ *
+ * Return: size of descriptor written in words
  */
-static inline void cnstr_shdsc_ipsec_new_encap(uint32_t *descbuf,
-					       unsigned *bufsize, bool ps,
-					       struct ipsec_encap_pdb *pdb,
-					       uint8_t *opt_ip_hdr,
-					       struct alginfo *cipherdata,
-					       struct alginfo *authdata)
+static inline int cnstr_shdsc_ipsec_new_encap(uint32_t *descbuf, bool ps,
+					      struct ipsec_encap_pdb *pdb,
+					      uint8_t *opt_ip_hdr,
+					      struct alginfo *cipherdata,
+					      struct alginfo *authdata)
 {
 	struct program prg;
 	struct program *p = &prg;
@@ -868,8 +870,7 @@ static inline void cnstr_shdsc_ipsec_new_encap(uint32_t *descbuf,
 	if (rta_sec_era < RTA_SEC_ERA_8) {
 		pr_err("IPsec new mode encap: available only for Era %d or above\n",
 		       USER_SEC_ERA(RTA_SEC_ERA_8));
-		*bufsize = 0;
-		return;
+		return 0;
 	}
 
 	PROGRAM_CNTXT_INIT(p, descbuf, 0);
@@ -908,7 +909,7 @@ static inline void cnstr_shdsc_ipsec_new_encap(uint32_t *descbuf,
 		 (uint16_t)(cipherdata->algtype | authdata->algtype));
 	PATCH_JUMP(p, pkeyjmp, keyjmp);
 	PATCH_HDR(p, phdr, hdr);
-	*bufsize = PROGRAM_FINALIZE(p);
+	return PROGRAM_FINALIZE(p);
 }
 
 /**
@@ -916,7 +917,6 @@ static inline void cnstr_shdsc_ipsec_new_encap(uint32_t *descbuf,
  *     shared descriptor. If an authentication key is required by the protocol,
  *     it must be a MDHA split key.
  * @descbuf: pointer to buffer used for descriptor construction
- * @bufsize: pointer to descriptor size to be written back upon completion
  * @ps: if 36/40bit addressing is desired, this parameter must be true
  * @pdb: pointer to the PDB to be used with this descriptor
  *       This structure will be copied inline to the descriptor under
@@ -927,12 +927,13 @@ static inline void cnstr_shdsc_ipsec_new_encap(uint32_t *descbuf,
  * @authdata: pointer to authentication transform definitions. Note that since a
  *            split key is to be used, the size of the split key itself is
  *            specified. Valid algorithm values - one of OP_PCL_IPSEC_*
+ *
+ * Return: size of descriptor written in words
  */
-static inline void cnstr_shdsc_ipsec_new_decap(uint32_t *descbuf,
-					       unsigned *bufsize, bool ps,
-					       struct ipsec_decap_pdb *pdb,
-					       struct alginfo *cipherdata,
-					       struct alginfo *authdata)
+static inline int cnstr_shdsc_ipsec_new_decap(uint32_t *descbuf, bool ps,
+					      struct ipsec_decap_pdb *pdb,
+					      struct alginfo *cipherdata,
+					      struct alginfo *authdata)
 {
 	struct program prg;
 	struct program *p = &prg;
@@ -945,8 +946,7 @@ static inline void cnstr_shdsc_ipsec_new_decap(uint32_t *descbuf,
 	if (rta_sec_era < RTA_SEC_ERA_8) {
 		pr_err("IPsec new mode decap: available only for Era %d or above\n",
 		       USER_SEC_ERA(RTA_SEC_ERA_8));
-		*bufsize = 0;
-		return;
+		return 0;
 	}
 
 	PROGRAM_CNTXT_INIT(p, descbuf, 0);
@@ -969,7 +969,7 @@ static inline void cnstr_shdsc_ipsec_new_decap(uint32_t *descbuf,
 		 (uint16_t)(cipherdata->algtype | authdata->algtype));
 	PATCH_JUMP(p, pkeyjmp, keyjmp);
 	PATCH_HDR(p, phdr, hdr);
-	*bufsize = PROGRAM_FINALIZE(p);
+	return PROGRAM_FINALIZE(p);
 }
 
 #endif /* __DESC_IPSEC_H__ */

@@ -317,7 +317,6 @@ struct tls_ccm_pdb {
  * cnstr_shdsc_tls - TLS family block cipher encapsulation / decapsulation
  *                   shared descriptor.
  * @descbuf: pointer to buffer used for descriptor construction
- * @bufsize: pointer to descriptor size to be written back upon completion
  * @ps: if 36/40bit addressing is desired, this parameter must be true
  * @pdb: pointer to the PDB to be used in this descriptor
  *       This structure will be copied inline to the descriptor under
@@ -328,14 +327,15 @@ struct tls_ccm_pdb {
  * @cipherdata: pointer to block cipher transform definitions
  * @authdata: pointer to authentication transform definitions
  *
+ * Return: size of descriptor written in words
+ *
  * The following built-in protocols are supported:
  * SSL3.0 / TLS1.0 / TLS1.1 / TLS1.2 / DTLS10
  */
-static inline void cnstr_shdsc_tls(uint32_t *descbuf, unsigned *bufsize,
-				   bool ps, uint8_t *pdb, unsigned pdb_len,
-				   struct protcmd *protcmd,
-				   struct alginfo *cipherdata,
-				   struct alginfo *authdata)
+static inline int cnstr_shdsc_tls(uint32_t *descbuf, bool ps, uint8_t *pdb,
+				  unsigned pdb_len, struct protcmd *protcmd,
+				  struct alginfo *cipherdata,
+				  struct alginfo *authdata)
 {
 	struct program prg;
 	struct program *p = &prg;
@@ -367,7 +367,7 @@ static inline void cnstr_shdsc_tls(uint32_t *descbuf, unsigned *bufsize,
 	PROTOCOL(p, protcmd->optype, protcmd->protid, protcmd->protinfo);
 
 	PATCH_JUMP(p, pkeyjmp, keyjmp);
-	*bufsize = PROGRAM_FINALIZE(p);
+	return PROGRAM_FINALIZE(p);
 }
 
 #endif /* __DESC_TLS_H__ */

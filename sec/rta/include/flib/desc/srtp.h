@@ -54,19 +54,19 @@ struct srtp_decap_pdb {
  * cnstr_shdsc_srtp_encap - Function for creating a SRTP encapsulation
  *                          descriptor.
  * @descbuf: pointer to buffer used for descriptor construction
- * @bufsize: pointer to descriptor size to be written back upon completion
  * @authdata: pointer to authentication transform definitions
  * @cipherdata: pointer to block cipher transform definitions
  * @n_tag: value of ICV length
  * @roc: Rollover Counter
  * @cipher_salt: salt value
+ *
+ * Return: size of descriptor written in words
  */
-static inline void cnstr_shdsc_srtp_encap(uint32_t *descbuf,
-					  unsigned *bufsize,
-					  struct alginfo *authdata,
-					  struct alginfo *cipherdata,
-					  uint8_t n_tag, uint32_t roc,
-					  uint8_t *cipher_salt)
+static inline int cnstr_shdsc_srtp_encap(uint32_t *descbuf,
+					 struct alginfo *authdata,
+					 struct alginfo *cipherdata,
+					 uint8_t n_tag, uint32_t roc,
+					 uint8_t *cipher_salt)
 {
 	struct program prg;
 	struct program *p = &prg;
@@ -96,28 +96,28 @@ static inline void cnstr_shdsc_srtp_encap(uint32_t *descbuf,
 		 OP_PCLID_SRTP,
 		 OP_PCL_SRTP_AES_CTR | OP_PCL_SRTP_HMAC_SHA1_160);
 	PATCH_JUMP(p, pkeyjmp, keyjmp);
-	*bufsize = PROGRAM_FINALIZE(p);
+	return PROGRAM_FINALIZE(p);
 }
 
 /**
  * cnstr_shdsc_srtp_decap - Function for creating a SRTP decapsulation
  *                          descriptor.
  * @descbuf: pointer to buffer used for descriptor construction
- * @bufsize: pointer to descriptor size to be written back upon completion
  * @authdata: pointer to authentication transform definitions
  * @cipherdata: pointer to block cipher transform definitions
  * @n_tag: value of ICV length
  * @roc: Rollover Counter
  * @seq_num: sequence number
  * @cipher_salt: salt value
+ *
+ * Return: size of descriptor written in words
  */
-static inline void cnstr_shdsc_srtp_decap(uint32_t *descbuf,
-					  unsigned *bufsize,
-					  struct alginfo *authdata,
-					  struct alginfo *cipherdata,
-					  uint8_t n_tag, uint32_t roc,
-					  uint16_t seq_num,
-					  uint8_t *cipher_salt)
+static inline int cnstr_shdsc_srtp_decap(uint32_t *descbuf,
+					 struct alginfo *authdata,
+					 struct alginfo *cipherdata,
+					 uint8_t n_tag, uint32_t roc,
+					 uint16_t seq_num,
+					 uint8_t *cipher_salt)
 {
 	struct program prg;
 	struct program *p = &prg;
@@ -150,7 +150,7 @@ static inline void cnstr_shdsc_srtp_decap(uint32_t *descbuf,
 			 OP_PCL_SRTP_AES_CTR | OP_PCL_SRTP_HMAC_SHA1_160);
 	}
 	PATCH_JUMP(p, pkeyjmp, keyjmp);
-	*bufsize = PROGRAM_FINALIZE(p);
+	return PROGRAM_FINALIZE(p);
 }
 
 #endif /* __DESC_SRTP_H__ */

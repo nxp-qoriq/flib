@@ -15,7 +15,6 @@
 /**
  * cnstr_jobdesc_mdsplitkey - Generate an MDHA split key
  * @descbuf: pointer to buffer to hold constructed descriptor
- * @bufsize: pointer to size of descriptor once constructed
  * @ps: if 36/40bit addressing is desired, this parameter must be true
  * @alg_key: pointer to HMAC key to generate ipad/opad from
  * @keylen: HMAC key length
@@ -31,14 +30,13 @@
  *
  * Split keys are IPAD/OPAD pairs. For details, refer to MDHA Split Keys chapter
  * in SEC Reference Manual.
+ *
+ * Return: size of descriptor written in words
  */
 
-static inline void cnstr_jobdesc_mdsplitkey(uint32_t *descbuf,
-					    unsigned *bufsize, bool ps,
-					    uint64_t alg_key,
-					    uint8_t keylen,
-					    uint32_t cipher,
-					    uint64_t padbuf)
+static inline int cnstr_jobdesc_mdsplitkey(uint32_t *descbuf, bool ps,
+					   uint64_t alg_key, uint8_t keylen,
+					   uint32_t cipher, uint64_t padbuf)
 {
 	/* Sizes for MDHA pads (*not* keys) in bytes */
 	static const uint8_t mdpadlen[] = {
@@ -69,7 +67,7 @@ static inline void cnstr_jobdesc_mdsplitkey(uint32_t *descbuf,
 	FIFOLOAD(p, MSG2, 0, 0, LAST2 | IMMED | COPY);
 	JUMP(p, 1, LOCAL_JUMP, ALL_TRUE, CLASS2);
 	FIFOSTORE(p, MDHA_SPLIT_KEY, 0, padbuf, split_key_len, 0);
-	*bufsize = PROGRAM_FINALIZE(p);
+	return PROGRAM_FINALIZE(p);
 }
 
 #endif /* __DESC_JOBDESC_H__ */

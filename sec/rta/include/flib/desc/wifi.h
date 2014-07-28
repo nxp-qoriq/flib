@@ -79,16 +79,17 @@ struct wifi_decap_pdb {
 /**
  * cnstr_shdsc_wifi_encap - IEEE 802.11i WiFi encapsulation
  * @descbuf: pointer to descriptor-under-construction buffer
- * @bufsize: pointer to descriptor size, updated at completion
  * @ps: if 36/40bit addressing is desired, this parameter must be true
  * @mac_hdr_len: PDB MAC header length (24 or 28 bytes)
  * @pn: PDB Packet Number
  * @priority: PDB Packet priority
  * @key_id: PDB Key ID
  * @cipherdata: block cipher transform definitions
+ *
+ * Return: size of descriptor written in words
  */
-static inline void cnstr_shdsc_wifi_encap(uint32_t *descbuf, unsigned *bufsize,
-		bool ps, uint16_t mac_hdr_len, uint64_t pn, uint8_t priority,
+static inline int cnstr_shdsc_wifi_encap(uint32_t *descbuf, bool ps,
+		uint16_t mac_hdr_len, uint64_t pn, uint8_t priority,
 		uint8_t key_id, struct alginfo *cipherdata)
 {
 	struct program prg;
@@ -194,21 +195,22 @@ static inline void cnstr_shdsc_wifi_encap(uint32_t *descbuf, unsigned *bufsize,
 	PATCH_HDR(p, phdr, pdbend);
 	PATCH_JUMP(p, pkeyjump, keyjump);
 
-	*bufsize = PROGRAM_FINALIZE(p);
+	return PROGRAM_FINALIZE(p);
 }
 
 /**
  * cnstr_shdsc_wifi_decap - IEEE 802.11 WiFi decapsulation
  * @descbuf: pointer to descriptor-under-construction buffer
- * @bufsize: pointer to descriptor size, updated at completion
  * @ps: if 36/40bit addressing is desired, this parameter must be true
  * @mac_hdr_len: PDB MAC header length (24 or 28 bytes)
  * @pn: PDB Packet Number
  * @priority: PDB Packet priority
  * @cipherdata: block cipher transform definitions
+ *
+ * Return: size of descriptor written in words
  **/
-static inline void cnstr_shdsc_wifi_decap(uint32_t *descbuf, unsigned *bufsize,
-		bool ps, uint16_t mac_hdr_len, uint64_t pn, uint8_t priority,
+static inline int cnstr_shdsc_wifi_decap(uint32_t *descbuf, bool ps,
+		uint16_t mac_hdr_len, uint64_t pn, uint8_t priority,
 		struct alginfo *cipherdata)
 {
 	struct program prg;
@@ -244,7 +246,7 @@ static inline void cnstr_shdsc_wifi_decap(uint32_t *descbuf, unsigned *bufsize,
 
 	PATCH_HDR(p, phdr, pdbend);
 	PATCH_JUMP(p, pkeyjump, keyjump);
-	*bufsize = PROGRAM_FINALIZE(p);
+	return PROGRAM_FINALIZE(p);
 }
 
 #endif /* __DESC_WIFI_H__ */
