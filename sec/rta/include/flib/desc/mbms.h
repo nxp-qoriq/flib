@@ -776,46 +776,49 @@ static inline unsigned cnstr_shdsc_mbms_type1_3(uint32_t *descbuf,
 /**
  * cnstr_shdsc_mbms - MBMS PDU CRC checking descriptor
  * @descbuf: pointer to buffer used for descriptor construction
- * @bufsize: pointer to descriptor size to be written back upon completion
  * @ps: if 36/40bit addressing is desired, this parameter must be true
  * @preheader_len: length to be set in the corresponding preheader field. Unless
  *                 the descriptor is split in multiple parts, this will be equal
  *                 to bufsize.
  * @pdu_type: type of the MBMS PDU required to be processed by this descriptor
  *
- * Note: This function can be called only for SEC ERA >= 5.
+ * Return: size of descriptor written in words
  *
+ * Note: This function can be called only for SEC ERA >= 5.
  */
-static inline void cnstr_shdsc_mbms(uint32_t *descbuf, unsigned *bufsize,
-				    bool ps, unsigned *preheader_len,
-				    enum mbms_pdu_type pdu_type)
+static inline int cnstr_shdsc_mbms(uint32_t *descbuf, bool ps,
+				   unsigned *preheader_len,
+				   enum mbms_pdu_type pdu_type)
 {
+	unsigned bufsize;
+
 	if (rta_sec_era < RTA_SEC_ERA_5) {
-		*bufsize = 0;
 		pr_err("MBMS protocol processing is available only for SEC ERA >= 5\n");
-		return;
+		return 0;
 	}
 
 	switch (pdu_type) {
 	case MBMS_PDU_TYPE0:
-		cnstr_shdsc_mbms_type0(descbuf, bufsize, ps);
-		*preheader_len = *bufsize;
+		cnstr_shdsc_mbms_type0(descbuf, &bufsize, ps);
+		*preheader_len = bufsize;
 		break;
 
 	case MBMS_PDU_TYPE1:
-		*preheader_len = cnstr_shdsc_mbms_type1_3(descbuf, bufsize, ps,
+		*preheader_len = cnstr_shdsc_mbms_type1_3(descbuf, &bufsize, ps,
 							  MBMS_PDU_TYPE1);
 		break;
 
 	case MBMS_PDU_TYPE3:
-		*preheader_len = cnstr_shdsc_mbms_type1_3(descbuf, bufsize, ps,
+		*preheader_len = cnstr_shdsc_mbms_type1_3(descbuf, &bufsize, ps,
 							  MBMS_PDU_TYPE3);
 		break;
 
 	default:
 		pr_err("Invalid MBMS PDU Type selected %d\n", pdu_type);
-		return;
+		return 0;
 	}
+
+	return bufsize;
 }
 
 /**

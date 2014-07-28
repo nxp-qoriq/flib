@@ -1753,9 +1753,6 @@ static inline enum pdb_type_e cnstr_pdcp_c_plane_pdb(struct program *p,
  * cnstr_shdsc_pdcp_c_plane_encap - Function for creating a PDCP Control Plane
  *                                  encapsulation descriptor.
  * @descbuf: pointer to buffer for descriptor construction
- * @bufsize: size of descriptor written. Once the function returns, the value of
- *           this parameter can be used for reclaiming the space that wasn't
- *           used for the descriptor.
  * @ps: if 36/40bit addressing is desired, this parameter must be true
  * @hfn: starting Hyper Frame Number to be used together with the SN from the
  *       PDCP frames.
@@ -1770,14 +1767,15 @@ static inline enum pdb_type_e cnstr_pdcp_c_plane_pdb(struct program *p,
  * @era_2_sw_hfn_override: if software HFN override mechanism is desired for
  *                         this descriptor. Note: Can only be used for
  *                         SEC ERA 2.
+ * Return: size of descriptor written in words. Once the function returns, the
+ *         value of this parameter can be used for reclaiming the space that
+ *         wasn't used for the descriptor.
  *
  * Note: descbuf must be large enough to contain a full 256 byte long
  * descriptor; after the function returns, by subtracting the actual number of
- * bytes used (using bufsize), the user can reuse the remaining buffer space for
- * other purposes.
+ * bytes used, the user can reuse the remaining buffer space for other purposes.
  */
-static inline void cnstr_shdsc_pdcp_c_plane_encap(uint32_t *descbuf,
-		unsigned *bufsize,
+static inline int cnstr_shdsc_pdcp_c_plane_encap(uint32_t *descbuf,
 		bool ps,
 		uint32_t hfn,
 		unsigned char bearer,
@@ -1850,7 +1848,7 @@ static inline void cnstr_shdsc_pdcp_c_plane_encap(uint32_t *descbuf,
 
 	if (rta_sec_era != RTA_SEC_ERA_2 && era_2_sw_hfn_override) {
 		pr_err("Cannot select SW HFN override for other era than 2");
-		return;
+		return 0;
 	}
 
 	PROGRAM_CNTXT_INIT(p, descbuf, 0);
@@ -1871,27 +1869,24 @@ static inline void cnstr_shdsc_pdcp_c_plane_encap(uint32_t *descbuf,
 
 	if (insert_hfn_ov_op(p, PDCP_SN_SIZE_5, pdb_type,
 			     era_2_sw_hfn_override))
-		return;
+		return 0;
 
 	if (pdcp_cp_fp[cipherdata->algtype][authdata->algtype](p,
 			cipherdata,
 			authdata,
 			OP_TYPE_ENCAP_PROTOCOL,
 			era_2_sw_hfn_override))
-		return;
+		return 0;
 
 	PATCH_HDR(p, 0, pdb_end);
 
-	*bufsize = PROGRAM_FINALIZE(p);
+	return PROGRAM_FINALIZE(p);
 }
 
 /**
  * cnstr_shdsc_pdcp_c_plane_decap - Function for creating a PDCP Control Plane
  *                                  decapsulation descriptor.
  * @descbuf: pointer to buffer for descriptor construction
- * @bufsize: size of descriptor written. Once the function returns, the value of
- *           this parameter can be used for reclaiming the space that wasn't
- *           used for the descriptor.
  * @ps: if 36/40bit addressing is desired, this parameter must be true
  * @hfn: starting Hyper Frame Number to be used together with the SN from the
  *       PDCP frames.
@@ -1907,14 +1902,15 @@ static inline void cnstr_shdsc_pdcp_c_plane_encap(uint32_t *descbuf,
  *                         this descriptor. Note: Can only be used for
  *                         SEC ERA 2.
  *
+ * Return: size of descriptor written in words. Once the function returns, the
+ *         value of this parameter can be used for reclaiming the space that
+ *         wasn't used for the descriptor.
+ *
  * Note: descbuf must be large enough to contain a full 256 byte long
  * descriptor; after the function returns, by subtracting the actual number of
- * bytes used (using bufsize), the user can reuse the remaining buffer space for
- * other purposes.
- *
+ * bytes used, the user can reuse the remaining buffer space for other purposes.
  */
-static inline void cnstr_shdsc_pdcp_c_plane_decap(uint32_t *descbuf,
-		unsigned *bufsize,
+static inline int cnstr_shdsc_pdcp_c_plane_decap(uint32_t *descbuf,
 		bool ps,
 		uint32_t hfn,
 		unsigned char bearer,
@@ -1987,7 +1983,7 @@ static inline void cnstr_shdsc_pdcp_c_plane_decap(uint32_t *descbuf,
 
 	if (rta_sec_era != RTA_SEC_ERA_2 && era_2_sw_hfn_override) {
 		pr_err("Cannot select SW HFN override for other era than 2");
-		return;
+		return 0;
 	}
 
 	PROGRAM_CNTXT_INIT(p, descbuf, 0);
@@ -2008,27 +2004,24 @@ static inline void cnstr_shdsc_pdcp_c_plane_decap(uint32_t *descbuf,
 
 	if (insert_hfn_ov_op(p, PDCP_SN_SIZE_5, pdb_type,
 			     era_2_sw_hfn_override))
-		return;
+		return 0;
 
 	if (pdcp_cp_fp[cipherdata->algtype][authdata->algtype](p,
 			cipherdata,
 			authdata,
 			OP_TYPE_DECAP_PROTOCOL,
 			era_2_sw_hfn_override))
-		return;
+		return 0;
 
 	PATCH_HDR(p, 0, pdb_end);
 
-	*bufsize = PROGRAM_FINALIZE(p);
+	return PROGRAM_FINALIZE(p);
 }
 
 /**
  * cnstr_shdsc_pdcp_u_plane_encap - Function for creating a PDCP User Plane
  *                                  encapsulation descriptor.
  * @descbuf: pointer to buffer for descriptor construction
- * @bufsize: size of descriptor written. Once the function returns, the value of
- *           this parameter can be used for reclaiming the space that wasn't
- *           used for the descriptor.
  * @ps: if 36/40bit addressing is desired, this parameter must be true
  * @sn_size: selects Sequence Number Size: 7/12/15 bits
  * @hfn: starting Hyper Frame Number to be used together with the SN from the
@@ -2043,14 +2036,15 @@ static inline void cnstr_shdsc_pdcp_c_plane_decap(uint32_t *descbuf,
  *                         this descriptor. Note: Can only be used for
  *                         SEC ERA 2.
  *
+ * Return: size of descriptor written in words. Once the function returns, the
+ *         value of this parameter can be used for reclaiming the space that
+ *         wasn't used for the descriptor.
+ *
  * Note: descbuf must be large enough to contain a full 256 byte long
  * descriptor; after the function returns, by subtracting the actual number of
- * bytes used (using bufsize), the user can reuse the remaining buffer space for
- * other purposes.
- *
+ * bytes used, the user can reuse the remaining buffer space for other purposes.
  */
-static inline void cnstr_shdsc_pdcp_u_plane_encap(uint32_t *descbuf,
-		unsigned *bufsize,
+static inline int cnstr_shdsc_pdcp_u_plane_encap(uint32_t *descbuf,
 		bool ps,
 		enum pdcp_sn_size sn_size,
 		uint32_t hfn,
@@ -2067,7 +2061,7 @@ static inline void cnstr_shdsc_pdcp_u_plane_encap(uint32_t *descbuf,
 
 	if (rta_sec_era != RTA_SEC_ERA_2 && era_2_sw_hfn_override) {
 		pr_err("Cannot select SW HFN override for other era than 2");
-		return;
+		return 0;
 	}
 
 	PROGRAM_CNTXT_INIT(p, descbuf, 0);
@@ -2107,7 +2101,7 @@ static inline void cnstr_shdsc_pdcp_u_plane_encap(uint32_t *descbuf,
 
 	default:
 		pr_err("Invalid Sequence Number Size setting in PDB\n");
-		return;
+		return 0;
 	}
 
 	pdb.bearer_dir_res = (uint32_t)
@@ -2121,7 +2115,7 @@ static inline void cnstr_shdsc_pdcp_u_plane_encap(uint32_t *descbuf,
 
 	if (insert_hfn_ov_op(p, sn_size, PDCP_PDB_TYPE_FULL_PDB,
 			     era_2_sw_hfn_override))
-		return;
+		return 0;
 
 	switch (sn_size) {
 	case PDCP_SN_SIZE_7:
@@ -2175,16 +2169,13 @@ static inline void cnstr_shdsc_pdcp_u_plane_encap(uint32_t *descbuf,
 	}
 
 	PATCH_HDR(p, 0, pdb_end);
-	*bufsize = PROGRAM_FINALIZE(p);
+	return PROGRAM_FINALIZE(p);
 }
 
 /**
  * cnstr_shdsc_pdcp_u_plane_decap - Function for creating a PDCP User Plane
  *                                  decapsulation descriptor.
  * @descbuf: pointer to buffer for descriptor construction
- * @bufsize: size of descriptor written. Once the function returns, the value of
- *           this parameter can be used for reclaiming the space that wasn't
- *           used for the descriptor.
  * @ps: if 36/40bit addressing is desired, this parameter must be true
  * @sn_size: selects Sequence Number Size: 7/12/15 bits
  * @hfn: starting Hyper Frame Number to be used together with the SN from the
@@ -2199,14 +2190,15 @@ static inline void cnstr_shdsc_pdcp_u_plane_encap(uint32_t *descbuf,
  *                         this descriptor. Note: Can only be used for
  *                         SEC ERA 2.
  *
+ * Return: size of descriptor written in words. Once the function returns, the
+ *         value of this parameter can be used for reclaiming the space that
+ *         wasn't used for the descriptor.
+ *
  * Note: descbuf must be large enough to contain a full 256 byte long
  * descriptor; after the function returns, by subtracting the actual number of
- * bytes used (using bufsize), the user can reuse the remaining buffer space for
- * other purposes.
- *
+ * bytes used, the user can reuse the remaining buffer space for other purposes.
  */
-static inline void cnstr_shdsc_pdcp_u_plane_decap(uint32_t *descbuf,
-		unsigned *bufsize,
+static inline int cnstr_shdsc_pdcp_u_plane_decap(uint32_t *descbuf,
 		bool ps,
 		enum pdcp_sn_size sn_size,
 		uint32_t hfn,
@@ -2223,7 +2215,7 @@ static inline void cnstr_shdsc_pdcp_u_plane_decap(uint32_t *descbuf,
 
 	if (rta_sec_era != RTA_SEC_ERA_2 && era_2_sw_hfn_override) {
 		pr_err("Cannot select SW HFN override for other era than 2");
-		return;
+		return 0;
 	}
 
 	PROGRAM_CNTXT_INIT(p, descbuf, 0);
@@ -2263,7 +2255,7 @@ static inline void cnstr_shdsc_pdcp_u_plane_decap(uint32_t *descbuf,
 
 	default:
 		pr_err("Invalid Sequence Number Size setting in PDB\n");
-		return;
+		return 0;
 	}
 
 	pdb.bearer_dir_res = (uint32_t)
@@ -2279,7 +2271,7 @@ static inline void cnstr_shdsc_pdcp_u_plane_decap(uint32_t *descbuf,
 			     sn_size,
 			     PDCP_PDB_TYPE_FULL_PDB,
 			     era_2_sw_hfn_override))
-		return;
+		return 0;
 
 	switch (sn_size) {
 	case PDCP_SN_SIZE_7:
@@ -2288,7 +2280,7 @@ static inline void cnstr_shdsc_pdcp_u_plane_decap(uint32_t *descbuf,
 		case PDCP_CIPHER_TYPE_ZUC:
 			if (rta_sec_era < RTA_SEC_ERA_5) {
 				pr_err("Invalid era for selected algorithm\n");
-				return;
+				return 0;
 			}
 		case PDCP_CIPHER_TYPE_AES:
 		case PDCP_CIPHER_TYPE_SNOW:
@@ -2308,7 +2300,7 @@ static inline void cnstr_shdsc_pdcp_u_plane_decap(uint32_t *descbuf,
 			pr_err("%s: Invalid encrypt algorithm selected: %d\n",
 			       "cnstr_pcl_shdsc_pdcp_u_plane_decap",
 			       cipherdata->algtype);
-			return;
+			return 0;
 		}
 		break;
 
@@ -2323,7 +2315,7 @@ static inline void cnstr_shdsc_pdcp_u_plane_decap(uint32_t *descbuf,
 		default:
 			if (pdcp_insert_uplane_15bit_op(p, cipherdata,
 							OP_TYPE_DECAP_PROTOCOL))
-				return;
+				return 0;
 			break;
 		}
 		break;
@@ -2333,28 +2325,26 @@ static inline void cnstr_shdsc_pdcp_u_plane_decap(uint32_t *descbuf,
 	}
 
 	PATCH_HDR(p, 0, pdb_end);
-	*bufsize = PROGRAM_FINALIZE(p);
+	return PROGRAM_FINALIZE(p);
 }
 
 /**
  * cnstr_shdsc_pdcp_short_mac - Function for creating a PDCP Short MAC
  *                              descriptor.
  * @descbuf: pointer to buffer for descriptor construction
- * @bufsize: size of descriptor written. Once the function returns, the value of
- *           this parameter can be used for reclaiming the space that wasn't
- *           used for the descriptor.
  * @ps: if 36/40bit addressing is desired, this parameter must be true
  * @authdata: pointer to authentication transform definitions
  *            Valid algorithm values are those from auth_type_pdcp enum.
  *
+ * Return: size of descriptor written in words. Once the function returns, the
+ *         value of this parameter can be used for reclaiming the space that
+ *         wasn't used for the descriptor.
+ *
  * Note: descbuf must be large enough to contain a full 256 byte long
  * descriptor; after the function returns, by subtracting the actual number of
- * bytes used (using bufsize), the user can reuse the remaining buffer space for
- * other purposes.
- *
+ * bytes used, the user can reuse the remaining buffer space for other purposes.
  */
-static inline void cnstr_shdsc_pdcp_short_mac(uint32_t *descbuf,
-		unsigned *bufsize,
+static inline int cnstr_shdsc_pdcp_short_mac(uint32_t *descbuf,
 		bool ps,
 		struct alginfo *authdata)
 {
@@ -2524,7 +2514,7 @@ static inline void cnstr_shdsc_pdcp_short_mac(uint32_t *descbuf,
 	default:
 		pr_err("%s: Invalid integrity algorithm selected: %d\n",
 		       "cnstr_shdsc_pdcp_short_mac", authdata->algtype);
-		return;
+		return 0;
 	}
 
 
@@ -2533,7 +2523,7 @@ static inline void cnstr_shdsc_pdcp_short_mac(uint32_t *descbuf,
 		PATCH_MOVE(p, move_cmd_write_descbuf, local_offset);
 	}
 
-	*bufsize = PROGRAM_FINALIZE(p);
+	return PROGRAM_FINALIZE(p);
 }
 
 #endif /* __DESC_PDCP_H__ */

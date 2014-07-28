@@ -89,11 +89,12 @@ struct wimax_decap_pdb {
  * cnstr_shdsc_wimax_encap_era5 - WiMAX(802.16) encapsulation descriptor for
  *                                platforms with SEC ERA >= 5.
  * @descbuf: pointer to descriptor-under-construction buffer
- * @bufsize: points to size to be updated at completion
  * @pdb_opts: PDB Options Byte
  * @pn: PDB Packet Number
  * @cipherdata: pointer to block cipher transform definitions
  * @protinfo: protocol information: OP_PCL_WIMAX_OFDM/OFDMA
+ *
+ * Return: size of descriptor written in words
  *
  * This descriptor addreses the prefetch problem when modifying the header of
  * the input frame by invalidating the prefetch mechanism.
@@ -110,9 +111,9 @@ struct wimax_decap_pdb {
  * prefetched data, dumps that data, rewinds the input frame and just starts
  * reading from the beginning again.
  */
-static inline void cnstr_shdsc_wimax_encap_era5(uint32_t *descbuf,
-		unsigned *bufsize, uint8_t pdb_opts, uint32_t pn,
-		uint16_t protinfo, struct alginfo *cipherdata)
+static inline int cnstr_shdsc_wimax_encap_era5(uint32_t *descbuf,
+		uint8_t pdb_opts, uint32_t pn, uint16_t protinfo,
+		struct alginfo *cipherdata)
 {
 	struct wimax_encap_pdb pdb;
 	struct program prg;
@@ -275,13 +276,12 @@ static inline void cnstr_shdsc_wimax_encap_era5(uint32_t *descbuf,
 	PATCH_MOVE(p, move_seqout_ptr, seqout_ptr);
 	PATCH_MOVE(p, write_seqout_ptr, local_offset);
 	PATCH_MOVE(p, write_swapped_seqout_ptr, local_offset);
-	*bufsize = PROGRAM_FINALIZE(p);
+	return PROGRAM_FINALIZE(p);
 }
 
 /**
  * cnstr_shdsc_wimax_encap - WiMAX(802.16) encapsulation
  * @descbuf: pointer to descriptor-under-construction buffer
- * @bufsize: points to size to be updated at completion
  * @pdb_opts: PDB Options Byte
  * @pn: PDB Packet Number
  * @cipherdata: pointer to block cipher transform definitions
@@ -290,11 +290,12 @@ static inline void cnstr_shdsc_wimax_encap_era5(uint32_t *descbuf,
  * Note: Descriptor is valid on platforms with support for SEC ERA 4.
  * On platforms with SEC ERA 5 or above, cnstr_shdsc_wimax_encap_era5 is
  * automatically called.
+ *
+ * Return: size of descriptor written in words
  */
-static inline void cnstr_shdsc_wimax_encap(uint32_t *descbuf, unsigned *bufsize,
-					   uint8_t pdb_opts, uint32_t pn,
-					   uint16_t protinfo,
-					   struct alginfo *cipherdata)
+static inline int cnstr_shdsc_wimax_encap(uint32_t *descbuf, uint8_t pdb_opts,
+					  uint32_t pn, uint16_t protinfo,
+					  struct alginfo *cipherdata)
 {
 	struct wimax_encap_pdb pdb;
 	struct program prg;
@@ -315,11 +316,9 @@ static inline void cnstr_shdsc_wimax_encap(uint32_t *descbuf, unsigned *bufsize,
 	REFERENCE(write_seqout_ptr);
 	REFERENCE(write_swapped_seqout_ptr);
 
-	if (rta_sec_era >= RTA_SEC_ERA_5) {
-		cnstr_shdsc_wimax_encap_era5(descbuf, bufsize, pdb_opts, pn,
-					     protinfo, cipherdata);
-		return;
-	}
+	if (rta_sec_era >= RTA_SEC_ERA_5)
+		return cnstr_shdsc_wimax_encap_era5(descbuf, pdb_opts, pn,
+						    protinfo, cipherdata);
 
 	memset(&pdb, 0x00, sizeof(struct wimax_encap_pdb));
 	pdb.options = pdb_opts;
@@ -449,25 +448,26 @@ static inline void cnstr_shdsc_wimax_encap(uint32_t *descbuf, unsigned *bufsize,
 	PATCH_MOVE(p, move_seqout_ptr, seqout_ptr);
 	PATCH_MOVE(p, write_seqout_ptr, local_offset);
 	PATCH_MOVE(p, write_swapped_seqout_ptr, local_offset);
-	*bufsize = PROGRAM_FINALIZE(p);
+	return PROGRAM_FINALIZE(p);
 }
 
 /**
  * cnstr_shdsc_wimax_decap - WiMAX(802.16) decapsulation
  * @descbuf: pointer to descriptor-under-construction buffer
- * @bufsize: points to size to be updated at completion
  * @pdb_opts: PDB Options Byte
  * @pn: PDB Packet Number
  * @cipherdata: pointer to block cipher transform definitions
  * @ar_len: anti-replay window length
  * @protinfo: protocol information: OP_PCL_WIMAX_OFDM/OFDMA
  *
+ * Return: size of descriptor written in words
+ *
  * Note: Descriptor valid on platforms with support for SEC ERA 4.
  */
-static inline void cnstr_shdsc_wimax_decap(uint32_t *descbuf, unsigned *bufsize,
-					   uint8_t pdb_opts, uint32_t pn,
-					   uint16_t ar_len, uint16_t protinfo,
-					   struct alginfo *cipherdata)
+static inline int cnstr_shdsc_wimax_decap(uint32_t *descbuf, uint8_t pdb_opts,
+					  uint32_t pn, uint16_t ar_len,
+					  uint16_t protinfo,
+					  struct alginfo *cipherdata)
 {
 	struct wimax_decap_pdb pdb;
 	struct program prg;
@@ -568,7 +568,7 @@ static inline void cnstr_shdsc_wimax_decap(uint32_t *descbuf, unsigned *bufsize,
 	PATCH_JUMP(p, pkeyjump, keyjump);
 	PATCH_LOAD(p, load_gmh, gmh);
 	PATCH_MOVE(p, move_gmh, gmh);
-	*bufsize = PROGRAM_FINALIZE(p);
+	return PROGRAM_FINALIZE(p);
 }
 
 #endif /* __DESC_WIMAX_H__ */

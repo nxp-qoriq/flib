@@ -15,14 +15,15 @@
 /**
  * cnstr_shdsc_snow_f8 - SNOW/f8 (UEA2) as a shared descriptor
  * @descbuf: pointer to descriptor-under-construction buffer
- * @bufsize: points to size to be updated at completion
  * @cipherdata: pointer to block cipher transform definitions
  * @dir: Cipher direction (DIR_ENCRYPT/DIR_DECRYPT)
  * @count: UEA2 count value (32 bits)
  * @bearer: UEA2 bearer ID (5 bits)
  * @direction: UEA2 direction (1 bit)
+ *
+ * Return: size of descriptor written in words
  */
-static inline void cnstr_shdsc_snow_f8(uint32_t *descbuf, unsigned *bufsize,
+static inline int cnstr_shdsc_snow_f8(uint32_t *descbuf,
 			 struct alginfo *cipherdata, uint8_t dir,
 			 uint32_t count, uint8_t bearer, uint8_t direction)
 {
@@ -46,21 +47,22 @@ static inline void cnstr_shdsc_snow_f8(uint32_t *descbuf, unsigned *bufsize,
 	SEQFIFOLOAD(p, MSG1, 0, VLF | LAST1);
 	SEQFIFOSTORE(p, MSG, 0, 0, VLF);
 
-	*bufsize = PROGRAM_FINALIZE(p);
+	return PROGRAM_FINALIZE(p);
 }
 
 /**
  * cnstr_shdsc_snow_f9 - SNOW/f9 (UIA2) as a shared descriptor
  * @descbuf: pointer to descriptor-under-construction buffer
- * @bufsize: points to size to be updated at completion
  * @authdata: pointer to authentication transform definitions
  * @dir: cipher direction (DIR_ENCRYPT/DIR_DECRYPT)
  * @count: UEA2 count value (32 bits)
  * @fresh: UEA2 fresh value ID (32 bits)
  * @direction: UEA2 direction (1 bit)
  * @datalen: size of data
+ *
+ * Return: size of descriptor written in words
  */
-static inline void cnstr_shdsc_snow_f9(uint32_t *descbuf, unsigned *bufsize,
+static inline int cnstr_shdsc_snow_f9(uint32_t *descbuf,
 			 struct alginfo *authdata, uint8_t dir, uint32_t count,
 			 uint32_t fresh, uint8_t direction, uint32_t datalen)
 {
@@ -87,21 +89,22 @@ static inline void cnstr_shdsc_snow_f9(uint32_t *descbuf, unsigned *bufsize,
 	/* Save lower half of MAC out into a 32-bit sequence */
 	SEQSTORE(p, CONTEXT2, 0, 4, 0);
 
-	*bufsize = PROGRAM_FINALIZE(p);
+	return PROGRAM_FINALIZE(p);
 }
 
 /**
  * cnstr_shdsc_cbc_blkcipher - CBC block cipher
  * @descbuf: pointer to descriptor-under-construction buffer
- * @bufsize: limit/returned descriptor buffer size
  * @cipherdata: pointer to block cipher transform definitions
  * @iv: IV data; if NULL, "ivlen" bytes from the input frame will be read as IV
  * @ivlen: IV length
  * @dir: DIR_ENCRYPT/DIR_DECRYPT
+ *
+ * Return: size of descriptor written in words
  */
-static inline void cnstr_shdsc_cbc_blkcipher(uint32_t *descbuf,
-			       unsigned *bufsize, struct alginfo *cipherdata,
-			       uint8_t *iv, uint32_t ivlen, uint8_t dir)
+static inline int cnstr_shdsc_cbc_blkcipher(uint32_t *descbuf,
+			       struct alginfo *cipherdata, uint8_t *iv,
+			       uint32_t ivlen, uint8_t dir)
 {
 	struct program prg;
 	struct program *p = &prg;
@@ -156,13 +159,12 @@ static inline void cnstr_shdsc_cbc_blkcipher(uint32_t *descbuf,
 	if (is_aes_dec)
 		PATCH_JUMP(p, pskipdk, skipdk);
 
-	*bufsize = PROGRAM_FINALIZE(p);
+	return PROGRAM_FINALIZE(p);
 }
 
 /**
  * cnstr_shdsc_hmac - HMAC shared
  * @descbuf: pointer to descriptor-under-construction buffer
- * @bufsize: limit/returned descriptor buffer size
  * @authdata: pointer to authentication transform definitions;
  *            message digest algorithm: OP_ALG_ALGSEL_MD5/ SHA1-512.
  * @do_icv: 0 if ICV checking is not desired, any other value if ICV checking
@@ -172,10 +174,11 @@ static inline void cnstr_shdsc_cbc_blkcipher(uint32_t *descbuf,
  *
  * Note: There's no support for keys longer than the corresponding digest size,
  * according to the selected algorithm.
+ *
+ * Return: size of descriptor written in words
  */
-static inline void cnstr_shdsc_hmac(uint32_t *descbuf, unsigned *bufsize,
-		      struct alginfo *authdata, uint8_t do_icv,
-		      uint8_t trunc_len)
+static inline int cnstr_shdsc_hmac(uint32_t *descbuf, struct alginfo *authdata,
+		      uint8_t do_icv, uint8_t trunc_len)
 {
 	struct program prg;
 	struct program *p = &prg;
@@ -206,7 +209,7 @@ static inline void cnstr_shdsc_hmac(uint32_t *descbuf, unsigned *bufsize,
 		storelen = 64;
 		break;
 	default:
-		return;
+		return 0;
 	}
 
 	trunc_len = trunc_len && (trunc_len < storelen) ? trunc_len : storelen;
@@ -250,21 +253,22 @@ static inline void cnstr_shdsc_hmac(uint32_t *descbuf, unsigned *bufsize,
 	PATCH_JUMP(p, pkeyjmp, keyjmp);
 	PATCH_JUMP(p, pjmpprecomp, jmpprecomp);
 
-	*bufsize = PROGRAM_FINALIZE(p);
+	return PROGRAM_FINALIZE(p);
 }
 
 /**
  * cnstr_shdsc_kasumi_f8 - KASUMI F8 (Confidentiality) as a shared descriptor
  *                         (ETSI "Document 1: f8 and f9 specification")
  * @descbuf: pointer to descriptor-under-construction buffer
- * @bufsize: points to size to be updated at completion
  * @cipherdata: pointer to block cipher transform definitions
  * @dir: cipher direction (DIR_ENCRYPT/DIR_DECRYPT)
  * @count: count value (32 bits)
  * @bearer: bearer ID (5 bits)
  * @direction: direction (1 bit)
+ *
+ * Return: size of descriptor written in words
  */
-static inline void cnstr_shdsc_kasumi_f8(uint32_t *descbuf, unsigned *bufsize,
+static inline int cnstr_shdsc_kasumi_f8(uint32_t *descbuf,
 			   struct alginfo *cipherdata, uint8_t dir,
 			   uint32_t count, uint8_t bearer, uint8_t direction)
 {
@@ -288,22 +292,23 @@ static inline void cnstr_shdsc_kasumi_f8(uint32_t *descbuf, unsigned *bufsize,
 	SEQFIFOLOAD(p, MSG1, 0, VLF | LAST1);
 	SEQFIFOSTORE(p, MSG, 0, 0, VLF);
 
-	*bufsize = PROGRAM_FINALIZE(p);
+	return PROGRAM_FINALIZE(p);
 }
 
 /**
  * cnstr_shdsc_kasumi_f9 -  KASUMI F9 (Integrity) as a shared descriptor
  *                          (ETSI "Document 1: f8 and f9 specification")
  * @descbuf: pointer to descriptor-under-construction buffer
- * @bufsize: points to size to be updated at completion
  * @authdata: pointer to authentication transform definitions
  * @dir: cipher direction (DIR_ENCRYPT/DIR_DECRYPT)
  * @count: count value (32 bits)
  * @fresh: fresh value ID (32 bits)
  * @direction: direction (1 bit)
  * @datalen: size of data
+ *
+ * Return: size of descriptor written in words
  */
-static inline void cnstr_shdsc_kasumi_f9(uint32_t *descbuf, unsigned *bufsize,
+static inline int cnstr_shdsc_kasumi_f9(uint32_t *descbuf,
 			   struct alginfo *authdata, uint8_t dir,
 			   uint32_t count, uint32_t fresh, uint8_t direction,
 			   uint32_t datalen)
@@ -332,15 +337,16 @@ static inline void cnstr_shdsc_kasumi_f9(uint32_t *descbuf, unsigned *bufsize,
 	/* Save output MAC of DWORD 2 into a 32-bit sequence */
 	SEQSTORE(p, CONTEXT1, ctx_offset, 4, 0);
 
-	*bufsize = PROGRAM_FINALIZE(p);
+	return PROGRAM_FINALIZE(p);
 }
 
 /**
  * cnstr_shdsc_crc - CRC32 Accelerator (IEEE 802 CRC32 protocol mode)
  * @descbuf: pointer to descriptor-under-construction buffer
- * @bufsize: limit of descriptor buffer size
+ *
+ * Return: size of descriptor written in words
  */
-static inline void cnstr_shdsc_crc(uint32_t *descbuf, unsigned *bufsize)
+static inline int cnstr_shdsc_crc(uint32_t *descbuf)
 {
 	struct program prg;
 	struct program *p = &prg;
@@ -355,7 +361,7 @@ static inline void cnstr_shdsc_crc(uint32_t *descbuf, unsigned *bufsize)
 	SEQFIFOLOAD(p, MSG2, 0, VLF | LAST2);
 	SEQSTORE(p, CONTEXT2, 0, 4, 0);
 
-	*bufsize = PROGRAM_FINALIZE(p);
+	return PROGRAM_FINALIZE(p);
 }
 
 #endif /* __DESC_ALGO_H__ */
