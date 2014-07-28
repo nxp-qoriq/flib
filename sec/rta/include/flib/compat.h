@@ -4,13 +4,13 @@
 #define __RTA_COMPAT_H__
 
 #include <stdint.h>
-#include <stdbool.h>
 #include <errno.h>
 
 #ifdef __GLIBC__
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdbool.h>
 #include <byteswap.h>
 /* FSL's Embedded Warrior C Library; assume AIOP or MC environment */
 #elif defined(__EWL__) && (defined(AIOP) || defined(MC))
@@ -19,6 +19,11 @@
 #include "common/fsl_stdio.h"
 #include "fsl_dbg.h"
 #include "fsl_endian.h"
+typedef unsigned char			_Bool;
+#define bool				_Bool
+#define true				1
+#define false				0
+#define __bool_true_false_are_defined	1
 #else
 #error Environment not supported!
 #endif
