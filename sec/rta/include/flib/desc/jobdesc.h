@@ -38,21 +38,8 @@ static inline int cnstr_jobdesc_mdsplitkey(uint32_t *descbuf, bool ps,
 					   uint64_t alg_key, uint8_t keylen,
 					   uint32_t cipher, uint64_t padbuf)
 {
-	/* Sizes for MDHA pads (*not* keys) in bytes */
-	static const uint8_t mdpadlen[] = {
-		16,	/* MD5 */
-		20,	/* SHA1 */
-		32,	/* SHA224 */
-		32,	/* SHA256 */
-		64,	/* SHA384 */
-		64	/* SHA512 */
-	};
-	uint32_t split_key_len, idx;
 	struct program prg;
 	struct program *p = &prg;
-
-	idx = (cipher & OP_ALG_ALGSEL_SUBMASK) >> OP_ALG_ALGSEL_SHIFT;
-	split_key_len = (uint32_t)(mdpadlen[idx] * 2);
 
 	PROGRAM_CNTXT_INIT(p, descbuf, 0);
 	if (ps)
@@ -66,7 +53,7 @@ static inline int cnstr_jobdesc_mdsplitkey(uint32_t *descbuf, bool ps,
 		      OP_ALG_DECRYPT);
 	FIFOLOAD(p, MSG2, 0, 0, LAST2 | IMMED | COPY);
 	JUMP(p, 1, LOCAL_JUMP, ALL_TRUE, CLASS2);
-	FIFOSTORE(p, MDHA_SPLIT_KEY, 0, padbuf, split_key_len, 0);
+	FIFOSTORE(p, MDHA_SPLIT_KEY, 0, padbuf, split_key_len(cipher), 0);
 	return PROGRAM_FINALIZE(p);
 }
 
