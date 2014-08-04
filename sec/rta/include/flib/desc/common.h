@@ -68,6 +68,45 @@ static inline uint32_t inline_flags(enum rta_data_type data_type)
 #define INLINE_KEY(alginfo)	inline_flags(alginfo->key_type)
 
 /**
+ * rta_inline_query() - Provide indications on which data items can be inlined
+ *                      and which shall be referenced in a shared descriptor.
+ * @sd_base_len: Shared descriptor base length - bytes consumed by the commands,
+ *               excluding the data items to be inlined (or corresponding
+ *               pointer if an item is not inlined). Each cnstr_* function that
+ *               generates descriptors should have a define mentioning
+ *               corresponding length.
+ * @jd_len: Maximum length of the job descriptor(s) that will be used
+ *          together with the shared descriptor.
+ * @data_len: Array of lengths of the data items trying to be inlined
+ * @inl_mask: 32bit mask with bit x = 1 if data item x can be inlined, 0
+ *            otherwise.
+ * @count: Number of data items (size of @data_len array); must be <= 32
+ *
+ * Return: 0 if data can be inlined / referenced, negative value if not. If 0,
+ *         check @inl_mask for details.
+ */
+static inline int rta_inline_query(unsigned sd_base_len, unsigned jd_len,
+				   unsigned *data_len, uint32_t *inl_mask,
+				   unsigned count)
+{
+	int rem_bytes = (int)(CAAM_DESC_BYTES_MAX - sd_base_len - jd_len);
+	unsigned i;
+
+	*inl_mask = 0;
+	for (i = 0; (i < count) && (rem_bytes > 0); i++) {
+		if (rem_bytes - data_len[i] -
+		     (count - i - 1) * CAAM_PTR_SZ >= 0) {
+			rem_bytes -= data_len[i];
+			*inl_mask |= (1 << i);
+		} else {
+			rem_bytes -= CAAM_PTR_SZ;
+		}
+	}
+
+	return (rem_bytes >= 0) ? 0 : -1;
+}
+
+/**
  * struct protcmd - Container for Protocol Operation Command fields
  * @optype: command type
  * @protid: protocol Identifier
