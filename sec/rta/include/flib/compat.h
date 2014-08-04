@@ -19,11 +19,17 @@
 #include "common/fsl_stdio.h"
 #include "fsl_dbg.h"
 #include "fsl_endian.h"
+#if _EWL_C99
+#include <stdbool.h>
+#else
+#if !__option(c99)
 typedef unsigned char			_Bool;
+#endif
 #define bool				_Bool
 #define true				1
 #define false				0
 #define __bool_true_false_are_defined	1
+#endif /* _EWL_C99 */
 #else
 #error Environment not supported!
 #endif
