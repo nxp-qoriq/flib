@@ -175,7 +175,7 @@ static inline int cnstr_shdsc_rlc_encap(uint32_t *descbuf,
 			pkeyjmp = JUMP(p, keyjmp, LOCAL_JUMP, ALL_TRUE, SHRD);
 			/* Insert Cipher Key */
 			KEY(p, KEY1, cipherdata->key_enc_flags, cipherdata->key,
-			    cipherdata->keylen, 0);
+			    cipherdata->keylen, INLINE_KEY(cipherdata));
 			SET_LABEL(p, keyjmp);
 
 			PROTOCOL(p, OP_TYPE_ENCAP_PROTOCOL,
@@ -197,7 +197,7 @@ static inline int cnstr_shdsc_rlc_encap(uint32_t *descbuf,
 
 			/* Insert Cipher Key */
 			KEY(p, KEY1, cipherdata->key_enc_flags, cipherdata->key,
-			    cipherdata->keylen, 0);
+			    cipherdata->keylen, INLINE_KEY(cipherdata));
 
 			PROTOCOL(p, OP_TYPE_ENCAP_PROTOCOL,
 				 OP_PCLID_3G_RLC_PDU,
@@ -317,7 +317,7 @@ static inline int cnstr_shdsc_rlc_decap(uint32_t *descbuf,
 			pkeyjmp = JUMP(p, keyjmp, LOCAL_JUMP, ALL_TRUE, SHRD);
 			/* Insert Cipher Key */
 			KEY(p, KEY1, cipherdata->key_enc_flags, cipherdata->key,
-			    cipherdata->keylen, 0);
+			    cipherdata->keylen, INLINE_KEY(cipherdata));
 			SET_LABEL(p, keyjmp);
 
 			PROTOCOL(p, OP_TYPE_DECAP_PROTOCOL,
@@ -338,7 +338,7 @@ static inline int cnstr_shdsc_rlc_decap(uint32_t *descbuf,
 
 			/* Insert Cipher Key */
 			KEY(p, KEY1, cipherdata->key_enc_flags, cipherdata->key,
-			    cipherdata->keylen, 0);
+			    cipherdata->keylen, INLINE_KEY(cipherdata));
 			SET_LABEL(p, keyjmp);
 
 			PROTOCOL(p, OP_TYPE_DECAP_PROTOCOL,

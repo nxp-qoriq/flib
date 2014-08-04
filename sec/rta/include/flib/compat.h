@@ -17,6 +17,9 @@
 #include "common/fsl_string.h"
 #include "common/fsl_stdlib.h"
 #include "common/fsl_stdio.h"
+#if defined(AIOP)
+#include "dplib/fsl_cdma.h"
+#endif
 #include "fsl_dbg.h"
 #include "fsl_endian.h"
 #if _EWL_C99
@@ -53,6 +56,18 @@ typedef unsigned char			_Bool;
 #define pr_err(fmt, ...)
 #endif
 #endif /* pr_err */
+
+#if defined(__GLIBC__) && !defined(pr_warning)
+#if !defined(SUPPRESS_PRINTS)
+#define pr_warning(fmt, ...)    printf(fmt, ##__VA_ARGS__)
+#else
+#define pr_warning(fmt, ...)
+#endif
+#endif /* pr_warning */
+
+#if defined(__GLIBC__) && !defined(pr_warn)
+#define pr_warn	pr_warning
+#endif /* pr_warn */
 
 /**
  * ARRAY_SIZE - returns the number of elements in an array

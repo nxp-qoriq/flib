@@ -282,7 +282,7 @@ static inline int rta_load(struct program *program, uint64_t src, uint64_t dst,
 	 *  - !IMMED and is not SEQ cmd: copy the address
 	 */
 	if (flags & IMMED)
-		__rta_inline_data(program, src, flags & COPY, length);
+		__rta_inline_data(program, src, flags & __COPY_MASK, length);
 	else if (!(flags & SEQ))
 		__rta_out64(program, program->ps, src);
 

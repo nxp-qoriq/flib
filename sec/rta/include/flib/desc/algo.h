@@ -41,7 +41,7 @@ static inline int cnstr_shdsc_snow_f8(uint32_t *descbuf, bool ps,
 	SHR_HDR(p, SHR_ALWAYS, 1, 0);
 
 	KEY(p, KEY1, cipherdata->key_enc_flags, cipherdata->key,
-	    cipherdata->keylen, IMMED | COPY);
+	    cipherdata->keylen, INLINE_KEY(cipherdata));
 	MATHB(p, SEQINSZ, SUB, MATH2, VSEQINSZ, 4, 0);
 	MATHB(p, SEQINSZ, SUB, MATH2, VSEQOUTSZ, 4, 0);
 	ALG_OPERATION(p, OP_ALG_ALGSEL_SNOW_F8, OP_ALG_AAI_F8,
@@ -86,7 +86,7 @@ static inline int cnstr_shdsc_snow_f9(uint32_t *descbuf, bool ps,
 	SHR_HDR(p, SHR_ALWAYS, 1, 0);
 
 	KEY(p, KEY2, authdata->key_enc_flags, authdata->key, authdata->keylen,
-	    IMMED | COPY);
+	    INLINE_KEY(authdata));
 	MATHB(p, SEQINSZ, SUB, MATH2, VSEQINSZ, 4, 0);
 	ALG_OPERATION(p, OP_ALG_ALGSEL_SNOW_F9, OP_ALG_AAI_F9,
 		      OP_ALG_AS_INITFINAL, 0, dir);
@@ -130,7 +130,7 @@ static inline int cnstr_shdsc_cbc_blkcipher(uint32_t *descbuf, bool ps,
 	pkeyjmp = JUMP(p, keyjmp, LOCAL_JUMP, ALL_TRUE, SHRD);
 	/* Insert Key */
 	KEY(p, KEY1, cipherdata->key_enc_flags, cipherdata->key,
-	    cipherdata->keylen, IMMED | COPY);
+	    cipherdata->keylen, INLINE_KEY(cipherdata));
 
 	if (is_aes_dec) {
 		ALG_OPERATION(p, cipherdata->algtype, OP_ALG_AAI_CBC,
@@ -235,7 +235,7 @@ static inline int cnstr_shdsc_hmac(uint32_t *descbuf, bool ps,
 
 	pkeyjmp = JUMP(p, keyjmp, LOCAL_JUMP, ALL_TRUE, SHRD);
 	KEY(p, KEY2, authdata->key_enc_flags, authdata->key, storelen,
-	    IMMED | COPY);
+	    INLINE_KEY(authdata));
 
 	/* Do operation */
 	ALG_OPERATION(p, authdata->algtype, OP_ALG_AAI_HMAC,
@@ -299,7 +299,7 @@ static inline int cnstr_shdsc_kasumi_f8(uint32_t *descbuf, bool ps,
 	SHR_HDR(p, SHR_ALWAYS, 1, 0);
 
 	KEY(p, KEY1, cipherdata->key_enc_flags, cipherdata->key,
-	    cipherdata->keylen, IMMED | COPY);
+	    cipherdata->keylen, INLINE_KEY(cipherdata));
 	MATHB(p, SEQINSZ, SUB, MATH2, VSEQINSZ, 4, 0);
 	MATHB(p, SEQINSZ, SUB, MATH2, VSEQOUTSZ, 4, 0);
 	ALG_OPERATION(p, OP_ALG_ALGSEL_KASUMI, OP_ALG_AAI_F8,
@@ -347,7 +347,7 @@ static inline int cnstr_shdsc_kasumi_f9(uint32_t *descbuf, bool ps,
 	SHR_HDR(p, SHR_ALWAYS, 1, 0);
 
 	KEY(p, KEY1, authdata->key_enc_flags, authdata->key, authdata->keylen,
-	    IMMED | COPY);
+	    INLINE_KEY(authdata));
 	MATHB(p, SEQINSZ, SUB, MATH2, VSEQINSZ, 4, 0);
 	ALG_OPERATION(p, OP_ALG_ALGSEL_KASUMI, OP_ALG_AAI_F9,
 		      OP_ALG_AS_INITFINAL, 0, dir);

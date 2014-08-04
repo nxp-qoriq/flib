@@ -168,7 +168,7 @@ static inline int rta_key(struct program *program, uint32_t key_dst,
 	program->current_instruction++;
 
 	if (flags & IMMED)
-		__rta_inline_data(program, src, flags & COPY, length);
+		__rta_inline_data(program, src, flags & __COPY_MASK, length);
 	else
 		__rta_out64(program, program->ps, src);
 

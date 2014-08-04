@@ -146,7 +146,7 @@ static inline int rta_fifo_load(struct program *program, uint32_t src,
 
 	/* write pointer or immediate data field */
 	if (flags & IMMED)
-		__rta_inline_data(program, loc, flags & COPY, length);
+		__rta_inline_data(program, loc, flags & __COPY_MASK, length);
 	else if (!is_seq_cmd)
 		__rta_out64(program, program->ps, loc);
 

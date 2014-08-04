@@ -122,7 +122,7 @@ static inline int cnstr_shdsc_wifi_encap(uint32_t *descbuf, bool ps,
 	SET_LABEL(p, pdbend);
 	pkeyjump = JUMP(p, keyjump, LOCAL_JUMP, ALL_TRUE, SHRD | SELF);
 	KEY(p, KEY1, cipherdata->key_enc_flags, cipherdata->key,
-	    cipherdata->keylen, IMMED | COPY);
+	    cipherdata->keylen, INLINE_KEY(cipherdata));
 	SET_LABEL(p, keyjump);
 	PROTOCOL(p, OP_TYPE_ENCAP_PROTOCOL, OP_PCLID_WIFI, OP_PCL_WIFI);
 
@@ -240,7 +240,7 @@ static inline int cnstr_shdsc_wifi_decap(uint32_t *descbuf, bool ps,
 	SET_LABEL(p, pdbend);
 	pkeyjump = JUMP(p, keyjump, LOCAL_JUMP, ALL_TRUE, SHRD | SELF);
 	KEY(p, KEY1, cipherdata->key_enc_flags, cipherdata->key,
-	    cipherdata->keylen, IMMED | COPY);
+	    cipherdata->keylen, INLINE_KEY(cipherdata));
 	SET_LABEL(p, keyjump);
 	PROTOCOL(p, OP_TYPE_DECAP_PROTOCOL, OP_PCLID_WIFI, OP_PCL_WIFI);
 
