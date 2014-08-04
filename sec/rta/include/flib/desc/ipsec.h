@@ -829,6 +829,28 @@ static inline int cnstr_shdsc_ipsec_decap_des_aes_xcbc(uint32_t *descbuf,
 }
 
 /**
+ * IPSEC_NEW_ENC_BASE_DESC_LEN - IPsec new mode encap shared descriptor length
+ *
+ * Accounts only for the "base" commands and is intended to be used by upper
+ * layers to determine whether Outer IP Header and/or keys can be inlined or
+ * not. To be used as first parameter of rta_inline_query().
+ */
+#define IPSEC_NEW_ENC_BASE_DESC_LEN	(5 * CAAM_CMD_SZ + \
+					 sizeof(struct ipsec_encap_pdb))
+
+/**
+ * IPSEC_NEW_NULL_ENC_BASE_DESC_LEN - IPsec new mode encap shared descriptor
+ *                                    length for the case of
+ *                                    NULL encryption / authentication
+ *
+ * Accounts only for the "base" commands and is intended to be used by upper
+ * layers to determine whether Outer IP Header and/or key can be inlined or
+ * not. To be used as first parameter of rta_inline_query().
+ */
+#define IPSEC_NEW_NULL_ENC_BASE_DESC_LEN	(4 * CAAM_CMD_SZ + \
+						 sizeof(struct ipsec_encap_pdb))
+
+/**
  * cnstr_shdsc_ipsec_new_encap -  IPSec new mode ESP encapsulation
  *     protocol-level shared descriptor. If an authentication key is required by
  *     the protocol, it must be a MDHA split key.
@@ -911,6 +933,28 @@ static inline int cnstr_shdsc_ipsec_new_encap(uint32_t *descbuf, bool ps,
 	PATCH_HDR(p, phdr, hdr);
 	return PROGRAM_FINALIZE(p);
 }
+
+/**
+ * IPSEC_NEW_DEC_BASE_DESC_LEN - IPsec new mode decap shared descriptor length
+ *
+ * Accounts only for the "base" commands and is intended to be used by upper
+ * layers to determine whether keys can be inlined or not. To be used as first
+ * parameter of rta_inline_query().
+ */
+#define IPSEC_NEW_DEC_BASE_DESC_LEN	(5 * CAAM_CMD_SZ + \
+					 sizeof(struct ipsec_decap_pdb))
+
+/**
+ * IPSEC_NEW_NULL_DEC_BASE_DESC_LEN - IPsec new mode decap shared descriptor
+ *                                    length for the case of
+ *                                    NULL decryption / authentication
+ *
+ * Accounts only for the "base" commands and is intended to be used by upper
+ * layers to determine whether key can be inlined or not. To be used as first
+ * parameter of rta_inline_query().
+ */
+#define IPSEC_NEW_NULL_DEC_BASE_DESC_LEN	(4 * CAAM_CMD_SZ + \
+						 sizeof(struct ipsec_decap_pdb))
 
 /**
  * cnstr_shdsc_ipsec_new_decap - IPSec new mode ESP decapsulation protocol-level
