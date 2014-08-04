@@ -357,12 +357,12 @@ static inline int cnstr_shdsc_tls(uint32_t *descbuf, bool ps, uint8_t *pdb,
 	 */
 	if (protcmd->protid == OP_PCLID_SSL30)
 		KEY(p, KEY2, authdata->key_enc_flags, authdata->key,
-		    authdata->keylen, IMMED | COPY);
+		    authdata->keylen, INLINE_KEY(authdata));
 	else
 		KEY(p, MDHA_SPLIT_KEY, authdata->key_enc_flags, authdata->key,
-		    authdata->keylen, IMMED | COPY);
+		    authdata->keylen, INLINE_KEY(authdata));
 	KEY(p, KEY1, cipherdata->key_enc_flags, cipherdata->key,
-	    cipherdata->keylen, IMMED | COPY);
+	    cipherdata->keylen, INLINE_KEY(cipherdata));
 	SET_LABEL(p, keyjmp);
 	PROTOCOL(p, protcmd->optype, protcmd->protid, protcmd->protinfo);
 

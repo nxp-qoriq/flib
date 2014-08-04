@@ -467,9 +467,9 @@ static inline int cnstr_shdsc_ipsec_encap(uint32_t *descbuf, bool ps,
 	SET_LABEL(p, hdr);
 	pkeyjmp = JUMP(p, keyjmp, LOCAL_JUMP, ALL_TRUE, BOTH|SHRD);
 	KEY(p, MDHA_SPLIT_KEY, authdata->key_enc_flags, authdata->key,
-	    authdata->keylen, IMMED | COPY);
+	    authdata->keylen, INLINE_KEY(authdata));
 	KEY(p, KEY1, cipherdata->key_enc_flags, cipherdata->key,
-	    cipherdata->keylen, IMMED | COPY);
+	    cipherdata->keylen, INLINE_KEY(cipherdata));
 	SET_LABEL(p, keyjmp);
 	PROTOCOL(p, OP_TYPE_ENCAP_PROTOCOL,
 		 OP_PCLID_IPSEC,
@@ -517,9 +517,9 @@ static inline int cnstr_shdsc_ipsec_decap(uint32_t *descbuf, bool ps,
 	SET_LABEL(p, hdr);
 	pkeyjmp = JUMP(p, keyjmp, LOCAL_JUMP, ALL_TRUE, BOTH|SHRD);
 	KEY(p, MDHA_SPLIT_KEY, authdata->key_enc_flags, authdata->key,
-	    authdata->keylen, IMMED | COPY);
+	    authdata->keylen, INLINE_KEY(authdata));
 	KEY(p, KEY1, cipherdata->key_enc_flags, cipherdata->key,
-	    cipherdata->keylen, IMMED | COPY);
+	    cipherdata->keylen, INLINE_KEY(cipherdata));
 	SET_LABEL(p, keyjmp);
 	PROTOCOL(p, OP_TYPE_DECAP_PROTOCOL,
 		 OP_PCLID_IPSEC,
@@ -596,13 +596,13 @@ static inline int cnstr_shdsc_ipsec_encap_des_aes_xcbc(uint32_t *descbuf,
 	 * the authentication key (in order to use it also with HMAC-MD5-96),
 	 * even when using a shorter key for the AES-XCBC-MAC-96.
 	 */
-	KEY(p, MDHA_SPLIT_KEY, 0, authdata->key, 32, 0);
+	KEY(p, MDHA_SPLIT_KEY, 0, authdata->key, 32, INLINE_KEY(authdata));
 	SET_LABEL(p, keyjump);
 	LOAD(p, LDST_SRCDST_WORD_CLRW | CLRW_CLR_C1MODE | CLRW_CLR_C1DATAS |
 	     CLRW_CLR_C1CTX | CLRW_CLR_C1KEY | CLRW_RESET_CLS1_CHA, CLRW, 0, 4,
 	     IMMED);
 	KEY(p, KEY1, cipherdata->key_enc_flags, cipherdata->key,
-	    cipherdata->keylen, 0);
+	    cipherdata->keylen, INLINE_KEY(cipherdata));
 	PROTOCOL(p, OP_TYPE_ENCAP_PROTOCOL, OP_PCLID_IPSEC,
 		 (uint16_t)(cipherdata->algtype | OP_PCL_IPSEC_HMAC_MD5_96));
 	/* Swap SEQINPTR to SEQOUTPTR. */
@@ -734,13 +734,13 @@ static inline int cnstr_shdsc_ipsec_decap_des_aes_xcbc(uint32_t *descbuf,
 	 * the authentication key (in order to use it also with HMAC-MD5-96),
 	 * even when using a shorter key for the AES-XCBC-MAC-96.
 	 */
-	KEY(p, MDHA_SPLIT_KEY, 0, authdata->key, 32, 0);
+	KEY(p, MDHA_SPLIT_KEY, 0, authdata->key, 32, INLINE_KEY(authdata));
 	SET_LABEL(p, keyjump);
 	LOAD(p, LDST_SRCDST_WORD_CLRW | CLRW_CLR_C1MODE | CLRW_CLR_C1DATAS |
 	     CLRW_CLR_C1CTX | CLRW_CLR_C1KEY | CLRW_RESET_CLS1_CHA, CLRW, 0, 4,
 	     0);
 	KEY(p, KEY1, authdata->key_enc_flags, authdata->key, authdata->keylen,
-	    0);
+	    INLINE_KEY(authdata));
 	MATHB(p, SEQINSZ, SUB,
 	      (uint64_t)(pdb->ip_hdr_len + IPSEC_ICV_MD5_TRUNC_SIZE),
 	      MATH0, 4, IMMED2);
@@ -794,7 +794,7 @@ static inline int cnstr_shdsc_ipsec_decap_des_aes_xcbc(uint32_t *descbuf,
 	      (uint64_t)(pdb->ip_hdr_len + IPSEC_ICV_MD5_TRUNC_SIZE),
 	      SEQINSZ, 4, IMMED2);
 	KEY(p, KEY1, cipherdata->key_enc_flags, cipherdata->key,
-	    cipherdata->keylen, 0);
+	    cipherdata->keylen, INLINE_KEY(cipherdata));
 	PROTOCOL(p, OP_TYPE_DECAP_PROTOCOL, OP_PCLID_IPSEC,
 		 (uint16_t)(cipherdata->algtype | OP_PCL_IPSEC_HMAC_MD5_96));
 /*
@@ -899,10 +899,10 @@ static inline int cnstr_shdsc_ipsec_new_encap(uint32_t *descbuf, bool ps,
 	pkeyjmp = JUMP(p, keyjmp, LOCAL_JUMP, ALL_TRUE, SHRD);
 	if (authdata->keylen)
 		KEY(p, MDHA_SPLIT_KEY, authdata->key_enc_flags, authdata->key,
-		    authdata->keylen, 0);
+		    authdata->keylen, INLINE_KEY(authdata));
 	if (cipherdata->keylen)
 		KEY(p, KEY1, cipherdata->key_enc_flags, cipherdata->key,
-		    cipherdata->keylen, 0);
+		    cipherdata->keylen, INLINE_KEY(cipherdata));
 	SET_LABEL(p, keyjmp);
 	PROTOCOL(p, OP_TYPE_ENCAP_PROTOCOL,
 		 OP_PCLID_IPSEC_NEW,
@@ -959,10 +959,10 @@ static inline int cnstr_shdsc_ipsec_new_decap(uint32_t *descbuf, bool ps,
 	pkeyjmp = JUMP(p, keyjmp, LOCAL_JUMP, ALL_TRUE, SHRD);
 	if (authdata->keylen)
 		KEY(p, MDHA_SPLIT_KEY, authdata->key_enc_flags, authdata->key,
-		    authdata->keylen, 0);
+		    authdata->keylen, INLINE_KEY(authdata));
 	if (cipherdata->keylen)
 		KEY(p, KEY1, cipherdata->key_enc_flags, cipherdata->key,
-		    cipherdata->keylen, 0);
+		    cipherdata->keylen, INLINE_KEY(cipherdata));
 	SET_LABEL(p, keyjmp);
 	PROTOCOL(p, OP_TYPE_DECAP_PROTOCOL,
 		 OP_PCLID_IPSEC_NEW,

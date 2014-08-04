@@ -102,7 +102,7 @@ static inline int cnstr_shdsc_macsec_encap(uint32_t *descbuf,
 		pkeyjump = JUMP(p, keyjump, LOCAL_JUMP, ALL_TRUE,
 				SHRD | SELF | BOTH);
 		KEY(p, KEY1, cipherdata->key_enc_flags, cipherdata->key,
-		    cipherdata->keylen, IMMED | COPY);
+		    cipherdata->keylen, INLINE_KEY(cipherdata));
 		SET_LABEL(p, keyjump);
 		PROTOCOL(p, OP_TYPE_ENCAP_PROTOCOL, OP_PCLID_MACSEC,
 			 OP_PCL_MACSEC);
@@ -150,7 +150,7 @@ static inline int cnstr_shdsc_macsec_decap(uint32_t *descbuf,
 		pkeyjump = JUMP(p, keyjump, LOCAL_JUMP, ALL_TRUE,
 				SHRD | SELF | BOTH);
 		KEY(p, KEY1, cipherdata->key_enc_flags, cipherdata->key,
-		    cipherdata->keylen, IMMED | COPY);
+		    cipherdata->keylen, INLINE_KEY(cipherdata));
 		SET_LABEL(p, keyjump);
 		PROTOCOL(p, OP_TYPE_DECAP_PROTOCOL, OP_PCLID_MACSEC,
 			 OP_PCL_MACSEC);

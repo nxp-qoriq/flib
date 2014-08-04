@@ -12,19 +12,60 @@
  */
 
 /**
+ * enum rta_data_type - Indicates how is the data provided and how to include it
+ *                      in the descriptor.
+ * @RTA_DATA_PTR: Data is in memory and accessed by reference; data address is a
+ *               physical (bus) address.
+ * @RTA_DATA_IMM: Data is inlined in descriptor and accessed as immediate data;
+ *               data address is a virtual address.
+ * @RTA_DATA_IMM_DMA: (AIOP only) Data is inlined in descriptor and accessed as
+ *                   immediate data; data address is a physical (bus) address
+ *                   in external memory and CDMA is programmed to transfer the
+ *                   data into descriptor buffer being built in Workspace Area.
+ */
+enum rta_data_type {
+	RTA_DATA_PTR = 1,
+	RTA_DATA_IMM,
+	RTA_DATA_IMM_DMA
+};
+
+/**
  * struct alginfo - Container for algorithm details
  * @algtype: algorithm selector; for valid values, see documentation of the
  *           functions where it is used.
- * @key: address where algorithm key resides
- * @keylen: length of the provided key, in bytes
- * @key_enc_flags: key encryption flags
+ * @keylen: length of the provided algorithm key, in bytes
+ * @key: address where algorithm key resides; virtual address if key_type is
+ *       RTA_DATA_IMM, physical (bus) address if key_type is RTA_DATA_PTR or
+ *       RTA_DATA_IMM_DMA.
+ * @key_enc_flags: key encryption flags; see encrypt_flags parameter of KEY
+ *                 command for valid values.
+ * @key_type: enum rta_data_type
  */
 struct alginfo {
 	uint32_t algtype;
-	uint64_t key;
 	uint32_t keylen;
+	uint64_t key;
 	uint32_t key_enc_flags;
+	enum rta_data_type key_type;
 };
+
+static inline uint32_t inline_flags(enum rta_data_type data_type)
+{
+	switch (data_type) {
+	case RTA_DATA_PTR:
+		return 0;
+	case RTA_DATA_IMM:
+		return IMMED | COPY;
+	case RTA_DATA_IMM_DMA:
+		return IMMED | DCOPY;
+	default:
+		/* warn and default to RTA_DATA_PTR */
+		pr_warn("RTA: defaulting to RTA_DATA_PTR parameter type\n");
+		return 0;
+	}
+}
+
+#define INLINE_KEY(alginfo)	inline_flags(alginfo->key_type)
 
 /**
  * struct protcmd - Container for Protocol Operation Command fields

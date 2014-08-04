@@ -248,7 +248,7 @@ static inline int cnstr_shdsc_wimax_encap_era5(uint32_t *descbuf,
 
 	pkeyjump = JUMP(p, keyjump, LOCAL_JUMP, ALL_TRUE, SHRD);
 	KEY(p, KEY1, cipherdata->key_enc_flags, cipherdata->key,
-	    cipherdata->keylen, IMMED | COPY);
+	    cipherdata->keylen, INLINE_KEY(cipherdata));
 	SET_LABEL(p, keyjump);
 	seqout_ptr_jump2 = JUMP(p, local_offset, LOCAL_JUMP, ALL_TRUE, 0);
 	PROTOCOL(p, OP_TYPE_ENCAP_PROTOCOL, OP_PCLID_WIMAX, protinfo);
@@ -416,7 +416,7 @@ static inline int cnstr_shdsc_wimax_encap(uint32_t *descbuf, uint8_t pdb_opts,
 		     CLRW, 0, 4, IMMED);
 		pkeyjump = JUMP(p, keyjump, LOCAL_JUMP, ALL_TRUE, SHRD | SELF);
 		KEY(p, KEY1, cipherdata->key_enc_flags, cipherdata->key,
-		    cipherdata->keylen, IMMED | COPY);
+		    cipherdata->keylen, INLINE_KEY(cipherdata));
 		SET_LABEL(p, keyjump);
 		/*
 		 * Wait for the updated header to be written into memory, then
@@ -507,7 +507,7 @@ static inline int cnstr_shdsc_wimax_decap(uint32_t *descbuf, uint8_t pdb_opts,
 
 		pkeyjump = JUMP(p, keyjump, LOCAL_JUMP, ALL_TRUE, SHRD | SELF);
 		KEY(p, KEY1, cipherdata->key_enc_flags, cipherdata->key,
-		    cipherdata->keylen, IMMED | COPY);
+		    cipherdata->keylen, INLINE_KEY(cipherdata));
 		SET_LABEL(p, keyjump);
 		PROTOCOL(p, OP_TYPE_DECAP_PROTOCOL, OP_PCLID_WIMAX, protinfo);
 

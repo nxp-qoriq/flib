@@ -331,11 +331,12 @@ static inline unsigned rta_get_sec_era(void)
  * @program: pointer to struct program
  * @data: input data type to store: PKHA registers, IFIFO, MSG1, MSG2,
  *        MSGOUTSNOOP, MSGINSNOOP, IV1, IV2, AAD1, ICV1, ICV2, BIT_DATA, SKIP.
- * @src: pointer or actual data in case of immediate load; IMMED and COPY flags
- *       indicate action taken (inline imm data, inline ptr, inline from ptr).
+ * @src: pointer or actual data in case of immediate load; IMMED, COPY and DCOPY
+ *       flags indicate action taken (inline imm data, inline ptr, inline from
+ *       ptr).
  * @length: number of bytes to load (uint32_t)
  * @flags: operational flags: SGF, IMMED, EXT, CLASS1, CLASS2, BOTH, FLUSH1,
- *         LAST1, LAST2, COPY.
+ *         LAST1, LAST2, COPY, DCOPY.
  *
  * Return: On success, descriptor buffer offset where this command is inserted.
  *         On error, a negative error code; first error program counter will
@@ -408,13 +409,13 @@ static inline unsigned rta_get_sec_era(void)
  * @program: pointer to struct program
  * @key_dst: key store location: KEY1, KEY2, PKE, AFHA_SBOX, MDHA_SPLIT_KEY
  * @encrypt_flags: key encryption mode: ENC, EKT, TK, NWB, PTS
- * @src: pointer or actual data in case of immediate load (uint64_t); IMMED and
- *       COPY flags indicate action taken (inline imm data, inline ptr, inline
- *       from ptr).
+ * @src: pointer or actual data in case of immediate load (uint64_t); IMMED,
+ *       COPY and DCOPY flags indicate action taken (inline imm data,
+ *       inline ptr, inline from ptr).
  * @length: number of bytes to load; can be set to 0 for SEQ command w/ VLF set
  *          (uint32_t).
- * @flags: operational flags: for KEY: SGF, IMMED, COPY; for SEQKEY: SEQ, VLF,
- *         AIDF.
+ * @flags: operational flags: for KEY: SGF, IMMED, COPY, DCOPY; for SEQKEY: SEQ,
+ *         VLF, AIDF.
  *
  * Return: On success, descriptor buffer offset where this command is inserted.
  *         On error, a negative error code; first error program counter will
@@ -565,13 +566,13 @@ static inline unsigned rta_get_sec_era(void)
  * LOAD - Configures LOAD command to load data registers from descriptor or from
  *        a memory location.
  * @program: pointer to struct program
- * @addr: immediate value or pointer to the data to be loaded; IMMED and COPY
- *        flags indicate action taken (inline imm data, inline ptr, inline from
- *        ptr).
+ * @addr: immediate value or pointer to the data to be loaded; IMMED, COPY and
+ *        DCOPY flags indicate action taken (inline imm data, inline ptr, inline
+ *        from ptr).
  * @dst: destination register (uint64_t)
  * @offset: start point to write data in destination register (uint32_t)
  * @length: number of bytes to load (uint32_t)
- * @flags: operational flags: VLF, IMMED, COPY
+ * @flags: operational flags: VLF, IMMED, COPY, DCOPY
  *
  * Return: On success, descriptor buffer offset where this command is inserted.
  *         On error, a negative error code; first error program counter will
@@ -606,12 +607,12 @@ static inline unsigned rta_get_sec_era(void)
  *       KEY2SZ, DJQDA, MODE1, MODE2, DJQCTRL, DATA1SZ, DATA2SZ, DSTAT, ICV1SZ,
  *       ICV2SZ, DPID, CCTRL, ICTRL, CLRW, CSTAT, MATH0-MATH3, PKHA registers,
  *       CONTEXT1, CONTEXT2, DESCBUF, JOBDESCBUF, SHAREDESCBUF. In case of
- *       immediate value, IMMED and COPY flags indicate action taken (inline imm
- *       data, inline ptr, inline from ptr).
+ *       immediate value, IMMED, COPY and DCOPY flags indicate action taken
+ *       (inline imm data, inline ptr, inline from ptr).
  * @offset: start point for reading from source register (uint16_t)
  * @dst: pointer to store location (uint64_t)
  * @length: number of bytes to store (uint32_t)
- * @flags: operational flags: VLF, IMMED, COPY
+ * @flags: operational flags: VLF, IMMED, COPY, DCOPY
  *
  * Return: On success, descriptor buffer offset where this command is inserted.
  *         On error, a negative error code; first error program counter will
@@ -629,11 +630,11 @@ static inline unsigned rta_get_sec_era(void)
  *       KEY2SZ, DJQDA, MODE1, MODE2, DJQCTRL, DATA1SZ, DATA2SZ, DSTAT, ICV1SZ,
  *       ICV2SZ, DPID, CCTRL, ICTRL, CLRW, CSTAT, MATH0-MATH3, PKHA registers,
  *       CONTEXT1, CONTEXT2, DESCBUF, JOBDESCBUF, SHAREDESCBUF. In case of
- *       immediate value, IMMED and COPY flags indicate action taken (inline imm
- *       data, inline ptr, inline from ptr).
+ *       immediate value, IMMED, COPY and DCOPY flags indicate action taken
+ *       (inline imm data, inline ptr, inline from ptr).
  * @offset: start point for reading from source register (uint16_t)
  * @length: number of bytes to store (uint32_t)
- * @flags: operational flags: SGF, IMMED, COPY
+ * @flags: operational flags: SGF, IMMED, COPY, DCOPY
  *
  * Return: On success, descriptor buffer offset where this command is inserted.
  *         On error, a negative error code; first error program counter will

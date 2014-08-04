@@ -132,7 +132,7 @@ static inline int rta_store(struct program *program, uint64_t src,
 
 	/* for IMMED data, place the data here */
 	if (flags & IMMED)
-		__rta_inline_data(program, src, flags & COPY, length);
+		__rta_inline_data(program, src, flags & __COPY_MASK, length);
 
 	return (int)start_pc;
 

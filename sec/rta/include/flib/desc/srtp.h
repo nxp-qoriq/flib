@@ -88,9 +88,9 @@ static inline int cnstr_shdsc_srtp_encap(uint32_t *descbuf,
 	COPY_DATA(p, (uint8_t *)&pdb, sizeof(struct srtp_encap_pdb));
 	pkeyjmp = JUMP(p, keyjmp, LOCAL_JUMP, ALL_TRUE, BOTH|SHRD);
 	KEY(p, MDHA_SPLIT_KEY, authdata->key_enc_flags, authdata->key,
-	    authdata->keylen, IMMED | COPY);
+	    authdata->keylen, INLINE_KEY(authdata));
 	KEY(p, KEY1, cipherdata->key_enc_flags, cipherdata->key,
-	    cipherdata->keylen, IMMED | COPY);
+	    cipherdata->keylen, INLINE_KEY(cipherdata));
 	SET_LABEL(p, keyjmp);
 	PROTOCOL(p, OP_TYPE_ENCAP_PROTOCOL,
 		 OP_PCLID_SRTP,
@@ -141,9 +141,9 @@ static inline int cnstr_shdsc_srtp_decap(uint32_t *descbuf,
 		COPY_DATA(p, (uint8_t *)&pdb, sizeof(struct srtp_decap_pdb));
 		pkeyjmp = JUMP(p, keyjmp, LOCAL_JUMP, ALL_TRUE, BOTH|SHRD);
 		KEY(p, MDHA_SPLIT_KEY, authdata->key_enc_flags, authdata->key,
-		    authdata->keylen, IMMED | COPY);
+		    authdata->keylen, INLINE_KEY(authdata));
 		KEY(p, KEY1, cipherdata->key_enc_flags, cipherdata->key,
-		    cipherdata->keylen, IMMED | COPY);
+		    cipherdata->keylen, INLINE_KEY(cipherdata));
 		SET_LABEL(p, keyjmp);
 		PROTOCOL(p, OP_TYPE_DECAP_PROTOCOL,
 			 OP_PCLID_SRTP,

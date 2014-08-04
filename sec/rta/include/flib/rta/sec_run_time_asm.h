@@ -245,8 +245,19 @@ enum rta_regs {
 #define CLASS1          BIT(11)
 #define CLASS2          BIT(12)
 #define BOTH            BIT(13)
+
+/**
+ * DCOPY - (AIOP only) command param is pointer to external memory
+ *
+ * CDMA must be used to transfer the key via DMA into Workspace Area.
+ * Valid only in combination with IMMED flag.
+ */
+#define DCOPY		BIT(30)
+
 #define COPY		BIT(31) /*command param is pointer (not immediate)
 				  valid only in combination when IMMED */
+
+#define __COPY_MASK	(COPY | DCOPY)
 
 /* SEQ IN/OUT PTR Command specific flags */
 #define RBS             BIT(16)
@@ -459,17 +470,34 @@ static inline unsigned rta_copy_data(struct program *program, uint8_t *data,
 	return start_pc;
 }
 
+#if defined(__EWL__) && defined(AIOP)
+static inline void __rta_dma_data(void *ws_dst, uint64_t ext_address,
+				  uint16_t size)
+{ cdma_read(ws_dst, ext_address, size); }
+#else
+static inline void __rta_dma_data(void *ws_dst, uint64_t ext_address,
+				  uint16_t size)
+{
+	pr_warn("RTA: DCOPY not supported, DMA will be skipped\n");
+	return;
+}
+#endif /* defined(__EWL__) && defined(AIOP) */
+
 static inline void __rta_inline_data(struct program *program, uint64_t data,
-				     bool copy_data, uint32_t length)
+				     uint32_t copy_data, uint32_t length)
 {
 	if (!copy_data) {
 		__rta_out64(program, length > 4, data);
-	} else {
+	} else if (copy_data & COPY) {
 		uint8_t *tmp = (uint8_t *)&program->buffer[program->current_pc];
 		uint32_t i;
 
 		for (i = 0; i < length; i++)
 			*tmp++ = ((uint8_t *)(uintptr_t)data)[i];
+		program->current_pc += ((length + 3) / 4);
+	} else if (copy_data & DCOPY) {
+		__rta_dma_data(&program->buffer[program->current_pc], data,
+			       (uint16_t)length);
 		program->current_pc += ((length + 3) / 4);
 	}
 }
