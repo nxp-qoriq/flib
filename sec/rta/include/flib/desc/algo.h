@@ -15,6 +15,7 @@
 /**
  * cnstr_shdsc_snow_f8 - SNOW/f8 (UEA2) as a shared descriptor
  * @descbuf: pointer to descriptor-under-construction buffer
+ * @ps: if 36/40bit addressing is desired, this parameter must be true
  * @cipherdata: pointer to block cipher transform definitions
  * @dir: Cipher direction (DIR_ENCRYPT/DIR_DECRYPT)
  * @count: UEA2 count value (32 bits)
@@ -23,7 +24,7 @@
  *
  * Return: size of descriptor written in words
  */
-static inline int cnstr_shdsc_snow_f8(uint32_t *descbuf,
+static inline int cnstr_shdsc_snow_f8(uint32_t *descbuf, bool ps,
 			 struct alginfo *cipherdata, uint8_t dir,
 			 uint32_t count, uint8_t bearer, uint8_t direction)
 {
@@ -35,6 +36,8 @@ static inline int cnstr_shdsc_snow_f8(uint32_t *descbuf,
 	uint64_t context = (ct << 32) | (br << 27) | (dr << 26);
 
 	PROGRAM_CNTXT_INIT(p, descbuf, 0);
+	if (ps)
+		PROGRAM_SET_36BIT_ADDR(p);
 	SHR_HDR(p, SHR_ALWAYS, 1, 0);
 
 	KEY(p, KEY1, cipherdata->key_enc_flags, cipherdata->key,
@@ -53,6 +56,7 @@ static inline int cnstr_shdsc_snow_f8(uint32_t *descbuf,
 /**
  * cnstr_shdsc_snow_f9 - SNOW/f9 (UIA2) as a shared descriptor
  * @descbuf: pointer to descriptor-under-construction buffer
+ * @ps: if 36/40bit addressing is desired, this parameter must be true
  * @authdata: pointer to authentication transform definitions
  * @dir: cipher direction (DIR_ENCRYPT/DIR_DECRYPT)
  * @count: UEA2 count value (32 bits)
@@ -62,7 +66,7 @@ static inline int cnstr_shdsc_snow_f8(uint32_t *descbuf,
  *
  * Return: size of descriptor written in words
  */
-static inline int cnstr_shdsc_snow_f9(uint32_t *descbuf,
+static inline int cnstr_shdsc_snow_f9(uint32_t *descbuf, bool ps,
 			 struct alginfo *authdata, uint8_t dir, uint32_t count,
 			 uint32_t fresh, uint8_t direction, uint32_t datalen)
 {
@@ -77,6 +81,8 @@ static inline int cnstr_shdsc_snow_f9(uint32_t *descbuf,
 	context[1] = fr << 32;
 
 	PROGRAM_CNTXT_INIT(p, descbuf, 0);
+	if (ps)
+		PROGRAM_SET_36BIT_ADDR(p);
 	SHR_HDR(p, SHR_ALWAYS, 1, 0);
 
 	KEY(p, KEY2, authdata->key_enc_flags, authdata->key, authdata->keylen,
@@ -95,6 +101,7 @@ static inline int cnstr_shdsc_snow_f9(uint32_t *descbuf,
 /**
  * cnstr_shdsc_cbc_blkcipher - CBC block cipher
  * @descbuf: pointer to descriptor-under-construction buffer
+ * @ps: if 36/40bit addressing is desired, this parameter must be true
  * @cipherdata: pointer to block cipher transform definitions
  * @iv: IV data; if NULL, "ivlen" bytes from the input frame will be read as IV
  * @ivlen: IV length
@@ -102,7 +109,7 @@ static inline int cnstr_shdsc_snow_f9(uint32_t *descbuf,
  *
  * Return: size of descriptor written in words
  */
-static inline int cnstr_shdsc_cbc_blkcipher(uint32_t *descbuf,
+static inline int cnstr_shdsc_cbc_blkcipher(uint32_t *descbuf, bool ps,
 			       struct alginfo *cipherdata, uint8_t *iv,
 			       uint32_t ivlen, uint8_t dir)
 {
@@ -116,6 +123,8 @@ static inline int cnstr_shdsc_cbc_blkcipher(uint32_t *descbuf,
 	REFERENCE(pskipdk);
 
 	PROGRAM_CNTXT_INIT(p, descbuf, 0);
+	if (ps)
+		PROGRAM_SET_36BIT_ADDR(p);
 	SHR_HDR(p, SHR_SERIAL, 1, SC);
 
 	pkeyjmp = JUMP(p, keyjmp, LOCAL_JUMP, ALL_TRUE, SHRD);
@@ -165,6 +174,7 @@ static inline int cnstr_shdsc_cbc_blkcipher(uint32_t *descbuf,
 /**
  * cnstr_shdsc_hmac - HMAC shared
  * @descbuf: pointer to descriptor-under-construction buffer
+ * @ps: if 36/40bit addressing is desired, this parameter must be true
  * @authdata: pointer to authentication transform definitions;
  *            message digest algorithm: OP_ALG_ALGSEL_MD5/ SHA1-512.
  * @do_icv: 0 if ICV checking is not desired, any other value if ICV checking
@@ -177,8 +187,9 @@ static inline int cnstr_shdsc_cbc_blkcipher(uint32_t *descbuf,
  *
  * Return: size of descriptor written in words
  */
-static inline int cnstr_shdsc_hmac(uint32_t *descbuf, struct alginfo *authdata,
-		      uint8_t do_icv, uint8_t trunc_len)
+static inline int cnstr_shdsc_hmac(uint32_t *descbuf, bool ps,
+				   struct alginfo *authdata, uint8_t do_icv,
+				   uint8_t trunc_len)
 {
 	struct program prg;
 	struct program *p = &prg;
@@ -218,6 +229,8 @@ static inline int cnstr_shdsc_hmac(uint32_t *descbuf, struct alginfo *authdata,
 	dir = do_icv ? DIR_DEC : DIR_ENC;
 
 	PROGRAM_CNTXT_INIT(p, descbuf, 0);
+	if (ps)
+		PROGRAM_SET_36BIT_ADDR(p);
 	SHR_HDR(p, SHR_SERIAL, 1, SC);
 
 	pkeyjmp = JUMP(p, keyjmp, LOCAL_JUMP, ALL_TRUE, SHRD);
@@ -260,6 +273,7 @@ static inline int cnstr_shdsc_hmac(uint32_t *descbuf, struct alginfo *authdata,
  * cnstr_shdsc_kasumi_f8 - KASUMI F8 (Confidentiality) as a shared descriptor
  *                         (ETSI "Document 1: f8 and f9 specification")
  * @descbuf: pointer to descriptor-under-construction buffer
+ * @ps: if 36/40bit addressing is desired, this parameter must be true
  * @cipherdata: pointer to block cipher transform definitions
  * @dir: cipher direction (DIR_ENCRYPT/DIR_DECRYPT)
  * @count: count value (32 bits)
@@ -268,7 +282,7 @@ static inline int cnstr_shdsc_hmac(uint32_t *descbuf, struct alginfo *authdata,
  *
  * Return: size of descriptor written in words
  */
-static inline int cnstr_shdsc_kasumi_f8(uint32_t *descbuf,
+static inline int cnstr_shdsc_kasumi_f8(uint32_t *descbuf, bool ps,
 			   struct alginfo *cipherdata, uint8_t dir,
 			   uint32_t count, uint8_t bearer, uint8_t direction)
 {
@@ -280,6 +294,8 @@ static inline int cnstr_shdsc_kasumi_f8(uint32_t *descbuf,
 	uint64_t context = (ct << 32) | (br << 27) | (dr << 26);
 
 	PROGRAM_CNTXT_INIT(p, descbuf, 0);
+	if (ps)
+		PROGRAM_SET_36BIT_ADDR(p);
 	SHR_HDR(p, SHR_ALWAYS, 1, 0);
 
 	KEY(p, KEY1, cipherdata->key_enc_flags, cipherdata->key,
@@ -299,6 +315,7 @@ static inline int cnstr_shdsc_kasumi_f8(uint32_t *descbuf,
  * cnstr_shdsc_kasumi_f9 -  KASUMI F9 (Integrity) as a shared descriptor
  *                          (ETSI "Document 1: f8 and f9 specification")
  * @descbuf: pointer to descriptor-under-construction buffer
+ * @ps: if 36/40bit addressing is desired, this parameter must be true
  * @authdata: pointer to authentication transform definitions
  * @dir: cipher direction (DIR_ENCRYPT/DIR_DECRYPT)
  * @count: count value (32 bits)
@@ -308,7 +325,7 @@ static inline int cnstr_shdsc_kasumi_f8(uint32_t *descbuf,
  *
  * Return: size of descriptor written in words
  */
-static inline int cnstr_shdsc_kasumi_f9(uint32_t *descbuf,
+static inline int cnstr_shdsc_kasumi_f9(uint32_t *descbuf, bool ps,
 			   struct alginfo *authdata, uint8_t dir,
 			   uint32_t count, uint32_t fresh, uint8_t direction,
 			   uint32_t datalen)
@@ -325,6 +342,8 @@ static inline int cnstr_shdsc_kasumi_f9(uint32_t *descbuf,
 	context[1] = (fr << 32);
 
 	PROGRAM_CNTXT_INIT(p, descbuf, 0);
+	if (ps)
+		PROGRAM_SET_36BIT_ADDR(p);
 	SHR_HDR(p, SHR_ALWAYS, 1, 0);
 
 	KEY(p, KEY1, authdata->key_enc_flags, authdata->key, authdata->keylen,
