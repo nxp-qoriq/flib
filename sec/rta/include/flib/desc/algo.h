@@ -105,8 +105,8 @@ static inline void cnstr_shdsc_cbc_blkcipher(uint32_t *descbuf,
 {
 	struct program prg;
 	struct program *p = &prg;
-	const is_aes_dec = (dir == DIR_DEC) && \
-			   (cipherdata->algtype == OP_ALG_ALGSEL_AES);
+	const bool is_aes_dec = (dir == DIR_DEC) &&
+				(cipherdata->algtype == OP_ALG_ALGSEL_AES);
 	LABEL(keyjmp);
 	LABEL(skipdk);
 	REFERENCE(pkeyjmp);
@@ -212,7 +212,7 @@ static inline void cnstr_shdsc_hmac(uint32_t *descbuf, unsigned *bufsize,
 	trunc_len = trunc_len && (trunc_len < storelen) ? trunc_len : storelen;
 
 	opicv = do_icv ? ICV_CHECK_ENABLE : ICV_CHECK_DISABLE;
-	dir == do_icv ? DIR_DEC : DIR_ENC;
+	dir = do_icv ? DIR_DEC : DIR_ENC;
 
 	PROGRAM_CNTXT_INIT(p, descbuf, 0);
 	SHR_HDR(p, SHR_SERIAL, 1, SC);
