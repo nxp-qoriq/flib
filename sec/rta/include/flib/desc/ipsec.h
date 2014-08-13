@@ -433,6 +433,7 @@ struct ipsec_new_decap_deco_dpovrd {
  *                           descriptor. Requires an MDHA split key.
  * @descbuf: pointer to buffer used for descriptor construction
  * @ps: if 36/40bit addressing is desired, this parameter must be true
+ * @swap: if true, perform descriptor byte swapping on a 4-byte boundary
  * @pdb: pointer to the PDB to be used with this descriptor
  *       This structure will be copied inline to the descriptor under
  *       construction. No error checking will be made. Refer to the
@@ -445,7 +446,7 @@ struct ipsec_new_decap_deco_dpovrd {
  *
  * Return: size of descriptor written in words
  */
-static inline int cnstr_shdsc_ipsec_encap(uint32_t *descbuf, bool ps,
+static inline int cnstr_shdsc_ipsec_encap(uint32_t *descbuf, bool ps, bool swap,
 					  struct ipsec_encap_pdb *pdb,
 					  struct alginfo *cipherdata,
 					  struct alginfo *authdata)
@@ -459,6 +460,8 @@ static inline int cnstr_shdsc_ipsec_encap(uint32_t *descbuf, bool ps,
 	REFERENCE(phdr);
 
 	PROGRAM_CNTXT_INIT(p, descbuf, 0);
+	if (swap)
+		PROGRAM_SET_BSWAP(p);
 	if (ps)
 		PROGRAM_SET_36BIT_ADDR(p);
 	phdr = SHR_HDR(p, SHR_SERIAL, hdr, 0);
@@ -484,6 +487,7 @@ static inline int cnstr_shdsc_ipsec_encap(uint32_t *descbuf, bool ps,
  *                           Requires an MDHA split key.
  * @descbuf: pointer to buffer used for descriptor construction
  * @ps: if 36/40bit addressing is desired, this parameter must be true
+ * @swap: if true, perform descriptor byte swapping on a 4-byte boundary
  * @pdb: pointer to the PDB to be used with this descriptor
  *       This structure will be copied inline to the descriptor under
  *       construction. No error checking will be made. Refer to the
@@ -496,7 +500,7 @@ static inline int cnstr_shdsc_ipsec_encap(uint32_t *descbuf, bool ps,
  *
  * Return: size of descriptor written in words
  */
-static inline int cnstr_shdsc_ipsec_decap(uint32_t *descbuf, bool ps,
+static inline int cnstr_shdsc_ipsec_decap(uint32_t *descbuf, bool ps, bool swap,
 					  struct ipsec_decap_pdb *pdb,
 					  struct alginfo *cipherdata,
 					  struct alginfo *authdata)
@@ -510,6 +514,8 @@ static inline int cnstr_shdsc_ipsec_decap(uint32_t *descbuf, bool ps,
 	REFERENCE(phdr);
 
 	PROGRAM_CNTXT_INIT(p, descbuf, 0);
+	if (swap)
+		PROGRAM_SET_BSWAP(p);
 	if (ps)
 		PROGRAM_SET_36BIT_ADDR(p);
 	phdr = SHR_HDR(p, SHR_SERIAL, hdr, 0);
