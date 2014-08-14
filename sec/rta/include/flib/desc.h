@@ -229,9 +229,7 @@
 /*
  * LOAD/SEQ_LOAD/STORE/SEQ_STORE Command Constructs
  */
-/* Data Size for Load/Store commands */
-#define LDST_BYTE 0x00
-#define LDST_WORD 0x01
+
 /*
  * Load/Store Destination: 0 = class independent CCB,
  * 1 = class 1 CCB, 2 = class 2 CCB, 3 = DECO
