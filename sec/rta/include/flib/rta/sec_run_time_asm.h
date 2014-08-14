@@ -477,10 +477,7 @@ static inline void __rta_dma_data(void *ws_dst, uint64_t ext_address,
 #else
 static inline void __rta_dma_data(void *ws_dst, uint64_t ext_address,
 				  uint16_t size)
-{
-	pr_warn("RTA: DCOPY not supported, DMA will be skipped\n");
-	return;
-}
+{ pr_warn("RTA: DCOPY not supported, DMA will be skipped\n"); }
 #endif /* defined(__EWL__) && defined(AIOP) */
 
 static inline void __rta_inline_data(struct program *program, uint64_t data,
