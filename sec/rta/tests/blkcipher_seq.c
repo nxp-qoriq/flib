@@ -29,8 +29,7 @@ unsigned test_blkcipher_seq(uint32_t *buff)
 	KEY(p, KEY1, 0, (uintptr_t) key_addr, keylen, 0);
 	MATHB(p, SEQINSZ, ADD, ZERO, VSEQINSZ, 4, 0);
 	MATHB(p, SEQOUTSZ, ADD, ZERO, VSEQOUTSZ, 4, 0);
-	ALG_OPERATION(p, OP_ALG_ALGSEL_AES, OP_ALG_AAI_CBC, 0, 0,
-		      OP_ALG_ENCRYPT);
+	ALG_OPERATION(p, OP_ALG_ALGSEL_AES, OP_ALG_AAI_CBC, 0, 0, DIR_ENC);
 	SEQFIFOLOAD(p, MSG1, 0, VLF | LAST1);
 	SEQFIFOSTORE(p, MSG, 0, 0, VLF);
 

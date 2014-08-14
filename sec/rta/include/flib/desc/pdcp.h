@@ -477,7 +477,7 @@ static inline int pdcp_insert_cplane_int_only_op(struct program *p,
 			      OP_ALG_AS_INITFINAL,
 			      dir == OP_TYPE_ENCAP_PROTOCOL ?
 				     ICV_CHECK_DISABLE : ICV_CHECK_ENABLE,
-			      OP_ALG_ENCRYPT);
+			      DIR_ENC);
 
 		if (rta_sec_era > RTA_SEC_ERA_2) {
 			SEQFIFOLOAD(p, MSGINSNOOP, 0,
@@ -571,7 +571,7 @@ static inline int pdcp_insert_cplane_int_only_op(struct program *p,
 			      OP_ALG_AS_INITFINAL,
 			      dir == OP_TYPE_ENCAP_PROTOCOL ?
 				     ICV_CHECK_DISABLE : ICV_CHECK_ENABLE,
-			      OP_ALG_ENCRYPT);
+			      DIR_ENC);
 
 		if (rta_sec_era > RTA_SEC_ERA_2) {
 			MOVE(p, AB2, 0, OFIFO, 0, MATH1, 0);
@@ -634,7 +634,7 @@ static inline int pdcp_insert_cplane_int_only_op(struct program *p,
 			      OP_ALG_AS_INITFINAL,
 			      dir == OP_TYPE_ENCAP_PROTOCOL ?
 				     ICV_CHECK_DISABLE : ICV_CHECK_ENABLE,
-			      OP_ALG_ENCRYPT);
+			      DIR_ENC);
 		SEQFIFOLOAD(p, MSGINSNOOP, 0, VLF | LAST1 | LAST2 | FLUSH1);
 		MOVE(p, AB1, 0, OFIFO, 0, MATH1, 0);
 
@@ -698,7 +698,7 @@ static inline int pdcp_insert_cplane_enc_only_op(struct program *p,
 			      OP_ALG_AAI_F8,
 			      OP_ALG_AS_INITFINAL, ICV_CHECK_DISABLE,
 			      dir == OP_TYPE_ENCAP_PROTOCOL ?
-					OP_ALG_ENCRYPT : OP_ALG_DECRYPT);
+					DIR_ENC : DIR_DEC);
 		break;
 
 	case PDCP_CIPHER_TYPE_AES:
@@ -724,7 +724,7 @@ static inline int pdcp_insert_cplane_enc_only_op(struct program *p,
 			      OP_ALG_AS_INITFINAL,
 			      ICV_CHECK_DISABLE,
 			      dir == OP_TYPE_ENCAP_PROTOCOL ?
-					OP_ALG_ENCRYPT : OP_ALG_DECRYPT);
+					DIR_ENC : DIR_DEC);
 		break;
 
 	case PDCP_CIPHER_TYPE_ZUC:
@@ -749,7 +749,7 @@ static inline int pdcp_insert_cplane_enc_only_op(struct program *p,
 			      OP_ALG_AS_INITFINAL,
 			      ICV_CHECK_DISABLE,
 			      dir == OP_TYPE_ENCAP_PROTOCOL ?
-					OP_ALG_ENCRYPT : OP_ALG_DECRYPT);
+					DIR_ENC : DIR_DEC);
 		break;
 
 	default:
@@ -877,7 +877,7 @@ static inline int pdcp_insert_cplane_snow_aes_op(struct program *p,
 			      OP_ALG_AAI_CMAC,
 			      OP_ALG_AS_INITFINAL,
 			      ICV_CHECK_DISABLE,
-			      OP_ALG_DECRYPT);
+			      DIR_DEC);
 		SEQFIFOLOAD(p, MSG1, 0, VLF | LAST1 | FLUSH1);
 		MOVE(p, CONTEXT1, 0, MATH3, 0, 4, WAITCOMP | IMMED);
 		if (rta_sec_era <= RTA_SEC_ERA_3)
@@ -915,7 +915,7 @@ static inline int pdcp_insert_cplane_snow_aes_op(struct program *p,
 			      OP_ALG_AAI_F8,
 			      OP_ALG_AS_INITFINAL,
 			      ICV_CHECK_DISABLE,
-			      OP_ALG_ENCRYPT);
+			      DIR_ENC);
 		SEQFIFOSTORE(p, MSG, 0, 0, VLF);
 
 		if (rta_sec_era > RTA_SEC_ERA_2 ||
@@ -990,7 +990,7 @@ static inline int pdcp_insert_cplane_snow_aes_op(struct program *p,
 			      OP_ALG_AAI_F8,
 			      OP_ALG_AS_INITFINAL,
 			      ICV_CHECK_DISABLE,
-			      OP_ALG_DECRYPT);
+			      DIR_DEC);
 		SEQFIFOSTORE(p, MSG, 0, 0, VLF | CONT);
 		SEQFIFOLOAD(p, MSG1, 0, VLF | LAST1 | FLUSH1);
 
@@ -1025,7 +1025,7 @@ static inline int pdcp_insert_cplane_snow_aes_op(struct program *p,
 			      OP_ALG_AAI_CMAC,
 			      OP_ALG_AS_INITFINAL,
 			      ICV_CHECK_ENABLE,
-			      OP_ALG_DECRYPT);
+			      DIR_DEC);
 
 		if (rta_sec_era > RTA_SEC_ERA_2)
 			MATHB(p, SEQINSZ, SUB, ZERO, VSEQINSZ, 4, 0);
@@ -1127,13 +1127,12 @@ static inline int pdcp_insert_cplane_aes_snow_op(struct program *p,
 		      OP_ALG_AS_INITFINAL,
 		      dir == OP_TYPE_ENCAP_PROTOCOL ?
 			     ICV_CHECK_DISABLE : ICV_CHECK_ENABLE,
-		      OP_ALG_DECRYPT);
+		      DIR_DEC);
 	ALG_OPERATION(p, OP_ALG_ALGSEL_AES,
 		      OP_ALG_AAI_CTR,
 		      OP_ALG_AS_INITFINAL,
 		      ICV_CHECK_DISABLE,
-		      dir == OP_TYPE_ENCAP_PROTOCOL ?
-			     OP_ALG_ENCRYPT : OP_ALG_DECRYPT);
+		      dir == OP_TYPE_ENCAP_PROTOCOL ? DIR_ENC : DIR_DEC);
 
 	if (dir == OP_TYPE_ENCAP_PROTOCOL) {
 		SEQFIFOLOAD(p, MSGINSNOOP, 0, VLF | LAST2);
@@ -1214,14 +1213,13 @@ static inline int pdcp_insert_cplane_snow_zuc_op(struct program *p,
 		      OP_ALG_AS_INITFINAL,
 		      dir == OP_TYPE_ENCAP_PROTOCOL ?
 			     ICV_CHECK_DISABLE : ICV_CHECK_ENABLE,
-		      OP_ALG_ENCRYPT);
+		      DIR_ENC);
 
 	ALG_OPERATION(p, OP_ALG_ALGSEL_SNOW_F8,
 		      OP_ALG_AAI_F8,
 		      OP_ALG_AS_INITFINAL,
 		      ICV_CHECK_DISABLE,
-		      dir == OP_TYPE_ENCAP_PROTOCOL ?
-			     OP_ALG_ENCRYPT : OP_ALG_DECRYPT);
+		      dir == OP_TYPE_ENCAP_PROTOCOL ? DIR_ENC : DIR_DEC);
 	if (dir == OP_TYPE_ENCAP_PROTOCOL) {
 		MOVE(p, CONTEXT2, 0, IFIFOAB1, 0, 4, LAST1 | FLUSH1 | IMMED);
 	} else {
@@ -1296,14 +1294,13 @@ static inline int pdcp_insert_cplane_aes_zuc_op(struct program *p,
 		      OP_ALG_AS_INITFINAL,
 		      dir == OP_TYPE_ENCAP_PROTOCOL ?
 			     ICV_CHECK_DISABLE : ICV_CHECK_ENABLE,
-		      OP_ALG_ENCRYPT);
+		      DIR_ENC);
 
 	ALG_OPERATION(p, OP_ALG_ALGSEL_AES,
 		      OP_ALG_AAI_CTR,
 		      OP_ALG_AS_INITFINAL,
 		      ICV_CHECK_DISABLE,
-		      dir == OP_TYPE_ENCAP_PROTOCOL ?
-			     OP_ALG_ENCRYPT : OP_ALG_DECRYPT);
+		      dir == OP_TYPE_ENCAP_PROTOCOL ? DIR_ENC : DIR_DEC);
 
 	if (dir == OP_TYPE_ENCAP_PROTOCOL) {
 		MOVE(p, CONTEXT2, 0, IFIFOAB1, 0, 4, LAST1 | FLUSH1 | IMMED);
@@ -1387,14 +1384,13 @@ static inline int pdcp_insert_cplane_zuc_snow_op(struct program *p,
 		      OP_ALG_AS_INITFINAL,
 		      dir == OP_TYPE_ENCAP_PROTOCOL ?
 			     ICV_CHECK_DISABLE : ICV_CHECK_ENABLE,
-		      OP_ALG_DECRYPT);
+		      DIR_DEC);
 
 	ALG_OPERATION(p, OP_ALG_ALGSEL_ZUCE,
 		      OP_ALG_AAI_F8,
 		      OP_ALG_AS_INITFINAL,
 		      ICV_CHECK_DISABLE,
-		      dir == OP_TYPE_ENCAP_PROTOCOL ?
-			     OP_ALG_ENCRYPT : OP_ALG_DECRYPT);
+		      dir == OP_TYPE_ENCAP_PROTOCOL ? DIR_ENC : DIR_DEC);
 
 	if (dir == OP_TYPE_ENCAP_PROTOCOL) {
 		MOVE(p, CONTEXT2, 0, IFIFOAB1, 0, 4, LAST1 | FLUSH1 | IMMED);
@@ -1455,7 +1451,7 @@ static inline int pdcp_insert_cplane_zuc_aes_op(struct program *p,
 			      OP_ALG_AAI_CMAC,
 			      OP_ALG_AS_INITFINAL,
 			      ICV_CHECK_DISABLE,
-			      OP_ALG_DECRYPT);
+			      DIR_DEC);
 		SEQFIFOLOAD(p, MSG1, 0, VLF | LAST1 | FLUSH1);
 		MOVE(p, CONTEXT1, 0, MATH3, 0, 4, WAITCOMP | IMMED);
 		LOAD(p, CLRW_RESET_CLS1_CHA |
@@ -1476,7 +1472,7 @@ static inline int pdcp_insert_cplane_zuc_aes_op(struct program *p,
 			      OP_ALG_AAI_F8,
 			      OP_ALG_AS_INITFINAL,
 			      ICV_CHECK_DISABLE,
-			      OP_ALG_ENCRYPT);
+			      DIR_ENC);
 		SEQFIFOSTORE(p, MSG, 0, 0, VLF);
 
 		SEQFIFOLOAD(p, SKIP, 1, 0);
@@ -1501,7 +1497,7 @@ static inline int pdcp_insert_cplane_zuc_aes_op(struct program *p,
 			      OP_ALG_AAI_F8,
 			      OP_ALG_AS_INITFINAL,
 			      ICV_CHECK_DISABLE,
-			      OP_ALG_DECRYPT);
+			      DIR_DEC);
 		SEQFIFOSTORE(p, MSG, 0, 0, VLF | CONT);
 		SEQFIFOLOAD(p, MSG1, 0, VLF | LAST1 | FLUSH1);
 
@@ -1525,7 +1521,7 @@ static inline int pdcp_insert_cplane_zuc_aes_op(struct program *p,
 			      OP_ALG_AAI_CMAC,
 			      OP_ALG_AS_INITFINAL,
 			      ICV_CHECK_ENABLE,
-			      OP_ALG_DECRYPT);
+			      DIR_DEC);
 
 		MATHB(p, SEQINSZ, SUB, ZERO, VSEQINSZ, 4, 0);
 
@@ -1566,7 +1562,7 @@ static inline int pdcp_insert_uplane_15bit_op(struct program *p,
 
 	SEQFIFOSTORE(p, MSG, 0, 0, VLF);
 
-	op = dir == OP_TYPE_ENCAP_PROTOCOL ? OP_ALG_ENCRYPT : OP_ALG_DECRYPT;
+	op = dir == OP_TYPE_ENCAP_PROTOCOL ? DIR_ENC : DIR_DEC;
 	switch (cipherdata->algtype) {
 	case PDCP_CIPHER_TYPE_SNOW:
 		MOVE(p, MATH2, 0, CONTEXT1, 0, 8, WAITCOMP | IMMED);
@@ -2429,7 +2425,7 @@ static inline int cnstr_shdsc_pdcp_short_mac(uint32_t *descbuf,
 			      OP_ALG_AAI_F9,
 			      OP_ALG_AS_INITFINAL,
 			      ICV_CHECK_DISABLE,
-			      OP_ALG_ENCRYPT);
+			      DIR_ENC);
 		SEQFIFOSTORE(p, MSG, 0, 0, VLF);
 
 		if (rta_sec_era > RTA_SEC_ERA_2) {
@@ -2466,7 +2462,7 @@ static inline int cnstr_shdsc_pdcp_short_mac(uint32_t *descbuf,
 			      OP_ALG_AAI_CMAC,
 			      OP_ALG_AS_INITFINAL,
 			      ICV_CHECK_DISABLE,
-			      OP_ALG_ENCRYPT);
+			      DIR_ENC);
 		SEQFIFOSTORE(p, MSG, 0, 0, VLF);
 
 		if (rta_sec_era > RTA_SEC_ERA_2) {
@@ -2505,7 +2501,7 @@ static inline int cnstr_shdsc_pdcp_short_mac(uint32_t *descbuf,
 			      OP_ALG_AAI_F9,
 			      OP_ALG_AS_INITFINAL,
 			      ICV_CHECK_DISABLE,
-			      OP_ALG_ENCRYPT);
+			      DIR_ENC);
 		SEQFIFOSTORE(p, MSG, 0, 0, VLF);
 		MOVE(p, AB1, 0, OFIFO, 0, MATH1, 0);
 		SEQFIFOLOAD(p, MSGINSNOOP, 0, VLF | LAST1 | LAST2 | FLUSH1);

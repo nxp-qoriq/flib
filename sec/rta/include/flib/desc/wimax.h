@@ -232,7 +232,7 @@ static inline int cnstr_shdsc_wimax_encap_era5(uint32_t *descbuf,
 	KEY(p, KEY2, 0, CRC_8_ATM_POLY, 2, IMMED);
 	ALG_OPERATION(p, OP_ALG_ALGSEL_CRC,
 		      OP_ALG_AAI_CUST_POLY | OP_ALG_AAI_DIS, OP_ALG_AS_UPDATE,
-		      ICV_CHECK_DISABLE, OP_ALG_ENCRYPT);
+		      ICV_CHECK_DISABLE, DIR_ENC);
 	MOVE(p, MATH0, 4, IFIFOAB2, 0, 5, LAST1 | IMMED);
 	MOVE(p, CONTEXT2, 0, MATH2, 0, 4, WAITCOMP | IMMED);
 	MOVE(p, MATH2, 0, MATH1, 1, 1, WAITCOMP | IMMED);
@@ -397,8 +397,7 @@ static inline int cnstr_shdsc_wimax_encap(uint32_t *descbuf, uint8_t pdb_opts,
 		KEY(p, KEY2, 0, CRC_8_ATM_POLY, 2, IMMED);
 		ALG_OPERATION(p, OP_ALG_ALGSEL_CRC,
 			      OP_ALG_AAI_CUST_POLY | OP_ALG_AAI_DIS,
-			      OP_ALG_AS_UPDATE, ICV_CHECK_DISABLE,
-			      OP_ALG_ENCRYPT);
+			      OP_ALG_AS_UPDATE, ICV_CHECK_DISABLE, DIR_ENC);
 		MOVE(p, MATH0, 0, IFIFOAB2, 0, 5, LAST1 | IMMED);
 		MOVE(p, CONTEXT2, 0, MATH1, 0, 4, WAITCOMP | IMMED);
 		MOVE(p, MATH1, 0, MATH0, 5, 1, WAITCOMP | IMMED);
@@ -549,8 +548,7 @@ static inline int cnstr_shdsc_wimax_decap(uint32_t *descbuf, uint8_t pdb_opts,
 		KEY(p, KEY2, 0, CRC_8_ATM_POLY, 2, IMMED);
 		ALG_OPERATION(p, OP_ALG_ALGSEL_CRC,
 			      OP_ALG_AAI_CUST_POLY | OP_ALG_AAI_DIS,
-			      OP_ALG_AS_UPDATE, ICV_CHECK_DISABLE,
-			      OP_ALG_ENCRYPT);
+			      OP_ALG_AS_UPDATE, ICV_CHECK_DISABLE, DIR_ENC);
 		MOVE(p, MATH0, 0, IFIFOAB2, 0, 5, LAST1 | IMMED);
 		MOVE(p, CONTEXT2, 0, MATH1, 0, 4, WAITCOMP | IMMED);
 		MOVE(p, MATH1, 0, MATH0, 5, 1, WAITCOMP | IMMED);

@@ -46,11 +46,8 @@ static inline int cnstr_jobdesc_mdsplitkey(uint32_t *descbuf, bool ps,
 		PROGRAM_SET_36BIT_ADDR(p);
 	JOB_HDR(p, SHR_NEVER, 1, 0, 0);
 	KEY(p, KEY2, 0, alg_key, keylen, 0);
-	ALG_OPERATION(p, cipher,
-		      OP_ALG_AAI_HMAC,
-		      OP_ALG_AS_INIT,
-		      ICV_CHECK_DISABLE,
-		      OP_ALG_DECRYPT);
+	ALG_OPERATION(p, cipher, OP_ALG_AAI_HMAC, OP_ALG_AS_INIT,
+		      ICV_CHECK_DISABLE, DIR_DEC);
 	FIFOLOAD(p, MSG2, 0, 0, LAST2 | IMMED | COPY);
 	JUMP(p, 1, LOCAL_JUMP, ALL_TRUE, CLASS2);
 	FIFOSTORE(p, MDHA_SPLIT_KEY, 0, padbuf, split_key_len(cipher), 0);

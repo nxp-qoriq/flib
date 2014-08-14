@@ -638,7 +638,7 @@ static inline int cnstr_shdsc_ipsec_encap_des_aes_xcbc(uint32_t *descbuf,
 	KEY(p, KEY1, authdata->key_enc_flags, authdata->key, authdata->keylen,
 	    0);
 	ALG_OPERATION(p, OP_ALG_ALGSEL_AES, OP_ALG_AAI_XCBC_MAC,
-		      OP_ALG_AS_INITFINAL, ICV_CHECK_DISABLE, OP_ALG_ENCRYPT);
+		      OP_ALG_AS_INITFINAL, ICV_CHECK_DISABLE, DIR_ENC);
 	SEQFIFOLOAD(p, SKIP, pdb->ip_hdr_len, 0);
 	SEQFIFOLOAD(p, MSG1, 0, VLF | FLUSH1 | LAST1);
 	SEQFIFOSTORE(p, SKIP, 0, 0, VLF);
@@ -752,9 +752,9 @@ static inline int cnstr_shdsc_ipsec_decap_des_aes_xcbc(uint32_t *descbuf,
 	      MATH0, 4, IMMED2);
 	MATHB(p, MATH0, SUB, ZERO, VSEQINSZ, 4, 0);
 	ALG_OPERATION(p, OP_ALG_ALGSEL_MD5, OP_ALG_AAI_HMAC_PRECOMP,
-		      OP_ALG_AS_INITFINAL, ICV_CHECK_DISABLE, OP_ALG_ENCRYPT);
+		      OP_ALG_AS_INITFINAL, ICV_CHECK_DISABLE, DIR_ENC);
 	ALG_OPERATION(p, OP_ALG_ALGSEL_AES, OP_ALG_AAI_XCBC_MAC,
-		      OP_ALG_AS_INITFINAL, ICV_CHECK_ENABLE, OP_ALG_DECRYPT);
+		      OP_ALG_AS_INITFINAL, ICV_CHECK_ENABLE, DIR_DEC);
 	SEQFIFOLOAD(p, SKIP, pdb->ip_hdr_len, 0);
 	SEQFIFOLOAD(p, MSG1, 0, VLF | FLUSH1);
 	SEQFIFOLOAD(p, ICV1, IPSEC_ICV_MD5_TRUNC_SIZE, FLUSH1 | LAST1);

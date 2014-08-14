@@ -468,8 +468,7 @@ static inline unsigned rta_get_sec_era(void)
  * @icv_check: ICV checking; selects whether the algorithm should check
  *             calculated ICV with known ICV: ICV_CHECK_ENABLE,
  *             ICV_CHECK_DISABLE.
- * @enc: selects between encryption and decryption: OP_ALG_ENCRYPT,
- *       OP_ALG_DECRYPT.
+ * @enc: selects between encryption and decryption: DIR_ENC, DIR_DEC
  *
  * Return: On success, descriptor buffer offset where this command is inserted.
  *         On error, a negative error code; first error program counter will
