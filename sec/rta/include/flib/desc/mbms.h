@@ -213,8 +213,7 @@ static inline void cnstr_shdsc_mbms_type0(uint32_t *descbuf, unsigned *bufsize,
 	ALG_OPERATION(p, OP_ALG_ALGSEL_CRC,
 		      OP_ALG_AAI_CUST_POLY |
 		      OP_ALG_AAI_DIS | OP_ALG_AAI_DOS | OP_ALG_AAI_DOC,
-		      OP_ALG_AS_INITFINAL, ICV_CHECK_DISABLE,
-		      OP_ALG_ENCRYPT);
+		      OP_ALG_AS_INITFINAL, ICV_CHECK_DISABLE, DIR_ENC);
 
 	/* Put UDP offset in least significant byte of M1 */
 	load_start_of_buf = LOAD(p, DUMMY_BUF_BASE | BUF_L4_OFFSET, MATH1, 7,
@@ -435,8 +434,7 @@ static inline unsigned cnstr_shdsc_mbms_type1_3(uint32_t *descbuf,
 	ALG_OPERATION(p, OP_ALG_ALGSEL_CRC,
 		      OP_ALG_AAI_CUST_POLY |
 		      OP_ALG_AAI_DIS | OP_ALG_AAI_DOS | OP_ALG_AAI_DOC,
-		      OP_ALG_AS_INITFINAL, ICV_CHECK_DISABLE,
-		      OP_ALG_ENCRYPT);
+		      OP_ALG_AS_INITFINAL, ICV_CHECK_DISABLE, DIR_ENC);
 
 	/* Put UDP offset in least significant byte of M1 */
 	load_start_of_buf = LOAD(p, DUMMY_BUF_BASE | BUF_L4_OFFSET, MATH1, 7,
@@ -653,8 +651,7 @@ static inline unsigned cnstr_shdsc_mbms_type1_3(uint32_t *descbuf,
 	ALG_OPERATION(p, OP_ALG_ALGSEL_CRC,
 		      OP_ALG_AAI_CUST_POLY |
 		      OP_ALG_AAI_DIS | OP_ALG_AAI_DOS | OP_ALG_AAI_DOC,
-		      OP_ALG_AS_INITFINAL, ICV_CHECK_DISABLE,
-		      OP_ALG_ENCRYPT);
+		      OP_ALG_AS_INITFINAL, ICV_CHECK_DISABLE, DIR_ENC);
 
 	/* Get the payload CRC, saved previously */
 	MOVE(p, CONTEXT1, 24, MATH2, 0, 8, IMMED);

@@ -33,10 +33,10 @@ unsigned dual_1(uint32_t *buff)
 		KEY(p, KEY1, 0, cipher_key, cipher_key_size, 0);
 		KEY(p, KEY2, 0, auth_key, auth_key_size, 0);
 		ALG_OPERATION(p, OP_ALG_ALGSEL_SHA256, OP_ALG_AAI_HMAC,
-			      OP_ALG_AS_INITFINAL, 0, OP_ALG_ENCRYPT);
+			      OP_ALG_AS_INITFINAL, 0, DIR_ENC);
 		MOVE(p, CONTEXT1, 0, IFIFOAB2, 0, ctx_size, WAITCOMP | IMMED);
 		ALG_OPERATION(p, OP_ALG_ALGSEL_AES, OP_ALG_AAI_CBC,
-			      OP_ALG_AS_INITFINAL, 0, OP_ALG_ENCRYPT);
+			      OP_ALG_AS_INITFINAL, 0, DIR_ENC);
 		FIFOLOAD(p, MSG2, auth, auth_size, 0);
 		FIFOLOAD(p, MSGINSNOOP, pt_in, msg_len, LAST1 | LAST2);
 		FIFOSTORE(p, MSG, 0, ct_out, msg_len, 0);

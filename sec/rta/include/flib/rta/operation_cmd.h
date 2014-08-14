@@ -279,13 +279,13 @@ static inline int rta_operation(struct program *program, uint32_t cipher_algo,
 	}
 
 	switch (enc) {
-	case OP_ALG_DECRYPT:
+	case DIR_DEC:
 		/*
 		 * opcode |= OP_ALG_DECRYPT;
 		 * OP_ALG_DECRYPT is 0
 		 */
 		break;
-	case OP_ALG_ENCRYPT:
+	case DIR_ENC:
 		opcode |= OP_ALG_ENCRYPT;
 		break;
 	default:

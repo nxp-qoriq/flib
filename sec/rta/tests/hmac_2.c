@@ -23,8 +23,7 @@ unsigned hmac_2(uint32_t *buff)
 	{
 		KEY(p, KEY2, 0, key_data, keylen, 0);
 		ALG_OPERATION(p, OP_ALG_ALGSEL_SHA256, OP_ALG_AAI_HMAC,
-			      OP_ALG_AS_INITFINAL, ICV_CHECK_ENABLE,
-			      OP_ALG_DECRYPT);
+			      OP_ALG_AS_INITFINAL, ICV_CHECK_ENABLE, DIR_DEC);
 		FIFOLOAD(p, MSG2, msg, msglen, LAST2 | EXT);
 		FIFOLOAD(p, ICV2, icv, 32, LAST2);
 	}

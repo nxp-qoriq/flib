@@ -17,7 +17,7 @@
  * @descbuf: pointer to descriptor-under-construction buffer
  * @ps: if 36/40bit addressing is desired, this parameter must be true
  * @cipherdata: pointer to block cipher transform definitions
- * @dir: Cipher direction (DIR_ENCRYPT/DIR_DECRYPT)
+ * @dir: Cipher direction (DIR_ENC/DIR_DEC)
  * @count: UEA2 count value (32 bits)
  * @bearer: UEA2 bearer ID (5 bits)
  * @direction: UEA2 direction (1 bit)
@@ -58,7 +58,7 @@ static inline int cnstr_shdsc_snow_f8(uint32_t *descbuf, bool ps,
  * @descbuf: pointer to descriptor-under-construction buffer
  * @ps: if 36/40bit addressing is desired, this parameter must be true
  * @authdata: pointer to authentication transform definitions
- * @dir: cipher direction (DIR_ENCRYPT/DIR_DECRYPT)
+ * @dir: cipher direction (DIR_ENC/DIR_DEC)
  * @count: UEA2 count value (32 bits)
  * @fresh: UEA2 fresh value ID (32 bits)
  * @direction: UEA2 direction (1 bit)
@@ -105,7 +105,7 @@ static inline int cnstr_shdsc_snow_f9(uint32_t *descbuf, bool ps,
  * @cipherdata: pointer to block cipher transform definitions
  * @iv: IV data; if NULL, "ivlen" bytes from the input frame will be read as IV
  * @ivlen: IV length
- * @dir: DIR_ENCRYPT/DIR_DECRYPT
+ * @dir: DIR_ENC/DIR_DEC
  *
  * Return: size of descriptor written in words
  */
@@ -275,7 +275,7 @@ static inline int cnstr_shdsc_hmac(uint32_t *descbuf, bool ps,
  * @descbuf: pointer to descriptor-under-construction buffer
  * @ps: if 36/40bit addressing is desired, this parameter must be true
  * @cipherdata: pointer to block cipher transform definitions
- * @dir: cipher direction (DIR_ENCRYPT/DIR_DECRYPT)
+ * @dir: cipher direction (DIR_ENC/DIR_DEC)
  * @count: count value (32 bits)
  * @bearer: bearer ID (5 bits)
  * @direction: direction (1 bit)
@@ -317,7 +317,7 @@ static inline int cnstr_shdsc_kasumi_f8(uint32_t *descbuf, bool ps,
  * @descbuf: pointer to descriptor-under-construction buffer
  * @ps: if 36/40bit addressing is desired, this parameter must be true
  * @authdata: pointer to authentication transform definitions
- * @dir: cipher direction (DIR_ENCRYPT/DIR_DECRYPT)
+ * @dir: cipher direction (DIR_ENC/DIR_DEC)
  * @count: count value (32 bits)
  * @fresh: fresh value ID (32 bits)
  * @direction: direction (1 bit)
