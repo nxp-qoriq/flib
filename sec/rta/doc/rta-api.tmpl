@@ -62,7 +62,7 @@
       <title>Using RTA</title>
       <para>
         RTA can be used in an application just by including the following header file:
-	#include flib/rta.h
+	#include &quot;flib/rta.h&quot;
       </para>
       <para>
         The files in drivers/crypto/caam/desc directory contain several
@@ -70,19 +70,9 @@
 	them to your needs.
       </para>
       <para>
-        RTA routines assume that your code defines a local variable named
-	"program":
-	<itemizedlist mark='opencircle'>
-	  <listitem>
-	    <para>struct program prg;</para>
-	  </listitem>
-	  <listitem>
-	    <para>struct program *program = &amp;prg;</para>
-	  </listitem>
-	</itemizedlist>
-        This variable is passed behind the scene to all RTA API calls.
-	It contains several housekeeping information that are used during
-	descriptor creation.
+        RTA routines take as first parameter a pointer to a "struct program"
+        variable. It contains housekeeping information that is used during
+        descriptor creation.
       </para>
       <para>
         RTA creates the descriptors and saves them in buffers. It is the user's
@@ -90,8 +80,8 @@
 	program initialization call.
       </para>
       <para>
-        A RTA program must start with a call to PROGRAM_CNTXT_INIT and end with
-	PROGRAM_FINALIZE. PROGRAM_CNTXT_INIT will initialze the members of
+        An RTA program must start with a call to PROGRAM_CNTXT_INIT and end with
+	PROGRAM_FINALIZE. PROGRAM_CNTXT_INIT will initialize the members of
 	'program' structure with user information (pointer to user's buffer, and
 	the SEC subversion). The PROGRAM_FINALIZE call checks the descriptor's
 	validity.
