@@ -787,7 +787,7 @@ static inline int cnstr_shdsc_mbms(uint32_t *descbuf, bool ps,
 				   unsigned *preheader_len,
 				   enum mbms_pdu_type pdu_type)
 {
-	unsigned *bufsize;
+	unsigned bufsize;
 
 	if (rta_sec_era < RTA_SEC_ERA_5) {
 		pr_err("MBMS protocol processing is available only for SEC ERA >= 5\n");
@@ -796,17 +796,17 @@ static inline int cnstr_shdsc_mbms(uint32_t *descbuf, bool ps,
 
 	switch (pdu_type) {
 	case MBMS_PDU_TYPE0:
-		cnstr_shdsc_mbms_type0(descbuf, bufsize, ps);
-		*preheader_len = *bufsize;
+		cnstr_shdsc_mbms_type0(descbuf, &bufsize, ps);
+		*preheader_len = bufsize;
 		break;
 
 	case MBMS_PDU_TYPE1:
-		*preheader_len = cnstr_shdsc_mbms_type1_3(descbuf, bufsize, ps,
+		*preheader_len = cnstr_shdsc_mbms_type1_3(descbuf, &bufsize, ps,
 							  MBMS_PDU_TYPE1);
 		break;
 
 	case MBMS_PDU_TYPE3:
-		*preheader_len = cnstr_shdsc_mbms_type1_3(descbuf, bufsize, ps,
+		*preheader_len = cnstr_shdsc_mbms_type1_3(descbuf, &bufsize, ps,
 							  MBMS_PDU_TYPE3);
 		break;
 
@@ -815,7 +815,7 @@ static inline int cnstr_shdsc_mbms(uint32_t *descbuf, bool ps,
 		return 0;
 	}
 
-	return *bufsize;
+	return bufsize;
 }
 
 /**
