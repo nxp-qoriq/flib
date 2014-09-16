@@ -24,8 +24,8 @@ LABEL(s);
 REFERENCE(ref1_moves);
 REFERENCE(ref2_moves);
 
-unsigned build_shr_desc_ppp_encap(struct program *p, uint32_t *buff,
-				  unsigned buffpos)
+int build_shr_desc_ppp_encap(struct program *p, uint32_t *buff,
+			     unsigned buffpos)
 {
 	uint32_t c1_ctx_addr = 0x0972ecc0ul;
 	uint32_t c2_ctx_addr = 0x094E03C0ul;
@@ -158,7 +158,7 @@ unsigned build_shr_desc_ppp_encap(struct program *p, uint32_t *buff,
  * all the other bits in the register. And, there you have it - 0x80 using only
  * one word instead of two!
  */
-unsigned build_extra_cmds(struct program *p, uint32_t *buff, unsigned buffpos)
+int build_extra_cmds(struct program *p, uint32_t *buff, unsigned buffpos)
 {
 	REFERENCE(pjumpk);
 
@@ -186,7 +186,7 @@ unsigned build_extra_cmds(struct program *p, uint32_t *buff, unsigned buffpos)
 	return PROGRAM_FINALIZE(p);
 }
 
-unsigned build_more_cmds(struct program *p, uint32_t *buff, unsigned buffpos)
+int build_more_cmds(struct program *p, uint32_t *buff, unsigned buffpos)
 {
 	LABEL(g);
 	REFERENCE(pjumpg);
@@ -221,13 +221,15 @@ unsigned build_more_cmds(struct program *p, uint32_t *buff, unsigned buffpos)
 	return PROGRAM_FINALIZE(p);
 }
 
-unsigned build_jbdesc_ppp_encap(struct program *p, uint32_t *buff,
-				unsigned buffpos)
+int build_jbdesc_ppp_encap(struct program *p, uint32_t *buff, int buffpos)
 {
 	uint32_t in_addr = 0x09DDDB80ul;
 	uint32_t in_len = 1450;
 	uint32_t out_addr = 0x00000000ul;
 	uint32_t out_len = 2902;
+
+	if (buffpos < 0)
+		return -EINVAL;
 
 	PROGRAM_CNTXT_INIT(p, buff, buffpos);
 	JOB_HDR(p, SHR_NEVER, buffpos, shr_addr, REO | SHR);
@@ -249,7 +251,7 @@ int main(int argc, char **argv)
 	uint32_t c2_ctx[20];
 	uint32_t job[20];
 
-	unsigned shr_size, job_size, c1_ctx_size, c2_ctx_size;
+	int shr_size, job_size, c1_ctx_size, c2_ctx_size;
 
 	struct program shr_desc_prgm;
 	struct program job_desc_prgm;

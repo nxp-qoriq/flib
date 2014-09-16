@@ -22,7 +22,7 @@
  * @bearer: UEA2 bearer ID (5 bits)
  * @direction: UEA2 direction (1 bit)
  *
- * Return: size of descriptor written in words
+ * Return: size of descriptor written in words or negative number on error
  */
 static inline int cnstr_shdsc_snow_f8(uint32_t *descbuf, bool ps,
 			 struct alginfo *cipherdata, uint8_t dir,
@@ -64,7 +64,7 @@ static inline int cnstr_shdsc_snow_f8(uint32_t *descbuf, bool ps,
  * @direction: UEA2 direction (1 bit)
  * @datalen: size of data
  *
- * Return: size of descriptor written in words
+ * Return: size of descriptor written in words or negative number on error
  */
 static inline int cnstr_shdsc_snow_f9(uint32_t *descbuf, bool ps,
 			 struct alginfo *authdata, uint8_t dir, uint32_t count,
@@ -107,7 +107,7 @@ static inline int cnstr_shdsc_snow_f9(uint32_t *descbuf, bool ps,
  * @ivlen: IV length
  * @dir: DIR_ENC/DIR_DEC
  *
- * Return: size of descriptor written in words
+ * Return: size of descriptor written in words or negative number on error
  */
 static inline int cnstr_shdsc_cbc_blkcipher(uint32_t *descbuf, bool ps,
 			       struct alginfo *cipherdata, uint8_t *iv,
@@ -185,7 +185,7 @@ static inline int cnstr_shdsc_cbc_blkcipher(uint32_t *descbuf, bool ps,
  * Note: There's no support for keys longer than the corresponding digest size,
  * according to the selected algorithm.
  *
- * Return: size of descriptor written in words
+ * Return: size of descriptor written in words or negative number on error
  */
 static inline int cnstr_shdsc_hmac(uint32_t *descbuf, bool ps,
 				   struct alginfo *authdata, uint8_t do_icv,
@@ -220,7 +220,7 @@ static inline int cnstr_shdsc_hmac(uint32_t *descbuf, bool ps,
 		storelen = 64;
 		break;
 	default:
-		return 0;
+		return -EINVAL;
 	}
 
 	trunc_len = trunc_len && (trunc_len < storelen) ? trunc_len : storelen;
@@ -280,7 +280,7 @@ static inline int cnstr_shdsc_hmac(uint32_t *descbuf, bool ps,
  * @bearer: bearer ID (5 bits)
  * @direction: direction (1 bit)
  *
- * Return: size of descriptor written in words
+ * Return: size of descriptor written in words or negative number on error
  */
 static inline int cnstr_shdsc_kasumi_f8(uint32_t *descbuf, bool ps,
 			   struct alginfo *cipherdata, uint8_t dir,
@@ -323,7 +323,7 @@ static inline int cnstr_shdsc_kasumi_f8(uint32_t *descbuf, bool ps,
  * @direction: direction (1 bit)
  * @datalen: size of data
  *
- * Return: size of descriptor written in words
+ * Return: size of descriptor written in words or negative number on error
  */
 static inline int cnstr_shdsc_kasumi_f9(uint32_t *descbuf, bool ps,
 			   struct alginfo *authdata, uint8_t dir,
@@ -363,7 +363,7 @@ static inline int cnstr_shdsc_kasumi_f9(uint32_t *descbuf, bool ps,
  * cnstr_shdsc_crc - CRC32 Accelerator (IEEE 802 CRC32 protocol mode)
  * @descbuf: pointer to descriptor-under-construction buffer
  *
- * Return: size of descriptor written in words
+ * Return: size of descriptor written in words or negative number on error
  */
 static inline int cnstr_shdsc_crc(uint32_t *descbuf)
 {

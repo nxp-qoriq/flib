@@ -5,9 +5,9 @@
 enum rta_sec_era rta_sec_era;
 
 /* Subroutine to populate a Descriptor buffer */
-unsigned build_rsa_verify_desc(uint32_t *buff, uint32_t n_len, uint32_t e_len,
-			       const uint64_t n, const uint64_t e,
-			       const uint64_t f, const uint64_t g)
+int build_rsa_verify_desc(uint32_t *buff, uint32_t n_len, uint32_t e_len,
+			  const uint64_t n, const uint64_t e, const uint64_t f,
+			  const uint64_t g)
 {
 	struct program prg;
 	struct program *p = &prg;
@@ -34,7 +34,7 @@ unsigned build_rsa_verify_desc(uint32_t *buff, uint32_t n_len, uint32_t e_len,
 	return PROGRAM_FINALIZE(p);
 }
 
-unsigned test_rsa_verify(uint32_t *buff)
+int test_rsa_verify(uint32_t *buff)
 {
 	uint32_t n_len = 128;
 	uint32_t e_len = 3;
@@ -52,7 +52,7 @@ uint32_t prg_buff[1000];
 
 int main(int argc, char **argv)
 {
-	unsigned size;
+	int size;
 
 	pr_debug("RSA Verify example program\n");
 	rta_set_sec_era(RTA_SEC_ERA_2);

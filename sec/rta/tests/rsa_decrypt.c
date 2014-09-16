@@ -7,14 +7,14 @@
 enum rta_sec_era rta_sec_era;
 
 /* Subroutine to populate a Descriptor buffer */
-unsigned build_rsa_decrypt_desc(uint32_t *buff, uint32_t n_len, uint32_t p_len,
-				uint32_t q_len,
-				const uint64_t p, const uint64_t q,
-				const uint64_t dp, const uint64_t dq,
-				const uint64_t c,
-				const uint64_t t1, const uint64_t t2,
-				const uint64_t g, const uint64_t f,
-				const uint64_t msglen)
+int build_rsa_decrypt_desc(uint32_t *buff, uint32_t n_len, uint32_t p_len,
+			   uint32_t q_len,
+			   const uint64_t p, const uint64_t q,
+			   const uint64_t dp, const uint64_t dq,
+			   const uint64_t c,
+			   const uint64_t t1, const uint64_t t2,
+			   const uint64_t g, const uint64_t f,
+			   const uint64_t msglen)
 {
 	struct program prg;
 	struct program *pp = &prg;
@@ -49,7 +49,7 @@ unsigned build_rsa_decrypt_desc(uint32_t *buff, uint32_t n_len, uint32_t p_len,
 	return PROGRAM_FINALIZE(pp);
 }
 
-unsigned test_rsa_decrypt(uint32_t *buff)
+int test_rsa_decrypt(uint32_t *buff)
 {
 	uint32_t n_len = 128;	/* RSA 1024 */
 	uint32_t p_len = 64;
@@ -75,7 +75,7 @@ uint32_t prg_buff[1000];
 
 int main(int argc, char **argv)
 {
-	unsigned size;
+	int size;
 
 	pr_debug("RSA Decrypt example program\n");
 	rta_set_sec_era(RTA_SEC_ERA_2);

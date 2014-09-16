@@ -67,7 +67,7 @@ struct macsec_decap_pdb {
  *          single field of 8 bits in PDB.
  * @pn: PDB Packet Number
  *
- * Return: size of descriptor written in words
+ * Return: size of descriptor written in words or negative number on error
  */
 static inline int cnstr_shdsc_macsec_encap(uint32_t *descbuf,
 					   struct alginfo *cipherdata,
@@ -83,8 +83,10 @@ static inline int cnstr_shdsc_macsec_encap(uint32_t *descbuf,
 	REFERENCE(pkeyjump);
 
 	if ((cipherdata->algtype == MACSEC_CIPHER_TYPE_GMAC) &&
-	    (rta_sec_era < RTA_SEC_ERA_5))
+	    (rta_sec_era < RTA_SEC_ERA_5)) {
 		pr_err("MACsec GMAC available only for Era 5 or above\n");
+		return -ENOTSUP;
+	}
 
 	memset(&pdb, 0x00, sizeof(struct macsec_encap_pdb));
 	pdb.sci_hi = upper_32_bits(sci);
@@ -118,7 +120,7 @@ static inline int cnstr_shdsc_macsec_encap(uint32_t *descbuf,
  * @sci: PDB Secure Channel Identifier
  * @pn: PDB Packet Number
  *
- * Return: size of descriptor written in words
+ * Return: size of descriptor written in words or negative number on error
  */
 static inline int cnstr_shdsc_macsec_decap(uint32_t *descbuf,
 					   struct alginfo *cipherdata,
@@ -133,8 +135,10 @@ static inline int cnstr_shdsc_macsec_decap(uint32_t *descbuf,
 	REFERENCE(pkeyjump);
 
 	if ((cipherdata->algtype == MACSEC_CIPHER_TYPE_GMAC) &&
-	    (rta_sec_era < RTA_SEC_ERA_5))
+	    (rta_sec_era < RTA_SEC_ERA_5)) {
 		pr_err("MACsec GMAC available only for Era 5 or above\n");
+		return -ENOTSUP;
+	}
 
 	memset(&pdb, 0x00, sizeof(struct macsec_decap_pdb));
 	pdb.sci_hi = upper_32_bits(sci);

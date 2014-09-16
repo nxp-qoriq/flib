@@ -444,7 +444,7 @@ struct ipsec_new_decap_deco_dpovrd {
  *            split key is to be used, the size of the split key itself is
  *            specified. Valid algorithm values - one of OP_PCL_IPSEC_*
  *
- * Return: size of descriptor written in words
+ * Return: size of descriptor written in words or negative number on error
  */
 static inline int cnstr_shdsc_ipsec_encap(uint32_t *descbuf, bool ps, bool swap,
 					  struct ipsec_encap_pdb *pdb,
@@ -498,7 +498,7 @@ static inline int cnstr_shdsc_ipsec_encap(uint32_t *descbuf, bool ps, bool swap,
  *            split key is to be used, the size of the split key itself is
  *            specified. Valid algorithm values - one of OP_PCL_IPSEC_*
  *
- * Return: size of descriptor written in words
+ * Return: size of descriptor written in words or negative number on error
  */
 static inline int cnstr_shdsc_ipsec_decap(uint32_t *descbuf, bool ps, bool swap,
 					  struct ipsec_decap_pdb *pdb,
@@ -563,7 +563,7 @@ static inline int cnstr_shdsc_ipsec_decap(uint32_t *descbuf, bool ps, bool swap,
  * (in order to use it also with HMAC-MD5-96),even when using a shorter key
  * for the AES-XCBC-MAC-96.
  *
- * Return: size of descriptor written in words
+ * Return: size of descriptor written in words or negative number on error
  */
 static inline int cnstr_shdsc_ipsec_encap_des_aes_xcbc(uint32_t *descbuf,
 		struct ipsec_encap_pdb *pdb, struct alginfo *cipherdata,
@@ -698,7 +698,7 @@ static inline int cnstr_shdsc_ipsec_encap_des_aes_xcbc(uint32_t *descbuf,
  * (in order to use it also with HMAC-MD5-96),even when using a shorter key
  * for the AES-XCBC-MAC-96.
  *
- * Return: size of descriptor written in words
+ * Return: size of descriptor written in words or negative number on error
  */
 static inline int cnstr_shdsc_ipsec_decap_des_aes_xcbc(uint32_t *descbuf,
 		struct ipsec_decap_pdb *pdb, struct alginfo *cipherdata,
@@ -879,7 +879,7 @@ static inline int cnstr_shdsc_ipsec_decap_des_aes_xcbc(uint32_t *descbuf,
  *            split key is to be used, the size of the split key itself is
  *            specified. Valid algorithm values - one of OP_PCL_IPSEC_*
  *
- * Return: size of descriptor written in words
+ * Return: size of descriptor written in words or negative number on error
  */
 static inline int cnstr_shdsc_ipsec_new_encap(uint32_t *descbuf, bool ps,
 					      struct ipsec_encap_pdb *pdb,
@@ -898,7 +898,7 @@ static inline int cnstr_shdsc_ipsec_new_encap(uint32_t *descbuf, bool ps,
 	if (rta_sec_era < RTA_SEC_ERA_8) {
 		pr_err("IPsec new mode encap: available only for Era %d or above\n",
 		       USER_SEC_ERA(RTA_SEC_ERA_8));
-		return 0;
+		return -ENOTSUP;
 	}
 
 	PROGRAM_CNTXT_INIT(p, descbuf, 0);
@@ -978,7 +978,7 @@ static inline int cnstr_shdsc_ipsec_new_encap(uint32_t *descbuf, bool ps,
  *            split key is to be used, the size of the split key itself is
  *            specified. Valid algorithm values - one of OP_PCL_IPSEC_*
  *
- * Return: size of descriptor written in words
+ * Return: size of descriptor written in words or negative number on error
  */
 static inline int cnstr_shdsc_ipsec_new_decap(uint32_t *descbuf, bool ps,
 					      struct ipsec_decap_pdb *pdb,
@@ -996,7 +996,7 @@ static inline int cnstr_shdsc_ipsec_new_decap(uint32_t *descbuf, bool ps,
 	if (rta_sec_era < RTA_SEC_ERA_8) {
 		pr_err("IPsec new mode decap: available only for Era %d or above\n",
 		       USER_SEC_ERA(RTA_SEC_ERA_8));
-		return 0;
+		return -ENOTSUP;
 	}
 
 	PROGRAM_CNTXT_INIT(p, descbuf, 0);

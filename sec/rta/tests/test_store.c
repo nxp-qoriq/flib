@@ -17,7 +17,7 @@ REFERENCE(pstore4);
 LABEL(mod_loc2);
 LABEL(shr_loc);
 
-unsigned test_store_cmds(uint32_t *buff)
+int test_store_cmds(uint32_t *buff)
 {
 	struct program prg;
 	struct program *p = &prg;
@@ -85,7 +85,7 @@ unsigned test_store_cmds(uint32_t *buff)
 	return PROGRAM_FINALIZE(p);
 }
 
-unsigned test_store_jd1(uint32_t *buff, unsigned buffpos)
+int test_store_jd1(uint32_t *buff, unsigned buffpos)
 {
 	struct program prg;
 	struct program *p = &prg;
@@ -104,7 +104,7 @@ unsigned test_store_jd1(uint32_t *buff, unsigned buffpos)
 	return PROGRAM_FINALIZE(p);
 }
 
-unsigned test_store_sd(struct program *p, uint32_t *buff, unsigned buffpos)
+int test_store_sd(struct program *p, uint32_t *buff, unsigned buffpos)
 {
 	REFERENCE(pstore);
 
@@ -124,9 +124,12 @@ unsigned test_store_sd(struct program *p, uint32_t *buff, unsigned buffpos)
 	return PROGRAM_FINALIZE(p);
 }
 
-unsigned test_store_jd2(struct program *p, uint32_t *buff, unsigned buffpos)
+int test_store_jd2(struct program *p, uint32_t *buff, int buffpos)
 {
 	uint64_t shrloc = 0x72650040ull;
+
+	if (buffpos < 0)
+		return -EINVAL;
 
 	PROGRAM_CNTXT_INIT(p, buff, 0);
 
@@ -146,7 +149,7 @@ unsigned test_store_jd2(struct program *p, uint32_t *buff, unsigned buffpos)
 int main(int argc, char **argv)
 {
 	struct program share_desc, job_desc;
-	unsigned cmd_size, jd1_size, jd2_size, sd_size;
+	int cmd_size, jd1_size, jd2_size, sd_size;
 
 	rta_set_sec_era(RTA_SEC_ERA_3);
 

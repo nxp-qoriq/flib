@@ -10,8 +10,8 @@ uint64_t shraddr = 0x51100030ull;
 REFERENCE(ref_jump_reload);
 LABEL(reload);
 
-unsigned build_shdesc_kasumi_bitshift_dcrc(struct program *p, uint32_t *buff,
-					   unsigned buffpos)
+int build_shdesc_kasumi_bitshift_dcrc(struct program *p, uint32_t *buff,
+				      unsigned buffpos)
 {
 	LABEL(do_dcrc);
 	REFERENCE(pjump1);
@@ -168,9 +168,12 @@ unsigned build_shdesc_kasumi_bitshift_dcrc(struct program *p, uint32_t *buff,
 	return PROGRAM_FINALIZE(p);
 }
 
-unsigned build_jbdesc_kasumi_bitshift_dcrc(struct program *p, uint32_t *buff,
-					   unsigned buffpos)
+int build_jbdesc_kasumi_bitshift_dcrc(struct program *p, uint32_t *buff,
+				      int buffpos)
 {
+	if (buffpos < 0)
+		return -EINVAL;
+
 	PROGRAM_CNTXT_INIT(p, buff, buffpos);
 	PROGRAM_SET_36BIT_ADDR(p);
 	JOB_HDR(p, SHR_ALWAYS, buffpos, shraddr, REO | SHR);
@@ -187,7 +190,7 @@ int main(int argc, char **argv)
 {
 	uint32_t share[64];
 	uint32_t job[16];
-	unsigned lte_desc_size, job_desc_size;
+	int lte_desc_size, job_desc_size;
 	struct program lte_desc_prgm;
 	struct program job_desc_prgm;
 

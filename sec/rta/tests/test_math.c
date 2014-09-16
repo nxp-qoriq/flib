@@ -6,7 +6,7 @@
 
 enum rta_sec_era rta_sec_era;
 
-unsigned math_test(uint32_t *buff)
+int math_test(uint32_t *buff)
 {
 	struct program prg;
 	struct program *p = &prg;
@@ -13346,7 +13346,7 @@ uint32_t prg_buff[1000000];
 
 int main(int argc, char **argv)
 {
-	unsigned size;
+	int size;
 
 	rta_set_sec_era(RTA_SEC_ERA_4);
 

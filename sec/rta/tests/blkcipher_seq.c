@@ -9,7 +9,7 @@ enum rta_sec_era rta_sec_era;
 /*
  * Example AES-CBC encrypt blockcipher-using-sequence pointer
  */
-unsigned test_blkcipher_seq(uint32_t *buff)
+int test_blkcipher_seq(uint32_t *buff)
 {
 	struct program prg;
 	struct program *p = &prg;
@@ -40,7 +40,7 @@ uint32_t prg_buff[1000];
 
 int main(int argc, char **argv)
 {
-	unsigned size;
+	int size;
 
 	pr_debug("BLKCIPHER SEQ program\n");
 	rta_set_sec_era(RTA_SEC_ERA_3);

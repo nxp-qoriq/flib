@@ -10,7 +10,7 @@ uint8_t *iv1 = (uint8_t *)0x64;	/* input constant */
 uint8_t *ipad = (uint8_t *)0x664;
 uint8_t *opad = (uint8_t *)0x12364;
 
-unsigned build_hmacprecomp(uint32_t *buff)
+int build_hmacprecomp(uint32_t *buff)
 {
 	struct program prg;
 	struct program *p = &prg;
@@ -74,7 +74,7 @@ unsigned build_hmacprecomp(uint32_t *buff)
 	return PROGRAM_FINALIZE(p);
 }
 
-unsigned build_hmacprecomp_opad(uint32_t *buff)
+int build_hmacprecomp_opad(uint32_t *buff)
 {
 	struct program prg;
 	struct program *p = &prg;
@@ -135,7 +135,7 @@ unsigned build_hmacprecomp_opad(uint32_t *buff)
 	return PROGRAM_FINALIZE(p);
 }
 
-unsigned build_hmac_from_pre(uint32_t *buff)
+int build_hmac_from_pre(uint32_t *buff)
 {
 	struct program prg;
 	struct program *p = &prg;
@@ -182,7 +182,7 @@ uint32_t prg_buff[1000];
 
 int main(int argc, char **argv)
 {
-	unsigned size;
+	int size;
 
 	rta_set_sec_era(RTA_SEC_ERA_1);
 

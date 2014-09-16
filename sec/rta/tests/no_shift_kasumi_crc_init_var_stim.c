@@ -47,8 +47,8 @@ const uint32_t num_ctx1_extras =
     /*num_even_more_extras_bytes */ 11 * 4 + 4 +
     /*num_still_more_extras_bytes */ 2 * 4;
 
-unsigned generate_lte_code(struct program *p, uint32_t *buff, int mdatalen,
-			   unsigned buffpos)
+int generate_lte_code(struct program *p, uint32_t *buff, int mdatalen,
+		      unsigned buffpos)
 {
 	LABEL(last_info);
 	LABEL(datasz_len);
@@ -218,9 +218,12 @@ unsigned generate_lte_code(struct program *p, uint32_t *buff, int mdatalen,
  * This command group goes in last and is there when the descriptor finishes
  * This command group waits at the end of CTX2 until it is put in place
  */
-unsigned generate_extra_desc_code(struct program *p, uint32_t *buff,
-				  int mdatalen, unsigned buffpos)
+int generate_extra_desc_code(struct program *p, uint32_t *buff, int mdatalen,
+			     int buffpos)
 {
+	if (buffpos < 0)
+		return -EINVAL;
+
 	PROGRAM_CNTXT_INIT(p, buff, buffpos);
 
 	MATHB(p, MATH2, SUB, ONE, MATH2, 4, 0);	/* Done with a PDU */
@@ -246,9 +249,12 @@ unsigned generate_extra_desc_code(struct program *p, uint32_t *buff,
  * This command group goes directly to the descriptor buffer,
  * it is never in context
  */
-unsigned generate_more_extra_desc_code(struct program *p, uint32_t *buff,
-				       int mdatalen, unsigned buffpos)
+int generate_more_extra_desc_code(struct program *p, uint32_t *buff,
+				  int mdatalen, int buffpos)
 {
+	if (buffpos < 0)
+		return -EINVAL;
+
 	PROGRAM_CNTXT_INIT(p, buff, buffpos);
 
 	/* end extras to C2 context for later use */
@@ -275,9 +281,12 @@ unsigned generate_more_extra_desc_code(struct program *p, uint32_t *buff,
  * This command group sits at the start of CTX1 until needed.
  * It is the 2nd group to go in.
  */
-unsigned generate_even_more_extra_desc_code(struct program *p, uint32_t *buff,
-					    int mdatalen, unsigned buffpos)
+int generate_even_more_extra_desc_code(struct program *p, uint32_t *buff,
+				       int mdatalen, int buffpos)
 {
+	if (buffpos < 0)
+		return -EINVAL;
+
 	PROGRAM_CNTXT_INIT(p, buff, buffpos);
 
 	MOVE(p, MATH0, 0, CONTEXT2, 4, 8, IMMED);
@@ -303,9 +312,12 @@ unsigned generate_even_more_extra_desc_code(struct program *p, uint32_t *buff,
  * This command group sits in the first 8 words of CTX2 until needed.
  * It is the 3rd group to go in.
  */
-unsigned generate_yet_more_extra_desc_code(struct program *p, uint32_t *buff,
-					   int mdatalen, unsigned buffpos)
+int generate_yet_more_extra_desc_code(struct program *p, uint32_t *buff,
+				      int mdatalen, int buffpos)
 {
+	if (buffpos < 0)
+		return -EINVAL;
+
 	PROGRAM_CNTXT_INIT(p, buff, buffpos);
 
 	/* get CRC init value into place */
@@ -335,9 +347,12 @@ unsigned generate_yet_more_extra_desc_code(struct program *p, uint32_t *buff,
  * It is the 4th group to go in. (It is actually present at the same time as
  * the 3rd group!
  */
-unsigned generate_still_more_extra_desc_code(struct program *p, uint32_t *buff,
-					     int mdatalen, unsigned buffpos)
+int generate_still_more_extra_desc_code(struct program *p, uint32_t *buff,
+					int mdatalen, int buffpos)
 {
+	if (buffpos < 0)
+		return -EINVAL;
+
 	PROGRAM_CNTXT_INIT(p, buff, buffpos);
 
 	SET_LABEL(p, yet_more);
@@ -356,9 +371,9 @@ int main(int argc, char *argv[])
 	uint32_t even_more_extra_desc[20000];
 	uint32_t yet_more_extra_desc[20000];
 	uint32_t still_more_extra_desc[20000];
-	unsigned lte_desc_size, extra_desc_size, more_extra_desc_size;
-	unsigned even_more_extra_desc_size, yet_more_extra_desc_size;
-	unsigned still_more_extra_desc_size;
+	int lte_desc_size, extra_desc_size, more_extra_desc_size;
+	int even_more_extra_desc_size, yet_more_extra_desc_size;
+	int still_more_extra_desc_size;
 
 	struct program lte_prgm;
 	struct program extra_prgm;

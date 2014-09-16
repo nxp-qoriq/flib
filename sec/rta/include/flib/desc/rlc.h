@@ -99,9 +99,9 @@ struct rlc_pdb {
  * @cipherdata: pointer to block cipher transform definitions
  *              Valid algorithm values are those from cipher_type_rlc enum.
  *
- * Return: size of descriptor written in words. Once the function returns, the
- *         value of this parameter can be used for reclaiming the space that
- *         wasn't used for the descriptor.
+ * Return: size of descriptor written in words or negative number on error.
+ *         Once the function returns, the value of this parameter can be used
+ *         for reclaiming the space that wasn't used for the descriptor.
  *
  * Note: descbuf must be large enough to contain a full 256 byte long
  * descriptor; after the function returns, by subtracting the actual number of
@@ -119,6 +119,7 @@ static inline int cnstr_shdsc_rlc_encap(uint32_t *descbuf,
 	struct program prg;
 	struct program *p = &prg;
 	struct rlc_pdb pdb;
+	int err;
 	LABEL(pdb_end);
 	LABEL(keyjmp);
 	REFERENCE(phdr);
@@ -152,7 +153,7 @@ static inline int cnstr_shdsc_rlc_encap(uint32_t *descbuf,
 
 	default:
 		pr_debug("Invalid RLC mode setting in PDB\n");
-		return 0;
+		return -EINVAL;
 	}
 
 	pdb.bearer_dir_res = (uint32_t)
@@ -164,8 +165,9 @@ static inline int cnstr_shdsc_rlc_encap(uint32_t *descbuf,
 
 	SET_LABEL(p, pdb_end);
 
-	if (insert_hfn_ov_op(p, mode, RLC_PDB_TYPE_FULL_PDB, 0))
-		return 0;
+	err = insert_hfn_ov_op(p, mode, RLC_PDB_TYPE_FULL_PDB, 0);
+	if (err)
+		return err;
 
 	switch (mode) {
 	case RLC_UNACKED_MODE:
@@ -214,7 +216,7 @@ static inline int cnstr_shdsc_rlc_encap(uint32_t *descbuf,
 			pr_debug("%s: Invalid encrypt algorithm selected: %d\n",
 				 "cnstr_shdsc_rlc_encap",
 				 cipherdata->algtype);
-			return 0;
+			return -EINVAL;
 		}
 		break;
 
@@ -241,9 +243,9 @@ static inline int cnstr_shdsc_rlc_encap(uint32_t *descbuf,
  * @cipherdata: pointer to block cipher transform definitions
  *              Valid algorithm values are those from cipher_type_rlc enum.
  *
- * Return: size of descriptor written in words. Once the function returns, the
- *         value of this parameter can be used for reclaiming the space that
- *         wasn't used for the descriptor.
+ * Return: size of descriptor written in words or negative number on error.
+ *         Once the function returns, the value of this parameter can be used
+ *         for reclaiming the space that wasn't used for the descriptor.
  *
  * Note: descbuf must be large enough to contain a full 256 byte long
  * descriptor; after the function returns, by subtracting the actual number of
@@ -261,6 +263,7 @@ static inline int cnstr_shdsc_rlc_decap(uint32_t *descbuf,
 	struct program prg;
 	struct program *p = &prg;
 	struct rlc_pdb pdb;
+	int err;
 	LABEL(pdb_end);
 	LABEL(keyjmp);
 	REFERENCE(phdr);
@@ -294,7 +297,7 @@ static inline int cnstr_shdsc_rlc_decap(uint32_t *descbuf,
 
 	default:
 		pr_debug("Invalid RLC mode setting in PDB\n");
-		return 0;
+		return -EINVAL;
 	}
 
 	pdb.bearer_dir_res = (uint32_t)
@@ -306,8 +309,9 @@ static inline int cnstr_shdsc_rlc_decap(uint32_t *descbuf,
 
 	SET_LABEL(p, pdb_end);
 
-	if (insert_hfn_ov_op(p, mode, RLC_PDB_TYPE_FULL_PDB, 0))
-		return 0;
+	err = insert_hfn_ov_op(p, mode, RLC_PDB_TYPE_FULL_PDB, 0);
+	if (err)
+		return err;
 
 	switch (mode) {
 	case RLC_UNACKED_MODE:
@@ -357,7 +361,7 @@ static inline int cnstr_shdsc_rlc_decap(uint32_t *descbuf,
 			pr_debug("%s: Invalid encrypt algorithm selected: %d\n",
 				 "cnstr_shdsc_rlc_decap",
 				 cipherdata->algtype);
-			return 0;
+			return -EINVAL;
 		}
 		break;
 

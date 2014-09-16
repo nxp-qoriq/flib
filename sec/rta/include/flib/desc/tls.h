@@ -327,7 +327,7 @@ struct tls_ccm_pdb {
  * @cipherdata: pointer to block cipher transform definitions
  * @authdata: pointer to authentication transform definitions
  *
- * Return: size of descriptor written in words
+ * Return: size of descriptor written in words or negative number on error
  *
  * The following built-in protocols are supported:
  * SSL3.0 / TLS1.0 / TLS1.1 / TLS1.2 / DTLS10

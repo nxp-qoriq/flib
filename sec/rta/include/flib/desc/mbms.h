@@ -153,7 +153,7 @@ struct mbms_type_1_3_pdb {
 	uint32_t crc_payload_fail;
 };
 
-static inline void cnstr_shdsc_mbms_type0(uint32_t *descbuf, unsigned *bufsize,
+static inline void cnstr_shdsc_mbms_type0(uint32_t *descbuf, int *bufsize,
 					  bool ps)
 {
 	struct program prg;
@@ -344,8 +344,8 @@ static inline void cnstr_shdsc_mbms_type0(uint32_t *descbuf, unsigned *bufsize,
 	*bufsize = PROGRAM_FINALIZE(p);
 }
 
-static inline unsigned cnstr_shdsc_mbms_type1_3(uint32_t *descbuf,
-						unsigned *bufsize, bool ps,
+static inline unsigned cnstr_shdsc_mbms_type1_3(uint32_t *descbuf, int *bufsize,
+						bool ps,
 						enum mbms_pdu_type pdu_type)
 {
 	struct program part1_prg, part2_prg;
@@ -779,7 +779,7 @@ static inline unsigned cnstr_shdsc_mbms_type1_3(uint32_t *descbuf,
  *                 to bufsize.
  * @pdu_type: type of the MBMS PDU required to be processed by this descriptor
  *
- * Return: size of descriptor written in words
+ * Return: size of descriptor written in words or negative number on error
  *
  * Note: This function can be called only for SEC ERA >= 5.
  */
@@ -787,17 +787,17 @@ static inline int cnstr_shdsc_mbms(uint32_t *descbuf, bool ps,
 				   unsigned *preheader_len,
 				   enum mbms_pdu_type pdu_type)
 {
-	unsigned bufsize;
+	int bufsize;
 
 	if (rta_sec_era < RTA_SEC_ERA_5) {
 		pr_err("MBMS protocol processing is available only for SEC ERA >= 5\n");
-		return 0;
+		return -ENOTSUP;
 	}
 
 	switch (pdu_type) {
 	case MBMS_PDU_TYPE0:
 		cnstr_shdsc_mbms_type0(descbuf, &bufsize, ps);
-		*preheader_len = bufsize;
+		*preheader_len = (unsigned) bufsize;
 		break;
 
 	case MBMS_PDU_TYPE1:
@@ -812,7 +812,7 @@ static inline int cnstr_shdsc_mbms(uint32_t *descbuf, bool ps,
 
 	default:
 		pr_err("Invalid MBMS PDU Type selected %d\n", pdu_type);
-		return 0;
+		return -EINVAL;
 	}
 
 	return bufsize;

@@ -25,9 +25,9 @@ const uint8_t key2[48] = {
  * Function to generate a Shared Descriptor for DTLS encap, with metadata and
  * verification that IV is not used twice in a rwo.
  */
-unsigned build_dtls_sharedesc(uint32_t *buff, uint32_t seqnum,
-			      const uint8_t *aes_key, const uint8_t *hmac_key,
-			      uint32_t mdatalen, uint16_t cipher_alg)
+int build_dtls_sharedesc(uint32_t *buff, uint32_t seqnum,
+			 const uint8_t *aes_key, const uint8_t *hmac_key,
+			 uint32_t mdatalen, uint16_t cipher_alg)
 {
 	struct program prg;
 	struct program *p = &prg;
@@ -159,7 +159,7 @@ uint32_t prg_buff[1000];
 int main(int argc, char **argv)
 {
 	uint32_t seqnum = 0x179;
-	unsigned size;
+	int size;
 
 	pr_debug("DTLS example program\n");
 	rta_set_sec_era(RTA_SEC_ERA_3);

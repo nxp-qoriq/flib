@@ -16,8 +16,8 @@ LABEL(encap_share_end);
 
 uint64_t desc_addr_1 = 0x00000040ull;
 
-unsigned build_shdesc_kasumi_dcrc_encap(struct program *p, uint32_t *buff,
-					unsigned buffpos)
+int build_shdesc_kasumi_dcrc_encap(struct program *p, uint32_t *buff,
+				   unsigned buffpos)
 {
 	uint32_t key_size = 16;
 
@@ -122,13 +122,16 @@ unsigned build_shdesc_kasumi_dcrc_encap(struct program *p, uint32_t *buff,
 	return PROGRAM_FINALIZE(p);
 }
 
-unsigned build_jbdesc_kasumi_dcrc_encap(struct program *p, uint32_t *buff,
-					unsigned buffpos)
+int build_jbdesc_kasumi_dcrc_encap(struct program *p, uint32_t *buff,
+				   int buffpos)
 {
 	uint32_t input_frame_length = 2356;
 	uint32_t output_frame_length = 2302;
 	uint64_t pdu_in_addr_1 = 0x155ull;
 	uint64_t pdu_out_addr_1 = 0x095a0967ull;
+
+	if (buffpos < 0)
+		return -EINVAL;
 
 	PROGRAM_CNTXT_INIT(p, buff, buffpos);
 	JOB_HDR(p, SHR_ALWAYS, buffpos, desc_addr_1, REO | SHR);
@@ -147,7 +150,7 @@ int main(int argc, char **argv)
 {
 	uint32_t lte_desc[60];
 	uint32_t job_desc[20];
-	unsigned lte_desc_size, job_desc_size;
+	int lte_desc_size, job_desc_size;
 	struct program lte_desc_prgm;
 	struct program job_desc_prgm;
 
