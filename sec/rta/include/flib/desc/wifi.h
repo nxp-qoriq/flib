@@ -86,7 +86,7 @@ struct wifi_decap_pdb {
  * @key_id: PDB Key ID
  * @cipherdata: block cipher transform definitions
  *
- * Return: size of descriptor written in words
+ * Return: size of descriptor written in words or negative number on error
  */
 static inline int cnstr_shdsc_wifi_encap(uint32_t *descbuf, bool ps,
 		uint16_t mac_hdr_len, uint64_t pn, uint8_t priority,
@@ -207,7 +207,7 @@ static inline int cnstr_shdsc_wifi_encap(uint32_t *descbuf, bool ps,
  * @priority: PDB Packet priority
  * @cipherdata: block cipher transform definitions
  *
- * Return: size of descriptor written in words
+ * Return: size of descriptor written in words or negative number on error
  **/
 static inline int cnstr_shdsc_wifi_decap(uint32_t *descbuf, bool ps,
 		uint16_t mac_hdr_len, uint64_t pn, uint8_t priority,

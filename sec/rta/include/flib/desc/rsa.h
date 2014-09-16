@@ -274,7 +274,7 @@ struct rsa_dec_pdb_form3 {
  * @pdb_len: size of the PDB in bytes
  * @protcmd: protocol Operation Command definitions
  *
- * Return: size of descriptor written in words
+ * Return: size of descriptor written in words or negative number on error
  */
 static inline int cnstr_shdsc_rsa(uint32_t *descbuf, bool ps, uint8_t *pdb,
 				  unsigned pdb_len, struct protcmd *protcmd)

@@ -66,7 +66,7 @@
  * PROGRAM_FINALIZE - must be called to mark completion of RTA call.
  * @program: pointer to struct program
  *
- * Return: total size of the descriptor in words (unsigned).
+ * Return: total size of the descriptor in words or negative number on error.
  */
 #define PROGRAM_FINALIZE(program) rta_program_finalize(program)
 

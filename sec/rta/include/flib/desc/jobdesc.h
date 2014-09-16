@@ -31,7 +31,7 @@
  * Split keys are IPAD/OPAD pairs. For details, refer to MDHA Split Keys chapter
  * in SEC Reference Manual.
  *
- * Return: size of descriptor written in words
+ * Return: size of descriptor written in words or negative number on error
  */
 
 static inline int cnstr_jobdesc_mdsplitkey(uint32_t *descbuf, bool ps,

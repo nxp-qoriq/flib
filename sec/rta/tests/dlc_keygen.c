@@ -18,7 +18,7 @@ uint8_t exponent[20] = {
 	0xB1, 0xBB, 0x82, 0xF1
 };
 
-unsigned dlc_keygen(uint32_t *buff)
+int dlc_keygen(uint32_t *buff)
 {
 	struct program prg;
 	struct program *p = &prg;
@@ -96,7 +96,7 @@ uint32_t prg_buff[1000];
 
 int main(int argc, char **argv)
 {
-	unsigned size;
+	int size;
 
 	pr_debug("DLC KEYGEN program\n");
 	rta_set_sec_era(RTA_SEC_ERA_1);

@@ -7,7 +7,7 @@
 enum rta_sec_era rta_sec_era;
 unsigned prg_buff[1000];
 
-unsigned test_move_op(uint32_t *buff)
+int test_move_op(uint32_t *buff)
 {
 	struct program prg;
 	struct program *p = &prg;
@@ -294,7 +294,7 @@ unsigned test_move_op(uint32_t *buff)
 
 int main(int argc, char **argv)
 {
-	unsigned size;
+	int size;
 
 	pr_debug("MOVE program\n");
 	rta_set_sec_era(RTA_SEC_ERA_4);

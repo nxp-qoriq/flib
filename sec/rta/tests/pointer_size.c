@@ -7,7 +7,7 @@
 enum rta_sec_era rta_sec_era;
 int shdesc_len = 5;
 
-unsigned pointer_size_1(uint32_t *buff)
+int pointer_size_1(uint32_t *buff)
 {
 	struct program prg;
 	struct program *p = &prg;
@@ -22,7 +22,7 @@ unsigned pointer_size_1(uint32_t *buff)
 	return PROGRAM_FINALIZE(p);
 }
 
-unsigned pointer_size_2(uint32_t *buff)
+int pointer_size_2(uint32_t *buff)
 {
 	struct program prg;
 	struct program *p = &prg;
@@ -43,7 +43,7 @@ uint32_t prg_buff[1000];
 
 int main(int argc, char **argv)
 {
-	unsigned size;
+	int size;
 
 	rta_set_sec_era(RTA_SEC_ERA_1);
 

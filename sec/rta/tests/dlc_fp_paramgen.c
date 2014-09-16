@@ -31,7 +31,7 @@ uint64_t make_X_addr = 0x861776ed8ull;
 uint64_t make_q_addr = 0x4b633925aull;
 uint64_t make_g_addr = 0x7aa7742f1ull;
 
-unsigned generate_dlc_fp_params(struct program *p, uint32_t *buff)
+int generate_dlc_fp_params(struct program *p, uint32_t *buff)
 {
 	LABEL(new_r);
 	REFERENCE(ref_new_r);
@@ -83,7 +83,7 @@ unsigned generate_dlc_fp_params(struct program *p, uint32_t *buff)
 	return PROGRAM_FINALIZE(p);
 }
 
-unsigned dlc_fp_make_x(struct program *p, uint32_t *buff)
+int dlc_fp_make_x(struct program *p, uint32_t *buff)
 {
 	PROGRAM_CNTXT_INIT(p, buff, 0);
 	PROGRAM_SET_36BIT_ADDR(p);
@@ -116,7 +116,7 @@ unsigned dlc_fp_make_x(struct program *p, uint32_t *buff)
 	return PROGRAM_FINALIZE(p);
 }
 
-unsigned dlc_fp_make_q(struct program *p, uint32_t *buff)
+int dlc_fp_make_q(struct program *p, uint32_t *buff)
 {
 	LABEL(store_q);
 	REFERENCE(ref_store_q);
@@ -182,7 +182,7 @@ unsigned dlc_fp_make_q(struct program *p, uint32_t *buff)
 	return PROGRAM_FINALIZE(p);
 }
 
-unsigned dlc_fp_make_g(struct program *p, uint32_t *buff)
+int dlc_fp_make_g(struct program *p, uint32_t *buff)
 {
 	LABEL(h_loop);
 	REFERENCE(ref_h_loop);
@@ -275,7 +275,7 @@ int main(int argc, char **argv)
 	struct program make_x_prgm;
 	struct program make_q_prgm;
 	struct program make_g_prgm;
-	unsigned size;
+	int size;
 
 	rta_set_sec_era(RTA_SEC_ERA_1);
 

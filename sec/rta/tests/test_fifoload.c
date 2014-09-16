@@ -7,7 +7,7 @@
 enum rta_sec_era rta_sec_era;
 uint32_t prg_buff[1000];
 
-unsigned test_fifo_load_op(uint32_t *buff)
+int test_fifo_load_op(uint32_t *buff)
 {
 	struct program prg;
 	struct program *p = &prg;
@@ -65,7 +65,7 @@ unsigned test_fifo_load_op(uint32_t *buff)
 
 int main(int argc, char **argv)
 {
-	unsigned size;
+	int size;
 
 	pr_debug("FIFOLOAD program\n");
 	rta_set_sec_era(RTA_SEC_ERA_3);

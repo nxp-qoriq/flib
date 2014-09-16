@@ -605,7 +605,7 @@ static inline int pdcp_insert_cplane_int_only_op(struct program *p,
 	case PDCP_AUTH_TYPE_ZUC:
 		if (rta_sec_era < RTA_SEC_ERA_5) {
 			pr_err("Invalid era for selected algorithm\n");
-			return -1;
+			return -ENOTSUP;
 		}
 		/* Insert Auth Key */
 		KEY(p, KEY2, authdata->key_enc_flags, authdata->key,
@@ -648,7 +648,7 @@ static inline int pdcp_insert_cplane_int_only_op(struct program *p,
 	default:
 		pr_err("%s: Invalid integrity algorithm selected: %d\n",
 		       "pdcp_insert_cplane_int_only_op", authdata->algtype);
-		return -1;
+		return -EINVAL;
 	}
 
 	if (rta_sec_era < RTA_SEC_ERA_3) {
@@ -730,7 +730,7 @@ static inline int pdcp_insert_cplane_enc_only_op(struct program *p,
 	case PDCP_CIPHER_TYPE_ZUC:
 		if (rta_sec_era < RTA_SEC_ERA_5) {
 			pr_err("Invalid era for selected algorithm\n");
-			return -1;
+			return -ENOTSUP;
 		}
 
 		MOVE(p, MATH2, 0, CONTEXT1, 0, 0x08, IMMED);
@@ -755,7 +755,7 @@ static inline int pdcp_insert_cplane_enc_only_op(struct program *p,
 	default:
 		pr_err("%s: Invalid encrypt algorithm selected: %d\n",
 		       "pdcp_insert_cplane_enc_only_op", cipherdata->algtype);
-		return -1;
+		return -EINVAL;
 	}
 
 	if (dir == OP_TYPE_ENCAP_PROTOCOL) {
@@ -1172,7 +1172,7 @@ static inline int pdcp_insert_cplane_snow_zuc_op(struct program *p,
 
 	if (rta_sec_era < RTA_SEC_ERA_5) {
 		pr_err("Invalid era for selected algorithm\n");
-		return -1;
+		return -ENOTSUP;
 	}
 
 	pkeyjump = JUMP(p, keyjump, LOCAL_JUMP, ALL_TRUE, SHRD | SELF | BOTH);
@@ -1252,7 +1252,7 @@ static inline int pdcp_insert_cplane_aes_zuc_op(struct program *p,
 
 	if (rta_sec_era < RTA_SEC_ERA_5) {
 		pr_err("Invalid era for selected algorithm\n");
-		return -1;
+		return -ENOTSUP;
 	}
 
 	pkeyjump = JUMP(p, keyjump, LOCAL_JUMP, ALL_TRUE, SHRD | SELF | BOTH);
@@ -1336,7 +1336,7 @@ static inline int pdcp_insert_cplane_zuc_snow_op(struct program *p,
 
 	if (rta_sec_era < RTA_SEC_ERA_5) {
 		pr_err("Invalid era for selected algorithm\n");
-		return -1;
+		return -ENOTSUP;
 	}
 
 	pkeyjump = JUMP(p, keyjump, LOCAL_JUMP, ALL_TRUE, SHRD | SELF | BOTH);
@@ -1428,7 +1428,7 @@ static inline int pdcp_insert_cplane_zuc_aes_op(struct program *p,
 {
 	if (rta_sec_era < RTA_SEC_ERA_5) {
 		pr_err("Invalid era for selected algorithm\n");
-		return -1;
+		return -ENOTSUP;
 	}
 
 	SEQLOAD(p, MATH0, 7, 1, 0);
@@ -1585,7 +1585,7 @@ static inline int pdcp_insert_uplane_15bit_op(struct program *p,
 	case PDCP_CIPHER_TYPE_ZUC:
 		if (rta_sec_era < RTA_SEC_ERA_5) {
 			pr_err("Invalid era for selected algorithm\n");
-			return -1;
+			return -ENOTSUP;
 		}
 		MOVE(p, MATH2, 0, CONTEXT1, 0, 0x08, IMMED);
 		MOVE(p, MATH2, 0, CONTEXT1, 0x08, 0x08, WAITCOMP | IMMED);
@@ -1600,7 +1600,7 @@ static inline int pdcp_insert_uplane_15bit_op(struct program *p,
 	default:
 		pr_err("%s: Invalid encrypt algorithm selected: %d\n",
 		       "pdcp_insert_uplane_15bit_op", cipherdata->algtype);
-		return -1;
+		return -EINVAL;
 	}
 
 	SEQFIFOLOAD(p, MSG1, 0, VLF | LAST1 | FLUSH1);
@@ -1642,7 +1642,7 @@ static inline int insert_hfn_ov_op(struct program *p,
 		break;
 
 	default:
-		return -1;
+		return -EINVAL;
 	}
 
 	if (rta_sec_era > RTA_SEC_ERA_2) {
@@ -1763,9 +1763,9 @@ static inline enum pdb_type_e cnstr_pdcp_c_plane_pdb(struct program *p,
  * @era_2_sw_hfn_override: if software HFN override mechanism is desired for
  *                         this descriptor. Note: Can only be used for
  *                         SEC ERA 2.
- * Return: size of descriptor written in words. Once the function returns, the
- *         value of this parameter can be used for reclaiming the space that
- *         wasn't used for the descriptor.
+ * Return: size of descriptor written in words or negative number on error.
+ *         Once the function returns, the value of this parameter can be used
+ *         for reclaiming the space that wasn't used for the descriptor.
  *
  * Note: descbuf must be large enough to contain a full 256 byte long
  * descriptor; after the function returns, by subtracting the actual number of
@@ -1840,11 +1840,12 @@ static inline int cnstr_shdsc_pdcp_c_plane_encap(uint32_t *descbuf,
 	enum pdb_type_e pdb_type;
 	struct program prg;
 	struct program *p = &prg;
+	int err;
 	LABEL(pdb_end);
 
 	if (rta_sec_era != RTA_SEC_ERA_2 && era_2_sw_hfn_override) {
 		pr_err("Cannot select SW HFN override for other era than 2");
-		return 0;
+		return -EINVAL;
 	}
 
 	PROGRAM_CNTXT_INIT(p, descbuf, 0);
@@ -1863,16 +1864,18 @@ static inline int cnstr_shdsc_pdcp_c_plane_encap(uint32_t *descbuf,
 
 	SET_LABEL(p, pdb_end);
 
-	if (insert_hfn_ov_op(p, PDCP_SN_SIZE_5, pdb_type,
-			     era_2_sw_hfn_override))
-		return 0;
+	err = insert_hfn_ov_op(p, PDCP_SN_SIZE_5, pdb_type,
+			       era_2_sw_hfn_override);
+	if (err)
+		return err;
 
-	if (pdcp_cp_fp[cipherdata->algtype][authdata->algtype](p,
-			cipherdata,
-			authdata,
-			OP_TYPE_ENCAP_PROTOCOL,
-			era_2_sw_hfn_override))
-		return 0;
+	err = pdcp_cp_fp[cipherdata->algtype][authdata->algtype](p,
+		cipherdata,
+		authdata,
+		OP_TYPE_ENCAP_PROTOCOL,
+		era_2_sw_hfn_override);
+	if (err)
+		return err;
 
 	PATCH_HDR(p, 0, pdb_end);
 
@@ -1898,9 +1901,9 @@ static inline int cnstr_shdsc_pdcp_c_plane_encap(uint32_t *descbuf,
  *                         this descriptor. Note: Can only be used for
  *                         SEC ERA 2.
  *
- * Return: size of descriptor written in words. Once the function returns, the
- *         value of this parameter can be used for reclaiming the space that
- *         wasn't used for the descriptor.
+ * Return: size of descriptor written in words or negative number on error.
+ *         Once the function returns, the value of this parameter can be used
+ *         for reclaiming the space that wasn't used for the descriptor.
  *
  * Note: descbuf must be large enough to contain a full 256 byte long
  * descriptor; after the function returns, by subtracting the actual number of
@@ -1975,11 +1978,12 @@ static inline int cnstr_shdsc_pdcp_c_plane_decap(uint32_t *descbuf,
 	enum pdb_type_e pdb_type;
 	struct program prg;
 	struct program *p = &prg;
+	int err;
 	LABEL(pdb_end);
 
 	if (rta_sec_era != RTA_SEC_ERA_2 && era_2_sw_hfn_override) {
 		pr_err("Cannot select SW HFN override for other era than 2");
-		return 0;
+		return -EINVAL;
 	}
 
 	PROGRAM_CNTXT_INIT(p, descbuf, 0);
@@ -1998,16 +2002,18 @@ static inline int cnstr_shdsc_pdcp_c_plane_decap(uint32_t *descbuf,
 
 	SET_LABEL(p, pdb_end);
 
-	if (insert_hfn_ov_op(p, PDCP_SN_SIZE_5, pdb_type,
-			     era_2_sw_hfn_override))
-		return 0;
+	err = insert_hfn_ov_op(p, PDCP_SN_SIZE_5, pdb_type,
+			       era_2_sw_hfn_override);
+	if (err)
+		return err;
 
-	if (pdcp_cp_fp[cipherdata->algtype][authdata->algtype](p,
-			cipherdata,
-			authdata,
-			OP_TYPE_DECAP_PROTOCOL,
-			era_2_sw_hfn_override))
-		return 0;
+	err = pdcp_cp_fp[cipherdata->algtype][authdata->algtype](p,
+		cipherdata,
+		authdata,
+		OP_TYPE_DECAP_PROTOCOL,
+		era_2_sw_hfn_override);
+	if (err)
+		return err;
 
 	PATCH_HDR(p, 0, pdb_end);
 
@@ -2032,9 +2038,9 @@ static inline int cnstr_shdsc_pdcp_c_plane_decap(uint32_t *descbuf,
  *                         this descriptor. Note: Can only be used for
  *                         SEC ERA 2.
  *
- * Return: size of descriptor written in words. Once the function returns, the
- *         value of this parameter can be used for reclaiming the space that
- *         wasn't used for the descriptor.
+ * Return: size of descriptor written in words or negative number on error.
+ *         Once the function returns, the value of this parameter can be used
+ *         for reclaiming the space that wasn't used for the descriptor.
  *
  * Note: descbuf must be large enough to contain a full 256 byte long
  * descriptor; after the function returns, by subtracting the actual number of
@@ -2053,11 +2059,12 @@ static inline int cnstr_shdsc_pdcp_u_plane_encap(uint32_t *descbuf,
 	struct program prg;
 	struct program *p = &prg;
 	struct pdcp_pdb pdb;
+	int err;
 	LABEL(pdb_end);
 
 	if (rta_sec_era != RTA_SEC_ERA_2 && era_2_sw_hfn_override) {
 		pr_err("Cannot select SW HFN override for other era than 2");
-		return 0;
+		return -EINVAL;
 	}
 
 	PROGRAM_CNTXT_INIT(p, descbuf, 0);
@@ -2097,7 +2104,7 @@ static inline int cnstr_shdsc_pdcp_u_plane_encap(uint32_t *descbuf,
 
 	default:
 		pr_err("Invalid Sequence Number Size setting in PDB\n");
-		return 0;
+		return -EINVAL;
 	}
 
 	pdb.bearer_dir_res = (uint32_t)
@@ -2109,9 +2116,10 @@ static inline int cnstr_shdsc_pdcp_u_plane_encap(uint32_t *descbuf,
 
 	SET_LABEL(p, pdb_end);
 
-	if (insert_hfn_ov_op(p, sn_size, PDCP_PDB_TYPE_FULL_PDB,
-			     era_2_sw_hfn_override))
-		return 0;
+	err = insert_hfn_ov_op(p, sn_size, PDCP_PDB_TYPE_FULL_PDB,
+			       era_2_sw_hfn_override);
+	if (err)
+		return err;
 
 	switch (sn_size) {
 	case PDCP_SN_SIZE_7:
@@ -2120,7 +2128,7 @@ static inline int cnstr_shdsc_pdcp_u_plane_encap(uint32_t *descbuf,
 		case PDCP_CIPHER_TYPE_ZUC:
 			if (rta_sec_era < RTA_SEC_ERA_5) {
 				pr_err("Invalid era for selected algorithm\n");
-				return;
+				return -ENOTSUP;
 			}
 		case PDCP_CIPHER_TYPE_AES:
 		case PDCP_CIPHER_TYPE_SNOW:
@@ -2141,7 +2149,7 @@ static inline int cnstr_shdsc_pdcp_u_plane_encap(uint32_t *descbuf,
 			pr_err("%s: Invalid encrypt algorithm selected: %d\n",
 			       "cnstr_pcl_shdsc_pdcp_u_plane_decap",
 			       cipherdata->algtype);
-			return;
+			return -EINVAL;
 		}
 		break;
 
@@ -2154,9 +2162,10 @@ static inline int cnstr_shdsc_pdcp_u_plane_encap(uint32_t *descbuf,
 			break;
 
 		default:
-			if (pdcp_insert_uplane_15bit_op(p, cipherdata,
-							OP_TYPE_ENCAP_PROTOCOL))
-				return;
+			err = pdcp_insert_uplane_15bit_op(p, cipherdata,
+				OP_TYPE_ENCAP_PROTOCOL);
+			if (err)
+				return err;
 			break;
 		}
 		break;
@@ -2187,9 +2196,9 @@ static inline int cnstr_shdsc_pdcp_u_plane_encap(uint32_t *descbuf,
  *                         this descriptor. Note: Can only be used for
  *                         SEC ERA 2.
  *
- * Return: size of descriptor written in words. Once the function returns, the
- *         value of this parameter can be used for reclaiming the space that
- *         wasn't used for the descriptor.
+ * Return: size of descriptor written in words or negative number on error.
+ *         Once the function returns, the value of this parameter can be used
+ *         for reclaiming the space that wasn't used for the descriptor.
  *
  * Note: descbuf must be large enough to contain a full 256 byte long
  * descriptor; after the function returns, by subtracting the actual number of
@@ -2208,11 +2217,12 @@ static inline int cnstr_shdsc_pdcp_u_plane_decap(uint32_t *descbuf,
 	struct program prg;
 	struct program *p = &prg;
 	struct pdcp_pdb pdb;
+	int err;
 	LABEL(pdb_end);
 
 	if (rta_sec_era != RTA_SEC_ERA_2 && era_2_sw_hfn_override) {
 		pr_err("Cannot select SW HFN override for other era than 2");
-		return 0;
+		return -EINVAL;
 	}
 
 	PROGRAM_CNTXT_INIT(p, descbuf, 0);
@@ -2252,7 +2262,7 @@ static inline int cnstr_shdsc_pdcp_u_plane_decap(uint32_t *descbuf,
 
 	default:
 		pr_err("Invalid Sequence Number Size setting in PDB\n");
-		return 0;
+		return -EINVAL;
 	}
 
 	pdb.bearer_dir_res = (uint32_t)
@@ -2264,11 +2274,10 @@ static inline int cnstr_shdsc_pdcp_u_plane_decap(uint32_t *descbuf,
 
 	SET_LABEL(p, pdb_end);
 
-	if (insert_hfn_ov_op(p,
-			     sn_size,
-			     PDCP_PDB_TYPE_FULL_PDB,
-			     era_2_sw_hfn_override))
-		return 0;
+	err = insert_hfn_ov_op(p, sn_size, PDCP_PDB_TYPE_FULL_PDB,
+			       era_2_sw_hfn_override);
+	if (err)
+		return err;
 
 	switch (sn_size) {
 	case PDCP_SN_SIZE_7:
@@ -2277,7 +2286,7 @@ static inline int cnstr_shdsc_pdcp_u_plane_decap(uint32_t *descbuf,
 		case PDCP_CIPHER_TYPE_ZUC:
 			if (rta_sec_era < RTA_SEC_ERA_5) {
 				pr_err("Invalid era for selected algorithm\n");
-				return 0;
+				return -ENOTSUP;
 			}
 		case PDCP_CIPHER_TYPE_AES:
 		case PDCP_CIPHER_TYPE_SNOW:
@@ -2298,7 +2307,7 @@ static inline int cnstr_shdsc_pdcp_u_plane_decap(uint32_t *descbuf,
 			pr_err("%s: Invalid encrypt algorithm selected: %d\n",
 			       "cnstr_pcl_shdsc_pdcp_u_plane_decap",
 			       cipherdata->algtype);
-			return 0;
+			return -EINVAL;
 		}
 		break;
 
@@ -2311,9 +2320,10 @@ static inline int cnstr_shdsc_pdcp_u_plane_decap(uint32_t *descbuf,
 			break;
 
 		default:
-			if (pdcp_insert_uplane_15bit_op(p, cipherdata,
-							OP_TYPE_DECAP_PROTOCOL))
-				return 0;
+			err = pdcp_insert_uplane_15bit_op(p, cipherdata,
+				OP_TYPE_DECAP_PROTOCOL);
+			if (err)
+				return err;
 			break;
 		}
 		break;
@@ -2334,9 +2344,9 @@ static inline int cnstr_shdsc_pdcp_u_plane_decap(uint32_t *descbuf,
  * @authdata: pointer to authentication transform definitions
  *            Valid algorithm values are those from auth_type_pdcp enum.
  *
- * Return: size of descriptor written in words. Once the function returns, the
- *         value of this parameter can be used for reclaiming the space that
- *         wasn't used for the descriptor.
+ * Return: size of descriptor written in words or negative number on error.
+ *         Once the function returns, the value of this parameter can be used
+ *         for reclaiming the space that wasn't used for the descriptor.
  *
  * Note: descbuf must be large enough to contain a full 256 byte long
  * descriptor; after the function returns, by subtracting the actual number of
@@ -2488,7 +2498,7 @@ static inline int cnstr_shdsc_pdcp_short_mac(uint32_t *descbuf,
 	case PDCP_AUTH_TYPE_ZUC:
 		if (rta_sec_era < RTA_SEC_ERA_5) {
 			pr_err("Invalid era for selected algorithm\n");
-			return;
+			return -ENOTSUP;
 		}
 		iv[0] = 0xFFFFFFFF;
 		iv[1] = 0xFC000000;
@@ -2512,7 +2522,7 @@ static inline int cnstr_shdsc_pdcp_short_mac(uint32_t *descbuf,
 	default:
 		pr_err("%s: Invalid integrity algorithm selected: %d\n",
 		       "cnstr_shdsc_pdcp_short_mac", authdata->algtype);
-		return 0;
+		return -EINVAL;
 	}
 
 

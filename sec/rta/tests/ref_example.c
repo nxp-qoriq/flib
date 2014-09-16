@@ -15,7 +15,7 @@ uint32_t job_buf[1000];
 LABEL(label_different_desc);
 REFERENCE(label_different_ref);
 
-unsigned generate_capwap_code(struct program *p, uint32_t *buff)
+int generate_capwap_code(struct program *p, uint32_t *buff)
 {
 	PROGRAM_CNTXT_INIT(p, buff, 0);
 	SHR_HDR(p, SHR_ALWAYS, 0, 0);
@@ -26,7 +26,7 @@ unsigned generate_capwap_code(struct program *p, uint32_t *buff)
 	return PROGRAM_FINALIZE(p);
 }
 
-unsigned generate_job_desc(struct program *p, uint32_t *buff)
+int generate_job_desc(struct program *p, uint32_t *buff)
 {
 	PROGRAM_CNTXT_INIT(p, buff, 0x20);
 	SET_LABEL(p, label_different_desc);
@@ -38,7 +38,7 @@ unsigned generate_job_desc(struct program *p, uint32_t *buff)
 
 int main(int argc, char **argv)
 {
-	unsigned sd_size, jd_size;
+	int sd_size, jd_size;
 
 	rta_set_sec_era(RTA_SEC_ERA_4);
 

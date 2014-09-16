@@ -22,8 +22,7 @@ uint16_t e_size = 3;		/* input public key length */
 uint16_t n_size = 128;		/* configuration parameter for RSA-nnnn */
 uint16_t pq_size = 64;
 
-unsigned jdesc_pkha_make_rsa_p_q(struct program *p, uint32_t *buff,
-				 unsigned buffpos)
+int jdesc_pkha_make_rsa_p_q(struct program *p, uint32_t *buff, int buffpos)
 {
 	uint64_t pq_count = (uint64_t) 0x318d7f00ul;
 
@@ -36,6 +35,9 @@ unsigned jdesc_pkha_make_rsa_p_q(struct program *p, uint32_t *buff,
 	REFERENCE(pjump3);
 	LABEL(now_do_q);
 	REFERENCE(pjump4);
+
+	if (buffpos < 0)
+		return -EINVAL;
 
 	PROGRAM_CNTXT_INIT(p, buff, buffpos);
 	JOB_HDR(p, SHR_NEVER, 0, 0, 0);
@@ -108,8 +110,7 @@ unsigned jdesc_pkha_make_rsa_p_q(struct program *p, uint32_t *buff,
 	return PROGRAM_FINALIZE(p);
 }
 
-unsigned jdesc_pkha_make_rsa_check_pq(struct program *p, uint32_t *buff,
-				      unsigned buffpos)
+int jdesc_pkha_make_rsa_check_pq(struct program *p, uint32_t *buff, int buffpos)
 {
 	LABEL(check_2);
 	REFERENCE(pjump1);
@@ -120,6 +121,9 @@ unsigned jdesc_pkha_make_rsa_check_pq(struct program *p, uint32_t *buff,
 	REFERENCE(pjump4);
 	REFERENCE(pjump5);
 	REFERENCE(pjump6);
+
+	if (buffpos < 0)
+		return -EINVAL;
 
 	PROGRAM_CNTXT_INIT(p, buff, buffpos);
 	JOB_HDR(p, SHR_NEVER, 0, 0, 0);
@@ -179,8 +183,8 @@ unsigned jdesc_pkha_make_rsa_check_pq(struct program *p, uint32_t *buff,
 	return PROGRAM_FINALIZE(p);
 }
 
-unsigned jdesc_pkha_make_rsa_keys(struct program *p, uint32_t *buff,
-				  unsigned buffpos)
+int jdesc_pkha_make_rsa_keys(struct program *p, uint32_t *buff,
+			     unsigned buffpos)
 {
 	PROGRAM_CNTXT_INIT(p, buff, buffpos);
 	JOB_HDR(p, SHR_NEVER, 0, 0, 0);
@@ -198,11 +202,13 @@ unsigned jdesc_pkha_make_rsa_keys(struct program *p, uint32_t *buff,
 	return PROGRAM_FINALIZE(p);
 }
 
-unsigned jdesc_pkha_make_rsa_d_n(struct program *p, uint32_t *buff,
-				 unsigned buffpos)
+int jdesc_pkha_make_rsa_d_n(struct program *p, uint32_t *buff, int buffpos)
 {
 	LABEL(phi_e_relatively_prime);
 	REFERENCE(pjump1);
+
+	if (buffpos < 0)
+		return -EINVAL;
 
 	PROGRAM_CNTXT_INIT(p, buff, buffpos);
 	JOB_HDR(p, SHR_NEVER, 0, 0, 0);
@@ -250,8 +256,7 @@ int main(int argc, char **argv)
 	uint32_t make_rsa_check_pq[64];
 	uint32_t make_rsa_d_n[64];
 
-	unsigned rsa_keys_size, rsa_p_q_size;
-	unsigned rsa_check_pq_size, rsa_d_n_size;
+	int rsa_keys_size, rsa_p_q_size, rsa_check_pq_size, rsa_d_n_size;
 
 	struct program rsa_keys_prgm;
 	struct program rsa_p_q_prgm;

@@ -6,7 +6,7 @@
 
 enum rta_sec_era rta_sec_era;
 
-unsigned if_command_test(uint32_t *buff, uint8_t len)
+int if_command_test(uint32_t *buff, uint8_t len)
 {
 	struct program prg;
 	struct program *p = &prg;
@@ -56,7 +56,7 @@ uint32_t prg_buff[1000];
 
 int main(int argc, char **argv)
 {
-	unsigned size;
+	int size;
 	uint8_t len = 16;
 
 	pr_debug("IF_Command  example program\n");

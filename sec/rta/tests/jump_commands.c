@@ -40,7 +40,7 @@ REFERENCE(ref1_shr_yyy);
 
 uint32_t sharehdr = 0x200000;
 
-unsigned jump_cmd_desc1(struct program *p, uint32_t *buff, unsigned buffpos)
+int jump_cmd_desc1(struct program *p, uint32_t *buff, unsigned buffpos)
 {
 	REFERENCE(pjump1);
 	REFERENCE(pjump2);
@@ -88,7 +88,7 @@ unsigned jump_cmd_desc1(struct program *p, uint32_t *buff, unsigned buffpos)
 	return PROGRAM_FINALIZE(p);
 }
 
-unsigned jump_cmd_desc2(struct program *p, uint32_t *buff, unsigned buffpos)
+int jump_cmd_desc2(struct program *p, uint32_t *buff, int buffpos)
 {
 	REFERENCE(pjump1);
 	REFERENCE(pjump2);
@@ -97,6 +97,9 @@ unsigned jump_cmd_desc2(struct program *p, uint32_t *buff, unsigned buffpos)
 	REFERENCE(phdr3);
 	REFERENCE(phdr4);
 	LABEL(imm_offset);
+
+	if (buffpos < 0)
+		return -EINVAL;
 
 	PROGRAM_CNTXT_INIT(p, buff, buffpos);
 	JOB_HDR(p, SHR_NEVER, buffpos, sharehdr, SHR);
@@ -143,7 +146,7 @@ unsigned jump_cmd_desc2(struct program *p, uint32_t *buff, unsigned buffpos)
 	return PROGRAM_FINALIZE(p);
 }
 
-unsigned jump_cmd_desc3(struct program *p, uint32_t *buff, unsigned buffpos)
+int jump_cmd_desc3(struct program *p, uint32_t *buff, unsigned buffpos)
 {
 	REFERENCE(pjump1);
 	REFERENCE(phdr1);
@@ -175,7 +178,7 @@ unsigned jump_cmd_desc3(struct program *p, uint32_t *buff, unsigned buffpos)
 	return PROGRAM_FINALIZE(p);
 }
 
-unsigned jump_cmd_desc4(struct program *p, uint32_t *buff, unsigned buffpos)
+int jump_cmd_desc4(struct program *p, uint32_t *buff, unsigned buffpos)
 {
 	PROGRAM_CNTXT_INIT(p, buff, buffpos);
 	{
@@ -185,7 +188,7 @@ unsigned jump_cmd_desc4(struct program *p, uint32_t *buff, unsigned buffpos)
 	return PROGRAM_FINALIZE(p);
 }
 
-unsigned jump_cmd_desc5(struct program *p, uint32_t *buff, unsigned buffpos)
+int jump_cmd_desc5(struct program *p, uint32_t *buff, unsigned buffpos)
 {
 	PROGRAM_CNTXT_INIT(p, buff, buffpos);
 	{
@@ -204,7 +207,7 @@ unsigned jump_cmd_desc5(struct program *p, uint32_t *buff, unsigned buffpos)
 	return PROGRAM_FINALIZE(p);
 }
 
-unsigned jump_cmd_desc6(struct program *p, uint32_t *buff, unsigned buffpos)
+int jump_cmd_desc6(struct program *p, uint32_t *buff, unsigned buffpos)
 {
 	PROGRAM_CNTXT_INIT(p, buff, buffpos);
 	JOB_HDR(p, SHR_NEVER, 0, 0, 0);
@@ -238,8 +241,7 @@ int main(int argc, char **argv)
 	uint32_t desc4[50];
 	uint32_t desc5[50];
 	uint32_t desc6[50];
-	unsigned buf1len, buf2len, buf3len;
-	unsigned buf4len, buf5len, buf6len;
+	int buf1len, buf2len, buf3len, buf4len, buf5len, buf6len;
 
 	struct program desc1_prgm;
 	struct program desc2_prgm;

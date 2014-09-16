@@ -7,7 +7,7 @@
 enum rta_sec_era rta_sec_era;
 uint32_t prg_buff[1000];
 
-unsigned generate_capwap_code(uint32_t *buff, unsigned mdatalen)
+int generate_capwap_code(uint32_t *buff, unsigned mdatalen)
 {
 	struct program prg;
 	struct program *p = &prg;
@@ -78,7 +78,7 @@ unsigned generate_capwap_code(uint32_t *buff, unsigned mdatalen)
 
 int main(int argc, char **argv)
 {
-	unsigned size;
+	int size;
 
 	pr_debug("CAPWAP program\n");
 	rta_set_sec_era(RTA_SEC_ERA_2);

@@ -94,7 +94,7 @@ struct wimax_decap_pdb {
  * @cipherdata: pointer to block cipher transform definitions
  * @protinfo: protocol information: OP_PCL_WIMAX_OFDM/OFDMA
  *
- * Return: size of descriptor written in words
+ * Return: size of descriptor written in words or negative number on error
  *
  * This descriptor addreses the prefetch problem when modifying the header of
  * the input frame by invalidating the prefetch mechanism.
@@ -291,7 +291,7 @@ static inline int cnstr_shdsc_wimax_encap_era5(uint32_t *descbuf,
  * On platforms with SEC ERA 5 or above, cnstr_shdsc_wimax_encap_era5 is
  * automatically called.
  *
- * Return: size of descriptor written in words
+ * Return: size of descriptor written in words or negative number on error
  */
 static inline int cnstr_shdsc_wimax_encap(uint32_t *descbuf, uint8_t pdb_opts,
 					  uint32_t pn, uint16_t protinfo,
@@ -459,7 +459,7 @@ static inline int cnstr_shdsc_wimax_encap(uint32_t *descbuf, uint8_t pdb_opts,
  * @ar_len: anti-replay window length
  * @protinfo: protocol information: OP_PCL_WIMAX_OFDM/OFDMA
  *
- * Return: size of descriptor written in words
+ * Return: size of descriptor written in words or negative number on error
  *
  * Note: Descriptor valid on platforms with support for SEC ERA 4.
  */

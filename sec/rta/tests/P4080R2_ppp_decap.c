@@ -28,8 +28,8 @@ REFERENCE(ref_jumpl);
 
 uint64_t desc_addr_1 = 0x00000ac0ull;
 
-unsigned build_shr_desc_ppp_decap(struct program *p, uint32_t *buff,
-				  unsigned buffpos)
+int build_shr_desc_ppp_decap(struct program *p, uint32_t *buff,
+			     unsigned buffpos)
 {
 	uint32_t c1_ctx_addr = 0x08887A00ul;
 	uint32_t c2_ctx_addr = 0x09CB4780ul;
@@ -183,7 +183,7 @@ unsigned build_shr_desc_ppp_decap(struct program *p, uint32_t *buff,
 	return PROGRAM_FINALIZE(p);
 }
 
-unsigned build_extra_cmds(struct program *p, uint32_t *buff, unsigned buffpos)
+int build_extra_cmds(struct program *p, uint32_t *buff, unsigned buffpos)
 {
 	LABEL(g);
 	REFERENCE(pjumpg);
@@ -216,7 +216,7 @@ unsigned build_extra_cmds(struct program *p, uint32_t *buff, unsigned buffpos)
 	return PROGRAM_FINALIZE(p);
 }
 
-unsigned build_more_cmds(struct program *p, uint32_t *buff, unsigned buffpos)
+int build_more_cmds(struct program *p, uint32_t *buff, unsigned buffpos)
 {
 	REFERENCE(pjumpt);
 	LABEL(i);
@@ -252,13 +252,15 @@ unsigned build_more_cmds(struct program *p, uint32_t *buff, unsigned buffpos)
 	return PROGRAM_FINALIZE(p);
 }
 
-unsigned build_jbdesc_ppp_decap(struct program *p, uint32_t *buff,
-				unsigned buffpos)
+int build_jbdesc_ppp_decap(struct program *p, uint32_t *buff, int buffpos)
 {
 	uint32_t in_addr = 0x00000040ul;
 	uint32_t in_len = 1450;
 	uint32_t out_addr = 0x0818fe00ul;
 	uint32_t out_len = 2902;
+
+	if (buffpos < 0)
+		return -EINVAL;
 
 	PROGRAM_CNTXT_INIT(p, buff, buffpos);
 	JOB_HDR(p, SHR_NEVER, buffpos, shr_addr, REO | SHR);
@@ -279,7 +281,7 @@ int main(int argc, char **argv)
 	uint32_t c1_ctx[20];
 	uint32_t c2_ctx[20];
 	uint32_t job[20];
-	unsigned shr_size, job_size, c1_ctx_size, c2_ctx_size;
+	int shr_size, job_size, c1_ctx_size, c2_ctx_size;
 
 	struct program shr_desc_prgm;
 	struct program job_desc_prgm;

@@ -20,8 +20,8 @@ REFERENCE(ref1_shr_first);
 LABEL(last);
 REFERENCE(ref1_shr_last);
 
-unsigned build_shdesc_raid_xor_opt(struct program *p, uint32_t *buff,
-				   unsigned buffpos)
+int build_shdesc_raid_xor_opt(struct program *p, uint32_t *buff,
+			      unsigned buffpos)
 {
 	uint32_t chunk_size = 128;
 	uint32_t fetch_limit = 64;
@@ -124,11 +124,13 @@ unsigned build_shdesc_raid_xor_opt(struct program *p, uint32_t *buff,
 	return PROGRAM_FINALIZE(p);
 }
 
-unsigned build_jbdesc_raid_xor_opt(struct program *p, uint32_t *buff,
-				   unsigned buffpos)
+int build_jbdesc_raid_xor_opt(struct program *p, uint32_t *buff, int buffpos)
 {
 	uint64_t context_ptr = 0x08858d80ULL;
 	uint64_t store_ptr = 0x00000040ULL;
+
+	if (buffpos < 0)
+		return -EINVAL;
 
 	PROGRAM_CNTXT_INIT(p, buff, buffpos);
 	JOB_HDR(p, SHR_ALWAYS, buffpos, share_desc_addr, REO | SHR);
@@ -140,8 +142,8 @@ unsigned build_jbdesc_raid_xor_opt(struct program *p, uint32_t *buff,
 	return PROGRAM_FINALIZE(p);
 }
 
-unsigned build_more_cmds_raid_xor_opt(struct program *p, uint32_t *buff,
-				      unsigned buffpos)
+int build_more_cmds_raid_xor_opt(struct program *p, uint32_t *buff,
+				 unsigned buffpos)
 {
 	uint64_t load_data_addr[8];
 	int i;
@@ -197,7 +199,7 @@ int main(int argc, char **argv)
 	uint32_t sharedesc[64];
 	uint32_t jobdesc[10];
 	uint32_t context_buf[64];
-	unsigned shr_size, job_size, ctx_size;
+	int shr_size, job_size, ctx_size;
 
 	struct program shr_desc_prgm;
 	struct program job_desc_prgm;

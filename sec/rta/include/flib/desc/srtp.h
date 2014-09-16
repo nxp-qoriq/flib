@@ -60,7 +60,7 @@ struct srtp_decap_pdb {
  * @roc: Rollover Counter
  * @cipher_salt: salt value
  *
- * Return: size of descriptor written in words
+ * Return: size of descriptor written in words or negative number on error
  */
 static inline int cnstr_shdsc_srtp_encap(uint32_t *descbuf,
 					 struct alginfo *authdata,
@@ -110,7 +110,7 @@ static inline int cnstr_shdsc_srtp_encap(uint32_t *descbuf,
  * @seq_num: sequence number
  * @cipher_salt: salt value
  *
- * Return: size of descriptor written in words
+ * Return: size of descriptor written in words or negative number on error
  */
 static inline int cnstr_shdsc_srtp_decap(uint32_t *descbuf,
 					 struct alginfo *authdata,

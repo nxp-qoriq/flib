@@ -6,7 +6,7 @@
 
 enum rta_sec_era rta_sec_era;
 
-unsigned test_blob_example(uint32_t *buff)
+int test_blob_example(uint32_t *buff)
 {
 	struct program prg;
 	struct program *p = &prg;
@@ -37,7 +37,7 @@ uint32_t prg_buff[1000];
 
 int main(int argc, char **argv)
 {
-	unsigned size;
+	int size;
 
 	pr_debug("BLOB example program\n");
 	rta_set_sec_era(RTA_SEC_ERA_1);

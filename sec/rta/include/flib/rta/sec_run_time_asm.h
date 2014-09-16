@@ -387,15 +387,17 @@ static inline void __rta__desc_bswap(uint32_t *buff, unsigned buff_len)
 		buff[i] = swab32(buff[i]);
 }
 
-static inline unsigned rta_program_finalize(struct program *program)
+static inline int rta_program_finalize(struct program *program)
 {
-	/* Descriptor is not allowed to go beyond 64 words size */
+	/* Descriptor is usually not allowed to go beyond 64 words size */
 	if (program->current_pc > MAX_CAAM_DESCSIZE)
-		pr_err("Descriptor Size exceeded max limit of 64 words\n");
+		pr_warn("Descriptor Size exceeded max limit of 64 words\n");
 
 	/* Descriptor is erroneous */
-	if (program->first_error_pc)
+	if (program->first_error_pc) {
 		pr_err("Descriptor creation error\n");
+		return -EINVAL;
+	}
 
 	/* Update descriptor length in shared and job descriptor headers */
 	if (program->shrhdr != NULL) {
@@ -406,9 +408,11 @@ static inline unsigned rta_program_finalize(struct program *program)
 		*program->jobhdr |= program->current_pc;
 		if (program->bswap)
 			__rta__desc_bswap(program->jobhdr, program->current_pc);
+	} else {
+		return -EINVAL;
 	}
 
-	return program->current_pc;
+	return (int)program->current_pc;
 }
 
 static inline unsigned rta_program_set_36bit_addr(struct program *program)
