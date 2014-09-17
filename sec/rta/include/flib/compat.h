@@ -41,6 +41,10 @@ typedef unsigned char			_Bool;
 #define __always_inline inline __attribute__((always_inline))
 #endif
 
+#ifndef __maybe_unused
+#define __maybe_unused __attribute__((unused))
+#endif
+
 #if defined(__GLIBC__) && !defined(pr_debug)
 #if !defined(SUPPRESS_PRINTS) && defined(RTA_DEBUG)
 #define pr_debug(fmt, ...)    printf(fmt, ##__VA_ARGS__)
