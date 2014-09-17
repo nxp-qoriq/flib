@@ -94,8 +94,8 @@ static inline int rta_inline_query(unsigned sd_base_len, unsigned jd_len,
 
 	*inl_mask = 0;
 	for (i = 0; (i < count) && (rem_bytes > 0); i++) {
-		if (rem_bytes - data_len[i] -
-		     (count - i - 1) * CAAM_PTR_SZ >= 0) {
+		if (rem_bytes - (int)(data_len[i] +
+			(count - i - 1) * CAAM_PTR_SZ) >= 0) {
 			rem_bytes -= data_len[i];
 			*inl_mask |= (1 << i);
 		} else {
