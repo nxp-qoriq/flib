@@ -68,10 +68,10 @@ static const uint32_t move_dst_table[][2] = {
  */
 static const unsigned move_dst_table_sz[] = {13, 14, 14, 15, 15, 15, 15, 15};
 
-static inline int set_move_offset(struct program *program, uint64_t src,
-				  uint16_t src_offset, uint64_t dst,
-				  uint16_t dst_offset, uint16_t *offset,
-				  uint16_t *opt);
+static inline int set_move_offset(struct program *program __maybe_unused,
+				  uint64_t src, uint16_t src_offset,
+				  uint64_t dst, uint16_t dst_offset,
+				  uint16_t *offset, uint16_t *opt);
 
 static inline int math_offset(uint16_t offset);
 
@@ -240,10 +240,10 @@ static inline int rta_move(struct program *program, int cmd_type, uint64_t src,
 	return ret;
 }
 
-static inline int set_move_offset(struct program *program, uint64_t src,
-				  uint16_t src_offset, uint64_t dst,
-				  uint16_t dst_offset, uint16_t *offset,
-				  uint16_t *opt)
+static inline int set_move_offset(struct program *program __maybe_unused,
+				  uint64_t src, uint16_t src_offset,
+				  uint64_t dst, uint16_t dst_offset,
+				  uint16_t *offset, uint16_t *opt)
 {
 	switch (src) {
 	case (CONTEXT1):
