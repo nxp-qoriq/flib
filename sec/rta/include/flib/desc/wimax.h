@@ -73,7 +73,7 @@ struct wimax_decap_pdb {
 	uint8_t rsvd[3];                /* Reserved Bits */
 	uint8_t options;                /* Options Byte */
 	uint32_t nonce;                 /* Nonce Constant */
-	uint8_t iv_flags;               /* Initialization Vector Flags */
+	uint8_t b0_flags;               /* Initial Block B0 */
 	uint8_t ctr_flags;              /* Counter Block Flags */
 	uint16_t ctr_init_count;
 	/* begin DECO writeback region */
@@ -484,7 +484,7 @@ static inline int cnstr_shdsc_wimax_decap(uint32_t *descbuf, uint8_t pdb_opts,
 	pdb.options = pdb_opts;
 	pdb.pn = pn;
 	pdb.antireplay_len = ar_len;
-	pdb.iv_flags = WIMAX_PDB_B0;
+	pdb.b0_flags = WIMAX_PDB_B0;
 	pdb.ctr_flags = WIMAX_PDB_CTR;
 
 	PROGRAM_CNTXT_INIT(p, descbuf, 0);

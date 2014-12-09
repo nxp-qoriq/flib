@@ -253,7 +253,8 @@ struct ipsec_encap_ctr {
 /**
  * struct ipsec_encap_ccm - PDB part for IPsec CCM encapsulation
  * @salt: 3-byte salt (lower 24 bits)
- * @b0_flags: CCM B0; managed by SEC
+ * @b0_flags: CCM B0; use 0x5B for 8-byte ICV, 0x6B for 12-byte ICV,
+ *            0x7B for 16-byte ICV (cf. RFC4309, RFC3610)
  * @ctr_flags: counter flags; constant equal to 0x3
  * @ctr_initial: initial count constant
  * @iv: initialization vector
@@ -336,13 +337,14 @@ struct ipsec_decap_ctr {
 /**
  * struct ipsec_decap_ccm - PDB part for IPsec CCM decapsulation
  * @salt: 3-byte salt (lower 24 bits)
- * @iv_flags: TBD
+ * @b0_flags: CCM B0; use 0x5B for 8-byte ICV, 0x6B for 12-byte ICV,
+ *            0x7B for 16-byte ICV (cf. RFC4309, RFC3610)
  * @ctr_flags: counter flags
  * @ctr_initial: initial count constant
  */
 struct ipsec_decap_ccm {
 	uint32_t salt;
-	uint8_t iv_flags;
+	uint8_t b0_flags;
 	uint8_t ctr_flags;
 	uint16_t ctr_initial;
 };
