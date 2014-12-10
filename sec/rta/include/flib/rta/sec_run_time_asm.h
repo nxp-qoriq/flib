@@ -203,6 +203,7 @@ enum rta_regs {
 	MSG1,
 	MSG2,
 	MSG,
+	MSG_CKSUM,
 	MSGOUTSNOOP,
 	MSGINSNOOP,
 	ICV1,
