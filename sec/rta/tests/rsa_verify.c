@@ -1,3 +1,9 @@
+/*
+ * Copyright 2008-2013 Freescale Semiconductor, Inc.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause or GPL-2.0+
+ */
+
 #include <stdio.h>
 #include "flib/rta.h"
 #include "test_common.h"
