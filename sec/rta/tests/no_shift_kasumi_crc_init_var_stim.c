@@ -421,27 +421,17 @@ int main(int argc, char *argv[])
 						 even_more_extra_desc_size));
 
 	/* Patch section start */
-	PATCH_MOVE_NON_LOCAL(&more_extra_prgm, encap_share_end_ref3,
-			     encap_share_end);
-
-	PATCH_JUMP_NON_LOCAL(&more_extra_prgm, encap_share_end_ref4,
-			     encap_share_end);
-
-	PATCH_MOVE_NON_LOCAL(&even_more_extra_prgm, encap_share_end_ref5,
-			     encap_share_end);
-
-	PATCH_JUMP_NON_LOCAL(&even_more_extra_prgm, encap_share_end_ref6,
-			     encap_share_end);
-
-	PATCH_MOVE_NON_LOCAL(&yet_more_extra_prgm, encap_share_end_ref7,
-			     encap_share_end);
-
-	PATCH_JUMP_NON_LOCAL(&still_more_extra_prgm, back_from_extras_ref1,
-			     back_from_extras);
-
-	PATCH_MOVE_NON_LOCAL(&even_more_extra_prgm, yet_more_ref1, yet_more);
-
-	PATCH_JUMP_NON_LOCAL(&extra_prgm, loop_start_ref1, loop_start);
+	PATCH_MOVE(&more_extra_prgm, encap_share_end_ref3, encap_share_end);
+	PATCH_JUMP(&more_extra_prgm, encap_share_end_ref4, encap_share_end);
+	PATCH_MOVE(&even_more_extra_prgm, encap_share_end_ref5,
+		   encap_share_end);
+	PATCH_JUMP(&even_more_extra_prgm, encap_share_end_ref6,
+		   encap_share_end);
+	PATCH_MOVE(&yet_more_extra_prgm, encap_share_end_ref7, encap_share_end);
+	PATCH_JUMP(&still_more_extra_prgm, back_from_extras_ref1,
+		   back_from_extras);
+	PATCH_MOVE(&even_more_extra_prgm, yet_more_ref1, yet_more);
+	PATCH_JUMP(&extra_prgm, loop_start_ref1, loop_start);
 	/* Patch section end */
 
 	pr_debug("#title LTE Commands\n");

@@ -139,9 +139,9 @@
       <para>
         If there is a need for descriptors larger than 64 words, their function
 	can be split into several smaller ones. In such case the smaller
-	descriptors are correlated and updated using PATCH_*_NON_LOCAL commands.
-	These calls must appear after all the descriptors are finalized and not
-	before as in a single descriptor case (the reason being that only then
+	descriptors are correlated and updated using PATCH_* commands. These
+	calls must appear after all the descriptors are finalized and not before
+	as in a single descriptor case (the reason being that only then
 	references to all descriptors are available).
       </para>
     </sect1>
@@ -208,14 +208,10 @@
 !Fdrivers/crypto/caam/flib/rta.h LABEL
 !Fdrivers/crypto/caam/flib/rta.h SET_LABEL
 !Fdrivers/crypto/caam/flib/rta.h PATCH_JUMP
-!Fdrivers/crypto/caam/flib/rta.h PATCH_JUMP_NON_LOCAL
 !Fdrivers/crypto/caam/flib/rta.h PATCH_MOVE
-!Fdrivers/crypto/caam/flib/rta.h PATCH_MOVE_NON_LOCAL
 !Fdrivers/crypto/caam/flib/rta.h PATCH_LOAD
 !Fdrivers/crypto/caam/flib/rta.h PATCH_STORE
-!Fdrivers/crypto/caam/flib/rta.h PATCH_STORE_NON_LOCAL
 !Fdrivers/crypto/caam/flib/rta.h PATCH_RAW
-!Fdrivers/crypto/caam/flib/rta.h PATCH_RAW_NON_LOCAL
     </sect1>
   </chapter>
 

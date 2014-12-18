@@ -162,9 +162,9 @@ int main(int argc, char **argv)
 	sd_size = test_store_sd(&share_desc, sd_buff, 0);
 	jd2_size = test_store_jd2(&job_desc, jd2_buff, sd_size);
 
-	PATCH_STORE_NON_LOCAL(&share_desc, pstore2, mod_loc2);
-	PATCH_STORE_NON_LOCAL(&job_desc, pstore3, mod_loc2);
-	PATCH_STORE_NON_LOCAL(&job_desc, pstore4, shr_loc);
+	PATCH_STORE(&share_desc, pstore2, mod_loc2);
+	PATCH_STORE(&job_desc, pstore3, mod_loc2);
+	PATCH_STORE(&job_desc, pstore4, shr_loc);
 
 	pr_debug("STORE commands\n");
 	pr_debug("size = %d\n", cmd_size);

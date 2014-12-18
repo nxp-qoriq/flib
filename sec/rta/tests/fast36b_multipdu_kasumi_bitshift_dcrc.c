@@ -209,7 +209,7 @@ int main(int argc, char **argv)
 	    build_jbdesc_kasumi_bitshift_dcrc(&job_desc_prgm, job,
 					      lte_desc_size);
 
-	PATCH_JUMP_NON_LOCAL(&lte_desc_prgm, ref_jump_reload, reload);
+	PATCH_JUMP(&lte_desc_prgm, ref_jump_reload, reload);
 
 	pr_debug("FAST36B multipdu kasumi bitshift program\n");
 	pr_debug("size = %d\n", lte_desc_size);

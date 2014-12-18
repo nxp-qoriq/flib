@@ -276,14 +276,14 @@ int main(int argc, char **argv)
 	memset(job, 0x00, sizeof(job));
 	job_size = build_jbdesc_ppp_encap(&job_desc_prgm, job, shr_size);
 
-	PATCH_MOVE_NON_LOCAL(&extra_cmds_prgm, ref1_moves, s);
-	PATCH_MOVE_NON_LOCAL(&more_cmds_prgm, ref2_moves, s);
-	PATCH_JUMP_NON_LOCAL(&more_cmds_prgm, ref_jumpa, a);
-	PATCH_HDR_NON_LOCAL(&extra_cmds_prgm, ref_jumpc, c);
-	PATCH_HDR_NON_LOCAL(&more_cmds_prgm, ref_jumph, h);
-	PATCH_JUMP_NON_LOCAL(&shr_desc_prgm, ref_jumpk, k);
-	PATCH_JUMP_NON_LOCAL(&extra_cmds_prgm, ref_jumpl, l);
-	PATCH_HDR_NON_LOCAL(&more_cmds_prgm, refq_hdr, q);
+	PATCH_MOVE(&extra_cmds_prgm, ref1_moves, s);
+	PATCH_MOVE(&more_cmds_prgm, ref2_moves, s);
+	PATCH_JUMP(&more_cmds_prgm, ref_jumpa, a);
+	PATCH_HDR(&extra_cmds_prgm, ref_jumpc, c);
+	PATCH_HDR(&more_cmds_prgm, ref_jumph, h);
+	PATCH_JUMP(&shr_desc_prgm, ref_jumpk, k);
+	PATCH_JUMP(&extra_cmds_prgm, ref_jumpl, l);
+	PATCH_HDR(&more_cmds_prgm, refq_hdr, q);
 
 	pr_debug("PPP decap program shared desc\n");
 	pr_debug("size = %d\n", shr_size);

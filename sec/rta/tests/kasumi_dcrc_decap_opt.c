@@ -152,7 +152,7 @@ int main(int argc, char **argv)
 	    build_jbdesc_kasumi_dcrc_decap(&job_desc_prgm, job_desc,
 					   lte_desc_size);
 
-	PATCH_HDR_NON_LOCAL(&lte_desc_prgm, ref_decap_job, decap_job_seqoutptr);
+	PATCH_HDR(&lte_desc_prgm, ref_decap_job, decap_job_seqoutptr);
 
 	pr_debug("KASUMI DCRC Decryption program\n");
 	pr_debug("size = %d\n", lte_desc_size);

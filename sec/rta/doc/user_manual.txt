@@ -83,10 +83,9 @@ relevant information and PROGRAM_FINALIZE to complete the "code relocation".
 
 If there is a need for descriptors larger than 64 words, their function can be
 split into several smaller ones. In such case the smaller descriptors are
-correlated and updated using PATCH_*_NON_LOCAL commands. These calls must
-appear after all the descriptors are finalized and not before as in a single
-descriptor case (the reason being that only then references to all descriptors
-are available).
+correlated and updated using PATCH_* commands. These calls must appear after all
+the descriptors are finalized and not before as in a single descriptor case (the
+reason being that only then references to all descriptors are available).
 
 
 Example applications

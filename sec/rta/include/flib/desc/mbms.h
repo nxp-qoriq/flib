@@ -766,8 +766,7 @@ static inline unsigned cnstr_shdsc_mbms_type1_3(uint32_t *descbuf, int *bufsize,
 	SET_LABEL(p, end_of_part2);
 
 	PATCH_JUMP(p, jump_all_crc_ok, all_crc_pass);
-	PATCH_RAW_NON_LOCAL(&part1_prg, patch_load_2nd_part, 0xFF,
-			    end_of_part2);
+	PATCH_RAW(&part1_prg, patch_load_2nd_part, 0xFF, end_of_part2);
 
 	*bufsize += PROGRAM_FINALIZE(p);
 
