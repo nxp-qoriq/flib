@@ -829,7 +829,6 @@ static inline int cnstr_shdsc_mbms(uint32_t *descbuf, bool ps,
  * @stats: points to a statistics structure matching the MBMS PDU type, as
  *         specified by the pdu_type parameter.
  * @pdu_type: MBMS PDU type
- *
  */
 static inline void get_mbms_stats(uint32_t *descbuf,
 				  void *stats,
