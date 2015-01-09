@@ -343,7 +343,7 @@ static inline unsigned __rta_copy_ipsec_encap_pdb(struct program *program,
 		rta_copy_data(program, pdb->ctr.ctr_nonce,
 			      sizeof(pdb->ctr.ctr_nonce));
 		__rta_out32(program, pdb->ctr.ctr_initial);
-		__rta_out64(program, pdb->ctr.iv);
+		__rta_out64(program, true, pdb->ctr.iv);
 		break;
 
 	case OP_PCL_IPSEC_AES_CCM8:
@@ -351,7 +351,7 @@ static inline unsigned __rta_copy_ipsec_encap_pdb(struct program *program,
 	case OP_PCL_IPSEC_AES_CCM16:
 		rta_copy_data(program, pdb->ccm.salt, sizeof(pdb->ccm.salt));
 		__rta_out32(program, pdb->ccm.ccm_opt);
-		__rta_out64(program, pdb->ccm.iv);
+		__rta_out64(program, true, pdb->ccm.iv);
 		break;
 
 	case OP_PCL_IPSEC_AES_GCM8:
@@ -360,7 +360,7 @@ static inline unsigned __rta_copy_ipsec_encap_pdb(struct program *program,
 	case OP_PCL_IPSEC_AES_NULL_WITH_GMAC:
 		rta_copy_data(program, pdb->gcm.salt, sizeof(pdb->gcm.salt));
 		__rta_out32(program, pdb->gcm.rsvd);
-		__rta_out64(program, pdb->gcm.iv);
+		__rta_out64(program, true, pdb->gcm.iv);
 		break;
 	}
 
