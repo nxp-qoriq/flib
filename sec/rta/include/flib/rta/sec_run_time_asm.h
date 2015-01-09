@@ -404,8 +404,6 @@ static inline int rta_program_finalize(struct program *program)
 		*program->jobhdr |= program->bswap ?
 					swab32(program->current_pc) :
 					program->current_pc;
-	else
-		return -EINVAL;
 
 	return (int)program->current_pc;
 }
