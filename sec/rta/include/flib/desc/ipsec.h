@@ -185,8 +185,10 @@
 
 #define PDBHMO_ESP_DECAP_SHIFT		28
 #define PDBHMO_ESP_ENCAP_SHIFT		28
-#define PDBHDRLEN_ESP_ENCAP_SHIFT	16
-#define PDBHDRLEN_MASK			(0x0fff << PDBHDRLEN_ESP_ENCAP_SHIFT)
+#define PDBNH_ESP_ENCAP_SHIFT		16
+#define PDBNH_ESP_ENCAP_MASK		(0xff << PDBNH_ESP_ENCAP_SHIFT)
+#define PDBHDRLEN_ESP_DECAP_SHIFT	16
+#define PDBHDRLEN_MASK			(0x0fff << PDBHDRLEN_ESP_DECAP_SHIFT)
 
 /**
  * PDBHMO_ESP_DECAP_DTTL - IPsec ESP decrement TTL (IPv4) / Hop limit (IPv6)
@@ -830,7 +832,7 @@ static inline int cnstr_shdsc_ipsec_decap_des_aes_xcbc(uint32_t *descbuf,
 	struct program prg;
 	struct program *p = &prg;
 	uint32_t ip_hdr_len = (pdb->options & PDBHDRLEN_MASK) >>
-				PDBHDRLEN_ESP_ENCAP_SHIFT;
+				PDBHDRLEN_ESP_DECAP_SHIFT;
 
 	LABEL(hdr);
 	LABEL(jump_cmd);
