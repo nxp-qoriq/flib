@@ -212,18 +212,23 @@ static inline int __rta_ipsec_proto(uint16_t protoinfo)
 	uint16_t proto_cls2 = protoinfo & OP_PCL_IPSEC_AUTH_MASK;
 
 	switch (proto_cls1) {
-	case OP_PCL_IPSEC_NULL:
 	case OP_PCL_IPSEC_AES_NULL_WITH_GMAC:
 		if (rta_sec_era < RTA_SEC_ERA_2)
 			return -EINVAL;
-		break;
+		/* no break */
 	case OP_PCL_IPSEC_AES_CCM8:
 	case OP_PCL_IPSEC_AES_CCM12:
 	case OP_PCL_IPSEC_AES_CCM16:
 	case OP_PCL_IPSEC_AES_GCM8:
 	case OP_PCL_IPSEC_AES_GCM12:
+	case OP_PCL_IPSEC_AES_GCM16:
+		/* CCM, GCM, GMAC require PROTINFO[7:0] = 0 */
 		if (proto_cls2 == OP_PCL_IPSEC_HMAC_NULL)
 			return 0;
+		return -EINVAL;
+	case OP_PCL_IPSEC_NULL:
+		if (rta_sec_era < RTA_SEC_ERA_2)
+			return -EINVAL;
 		/* no break */
 	case OP_PCL_IPSEC_DES_IV64:
 	case OP_PCL_IPSEC_DES:
