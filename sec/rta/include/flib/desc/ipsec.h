@@ -588,10 +588,12 @@ static inline int cnstr_shdsc_ipsec_encap(uint32_t *descbuf, bool ps, bool swap,
 	COPY_DATA(p, pdb->ip_hdr, pdb->ip_hdr_len);
 	SET_LABEL(p, hdr);
 	pkeyjmp = JUMP(p, keyjmp, LOCAL_JUMP, ALL_TRUE, BOTH|SHRD);
-	KEY(p, MDHA_SPLIT_KEY, authdata->key_enc_flags, authdata->key,
-	    authdata->keylen, INLINE_KEY(authdata));
-	KEY(p, KEY1, cipherdata->key_enc_flags, cipherdata->key,
-	    cipherdata->keylen, INLINE_KEY(cipherdata));
+	if (authdata->keylen)
+		KEY(p, MDHA_SPLIT_KEY, authdata->key_enc_flags, authdata->key,
+		    authdata->keylen, INLINE_KEY(authdata));
+	if (cipherdata->keylen)
+		KEY(p, KEY1, cipherdata->key_enc_flags, cipherdata->key,
+		    cipherdata->keylen, INLINE_KEY(cipherdata));
 	SET_LABEL(p, keyjmp);
 	PROTOCOL(p, OP_TYPE_ENCAP_PROTOCOL,
 		 OP_PCLID_IPSEC,
@@ -641,10 +643,12 @@ static inline int cnstr_shdsc_ipsec_decap(uint32_t *descbuf, bool ps, bool swap,
 	__rta_copy_ipsec_decap_pdb(p, pdb, cipherdata->algtype);
 	SET_LABEL(p, hdr);
 	pkeyjmp = JUMP(p, keyjmp, LOCAL_JUMP, ALL_TRUE, BOTH|SHRD);
-	KEY(p, MDHA_SPLIT_KEY, authdata->key_enc_flags, authdata->key,
-	    authdata->keylen, INLINE_KEY(authdata));
-	KEY(p, KEY1, cipherdata->key_enc_flags, cipherdata->key,
-	    cipherdata->keylen, INLINE_KEY(cipherdata));
+	if (authdata->keylen)
+		KEY(p, MDHA_SPLIT_KEY, authdata->key_enc_flags, authdata->key,
+		    authdata->keylen, INLINE_KEY(authdata));
+	if (cipherdata->keylen)
+		KEY(p, KEY1, cipherdata->key_enc_flags, cipherdata->key,
+		    cipherdata->keylen, INLINE_KEY(cipherdata));
 	SET_LABEL(p, keyjmp);
 	PROTOCOL(p, OP_TYPE_DECAP_PROTOCOL,
 		 OP_PCLID_IPSEC,
