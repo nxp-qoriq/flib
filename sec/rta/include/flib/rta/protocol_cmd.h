@@ -241,6 +241,7 @@ static inline int __rta_ipsec_proto(uint16_t protoinfo)
 	}
 
 	switch (proto_cls2) {
+	case OP_PCL_IPSEC_HMAC_NULL:
 	case OP_PCL_IPSEC_HMAC_MD5_96:
 	case OP_PCL_IPSEC_HMAC_SHA1_96:
 	case OP_PCL_IPSEC_AES_XCBC_MAC_96:
