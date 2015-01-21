@@ -549,6 +549,45 @@ struct ipsec_new_decap_deco_dpovrd {
 					 * header + outer IP header material */
 };
 
+static inline void __gen_auth_key(struct program *program,
+				  struct alginfo *authdata)
+{
+	uint32_t dkp_protid;
+
+	switch (authdata->algtype & OP_PCL_IPSEC_AUTH_MASK) {
+	case OP_PCL_IPSEC_HMAC_MD5_96:
+	case OP_PCL_IPSEC_HMAC_MD5_128:
+		dkp_protid = OP_PCLID_DKP_MD5;
+		break;
+	case OP_PCL_IPSEC_HMAC_SHA1_96:
+	case OP_PCL_IPSEC_HMAC_SHA1_160:
+		dkp_protid = OP_PCLID_DKP_SHA1;
+		break;
+	case OP_PCL_IPSEC_HMAC_SHA2_256_128:
+		dkp_protid = OP_PCLID_DKP_SHA256;
+		break;
+	case OP_PCL_IPSEC_HMAC_SHA2_384_192:
+		dkp_protid = OP_PCLID_DKP_SHA384;
+		break;
+	case OP_PCL_IPSEC_HMAC_SHA2_512_256:
+		dkp_protid = OP_PCLID_DKP_SHA512;
+		break;
+	default:
+		KEY(program, KEY2, authdata->key_enc_flags, authdata->key,
+		    authdata->keylen, INLINE_KEY(authdata));
+		return;
+	}
+
+	if (authdata->key_type == RTA_DATA_PTR)
+		DKP_PROTOCOL(program, dkp_protid, OP_PCL_DKP_SRC_PTR,
+			     OP_PCL_DKP_DST_PTR, (uint16_t)authdata->keylen,
+			     authdata->key, authdata->key_type);
+	else
+		DKP_PROTOCOL(program, dkp_protid, OP_PCL_DKP_SRC_IMM,
+			     OP_PCL_DKP_DST_IMM, (uint16_t)authdata->keylen,
+			     authdata->key, authdata->key_type);
+}
+
 /**
  * cnstr_shdsc_ipsec_encap - IPSec ESP encapsulation protocol-level shared
  *                           descriptor. Requires an MDHA split key.
@@ -1002,9 +1041,8 @@ static inline int cnstr_shdsc_ipsec_decap_des_aes_xcbc(uint32_t *descbuf,
  *     -for other values of OIHI options field, opt_ip_hdr is not used.
  * @cipherdata: pointer to block cipher transform definitions
  *              Valid algorithm values - one of OP_PCL_IPSEC_*
- * @authdata: pointer to authentication transform definitions. Note that since a
- *            split key is to be used, the size of the split key itself is
- *            specified. Valid algorithm values - one of OP_PCL_IPSEC_*
+ * @authdata: pointer to authentication transform definitions.
+ *            Valid algorithm values - one of OP_PCL_IPSEC_*
  *
  * Return: size of descriptor written in words or negative number on error
  */
@@ -1053,8 +1091,7 @@ static inline int cnstr_shdsc_ipsec_new_encap(uint32_t *descbuf, bool ps,
 
 	pkeyjmp = JUMP(p, keyjmp, LOCAL_JUMP, ALL_TRUE, SHRD);
 	if (authdata->keylen)
-		KEY(p, MDHA_SPLIT_KEY, authdata->key_enc_flags, authdata->key,
-		    authdata->keylen, INLINE_KEY(authdata));
+		__gen_auth_key(p, authdata);
 	if (cipherdata->keylen)
 		KEY(p, KEY1, cipherdata->key_enc_flags, cipherdata->key,
 		    cipherdata->keylen, INLINE_KEY(cipherdata));
@@ -1135,8 +1172,7 @@ static inline int cnstr_shdsc_ipsec_new_decap(uint32_t *descbuf, bool ps,
 	SET_LABEL(p, hdr);
 	pkeyjmp = JUMP(p, keyjmp, LOCAL_JUMP, ALL_TRUE, SHRD);
 	if (authdata->keylen)
-		KEY(p, MDHA_SPLIT_KEY, authdata->key_enc_flags, authdata->key,
-		    authdata->keylen, INLINE_KEY(authdata));
+		__gen_auth_key(p, authdata);
 	if (cipherdata->keylen)
 		KEY(p, KEY1, cipherdata->key_enc_flags, cipherdata->key,
 		    cipherdata->keylen, INLINE_KEY(cipherdata));
