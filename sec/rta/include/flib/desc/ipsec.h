@@ -1024,8 +1024,7 @@ static inline int cnstr_shdsc_ipsec_decap_des_aes_xcbc(uint32_t *descbuf,
 
 /**
  * cnstr_shdsc_ipsec_new_encap -  IPSec new mode ESP encapsulation
- *     protocol-level shared descriptor. If an authentication key is required by
- *     the protocol, it must be a MDHA split key.
+ *     protocol-level shared descriptor.
  * @descbuf: pointer to buffer used for descriptor construction
  * @ps: if 36/40bit addressing is desired, this parameter must be true
  * @pdb: pointer to the PDB to be used with this descriptor
@@ -1042,6 +1041,9 @@ static inline int cnstr_shdsc_ipsec_decap_des_aes_xcbc(uint32_t *descbuf,
  * @cipherdata: pointer to block cipher transform definitions
  *              Valid algorithm values - one of OP_PCL_IPSEC_*
  * @authdata: pointer to authentication transform definitions.
+ *            If an authentication key is required by the protocol, a "normal"
+ *            key must be provided; DKP (Derived Key Protocol) will be used to
+ *            compute MDHA on the fly in HW.
  *            Valid algorithm values - one of OP_PCL_IPSEC_*
  *
  * Return: size of descriptor written in words or negative number on error
@@ -1128,8 +1130,7 @@ static inline int cnstr_shdsc_ipsec_new_encap(uint32_t *descbuf, bool ps,
 
 /**
  * cnstr_shdsc_ipsec_new_decap - IPSec new mode ESP decapsulation protocol-level
- *     shared descriptor. If an authentication key is required by the protocol,
- *     it must be a MDHA split key.
+ *     shared descriptor.
  * @descbuf: pointer to buffer used for descriptor construction
  * @ps: if 36/40bit addressing is desired, this parameter must be true
  * @pdb: pointer to the PDB to be used with this descriptor
@@ -1138,9 +1139,11 @@ static inline int cnstr_shdsc_ipsec_new_encap(uint32_t *descbuf, bool ps,
  *       block guide for details about the decapsulation PDB.
  * @cipherdata: pointer to block cipher transform definitions
  *              Valid algorithm values 0 one of OP_PCL_IPSEC_*
- * @authdata: pointer to authentication transform definitions. Note that since a
- *            split key is to be used, the size of the split key itself is
- *            specified. Valid algorithm values - one of OP_PCL_IPSEC_*
+ * @authdata: pointer to authentication transform definitions.
+ *            If an authentication key is required by the protocol, a "normal"
+ *            key must be provided; DKP (Derived Key Protocol) will be used to
+ *            compute MDHA on the fly in HW.
+ *            Valid algorithm values - one of OP_PCL_IPSEC_*
  *
  * Return: size of descriptor written in words or negative number on error
  */
