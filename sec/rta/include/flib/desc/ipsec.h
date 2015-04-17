@@ -1299,8 +1299,12 @@ static inline int cnstr_shdsc_authenc(uint32_t *descbuf, bool swap, bool ps,
 	if (ps)
 		PROGRAM_SET_36BIT_ADDR(p);
 
+	/*
+	 * Since we currently assume that key length is equal to hash digest
+	 * size, it's ok to truncate keylen value.
+	 */
 	trunc_len = trunc_len && (trunc_len < authdata->keylen) ?
-			trunc_len : authdata->keylen;
+			trunc_len : (uint8_t)authdata->keylen;
 
 	SHR_HDR(p, SHR_SERIAL, 1, SC);
 
