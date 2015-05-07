@@ -49,11 +49,21 @@ typedef unsigned char			_Bool;
 #define __maybe_unused __attribute__((unused))
 #endif
 
+#if defined(__GLIBC__) && defined(SUPPRESS_PRINTS)
+#ifndef __printf
+#define __printf(a, b)	__attribute__((format(printf, 1, 2)))
+#endif
+static inline __printf(1, 2) int no_printf(const char *fmt, ...)
+{
+	return 0;
+}
+#endif
+
 #if defined(__GLIBC__) && !defined(pr_debug)
 #if !defined(SUPPRESS_PRINTS) && defined(RTA_DEBUG)
 #define pr_debug(fmt, ...)    printf(fmt, ##__VA_ARGS__)
 #else
-#define pr_debug(fmt, ...)
+#define pr_debug(fmt, ...)    no_printf(fmt, ##__VA_ARGS__)
 #endif
 #endif /* pr_debug */
 
@@ -61,7 +71,7 @@ typedef unsigned char			_Bool;
 #if !defined(SUPPRESS_PRINTS)
 #define pr_err(fmt, ...)    printf(fmt, ##__VA_ARGS__)
 #else
-#define pr_err(fmt, ...)
+#define pr_err(fmt, ...)    no_printf(fmt, ##__VA_ARGS__)
 #endif
 #endif /* pr_err */
 
@@ -69,7 +79,7 @@ typedef unsigned char			_Bool;
 #if !defined(SUPPRESS_PRINTS)
 #define pr_warning(fmt, ...)    printf(fmt, ##__VA_ARGS__)
 #else
-#define pr_warning(fmt, ...)
+#define pr_warning(fmt, ...)    no_printf(fmt, ##__VA_ARGS__)
 #endif
 #endif /* pr_warning */
 
