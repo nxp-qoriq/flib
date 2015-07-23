@@ -17,6 +17,8 @@ int pointer_size_1(uint32_t *buff)
 	struct program *p = &prg;
 
 	PROGRAM_CNTXT_INIT(p, buff, 0);
+	if (need_bswap)
+		PROGRAM_SET_BSWAP(p);
 	JOB_HDR(p, SHR_NEVER, shdesc_len, 200, SHR);
 	{
 		FIFOLOAD(p, PKN, 0x4, 4, 0);
@@ -33,6 +35,8 @@ int pointer_size_2(uint32_t *buff)
 
 	PROGRAM_CNTXT_INIT(p, buff, 0);
 	PROGRAM_SET_36BIT_ADDR(p);
+	if (need_bswap)
+		PROGRAM_SET_BSWAP(p);
 
 	JOB_HDR(p, SHR_NEVER, shdesc_len, 200, SHR);
 	{

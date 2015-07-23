@@ -33,6 +33,8 @@ int test_store_cmds(uint32_t *buff)
 	uint here = 32;
 
 	PROGRAM_CNTXT_INIT(p, buff, 0);
+	if (need_bswap)
+		PROGRAM_SET_BSWAP(p);
 	/* Class-independent CCB registers */
 	STORE(p, CLRW, 0, foo, 4, 0);
 	STORE(p, CCTRL, 0, foo, 4, 0);
@@ -97,6 +99,8 @@ int test_store_jd1(uint32_t *buff, unsigned buffpos)
 	LABEL(mod_loc1);
 
 	PROGRAM_CNTXT_INIT(p, buff, 0);
+	if (need_bswap)
+		PROGRAM_SET_BSWAP(p);
 
 	JOB_HDR(p, SHR_NEVER, buffpos, 0, 0);
 	pstore = STORE(p, JOBDESCBUF, mod_loc1, 0, 4 * word_size, 0);
@@ -113,6 +117,8 @@ int test_store_sd(struct program *p, uint32_t *buff, unsigned buffpos)
 	REFERENCE(pstore);
 
 	PROGRAM_CNTXT_INIT(p, buff, 0);
+	if (need_bswap)
+		PROGRAM_SET_BSWAP(p);
 
 	SHR_HDR(p, SHR_NEVER, buffpos, 0);
 	pstore = STORE(p, SHAREDESCBUF, shr_loc, 0, 4 * word_size, 0);
@@ -136,6 +142,8 @@ int test_store_jd2(struct program *p, uint32_t *buff, int buffpos)
 		return -EINVAL;
 
 	PROGRAM_CNTXT_INIT(p, buff, 0);
+	if (need_bswap)
+		PROGRAM_SET_BSWAP(p);
 
 	JOB_HDR(p, SHR_NEVER, buffpos, shrloc, SHR);
 	MATHB(p, ZERO, ADD, ONE, MATH1, 1, 0);

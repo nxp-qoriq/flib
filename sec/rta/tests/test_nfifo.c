@@ -16,6 +16,8 @@ int test_nfifo_op(uint32_t *buff)
 	struct program *p = &prg;
 
 	PROGRAM_CNTXT_INIT(p, buff, 0);
+	if (need_bswap)
+		PROGRAM_SET_BSWAP(p);
 	/* From Input Data FIFO to 'all' targets */
 	NFIFOADD(p, IFIFO, MSG1, 2045, 0);
 	NFIFOADD(p, IFIFO, MSG1, 2046, LAST1);

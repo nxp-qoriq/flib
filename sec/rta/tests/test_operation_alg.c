@@ -16,6 +16,8 @@ int test_op_cipher(uint32_t *buff)
 	struct program *p = &prg;
 
 	PROGRAM_CNTXT_INIT(p, buff, 0);
+	if (need_bswap)
+		PROGRAM_SET_BSWAP(p);
 	{
 /* RNG tests */
 		ALG_OPERATION(p, OP_ALG_ALGSEL_RNG, OP_ALG_AAI_RNG, 0, 0, 0);
@@ -133,6 +135,8 @@ int test_op_alg_mdha(uint32_t *buff)
 	struct program *p = &prg;
 
 	PROGRAM_CNTXT_INIT(p, buff, 0);
+	if (need_bswap)
+		PROGRAM_SET_BSWAP(p);
 	{
 /* MDHA family tests */
 		ALG_OPERATION(p, OP_ALG_ALGSEL_MD5, OP_ALG_AAI_HASH,

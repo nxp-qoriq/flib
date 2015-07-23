@@ -51,6 +51,8 @@ int build_dtls_sharedesc(uint32_t *buff, uint32_t seqnum,
 	LABEL(new_IV_OK);
 
 	PROGRAM_CNTXT_INIT(p, buff, 0);
+	if (need_bswap)
+		PROGRAM_SET_BSWAP(p);
 	SHR_HDR(p, SHR_SERIAL, 12, 0);
 	{
 		{	/* Custom DTLS Encap AES-CBC */

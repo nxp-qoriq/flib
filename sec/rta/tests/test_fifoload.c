@@ -24,6 +24,8 @@ int test_fifo_load_op(uint32_t *buff)
 	uint64_t mod = 0x24128820;
 
 	PROGRAM_CNTXT_INIT(p, buff, 0);
+	if (need_bswap)
+		PROGRAM_SET_BSWAP(p);
 
 	FIFOLOAD(p, MSG1, msg, 1, FLUSH1);
 	FIFOLOAD(p, MSG1, msg, 2, LAST1);

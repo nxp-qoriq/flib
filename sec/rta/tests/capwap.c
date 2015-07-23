@@ -19,6 +19,8 @@ int generate_capwap_code(uint32_t *buff, unsigned mdatalen)
 	uintptr_t key_addr = (uintptr_t) &key_imm;
 
 	PROGRAM_CNTXT_INIT(p, buff, 0);
+	if (need_bswap)
+		PROGRAM_SET_BSWAP(p);
 
 	LABEL(encap_iv);
 	LABEL(previous_iv);

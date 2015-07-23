@@ -17,6 +17,8 @@ int test_perf(uint32_t *buff)
 	int seqnum = 1;
 
 	PROGRAM_CNTXT_INIT(p, buff, 0);
+	if (need_bswap)
+		PROGRAM_SET_BSWAP(p);
 	LABEL(test1);
 	LABEL(test2);
 	LABEL(encap_iv);

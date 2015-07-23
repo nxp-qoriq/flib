@@ -21,6 +21,8 @@ int make_prime_test(uint32_t *buff)
 	REFERENCE(pjump1);
 
 	PROGRAM_CNTXT_INIT(p, buff, 0);
+	if (need_bswap)
+		PROGRAM_SET_BSWAP(p);
 	JOB_HDR(p, SHR_NEVER, 0, 0, 0);
 	{
 		/* Acquire the PKHA */

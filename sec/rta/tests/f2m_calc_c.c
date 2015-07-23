@@ -19,6 +19,8 @@ int f2m_calc_c_test(uint32_t *buff)
 	REFERENCE(pjump1);
 
 	PROGRAM_CNTXT_INIT(p, buff, 0);
+	if (need_bswap)
+		PROGRAM_SET_BSWAP(p);
 	SHR_HDR(p, SHR_NEVER, 0, 0);
 	{
 		/*

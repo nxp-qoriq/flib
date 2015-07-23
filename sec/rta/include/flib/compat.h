@@ -16,6 +16,15 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <byteswap.h>
+
+#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+#undef __BIG_ENDIAN
+#elif __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+#undef __LITTLE_ENDIAN
+#else
+#error "Undefined endianness"
+#endif
+
 /* FSL's Embedded Warrior C Library; assume AIOP or MC environment */
 #elif defined(__EWL__) && (defined(AIOP) || defined(MC))
 #include "common/fsl_string.h"

@@ -54,6 +54,8 @@ int jump_cmd_desc1(struct program *p, uint32_t *buff, unsigned buffpos)
 	REFERENCE(phdr4);
 
 	PROGRAM_CNTXT_INIT(p, buff, 0);
+	if (need_bswap)
+		PROGRAM_SET_BSWAP(p);
 	SHR_HDR(p, SHR_NEVER, 0, 0);
 	{
 		SET_LABEL(p, aaa);
@@ -106,6 +108,8 @@ int jump_cmd_desc2(struct program *p, uint32_t *buff, int buffpos)
 		return -EINVAL;
 
 	PROGRAM_CNTXT_INIT(p, buff, buffpos);
+	if (need_bswap)
+		PROGRAM_SET_BSWAP(p);
 	JOB_HDR(p, SHR_NEVER, buffpos, sharehdr, SHR);
 	{
 		SET_LABEL(p, fff);	/* first instruction in job header */
@@ -157,6 +161,8 @@ int jump_cmd_desc3(struct program *p, uint32_t *buff, unsigned buffpos)
 	REFERENCE(phdr2);
 
 	PROGRAM_CNTXT_INIT(p, buff, buffpos);
+	if (need_bswap)
+		PROGRAM_SET_BSWAP(p);
 	{
 		SET_LABEL(p, yyy);
 		yyy = 63;	/* last word in descbuf [63] */
@@ -185,6 +191,8 @@ int jump_cmd_desc3(struct program *p, uint32_t *buff, unsigned buffpos)
 int jump_cmd_desc4(struct program *p, uint32_t *buff, unsigned buffpos)
 {
 	PROGRAM_CNTXT_INIT(p, buff, buffpos);
+	if (need_bswap)
+		PROGRAM_SET_BSWAP(p);
 	{
 		JUMP(p, 7 - buffpos, LOCAL_JUMP, ALL_TRUE, 0);
 	}
@@ -195,6 +203,8 @@ int jump_cmd_desc4(struct program *p, uint32_t *buff, unsigned buffpos)
 int jump_cmd_desc5(struct program *p, uint32_t *buff, unsigned buffpos)
 {
 	PROGRAM_CNTXT_INIT(p, buff, buffpos);
+	if (need_bswap)
+		PROGRAM_SET_BSWAP(p);
 	{
 		/* class done tests */
 		JUMP(p, 0x500, FAR_JUMP, ALL_TRUE, CLASS1 | PK_0 | MATH_N);
@@ -214,6 +224,8 @@ int jump_cmd_desc5(struct program *p, uint32_t *buff, unsigned buffpos)
 int jump_cmd_desc6(struct program *p, uint32_t *buff, unsigned buffpos)
 {
 	PROGRAM_CNTXT_INIT(p, buff, buffpos);
+	if (need_bswap)
+		PROGRAM_SET_BSWAP(p);
 	JOB_HDR(p, SHR_NEVER, 0, 0, 0);
 	{
 		JUMP(p, 1, LOCAL_JUMP, ALL_TRUE, NIFP);

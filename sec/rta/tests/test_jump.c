@@ -23,6 +23,8 @@ int test_jump(uint32_t *buff)
 	REFERENCE(ptest2);
 
 	PROGRAM_CNTXT_INIT(p, buff, 0);
+	if (need_bswap)
+		PROGRAM_SET_BSWAP(p);
 	{
 		SHR_HDR(p, SHR_ALWAYS, 0, 0);
 		ptest1 = JUMP(p, test1, LOCAL_JUMP, ALL_TRUE, 0);

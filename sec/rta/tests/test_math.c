@@ -18,6 +18,8 @@ int math_test(uint32_t *buff)
 	uint64_t bignum = 0x19261959fedcba01ULL;
 
 	PROGRAM_CNTXT_INIT(p, buff, 0);
+	if (need_bswap)
+		PROGRAM_SET_BSWAP(p);
 	/* ADD Operation: MATH0 Destination register */
 	MATHB(p, MATH0, ADD, MATH0, MATH0, 4, 0);
 	MATHB(p, MATH0, ADD, MATH1, MATH0, 1, STL);

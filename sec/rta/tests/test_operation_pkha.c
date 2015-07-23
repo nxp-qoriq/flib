@@ -16,6 +16,8 @@ int test_op_pkha(uint32_t *buff)
 	struct program *p = &prg;
 
 	PROGRAM_CNTXT_INIT(p, buff, 0);
+	if (need_bswap)
+		PROGRAM_SET_BSWAP(p);
 	{
 		PKHA_OPERATION(p, OP_ALG_PKMODE_MOD_ADD);
 		PKHA_OPERATION(p, OP_ALG_PKMODE_MOD_ADD | OP_ALG_PKMODE_OUT_A);

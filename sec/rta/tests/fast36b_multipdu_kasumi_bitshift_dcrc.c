@@ -30,6 +30,8 @@ int build_shdesc_kasumi_bitshift_dcrc(struct program *p, uint32_t *buff,
 
 	PROGRAM_CNTXT_INIT(p, buff, buffpos);
 	PROGRAM_SET_36BIT_ADDR(p);
+	if (need_bswap)
+		PROGRAM_SET_BSWAP(p);
 
 	SHR_HDR(p, SHR_NEVER, 6, 0);
 	{
@@ -180,6 +182,8 @@ int build_jbdesc_kasumi_bitshift_dcrc(struct program *p, uint32_t *buff,
 
 	PROGRAM_CNTXT_INIT(p, buff, buffpos);
 	PROGRAM_SET_36BIT_ADDR(p);
+	if (need_bswap)
+		PROGRAM_SET_BSWAP(p);
 	JOB_HDR(p, SHR_ALWAYS, buffpos, shraddr, REO | SHR);
 	{
 		SET_LABEL(p, reload);

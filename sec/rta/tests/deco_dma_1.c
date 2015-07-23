@@ -24,9 +24,10 @@ int deco_dma(uint32_t *buff)
 	LABEL(done_full);
 	REFERENCE(pjump2);
 
-	PROGRAM_SET_36BIT_ADDR(p);
-
 	PROGRAM_CNTXT_INIT(p, buff, 0);
+	PROGRAM_SET_36BIT_ADDR(p);
+	if (need_bswap)
+		PROGRAM_SET_BSWAP(p);
 	/*
 	 * Job to perform DMA on SEC Era 2 (and later) platforms
 	 * input/output/data_size configure the data to be moved.  move_size

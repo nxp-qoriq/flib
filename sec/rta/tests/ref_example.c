@@ -22,6 +22,8 @@ REFERENCE(label_different_ref);
 int generate_capwap_code(struct program *p, uint32_t *buff)
 {
 	PROGRAM_CNTXT_INIT(p, buff, 0);
+	if (need_bswap)
+		PROGRAM_SET_BSWAP(p);
 	SHR_HDR(p, SHR_ALWAYS, 0, 0);
 
 	label_different_ref = JUMP(p, label_different_desc, LOCAL_JUMP,
@@ -33,6 +35,8 @@ int generate_capwap_code(struct program *p, uint32_t *buff)
 int generate_job_desc(struct program *p, uint32_t *buff)
 {
 	PROGRAM_CNTXT_INIT(p, buff, 0x20);
+	if (need_bswap)
+		PROGRAM_SET_BSWAP(p);
 	SET_LABEL(p, label_different_desc);
 	MATHB(p, MATH2, XOR, MATH1, MATH3, 4, 0);
 	MATHU(p, MATH2, BSWAP, MATH3, 2, NFU);

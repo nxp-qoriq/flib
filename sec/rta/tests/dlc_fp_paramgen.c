@@ -41,6 +41,8 @@ int generate_dlc_fp_params(struct program *p, uint32_t *buff)
 	REFERENCE(ref_new_r);
 
 	PROGRAM_CNTXT_INIT(p, buff, 0);
+	if (need_bswap)
+		PROGRAM_SET_BSWAP(p);
 	PROGRAM_SET_36BIT_ADDR(p);
 
 	JOB_HDR(p, SHR_NEVER, 0, 0, 0);
@@ -90,6 +92,8 @@ int generate_dlc_fp_params(struct program *p, uint32_t *buff)
 int dlc_fp_make_x(struct program *p, uint32_t *buff)
 {
 	PROGRAM_CNTXT_INIT(p, buff, 0);
+	if (need_bswap)
+		PROGRAM_SET_BSWAP(p);
 	PROGRAM_SET_36BIT_ADDR(p);
 
 	JOB_HDR(p, SHR_NEVER, 0, 0, 0);
@@ -126,6 +130,8 @@ int dlc_fp_make_q(struct program *p, uint32_t *buff)
 	REFERENCE(ref_store_q);
 
 	PROGRAM_CNTXT_INIT(p, buff, 0);
+	if (need_bswap)
+		PROGRAM_SET_BSWAP(p);
 	PROGRAM_SET_36BIT_ADDR(p);
 
 	JOB_HDR(p, SHR_NEVER, 0, 0, 0);
@@ -194,6 +200,8 @@ int dlc_fp_make_g(struct program *p, uint32_t *buff)
 	REFERENCE(ref_found_g);
 
 	PROGRAM_CNTXT_INIT(p, buff, 0);
+	if (need_bswap)
+		PROGRAM_SET_BSWAP(p);
 	PROGRAM_SET_36BIT_ADDR(p);
 
 	JOB_HDR(p, SHR_NEVER, 0, 0, 0);

@@ -19,6 +19,8 @@ int test_move_op(uint32_t *buff)
 	uint16_t label1 = 24;
 
 	PROGRAM_CNTXT_INIT(p, buff, 0);
+	if (need_bswap)
+		PROGRAM_SET_BSWAP(p);
 	/* MOVE from Class 1 Context */
 	MOVE(p, CONTEXT1, 19, CONTEXT1, 0, len, IMMED);
 	MOVE(p, CONTEXT1, 21, CONTEXT2, 0, len, IMMED);

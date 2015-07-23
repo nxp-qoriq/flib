@@ -26,6 +26,8 @@ int build_rsa_decrypt_desc(uint32_t *buff, uint32_t n_len, uint32_t p_len,
 
 	PROGRAM_CNTXT_INIT(pp, buff, 0);
 	PROGRAM_SET_36BIT_ADDR(pp);
+	if (need_bswap)
+		PROGRAM_SET_BSWAP(pp);
 
 	JOB_HDR(pp, SHR_NEVER, 0, 0, 0);
 	{

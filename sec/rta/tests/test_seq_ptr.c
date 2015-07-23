@@ -20,6 +20,8 @@ int test_seq_ptr_op(uint32_t *buff)
 	uint64_t data_out = 0x6123475;
 
 	PROGRAM_CNTXT_INIT(p, buff, 0);
+	if (need_bswap)
+		PROGRAM_SET_BSWAP(p);
 	SEQINPTR(p, data_in, data_size, 0);
 	SEQOUTPTR(p, data_out, data_size, 0);
 	SEQINPTR(p, 0, 0, RTO);

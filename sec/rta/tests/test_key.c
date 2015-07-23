@@ -18,6 +18,8 @@ int test_key_op(uint32_t *buff)
 	uintptr_t addr = (uintptr_t) &key_imm;
 
 	PROGRAM_CNTXT_INIT(p, buff, 0);
+	if (need_bswap)
+		PROGRAM_SET_BSWAP(p);
 	KEY(p, MDHA_SPLIT_KEY, ENC, addr, 4, IMMED);
 	KEY(p, MDHA_SPLIT_KEY, ENC, addr, 4, 0);
 	KEY(p, KEY1, EKT, addr, 4, IMMED);

@@ -39,6 +39,8 @@ int build_shdesc_kasumi_dcrc_encap(struct program *p, uint32_t *buff,
 	PROGRAM_SET_36BIT_ADDR(p);
 
 	PROGRAM_CNTXT_INIT(p, buff, buffpos);
+	if (need_bswap)
+		PROGRAM_SET_BSWAP(p);
 	SHR_HDR(p, SHR_NEVER, 6, 0);
 	{
 		{	/* 3G RLC ENCAP PDB */
@@ -138,6 +140,8 @@ int build_jbdesc_kasumi_dcrc_encap(struct program *p, uint32_t *buff,
 		return -EINVAL;
 
 	PROGRAM_CNTXT_INIT(p, buff, buffpos);
+	if (need_bswap)
+		PROGRAM_SET_BSWAP(p);
 	JOB_HDR(p, SHR_ALWAYS, buffpos, desc_addr_1, REO | SHR);
 	{
 		SET_LABEL(p, encap_job_seqout);

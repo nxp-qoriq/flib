@@ -35,6 +35,8 @@ int prepend(uint32_t *buff)
 
 	PROGRAM_CNTXT_INIT(p, buff, 0);
 	PROGRAM_SET_36BIT_ADDR(p);
+	if (need_bswap)
+		PROGRAM_SET_BSWAP(p);
 
 	SHR_HDR(p, SHR_SERIAL, 15, RIF);
 	{

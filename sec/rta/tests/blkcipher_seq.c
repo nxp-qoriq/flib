@@ -26,6 +26,8 @@ int test_blkcipher_seq(uint32_t *buff)
 	int keylen = 32;
 
 	PROGRAM_CNTXT_INIT(p, buff, 0);
+	if (need_bswap)
+		PROGRAM_SET_BSWAP(p);
 	JOB_HDR(p, SHR_NEVER, 0, 0, 0);
 	SEQINPTR(p, (uintptr_t) data_in, datasz, 0);
 	SEQOUTPTR(p, (uintptr_t) data_out, datasz, 0);

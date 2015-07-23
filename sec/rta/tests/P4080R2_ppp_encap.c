@@ -54,6 +54,8 @@ int build_shr_desc_ppp_encap(struct program *p, uint32_t *buff,
 	REFERENCE(pjumps);
 
 	PROGRAM_CNTXT_INIT(p, buff, buffpos);
+	if (need_bswap)
+		PROGRAM_SET_BSWAP(p);
 	SHR_HDR(p, SHR_NEVER, 46, 0);
 	{
 		SET_LABEL(p, start);
@@ -167,6 +169,8 @@ int build_extra_cmds(struct program *p, uint32_t *buff, unsigned buffpos)
 	REFERENCE(pjumpk);
 
 	PROGRAM_CNTXT_INIT(p, buff, buffpos);
+	if (need_bswap)
+		PROGRAM_SET_BSWAP(p);
 	{
 		/* imm data for MATH cmd at end of PDB in shared descriptor */
 		DWORD(p, 0x2000000000000000);
@@ -196,6 +200,8 @@ int build_more_cmds(struct program *p, uint32_t *buff, unsigned buffpos)
 	REFERENCE(pjumpg);
 
 	PROGRAM_CNTXT_INIT(p, buff, buffpos);
+	if (need_bswap)
+		PROGRAM_SET_BSWAP(p);
 	{
 		MATHB(p, MATH0, XOR, 0x7d7d7d7d7d7d7d7d, MATH1, 8, IMMED2);
 		MATHU(p, MATH1, ZBYT, MATH1, 8, 0);
@@ -236,6 +242,8 @@ int build_jbdesc_ppp_encap(struct program *p, uint32_t *buff, int buffpos)
 		return -EINVAL;
 
 	PROGRAM_CNTXT_INIT(p, buff, buffpos);
+	if (need_bswap)
+		PROGRAM_SET_BSWAP(p);
 	JOB_HDR(p, SHR_NEVER, buffpos, shr_addr, REO | SHR);
 	{
 		JUMP(p, 3, LOCAL_JUMP, ALL_TRUE, 0);

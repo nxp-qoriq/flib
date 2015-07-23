@@ -37,6 +37,8 @@ int mod_exp(uint32_t *buff)
 	uint64_t res = (uint64_t) 0x332244514ull;
 
 	PROGRAM_CNTXT_INIT(p, buff, 0);
+	if (need_bswap)
+		PROGRAM_SET_BSWAP(p);
 	JOB_HDR(p, SHR_NEVER, 0, 0, 0);
 	{
 		FIFOLOAD(p, PKN, mod, field_size, 0);

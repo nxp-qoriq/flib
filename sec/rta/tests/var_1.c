@@ -33,9 +33,10 @@ int var_test(uint32_t *buff)
 	int secret_len = sizeof(secret);
 	uint64_t secret_out = 0x3000200;
 
-	PROGRAM_SET_36BIT_ADDR(p);
-
 	PROGRAM_CNTXT_INIT(p, buff, 0);
+	PROGRAM_SET_36BIT_ADDR(p);
+	if (need_bswap)
+		PROGRAM_SET_BSWAP(p);
 	/* RSA Encrypt */
 	JOB_HDR(p, SHR_NEVER, 0, 0, 0);
 	{

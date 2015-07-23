@@ -102,6 +102,8 @@ int build_shr_desc_ppp_decap(struct program *p, uint32_t *buff,
 	 *       was used instead of 32-bit addressing.
 	 */
 	PROGRAM_CNTXT_INIT(p, buff, buffpos);
+	if (need_bswap)
+		PROGRAM_SET_BSWAP(p);
 	SHR_HDR(p, SHR_NEVER, 46, 0);
 	{
 		SET_LABEL(p, b);
@@ -193,6 +195,8 @@ int build_extra_cmds(struct program *p, uint32_t *buff, unsigned buffpos)
 	REFERENCE(pjumpg);
 
 	PROGRAM_CNTXT_INIT(p, buff, buffpos);
+	if (need_bswap)
+		PROGRAM_SET_BSWAP(p);
 	{
 		MATHB(p, ZERO, ADD, OFIFO, MATH0, 8, 0);
 		MATHB(p, MATH0, XOR, 0x7d7d7d7d7d7d7d7d, MATH1, 8, IMMED2);
@@ -227,6 +231,8 @@ int build_more_cmds(struct program *p, uint32_t *buff, unsigned buffpos)
 	REFERENCE(pjumpi);
 
 	PROGRAM_CNTXT_INIT(p, buff, buffpos);
+	if (need_bswap)
+		PROGRAM_SET_BSWAP(p);
 	{
 		NFIFOADD(p, IFIFO, MSG, 8, 0);
 		MOVE(p, IFIFOABD, 0, OFIFO, 0, 8, IMMED);
@@ -267,6 +273,8 @@ int build_jbdesc_ppp_decap(struct program *p, uint32_t *buff, int buffpos)
 		return -EINVAL;
 
 	PROGRAM_CNTXT_INIT(p, buff, buffpos);
+	if (need_bswap)
+		PROGRAM_SET_BSWAP(p);
 	JOB_HDR(p, SHR_NEVER, buffpos, shr_addr, REO | SHR);
 	{
 		JUMP(p, 3, LOCAL_JUMP, ALL_TRUE, 0);

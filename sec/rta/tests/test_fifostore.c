@@ -18,6 +18,8 @@ int test_fifo_store_op(uint32_t *buff)
 	uint64_t loc = 0x1224445;
 
 	PROGRAM_CNTXT_INIT(p, buff, 0);
+	if (need_bswap)
+		PROGRAM_SET_BSWAP(p);
 	FIFOSTORE(p, MSG, 0, loc, 100000000, 0);
 	FIFOSTORE(p, RNG, 0, loc, 32, 0);
 	FIFOSTORE(p, RNGOFIFO, 0, 0, 1, 0);

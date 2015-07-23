@@ -30,6 +30,8 @@ int test_load_op(uint32_t *buff)
 	int where = 24;
 
 	PROGRAM_CNTXT_INIT(p, buff, 0);
+	if (need_bswap)
+		PROGRAM_SET_BSWAP(p);
 	LOAD(p, 03, CONTEXT1, 0, 1, IMMED);
 	LOAD(p, 0x616263, IFIFO, 0, 3, IMMED);
 	LOAD(p, four, PKNSZ, 0, 4, IMMED);

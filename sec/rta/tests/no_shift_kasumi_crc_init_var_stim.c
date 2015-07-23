@@ -73,6 +73,8 @@ int generate_lte_code(struct program *p, uint32_t *buff, int mdatalen,
 	REFERENCE(pmove9);
 
 	PROGRAM_CNTXT_INIT(p, buff, 0);
+	if (need_bswap)
+		PROGRAM_SET_BSWAP(p);
 
 	SHR_HDR(p, SHR_ALWAYS, 0, 0);
 	{
@@ -229,6 +231,8 @@ int generate_extra_desc_code(struct program *p, uint32_t *buff, int mdatalen,
 		return -EINVAL;
 
 	PROGRAM_CNTXT_INIT(p, buff, buffpos);
+	if (need_bswap)
+		PROGRAM_SET_BSWAP(p);
 
 	MATHB(p, MATH2, SUB, ONE, MATH2, 4, 0);	/* Done with a PDU */
 
@@ -260,6 +264,8 @@ int generate_more_extra_desc_code(struct program *p, uint32_t *buff,
 		return -EINVAL;
 
 	PROGRAM_CNTXT_INIT(p, buff, buffpos);
+	if (need_bswap)
+		PROGRAM_SET_BSWAP(p);
 
 	/* end extras to C2 context for later use */
 	MOVE(p, IFIFOABD, 0, CONTEXT2, 0, num_ctx2_extras, FLUSH1 | IMMED);
@@ -292,6 +298,8 @@ int generate_even_more_extra_desc_code(struct program *p, uint32_t *buff,
 		return -EINVAL;
 
 	PROGRAM_CNTXT_INIT(p, buff, buffpos);
+	if (need_bswap)
+		PROGRAM_SET_BSWAP(p);
 
 	MOVE(p, MATH0, 0, CONTEXT2, 4, 8, IMMED);
 	/* fix up head info FIFO entry */
@@ -323,6 +331,8 @@ int generate_yet_more_extra_desc_code(struct program *p, uint32_t *buff,
 		return -EINVAL;
 
 	PROGRAM_CNTXT_INIT(p, buff, buffpos);
+	if (need_bswap)
+		PROGRAM_SET_BSWAP(p);
 
 	/* get CRC init value into place */
 	MOVE(p, IFIFOABD, 0, CONTEXT2, 0, 4, FLUSH1 | IMMED);
@@ -358,6 +368,8 @@ int generate_still_more_extra_desc_code(struct program *p, uint32_t *buff,
 		return -EINVAL;
 
 	PROGRAM_CNTXT_INIT(p, buff, buffpos);
+	if (need_bswap)
+		PROGRAM_SET_BSWAP(p);
 
 	SET_LABEL(p, yet_more);
 	SEQFIFOSTORE(p, MSG, 0, 0, VLF);

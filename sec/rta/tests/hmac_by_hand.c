@@ -23,6 +23,8 @@ int build_hmacprecomp(uint32_t *buff)
 	uint32_t *hmacprecompute_opad_phys = (uint32_t *)0xaabb2200;
 
 	PROGRAM_CNTXT_INIT(p, buff, 0);
+	if (need_bswap)
+		PROGRAM_SET_BSWAP(p);
 	JOB_HDR(p, SHR_NEVER, 0, 0, 0);
 	{
 		LOAD(p, (uintptr_t) hmac_key, CONTEXT1, 0, hmac_key_len, 0);
@@ -84,6 +86,8 @@ int build_hmacprecomp_opad(uint32_t *buff)
 	struct program *p = &prg;
 
 	PROGRAM_CNTXT_INIT(p, buff, 0);
+	if (need_bswap)
+		PROGRAM_SET_BSWAP(p);
 	JOB_HDR(p, SHR_NEVER, 0, 0, 0);
 	{
 		LOAD(p, CLRW_CLR_C2CTX | CLRW_CLR_C2MODE | CLRW_CLR_C2DATAS,
@@ -149,6 +153,8 @@ int build_hmac_from_pre(uint32_t *buff)
 	unsigned int maclen = 28;
 
 	PROGRAM_CNTXT_INIT(p, buff, 0);
+	if (need_bswap)
+		PROGRAM_SET_BSWAP(p);
 	JOB_HDR(p, SHR_NEVER, 0, 0, 0);
 	{
 		/* Set up current state of inner hash */

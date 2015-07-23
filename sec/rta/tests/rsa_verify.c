@@ -22,6 +22,8 @@ int build_rsa_verify_desc(uint32_t *buff, uint32_t n_len, uint32_t e_len,
 	PROGRAM_SET_36BIT_ADDR(p);
 
 	PROGRAM_CNTXT_INIT(p, buff, 0);
+	if (need_bswap)
+		PROGRAM_SET_BSWAP(p);
 	JOB_HDR(p, SHR_NEVER, 0, 0, 0);
 	{
 		{	/* RSA Verify */

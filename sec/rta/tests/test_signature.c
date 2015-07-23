@@ -16,6 +16,8 @@ int test_signature_op(uint32_t *buff)
 	struct program *p = &prg;
 
 	PROGRAM_CNTXT_INIT(p, buff, 0);
+	if (need_bswap)
+		PROGRAM_SET_BSWAP(p);
 	{
 		SIGNATURE(p, SIGN_TYPE_IMM_2);
 		SIGNATURE(p, SIGN_TYPE_IMM_3);

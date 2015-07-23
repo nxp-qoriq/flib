@@ -48,6 +48,8 @@ int build_shdesc_raid_xor_opt(struct program *p, uint32_t *buff,
 	REFERENCE(pjump5);
 
 	PROGRAM_CNTXT_INIT(p, buff, buffpos);
+	if (need_bswap)
+		PROGRAM_SET_BSWAP(p);
 	SHR_HDR(p, SHR_NEVER, 0, 0);
 	{
 		SEQLOAD(p, CONTEXT1, 0, c1_ctxt_slots * 16, 0);
@@ -137,6 +139,8 @@ int build_jbdesc_raid_xor_opt(struct program *p, uint32_t *buff, int buffpos)
 		return -EINVAL;
 
 	PROGRAM_CNTXT_INIT(p, buff, buffpos);
+	if (need_bswap)
+		PROGRAM_SET_BSWAP(p);
 	JOB_HDR(p, SHR_ALWAYS, buffpos, share_desc_addr, REO | SHR);
 	{
 		SEQOUTPTR(p, store_ptr, data_size, EXT);
@@ -163,6 +167,8 @@ int build_more_cmds_raid_xor_opt(struct program *p, uint32_t *buff,
 	load_data_addr[7] = 0x08093d40ULL;
 
 	PROGRAM_CNTXT_INIT(p, buff, buffpos);
+	if (need_bswap)
+		PROGRAM_SET_BSWAP(p);
 	{
 		SEQINPTR(p, load_data_addr[0], data_size, EXT);
 		ref1_shr_first = SHR_HDR(p, SHR_NEVER, first, 0);

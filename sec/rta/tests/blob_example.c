@@ -25,6 +25,8 @@ int test_blob_example(uint32_t *buff)
 	uint32_t blob_length = data_length + 32 + 16;
 
 	PROGRAM_CNTXT_INIT(p, buff, 0);
+	if (need_bswap)
+		PROGRAM_SET_BSWAP(p);
 	JOB_HDR(p, SHR_NEVER, 0, 0, 0);
 	{
 		KEY(p, KEY2, 0, (uintptr_t) key_mod_addr, 16, 0);

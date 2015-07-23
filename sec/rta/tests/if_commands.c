@@ -18,6 +18,8 @@ int if_command_test(uint32_t *buff, uint8_t len)
 	PROGRAM_SET_36BIT_ADDR(p);
 
 	PROGRAM_CNTXT_INIT(p, buff, 0);
+	if (need_bswap)
+		PROGRAM_SET_BSWAP(p);
 
 	if (len == 16)
 		MOVE(p, CONTEXT1, 0, CONTEXT2, 0, 15, IMMED);

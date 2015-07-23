@@ -44,6 +44,8 @@ int jdesc_pkha_make_rsa_p_q(struct program *p, uint32_t *buff, int buffpos)
 		return -EINVAL;
 
 	PROGRAM_CNTXT_INIT(p, buff, buffpos);
+	if (need_bswap)
+		PROGRAM_SET_BSWAP(p);
 	JOB_HDR(p, SHR_NEVER, 0, 0, 0);
 	{
 		MATHB(p, ZERO, ADD, MATH0, MATH1, 4, 0); /* try counter */
@@ -130,6 +132,8 @@ int jdesc_pkha_make_rsa_check_pq(struct program *p, uint32_t *buff, int buffpos)
 		return -EINVAL;
 
 	PROGRAM_CNTXT_INIT(p, buff, buffpos);
+	if (need_bswap)
+		PROGRAM_SET_BSWAP(p);
 	JOB_HDR(p, SHR_NEVER, 0, 0, 0);
 	{
 		LOAD(p, 0, DCTRL, LDOFF_ENABLE_AUTO_NFIFO, 0, IMMED);
@@ -191,6 +195,8 @@ int jdesc_pkha_make_rsa_keys(struct program *p, uint32_t *buff,
 			     unsigned buffpos)
 {
 	PROGRAM_CNTXT_INIT(p, buff, buffpos);
+	if (need_bswap)
+		PROGRAM_SET_BSWAP(p);
 	JOB_HDR(p, SHR_NEVER, 0, 0, 0);
 	{
 		/* Configure Miller-Rabin test count ||  max random prime
@@ -215,6 +221,8 @@ int jdesc_pkha_make_rsa_d_n(struct program *p, uint32_t *buff, int buffpos)
 		return -EINVAL;
 
 	PROGRAM_CNTXT_INIT(p, buff, buffpos);
+	if (need_bswap)
+		PROGRAM_SET_BSWAP(p);
 	JOB_HDR(p, SHR_NEVER, 0, 0, 0);
 	{
 		PKHA_OPERATION(p, OP_ALG_PKMODE_COPY_NSZ_N_B);
