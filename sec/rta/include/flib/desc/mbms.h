@@ -158,7 +158,7 @@ struct mbms_type_1_3_pdb {
 };
 
 static inline void cnstr_shdsc_mbms_type0(uint32_t *descbuf, int *bufsize,
-					  bool ps)
+					  bool ps, bool swap)
 {
 	struct program prg;
 	struct program *p = &prg;
@@ -183,6 +183,9 @@ static inline void cnstr_shdsc_mbms_type0(uint32_t *descbuf, int *bufsize,
 	PROGRAM_CNTXT_INIT(p, descbuf, 0);
 	if (ps)
 		PROGRAM_SET_36BIT_ADDR(p);
+	if (swap)
+		PROGRAM_SET_BSWAP(p);
+
 	phdr = SHR_HDR(p, SHR_SERIAL, 0, 0);
 	COPY_DATA(p, (uint8_t *)&pdb, sizeof(pdb));
 	SET_LABEL(p, pdb_end);
@@ -349,7 +352,7 @@ static inline void cnstr_shdsc_mbms_type0(uint32_t *descbuf, int *bufsize,
 }
 
 static inline unsigned cnstr_shdsc_mbms_type1_3(uint32_t *descbuf, int *bufsize,
-						bool ps,
+						bool ps, bool swap,
 						enum mbms_pdu_type pdu_type)
 {
 	struct program part1_prg, part2_prg;
@@ -386,6 +389,8 @@ static inline unsigned cnstr_shdsc_mbms_type1_3(uint32_t *descbuf, int *bufsize,
 	PROGRAM_CNTXT_INIT(p, part1_buf, 0);
 	if (ps)
 		PROGRAM_SET_36BIT_ADDR(p);
+	if (swap)
+		PROGRAM_SET_BSWAP(p);
 
 	phdr = SHR_HDR(p, SHR_SERIAL, 0, 0);
 	COPY_DATA(p, (uint8_t *)&pdb, sizeof(pdb));
@@ -647,6 +652,10 @@ static inline unsigned cnstr_shdsc_mbms_type1_3(uint32_t *descbuf, int *bufsize,
 	 * after the PDB).
 	 */
 	PROGRAM_CNTXT_INIT(p, part2_buf, pdb_end);
+	if (ps)
+		PROGRAM_SET_36BIT_ADDR(p);
+	if (swap)
+		PROGRAM_SET_BSWAP(p);
 
 	/* Load the payload polynomial to KEY2 register */
 	KEY(p, KEY2, 0, MBMS_PAYLOAD_POLY, 2, IMMED);
@@ -777,6 +786,7 @@ static inline unsigned cnstr_shdsc_mbms_type1_3(uint32_t *descbuf, int *bufsize,
  * cnstr_shdsc_mbms - MBMS PDU CRC checking descriptor
  * @descbuf: pointer to buffer used for descriptor construction
  * @ps: if 36/40bit addressing is desired, this parameter must be true
+ * @swap: must be true when core endianness doesn't match SEC endianness
  * @preheader_len: length to be set in the corresponding preheader field. Unless
  *                 the descriptor is split in multiple parts, this will be equal
  *                 to bufsize.
@@ -786,7 +796,7 @@ static inline unsigned cnstr_shdsc_mbms_type1_3(uint32_t *descbuf, int *bufsize,
  *
  * Note: This function can be called only for SEC ERA >= 5.
  */
-static inline int cnstr_shdsc_mbms(uint32_t *descbuf, bool ps,
+static inline int cnstr_shdsc_mbms(uint32_t *descbuf, bool ps, bool swap,
 				   unsigned *preheader_len,
 				   enum mbms_pdu_type pdu_type)
 {
@@ -799,18 +809,18 @@ static inline int cnstr_shdsc_mbms(uint32_t *descbuf, bool ps,
 
 	switch (pdu_type) {
 	case MBMS_PDU_TYPE0:
-		cnstr_shdsc_mbms_type0(descbuf, &bufsize, ps);
+		cnstr_shdsc_mbms_type0(descbuf, &bufsize, ps, swap);
 		*preheader_len = (unsigned) bufsize;
 		break;
 
 	case MBMS_PDU_TYPE1:
 		*preheader_len = cnstr_shdsc_mbms_type1_3(descbuf, &bufsize, ps,
-							  MBMS_PDU_TYPE1);
+							  swap, MBMS_PDU_TYPE1);
 		break;
 
 	case MBMS_PDU_TYPE3:
 		*preheader_len = cnstr_shdsc_mbms_type1_3(descbuf, &bufsize, ps,
-							  MBMS_PDU_TYPE3);
+							  swap, MBMS_PDU_TYPE3);
 		break;
 
 	default:
