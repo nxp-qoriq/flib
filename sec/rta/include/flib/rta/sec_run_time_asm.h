@@ -669,11 +669,13 @@ static inline int rta_patch_load(struct program *program, int line,
 				 unsigned new_ref)
 {
 	uint32_t opcode;
+	bool bswap = program->bswap;
 
 	if (line < 0)
 		return -EINVAL;
 
-	opcode = program->buffer[line] & (uint32_t)~LDST_OFFSET_MASK;
+	opcode = (bswap ? swab32(program->buffer[line]) :
+			 program->buffer[line]) & (uint32_t)~LDST_OFFSET_MASK;
 
 	if (opcode & (LDST_SRCDST_WORD_DESCBUF | LDST_CLASS_DECO))
 		opcode |= (new_ref << LDST_OFFSET_SHIFT) & LDST_OFFSET_MASK;
@@ -681,7 +683,7 @@ static inline int rta_patch_load(struct program *program, int line,
 		opcode |= (new_ref << (LDST_OFFSET_SHIFT + 2)) &
 			  LDST_OFFSET_MASK;
 
-	program->buffer[line] = opcode;
+	program->buffer[line] = bswap ? swab32(opcode) : opcode;
 
 	return 0;
 }
