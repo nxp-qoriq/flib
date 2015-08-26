@@ -241,10 +241,10 @@ enum pdb_type_e {
  * NULL integrity).
  */
 static inline int pdcp_insert_cplane_null_op(struct program *p,
-		struct alginfo *cipherdata,
-		struct alginfo *authdata,
+		struct alginfo *cipherdata __maybe_unused ,
+		struct alginfo *authdata __maybe_unused ,
 		unsigned dir,
-		unsigned char era_2_sw_hfn_override)
+		unsigned char era_2_sw_hfn_override __maybe_unused)
 {
 	LABEL(local_offset);
 	REFERENCE(move_cmd_read_descbuf);
@@ -332,8 +332,8 @@ static inline int pdcp_insert_cplane_null_op(struct program *p,
 }
 
 static inline int insert_copy_frame_op(struct program *p,
-				       struct alginfo *cipherdata,
-				       unsigned dir)
+				struct alginfo *cipherdata __maybe_unused,
+				unsigned dir __maybe_unused)
 {
 	LABEL(local_offset);
 	REFERENCE(move_cmd_read_descbuf);
@@ -399,7 +399,7 @@ static inline int insert_copy_frame_op(struct program *p,
 }
 
 static inline int pdcp_insert_cplane_int_only_op(struct program *p,
-		struct alginfo *cipherdata,
+		struct alginfo *cipherdata __maybe_unused,
 		struct alginfo *authdata,
 		unsigned dir,
 		unsigned char era_2_sw_hfn_override)
@@ -665,9 +665,9 @@ static inline int pdcp_insert_cplane_int_only_op(struct program *p,
 
 static inline int pdcp_insert_cplane_enc_only_op(struct program *p,
 		struct alginfo *cipherdata,
-		struct alginfo *authdata,
+		struct alginfo *authdata __maybe_unused,
 		unsigned dir,
-		unsigned char era_2_sw_hfn_override)
+		unsigned char era_2_sw_hfn_override __maybe_unused)
 {
 	/* Insert Cipher Key */
 	KEY(p, KEY1, cipherdata->key_enc_flags, cipherdata->key,
@@ -781,7 +781,7 @@ static inline int pdcp_insert_cplane_acc_op(struct program *p,
 		struct alginfo *cipherdata,
 		struct alginfo *authdata,
 		unsigned dir,
-		unsigned char era_2_hfn_override)
+		unsigned char era_2_hfn_override __maybe_unused)
 {
 	/* Insert Auth Key */
 	KEY(p, KEY2, authdata->key_enc_flags, authdata->key, authdata->keylen,
@@ -1087,7 +1087,7 @@ static inline int pdcp_insert_cplane_aes_snow_op(struct program *p,
 		struct alginfo *cipherdata,
 		struct alginfo *authdata,
 		unsigned dir,
-		unsigned char era_2_sw_hfn_override)
+		unsigned char era_2_sw_hfn_override __maybe_unused)
 {
 	KEY(p, KEY1, cipherdata->key_enc_flags, cipherdata->key,
 	    cipherdata->keylen, INLINE_KEY(cipherdata));
@@ -1169,7 +1169,7 @@ static inline int pdcp_insert_cplane_snow_zuc_op(struct program *p,
 		struct alginfo *cipherdata,
 		struct alginfo *authdata,
 		unsigned dir,
-		unsigned char era_2_sw_hfn_override)
+		unsigned char era_2_sw_hfn_override __maybe_unused)
 {
 	LABEL(keyjump);
 	REFERENCE(pkeyjump);
@@ -1249,7 +1249,7 @@ static inline int pdcp_insert_cplane_aes_zuc_op(struct program *p,
 		struct alginfo *cipherdata,
 		struct alginfo *authdata,
 		unsigned dir,
-		unsigned char era_2_sw_hfn_override)
+		unsigned char era_2_sw_hfn_override __maybe_unused)
 {
 	LABEL(keyjump);
 	REFERENCE(pkeyjump);
@@ -1333,7 +1333,7 @@ static inline int pdcp_insert_cplane_zuc_snow_op(struct program *p,
 		struct alginfo *cipherdata,
 		struct alginfo *authdata,
 		unsigned dir,
-		unsigned char era_2_sw_hfn_override)
+		unsigned char era_2_sw_hfn_override __maybe_unused)
 {
 	LABEL(keyjump);
 	REFERENCE(pkeyjump);
@@ -1428,7 +1428,7 @@ static inline int pdcp_insert_cplane_zuc_aes_op(struct program *p,
 		struct alginfo *cipherdata,
 		struct alginfo *authdata,
 		unsigned dir,
-		unsigned char era_2_sw_hfn_override)
+		unsigned char era_2_sw_hfn_override __maybe_unused)
 {
 	if (rta_sec_era < RTA_SEC_ERA_5) {
 		pr_err("Invalid era for selected algorithm\n");
@@ -1758,11 +1758,11 @@ static inline enum pdb_type_e cnstr_pdcp_c_plane_pdb(struct program *p,
 /*
  * PDCP UPlane PDB creation function
  */
-static inline unsigned cnstr_pdcp_u_plane_pdb(struct program *p,
-					  enum pdcp_sn_size sn_size,
-					  uint32_t hfn, unsigned short bearer,
-					  unsigned short direction,
-					  uint32_t hfn_threshold)
+static inline int cnstr_pdcp_u_plane_pdb(struct program *p,
+					 enum pdcp_sn_size sn_size,
+					 uint32_t hfn, unsigned short bearer,
+					 unsigned short direction,
+					 uint32_t hfn_threshold)
 {
 	struct pdcp_pdb pdb;
 	/* Read options from user */
@@ -1851,7 +1851,8 @@ static inline int cnstr_shdsc_pdcp_c_plane_encap(uint32_t *descbuf,
 	static int
 		(*pdcp_cp_fp[PDCP_CIPHER_TYPE_INVALID][PDCP_AUTH_TYPE_INVALID])
 			(struct program*, struct alginfo *,
-			 struct alginfo *, unsigned, unsigned char) = {
+			 struct alginfo *, unsigned,
+			unsigned char __maybe_unused) = {
 		{	/* NULL */
 			pdcp_insert_cplane_null_op,	/* NULL */
 			pdcp_insert_cplane_int_only_op,	/* SNOW f9 */
@@ -1877,7 +1878,7 @@ static inline int cnstr_shdsc_pdcp_c_plane_encap(uint32_t *descbuf,
 			pdcp_insert_cplane_acc_op	/* ZUC-I */
 		},
 	};
-	static uint32_t
+	static enum rta_share_type
 		desc_share[PDCP_CIPHER_TYPE_INVALID][PDCP_AUTH_TYPE_INVALID] = {
 		{	/* NULL */
 			SHR_WAIT,	/* NULL */
@@ -2019,7 +2020,7 @@ static inline int cnstr_shdsc_pdcp_c_plane_decap(uint32_t *descbuf,
 			pdcp_insert_cplane_acc_op	/* ZUC-I */
 		},
 	};
-	static uint32_t
+	static enum rta_share_type
 		desc_share[PDCP_CIPHER_TYPE_INVALID][PDCP_AUTH_TYPE_INVALID] = {
 		{	/* NULL */
 			SHR_WAIT,	/* NULL */
@@ -2254,7 +2255,6 @@ static inline int cnstr_shdsc_pdcp_u_plane_decap(uint32_t *descbuf,
 {
 	struct program prg;
 	struct program *p = &prg;
-	struct pdcp_pdb pdb;
 	int err;
 	LABEL(pdb_end);
 
