@@ -539,8 +539,8 @@ static inline void __rta_dma_data(void *ws_dst, uint64_t ext_address,
 				  uint16_t size)
 { cdma_read(ws_dst, ext_address, size); }
 #else
-static inline void __rta_dma_data(void *ws_dst, uint64_t ext_address,
-				  uint16_t size)
+static inline void __rta_dma_data(void *ws_dst __maybe_unused,
+	uint64_t ext_address __maybe_unused, uint16_t size __maybe_unused)
 { pr_warn("RTA: DCOPY not supported, DMA will be skipped\n"); }
 #endif /* defined(__EWL__) && defined(AIOP) */
 

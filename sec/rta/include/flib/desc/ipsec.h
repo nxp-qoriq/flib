@@ -635,13 +635,14 @@ static inline int cnstr_shdsc_ipsec_encap(uint32_t *descbuf, bool ps, bool swap,
 	COPY_DATA(p, pdb->ip_hdr, pdb->ip_hdr_len);
 	SET_LABEL(p, hdr);
 	pkeyjmp = JUMP(p, keyjmp, LOCAL_JUMP, ALL_TRUE, BOTH|SHRD);
-	if (authdata->keylen)
+	if (authdata->keylen) {
 		if (rta_sec_era < RTA_SEC_ERA_6)
 			KEY(p, MDHA_SPLIT_KEY, authdata->key_enc_flags,
 			    authdata->key, authdata->keylen,
 			    INLINE_KEY(authdata));
 		else
 			__gen_auth_key(p, authdata);
+	}
 	if (cipherdata->keylen)
 		KEY(p, KEY1, cipherdata->key_enc_flags, cipherdata->key,
 		    cipherdata->keylen, INLINE_KEY(cipherdata));
@@ -698,13 +699,14 @@ static inline int cnstr_shdsc_ipsec_decap(uint32_t *descbuf, bool ps, bool swap,
 	__rta_copy_ipsec_decap_pdb(p, pdb, cipherdata->algtype);
 	SET_LABEL(p, hdr);
 	pkeyjmp = JUMP(p, keyjmp, LOCAL_JUMP, ALL_TRUE, BOTH|SHRD);
-	if (authdata->keylen)
+	if (authdata->keylen) {
 		if (rta_sec_era < RTA_SEC_ERA_6)
 			KEY(p, MDHA_SPLIT_KEY, authdata->key_enc_flags,
 			    authdata->key, authdata->keylen,
 			    INLINE_KEY(authdata));
 		else
 			__gen_auth_key(p, authdata);
+	}
 	if (cipherdata->keylen)
 		KEY(p, KEY1, cipherdata->key_enc_flags, cipherdata->key,
 		    cipherdata->keylen, INLINE_KEY(cipherdata));
@@ -1291,9 +1293,6 @@ static inline int cnstr_shdsc_authenc(uint32_t *descbuf, bool swap, bool ps,
 	LABEL(keyjmp);
 	LABEL(skipkeys);
 	LABEL(aonly_len_offset);
-	LABEL(out_skip_offset);
-	LABEL(patch_icv_off);
-	LABEL(skip_patch_icv_off);
 	REFERENCE(pskip_patch_len);
 	REFERENCE(pkeyjmp);
 	REFERENCE(pskipkeys);
