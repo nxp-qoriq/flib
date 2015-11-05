@@ -468,7 +468,7 @@ static inline void __rta_out64(struct program *program, bool is_ext,
 		 * For the order of the 2 words to be correct, we need to
 		 * take into account the endianness of the CPU.
 		 */
-#ifdef __BIG_ENDIAN
+#if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
 		__rta_out32(program, program->bswap ? lower_32_bits(val) :
 						      upper_32_bits(val));
 

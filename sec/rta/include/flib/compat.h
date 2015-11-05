@@ -17,11 +17,7 @@
 #include <stdbool.h>
 #include <byteswap.h>
 
-#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
-#undef __BIG_ENDIAN
-#elif __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
-#undef __LITTLE_ENDIAN
-#else
+#ifndef __BYTE_ORDER__
 #error "Undefined endianness"
 #endif
 
@@ -131,33 +127,50 @@ static inline __printf(1, 2) int no_printf(const char *fmt, ...)
 
 /* Use Linux naming convention */
 #ifdef __GLIBC__
-#define swab16(x) bswap_16(x)
-#define swab32(x) bswap_32(x)
-#define swab64(x) bswap_64(x)
-#if !defined(cpu_to_be32) && !defined(cpu_to_le32)
-#ifdef __BIG_ENDIAN
-#define cpu_to_be32(x)	(x)
-#define cpu_to_le32(x)	swab32(x)
-#elif defined(__LITTLE_ENDIAN)
-#define cpu_to_be32(x)	swab32(x)
-#define cpu_to_le32(x)	(x)
-#else
-#error Endianness not set in environment!
-#endif /* __BIG_ENDIAN */
-#endif /* !defined(cpu_to_be32) && !defined(cpu_to_le32) */
+	#define swab16(x) bswap_16(x)
+	#define swab32(x) bswap_32(x)
+	#define swab64(x) bswap_64(x)
+	#if !defined(cpu_to_be32) && !defined(cpu_to_le32)
+		#if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+			#define cpu_to_be32(x)	(x)
+			#define cpu_to_le32(x)	swab32(x)
+		#elif __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+			#define cpu_to_be32(x)	swab32(x)
+			#define cpu_to_le32(x)	(x)
+		#else
+			#error Endianness not set in environment!
+		#endif /* __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__ */
+	#endif /* !defined(cpu_to_be32) && !defined(cpu_to_le32) */
 #elif defined(__EWL__) && (defined(AIOP) || defined(MC))
-#define swab16(x) swap_uint16(x)
-#define swab32(x) swap_uint32(x)
-#define swab64(x) swap_uint64(x)
-#define cpu_to_be32(x)	CPU_TO_BE32(x)
-#define cpu_to_le32(x)	CPU_TO_LE32(x)
-#ifdef CORE_IS_BIG_ENDIAN
-#define __BIG_ENDIAN
-#elif defined(CORE_IS_LITTLE_ENDIAN)
-#define __LITTLE_ENDIAN
-#else
-#error Endianness not set in environment!
-#endif /* CORE_IS_BIG_ENDIAN */
+	#define swab16(x) swap_uint16(x)
+	#define swab32(x) swap_uint32(x)
+	#define swab64(x) swap_uint64(x)
+	#define cpu_to_be32(x)	CPU_TO_BE32(x)
+	#define cpu_to_le32(x)	CPU_TO_LE32(x)
+	/* Define endianness macros if not defined by the compiler */
+	#ifndef __BIG_ENDIAN
+		#define __BIG_ENDIAN 0x10e1
+	#endif
+	#ifndef __ORDER_BIG_ENDIAN__
+		#define __ORDER_BIG_ENDIAN__ __BIG_ENDIAN
+	#endif
+	#ifndef __LITTLE_ENDIAN
+		#define __LITTLE_ENDIAN 0xe110
+	#endif
+	#ifndef __ORDER_LITTLE_ENDIAN__
+		#define __ORDER_LITTLE_ENDIAN__ __LITTLE_ENDIAN
+	#endif
+	#ifdef CORE_IS_BIG_ENDIAN
+		#ifndef __BYTE_ORDER__
+			#define __BYTE_ORDER__ __ORDER_BIG_ENDIAN__
+		#endif
+	#elif defined(CORE_IS_LITTLE_ENDIAN)
+		#ifndef __BYTE_ORDER__
+			#define __BYTE_ORDER__ __ORDER_LITTLE_ENDIAN__
+		#endif
+	#else
+		#error Endianness not set in environment!
+	#endif /* CORE_IS_BIG_ENDIAN */
 #endif
 
 #endif /* __RTA_COMPAT_H__ */
