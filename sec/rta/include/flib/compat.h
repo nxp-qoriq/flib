@@ -130,17 +130,22 @@ static inline __printf(1, 2) int no_printf(const char *fmt, ...)
 	#define swab16(x) bswap_16(x)
 	#define swab32(x) bswap_32(x)
 	#define swab64(x) bswap_64(x)
-	#if !defined(cpu_to_be32) && !defined(cpu_to_le32)
+	/* Define cpu_to_be32 macro if not defined in the build environment */
+	#if !defined(cpu_to_be32)
 		#if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
 			#define cpu_to_be32(x)	(x)
-			#define cpu_to_le32(x)	swab32(x)
-		#elif __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
-			#define cpu_to_be32(x)	swab32(x)
-			#define cpu_to_le32(x)	(x)
 		#else
-			#error Endianness not set in environment!
-		#endif /* __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__ */
-	#endif /* !defined(cpu_to_be32) && !defined(cpu_to_le32) */
+			#define cpu_to_be32(x)	swab32(x)
+		#endif
+	#endif
+	/* Define cpu_to_le32 macro if not defined in the build environment */
+	#if !defined(cpu_to_le32)
+		#if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+			#define cpu_to_le32(x)	swab32(x)
+		#else
+			#define cpu_to_le32(x)	(x)
+		#endif
+	#endif
 #elif defined(__EWL__) && (defined(AIOP) || defined(MC))
 	#define swab16(x) swap_uint16(x)
 	#define swab32(x) swap_uint32(x)
