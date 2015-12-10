@@ -50,15 +50,20 @@ typedef unsigned char			_Bool;
 #define __always_inline inline __attribute__((always_inline))
 #endif
 
+#ifndef __always_unused
+#define __always_unused __attribute__((unused))
+#endif
+
 #ifndef __maybe_unused
 #define __maybe_unused __attribute__((unused))
 #endif
 
-#if defined(__GLIBC__) && defined(SUPPRESS_PRINTS)
+#if defined(__GLIBC__) && (defined(SUPPRESS_PRINTS) || \
+			   (!defined(pr_debug) && !defined(RTA_DEBUG)))
 #ifndef __printf
 #define __printf(a, b)	__attribute__((format(printf, 1, 2)))
 #endif
-static inline __printf(1, 2) int no_printf(const char *fmt, ...)
+static inline __printf(1, 2) int no_printf(const char *fmt __always_unused, ...)
 {
 	return 0;
 }
