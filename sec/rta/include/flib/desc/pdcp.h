@@ -2207,6 +2207,11 @@ static inline int cnstr_shdsc_pdcp_u_plane_encap(uint32_t *descbuf,
 			break;
 		}
 		break;
+
+	case PDCP_SN_SIZE_5:
+	default:
+		pr_err("Invalid SN size selected\n");
+		return -ENOTSUP;
 	}
 
 	PATCH_HDR(p, 0, pdb_end);
@@ -2328,6 +2333,11 @@ static inline int cnstr_shdsc_pdcp_u_plane_decap(uint32_t *descbuf,
 			break;
 		}
 		break;
+
+	case PDCP_SN_SIZE_5:
+	default:
+		pr_err("Invalid SN size selected\n");
+		return -ENOTSUP;
 	}
 
 	PATCH_HDR(p, 0, pdb_end);
