@@ -314,7 +314,7 @@ static inline void cnstr_shdsc_mbms_type0(uint32_t *descbuf, int *bufsize,
 	SET_LABEL(p, rto);
 
 	/* Halt here with the appropriate status */
-	JUMP(p, MBMS_CRC_HDR_FAIL, HALT_STATUS, ALL_FALSE, CALM);
+	JUMP(p, MBMS_CRC_HDR_FAIL, HALT_STATUS, ALL_TRUE, CALM);
 
 	/*
 	 * If here, all is fine, so prepare the frame-copying. First revert
