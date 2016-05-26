@@ -1120,7 +1120,7 @@ static inline int cnstr_shdsc_ipsec_decap_des_aes_xcbc(uint32_t *descbuf,
  * layers to determine whether Outer IP Header and/or keys can be inlined or
  * not. To be used as first parameter of rta_inline_query().
  */
-#define IPSEC_NEW_ENC_BASE_DESC_LEN	(5 * CAAM_CMD_SZ + \
+#define IPSEC_NEW_ENC_BASE_DESC_LEN	(12 * CAAM_CMD_SZ + \
 					 sizeof(struct ipsec_encap_pdb))
 
 /**
@@ -1132,7 +1132,7 @@ static inline int cnstr_shdsc_ipsec_decap_des_aes_xcbc(uint32_t *descbuf,
  * layers to determine whether Outer IP Header and/or key can be inlined or
  * not. To be used as first parameter of rta_inline_query().
  */
-#define IPSEC_NEW_NULL_ENC_BASE_DESC_LEN	(4 * CAAM_CMD_SZ + \
+#define IPSEC_NEW_NULL_ENC_BASE_DESC_LEN	(11 * CAAM_CMD_SZ + \
 						 sizeof(struct ipsec_encap_pdb))
 
 /**
@@ -1160,6 +1160,15 @@ static inline int cnstr_shdsc_ipsec_decap_des_aes_xcbc(uint32_t *descbuf,
  *            compute MDHA on the fly in HW.
  *            Valid algorithm values - one of OP_PCL_IPSEC_*
  *
+ * Note: L2 header copy functionality is implemented assuming that bits 14
+ * (currently reserved) and 16-23 (part of Outer IP Header Material Length)
+ * in DPOVRD register are not used (which is usually the case when L3 header
+ * is provided in PDB).
+ * When DPOVRD[14] is set, frame starts with an L2 header; in this case, the
+ * L2 header length is found at DPOVRD[23:16]. SEC uses this length to copy
+ * the header and then it deletes DPOVRD[23:16] (so there is no side effect
+ * when later running IPsec protocol).
+ *
  * Return: size of descriptor written in words or negative number on error
  */
 static inline int cnstr_shdsc_ipsec_new_encap(uint32_t *descbuf, bool ps,
@@ -1176,6 +1185,8 @@ static inline int cnstr_shdsc_ipsec_new_encap(uint32_t *descbuf, bool ps,
 	REFERENCE(pkeyjmp);
 	LABEL(hdr);
 	REFERENCE(phdr);
+	LABEL(l2copy);
+	REFERENCE(pl2copy);
 
 	if (rta_sec_era < RTA_SEC_ERA_8) {
 		pr_err("IPsec new mode encap: available only for Era %d or above\n",
@@ -1207,6 +1218,16 @@ static inline int cnstr_shdsc_ipsec_new_encap(uint32_t *descbuf, bool ps,
 	}
 	SET_LABEL(p, hdr);
 
+	MATHB(p, DPOVRD, AND, IPSEC_N_ENCAP_DPOVRD_L2_COPY, NONE, 4, IMMED2);
+	pl2copy = JUMP(p, l2copy, LOCAL_JUMP, ALL_TRUE, MATH_Z);
+	MATHI(p, DPOVRD, RSHIFT, IPSEC_N_ENCAP_DPOVRD_L2_LEN_SHIFT, VSEQOUTSZ,
+	      1, 0);
+	MATHB(p, DPOVRD, AND, ~IPSEC_N_ENCAP_DPOVRD_L2_LEN_MASK, DPOVRD, 4,
+	      IMMED2);
+	/* TODO: CLASS2 corresponds to AUX=2'b10; add more intuitive defines */
+	SEQFIFOSTORE(p, METADATA, 0, 0, CLASS2 | VLF);
+	SET_LABEL(p, l2copy);
+
 	pkeyjmp = JUMP(p, keyjmp, LOCAL_JUMP, ALL_TRUE, SHRD);
 	if (authdata->keylen)
 		__gen_auth_key(p, authdata);
@@ -1217,6 +1238,7 @@ static inline int cnstr_shdsc_ipsec_new_encap(uint32_t *descbuf, bool ps,
 	PROTOCOL(p, OP_TYPE_ENCAP_PROTOCOL,
 		 OP_PCLID_IPSEC_NEW,
 		 (uint16_t)(cipherdata->algtype | authdata->algtype));
+	PATCH_JUMP(p, pl2copy, l2copy);
 	PATCH_JUMP(p, pkeyjmp, keyjmp);
 	PATCH_HDR(p, phdr, hdr);
 	return PROGRAM_FINALIZE(p);
