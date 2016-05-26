@@ -519,37 +519,130 @@ enum ipsec_icv_size {
 
 /*
  * IPSec ESP Datapath Protocol Override Register (DPOVRD)
+ * IPSEC_N_* defines are for IPsec new mode.
  */
 
-#define IPSEC_DECO_DPOVRD_USE		0x80
+/**
+ * IPSEC_DPOVRD_USE - DPOVRD will override values specified in the PDB
+ */
+#define IPSEC_DPOVRD_USE	BIT(31)
 
-struct ipsec_deco_dpovrd {
-	uint8_t ovrd_ecn;
-	uint8_t ip_hdr_len;
-	uint8_t nh_offset;
-	union {
-		uint8_t next_header;	/* next header if encap */
-		uint8_t rsvd;		/* reserved if decap */
-	};
-};
+/**
+ * IPSEC_DPOVRD_ECN_SHIFT - Explicit Congestion Notification
+ *
+ * If set, MSB of the 4 bits indicates that the 2 LSBs will replace the ECN bits
+ * in the IP header.
+ */
+#define IPSEC_DPOVRD_ECN_SHIFT		24
 
-struct ipsec_new_encap_deco_dpovrd {
-#define IPSEC_NEW_ENCAP_DECO_DPOVRD_USE	0x8000
-	uint16_t ovrd_ip_hdr_len;	/* OVRD + outer IP header material
-					 * length */
-#define IPSEC_NEW_ENCAP_OIMIF		0x80
-	uint8_t oimif_aoipho;		/* OIMIF + actual outer IP header
-					 * offset */
-	uint8_t rsvd;
-};
+/**
+ * IPSEC_DPOVRD_ECN_MASK - See IPSEC_DPOVRD_ECN_SHIFT
+ */
+#define IPSEC_DPOVRD_ECN_MASK		(0xf << IPSEC_ENCAP_DPOVRD_ECN_SHIFT)
 
-struct ipsec_new_decap_deco_dpovrd {
-	uint8_t ovrd;
-	uint8_t aoipho_hi;		/* upper nibble of actual outer IP
-					 * header */
-	uint16_t aoipho_lo_ip_hdr_len;	/* lower nibble of actual outer IP
-					 * header + outer IP header material */
-};
+/**
+ * IPSEC_DPOVRD_IP_HDR_LEN_SHIFT - The length (in bytes) of the portion of the
+ *                                 IP header that is not encrypted
+ */
+#define IPSEC_DPOVRD_IP_HDR_LEN_SHIFT	16
+
+/**
+ * IPSEC_DPOVRD_IP_HDR_LEN_MASK - See IPSEC_DPOVRD_IP_HDR_LEN_SHIFT
+ */
+#define IPSEC_DPOVRD_IP_HDR_LEN_MASK	(0xff << IPSEC_DPOVRD_IP_HDR_LEN_SHIFT)
+
+/**
+ * IPSEC_DPOVRD_NH_OFFSET_SHIFT - The location of the next header field within
+ *                                the IP header of the transport mode packet
+ *
+ * Encap:
+ * 	ESP_Trailer_NH <-- IP_Hdr[DPOVRD[NH_OFFSET]]
+ * 	IP_Hdr[DPOVRD[NH_OFFSET]] <-- DPOVRD[NH]
+ * Decap:
+ * 	IP_Hdr[DPOVRD[NH_OFFSET]] <-- ESP_Trailer_NH
+ */
+#define IPSEC_DPOVRD_NH_OFFSET_SHIFT	8
+
+/**
+ * IPSEC_DPOVRD_NH_OFFSET_MASK - See IPSEC_DPOVRD_NH_OFFSET_SHIFT
+ */
+#define IPSEC_DPOVRD_NH_OFFSET_MASK	(0xff << IPSEC_DPOVRD_NH_OFFSET_SHIFT)
+
+/**
+ * IPSEC_DPOVRD_NH_MASK - See IPSEC_DPOVRD_NH_OFFSET_SHIFT
+ *                        Valid only for encapsulation.
+ */
+#define IPSEC_DPOVRD_NH_MASK		0xff
+
+/**
+ * IPSEC_N_ENCAP_DPOVRD_OIM_LEN_SHIFT - Outer IP header Material length (encap)
+ *                                      Valid only if L2_COPY is not set.
+ */
+#define IPSEC_N_ENCAP_DPOVRD_OIM_LEN_SHIFT	16
+
+/**
+ * IPSEC_N_ENCAP_DPOVRD_OIM_LEN_MASK - See IPSEC_N_ENCAP_DPOVRD_OIM_LEN_SHIFT
+ */
+#define IPSEC_N_ENCAP_DPOVRD_OIM_LEN_MASK \
+	(0xfff << IPSEC_N_ENCAP_DPOVRD_OIM_LEN_SHIFT)
+
+/**
+ * IPSEC_N_ENCAP_DPOVRD_L2_LEN_SHIFT - L2 header length
+ *                                     Valid only if L2_COPY is set.
+ */
+#define IPSEC_N_ENCAP_DPOVRD_L2_LEN_SHIFT	16
+
+/**
+ * IPSEC_N_ENCAP_DPOVRD_L2_LEN_MASK - See IPSEC_N_ENCAP_DPOVRD_L2_LEN_SHIFT
+ */
+#define IPSEC_N_ENCAP_DPOVRD_L2_LEN_MASK \
+	(0xff << IPSEC_N_ENCAP_DPOVRD_L2_LEN_SHIFT)
+
+/**
+ * IPSEC_N_ENCAP_DPOVRD_OIMIF -  Outer IP header Material in Input Frame
+ */
+#define IPSEC_N_ENCAP_DPOVRD_OIMIF		BIT(15)
+
+/**
+ * IPSEC_N_ENCAP_DPOVRD_L2_COPY - L2 header present in input frame
+ *
+ * Note: For Era <= 8, this bit is reserved (not used) by HW.
+ */
+#define IPSEC_N_ENCAP_DPOVRD_L2_COPY		BIT(14)
+
+/**
+ * IPSEC_N_ENCAP_DPOVRD_AOIPHO_SHIFT - Actual Outer IP Header Offset (encap)
+ */
+#define IPSEC_N_ENCAP_DPOVRD_AOIPHO_SHIFT	8
+
+/**
+ * IPSEC_N_ENCAP_DPOVRD_AOIPHO_MASK - See IPSEC_N_ENCAP_DPOVRD_AOIPHO_SHIFT
+ */
+#define IPSEC_N_ENCAP_DPOVRD_AOIPHO_MASK \
+	(0x3c << IPSEC_N_ENCAP_DPOVRD_AOIPHO_SHIFT)
+
+/**
+ * IPSEC_N_ENCAP_DPOVRD_NH_MASK -  Next Header
+ *
+ * Used in the Next Header field of the encapsulated payload.
+ */
+#define IPSEC_N_ENCAP_DPOVRD_NH_MASK		0xff
+
+/**
+ * IPSEC_N_DECAP_DPOVRD_AOIPHO_SHIFT - Actual Outer IP Header Offset (decap)
+ */
+#define IPSEC_N_DECAP_DPOVRD_AOIPHO_SHIFT	12
+
+/**
+ * IPSEC_N_DECAP_DPOVRD_AOIPHO_MASK - See IPSEC_N_DECAP_DPOVRD_AOIPHO_SHIFT
+ */
+#define IPSEC_N_DECAP_DPOVRD_AOIPHO_MASK \
+	(0xff << IPSEC_N_DECAP_DPOVRD_AOIPHO_SHIFT)
+
+/**
+ * IPSEC_N_DECAP_DPOVRD_OIM_LEN_MASK - Outer IP header Material length (decap)
+ */
+#define IPSEC_N_DECAP_DPOVRD_OIM_LEN_MASK	0xfff
 
 static inline void __gen_auth_key(struct program *program,
 				  struct alginfo *authdata)
