@@ -23,7 +23,21 @@
 #define DTLS_PDBOPTS_ARS32	0x40	/* DTLS only */
 #define DTLS_PDBOPTS_ARS128	0x80	/* DTLS only */
 #define DTLS_PDBOPTS_ARS64	0xc0	/* DTLS only */
-#define TLS_PDBOPTS_OUTFMT	0x08
+/**
+ * TLS_PDBOPTS_OUTFMT_MASK - output frame format mask (decapsulation only)
+ */
+#define TLS_PDBOPTS_OUTFMT_MASK	0x0C
+
+/**
+ * TLS_PDBOPTS_OUTFMT_FULL - Full copy of unencrypted fields from input frame
+ *                           to output frame.
+ */
+#define TLS_PDBOPTS_OUTFMT_FULL	0x08
+/**
+ * TLS_PDBOPTS_OUTFMT_RHP - record header + payload; valid for SEC ERA >= 5
+ */
+#define TLS_PDBOPTS_OUTFMT_RHP	0x04
+
 #define TLS_PDBOPTS_IV_WRTBK	0x02	/* TLS1.1/TLS1.2/DTLS only */
 #define TLS_PDBOPTS_EXP_RND_IV	0x01	/* TLS1.1/TLS1.2/DTLS only */
 #define TLS_PDBOPTS_TR_ICV	0x10	/* Available starting with SEC ERA 5 */
