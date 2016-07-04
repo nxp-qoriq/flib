@@ -20,9 +20,11 @@
  * TLS family encapsulation/decapsulation PDB definitions.
  */
 #define DTLS_PDBOPTS_ARS_MASK	0xC0
-#define DTLS_PDBOPTS_ARS32	0x40	/* DTLS only */
-#define DTLS_PDBOPTS_ARS128	0x80	/* DTLS only */
-#define DTLS_PDBOPTS_ARS64	0xc0	/* DTLS only */
+#define DTLS_PDBOPTS_ARS32	0x40	/* 32-entry DTLS anti-replay window */
+#define DTLS_PDBOPTS_ARS128	0x80	/* 128-entry DTLS anti-replay window */
+#define DTLS_PDBOPTS_ARS64	0xc0	/* 64-entry DTLS anti-replay window */
+#define DTLS_PDBOPTS_ARSNONE	0x00	/* DTLS anti-replay window disabled */
+
 /**
  * TLS_PDBOPTS_OUTFMT_MASK - output frame format mask (decapsulation only)
  */
@@ -43,6 +45,27 @@
 #define TLS_PDBOPTS_TR_ICV	0x10	/* Available starting with SEC ERA 5 */
 #define TLS_PDBOPTS_TR_ICV_LEN_SHIFT	24
 #define TLS_PDBOPTS_TR_ICV_LEN_MASK	(0xff << TLS_PDBOPTS_TR_ICV_LEN_SHIFT)
+
+/**
+ * TLS_DPOVRD_USE - DPOVRD will override values specified in the PDB
+ */
+#define TLS_DPOVRD_USE		BIT(31)
+
+/**
+ * DTLS_DPOVRD_METADATA_LEN_SHIFT - Metadata length
+ */
+#define DTLS_DPOVRD_METADATA_LEN_SHIFT	16
+
+/**
+ * DTLS_DPOVRD_METADATA_LEN_MASK - See DTLS_DPOVRD_METADATA_LEN_SHIFT
+ */
+#define DTLS_DPOVRD_METADATA_LEN_MASK	(0xff << DTLS_DPOVRD_METADATA_LEN_SHIFT)
+
+/**
+ * TLS_DPOVRD_TYPE_MASK - Mask for TLS / DTLS type
+ *                        Valid only for encapsulation.
+ */
+#define TLS_DPOVRD_TYPE_MASK	0xff
 
 /**
  * struct tls_block_enc - SSL3.0/TLS1.0/TLS1.1/TLS1.2 block encapsulation PDB
@@ -81,7 +104,7 @@ struct tls_block_enc {
 #pragma pack(pop)
 
 /**
- * struct dtls_block_enc - DTLS1.0 block encapsulation PDB part
+ * struct dtls_block_enc - DTLS1.0/DTLS1.2 block encapsulation PDB part
  * @type: protocol content type
  * @version: protocol version
  * @options: PDB options
@@ -155,7 +178,7 @@ struct tls_block_dec {
 #pragma pack(pop)
 
 /**
- * struct dtls_block_dec - DTLS1.0 block decapsulation PDB part
+ * struct dtls_block_dec - DTLS1.0/DTLS1.2 block decapsulation PDB part
  * @rsvd: reserved, do not use
  * @options: PDB options
  * @epoch: protocol epoch
@@ -201,7 +224,7 @@ struct dtls_block_dec {
 #endif
 
 /**
- * struct tls_block_pdb - SSL3.0/TLS1.0/TLS1.1/TLS1.2/DTLS1.0 block
+ * struct tls_block_pdb - SSL3.0/TLS1.0/TLS1.1/TLS1.2/DTLS1.0/DTLS1.2 block
  *                        encapsulation / decapsulation PDB.
  * @iv: initialization vector; for CBC-mode cipher suites, the IV field is only
  *      8 bytes if the PROTINFO field of the Operation Command selects DES/3DES.
@@ -313,7 +336,7 @@ struct tls_ctr_enc {
 
 /**
  * struct tls_ctr - PDB part for TLS1.1/TLS1.2 AES CTR decapsulation and
- *                  DTLS1.0 AES CTR encapsulation/decapsulation.
+ *                  DTLS1.0/DTLS1.2 AES CTR encapsulation/decapsulation.
  * @rsvd: reserved, do not use
  * @options: PDB options
  * @epoch: protocol epoch
@@ -359,7 +382,7 @@ struct tls_ctr {
 #endif
 
 /**
- * struct tls_ctr_pdb - TLS1.1/TLS1.2/DTLS1.0 AES CTR
+ * struct tls_ctr_pdb - TLS1.1/TLS1.2/DTLS1.0/DTLS1.2 AES CTR
  *                      encapsulation / decapsulation PDB.
  * @write_iv: server write IV / client write IV
  * @constant: constant equal to 0x0000
@@ -368,8 +391,8 @@ struct tls_ctr {
  *               format
  * @icv_len: ICV length; valid only if TLS_PDBOPTS_TR_ICV option flag is set
  *
- * TLS1.1/TLS1.2/DTLS1.0 AES CTR encryption processing is supported starting
- * with SEC ERA 5.
+ * TLS1.1/TLS1.2/DTLS1.0/DTLS1.2 AES CTR encryption processing is supported
+ * starting with SEC ERA 5.
  */
 struct tls_ctr_pdb {
 	union {
@@ -540,7 +563,7 @@ struct dtls_gcm_dec {
 #endif
 
 /**
- * struct tls_gcm_pdb - TLS1.2/DTLS1.0 AES GCM encapsulation / decapsulation PDB
+ * struct tls_gcm_pdb - TLS1.2/DTLS1.2 AES GCM encapsulation / decapsulation PDB
  * @salt: 4-byte array salt
  * @anti_replay: Anti-replay window - valid only for DTLS decapsulation; size
  *               depends on DTLS_PDBOPTS_ARS32/64/128 option flags; big endian
@@ -588,7 +611,7 @@ struct tls12_ccm_encap {
 
 /**
  * struct tls_ccm - PDB part for TLS12 AES CCM decapsulation PDB and
- *                  DTLS1.0 AES CCM encapsulation / decapsulation.
+ *                  DTLS1.2 AES CCM encapsulation / decapsulation.
  * @rsvd: reserved, do not use
  * @options: PDB options
  * @epoch: protocol epoch
@@ -634,7 +657,7 @@ struct tls_ccm {
 #endif
 
 /**
- * struct tls_ccm_pdb - TLS1.2/DTLS1.0 AES CCM encapsulation / decapsulation PDB
+ * struct tls_ccm_pdb - TLS1.2/DTLS1.2 AES CCM encapsulation / decapsulation PDB
  * @write_iv: server write IV / client write IV
  * @b0_flags: use 0x5A for 8-byte ICV, 0x7A for 16-byte ICV
  * @ctr0_flags: equal to 0x2
@@ -705,25 +728,20 @@ struct tls_ccm_pdb {
  */
 static inline uint8_t rta_dtls_pdb_ars(uint32_t options)
 {
-	uint8_t ars = 0;
-
 	switch (options & DTLS_PDBOPTS_ARS_MASK) {
 	case DTLS_PDBOPTS_ARS32:
 	case DTLS_PDBOPTS_ARS64:
-		ars = 2;
-		break;
+		return 2;
 
 	case DTLS_PDBOPTS_ARS128:
-		ars = 4;
-		break;
+		return 4;
 
 	default:
 		pr_err("Invalid AntiReplay Window size in options: 0x%08x\n",
-		       options);		
-		break;
+		       options);
+	case DTLS_PDBOPTS_ARSNONE:
+		return 0;
 	}
-
-	return ars;
 }
 static inline void __rta_copy_tls_block_pdb(struct program *p, void *pdb,
 					    uint32_t protid)
@@ -742,7 +760,7 @@ static inline void __rta_copy_tls_block_pdb(struct program *p, void *pdb,
 		__rta_out_be64(p, true, block_pdb->tls_enc.seq_num);
 		break;
 
-	case OP_PCLID_DTLS10:
+	case OP_PCLID_DTLS:
 		__rta_out32(p, block_pdb->dtls_enc.word1);
 		__rta_out32(p, block_pdb->dtls_enc.word2);
 		__rta_out32(p, block_pdb->dtls_enc.seq_num_lo);
@@ -756,7 +774,7 @@ static inline void __rta_copy_tls_block_pdb(struct program *p, void *pdb,
 		break;
 	}
 
-	rta_copy_data(p, block_pdb->iv, sizeof(block_pdb->iv));
+	rta_copy_data(p, (uint8_t *)block_pdb->iv, sizeof(block_pdb->iv));
 
 	/* Copy 0, 1, 2 or 4 words of anti-replay scorecard */
 	for (i = 0; i < ars; i++)
@@ -816,7 +834,7 @@ static inline void __rta_copy_tls_ctr_pdb(struct program *p, void *pdb,
 
 		break;
 
-	case OP_PCLID_DTLS10:
+	case OP_PCLID_DTLS:
 		__rta_out32(p, ctr_pdb->ctr.word1);
 		__rta_out32(p, ctr_pdb->ctr.word2);
 		__rta_out32(p, ctr_pdb->ctr.seq_num_lo);
@@ -856,7 +874,7 @@ static inline void __rta_copy_tls_gcm_pdb(struct program *p, void *pdb,
 		__rta_out_be64(p, true, gcm_pdb->tls12_enc.seq_num);
 		break;
 
-	case OP_PCLID_DTLS10:
+	case OP_PCLID_DTLS:
 		__rta_out32(p, gcm_pdb->dtls_enc.word1);
 		__rta_out32(p, gcm_pdb->dtls_enc.word2);
 		__rta_out32(p, gcm_pdb->dtls_enc.seq_num_lo);
@@ -902,7 +920,7 @@ static inline void __rta_copy_tls_ccm_pdb(struct program *p, void *pdb,
 		}
 		break;
 
-	case OP_PCLID_DTLS10:
+	case OP_PCLID_DTLS:
 		__rta_out32(p, ccm_pdb->ccm.word1);
 		__rta_out32(p, ccm_pdb->ccm.word2);
 		__rta_out32(p, ccm_pdb->ccm.seq_num_lo);
@@ -1095,6 +1113,38 @@ static inline void __rta_copy_tls_pdb(struct program *p, void *pdb,
 	}
 }
 
+static inline int __tls_gen_auth_key(struct program *program,
+				     struct alginfo *authdata,
+				     uint16_t protinfo)
+{
+	uint32_t dkp_protid;
+
+	switch (protinfo) {
+	case OP_PCL_TLS_RSA_WITH_AES_128_CBC_SHA:
+	case OP_PCL_TLS_RSA_WITH_AES_256_CBC_SHA:
+		dkp_protid = OP_PCLID_DKP_SHA1;
+		break;
+	case OP_PCL_TLS_RSA_WITH_AES_128_CBC_SHA256:
+	case OP_PCL_TLS_RSA_WITH_AES_256_CBC_SHA256:
+		dkp_protid = OP_PCLID_DKP_SHA256;
+		break;
+	default:
+		pr_err("Invalid protinfo 0x%08x\n", protinfo);
+		return -EINVAL;
+	}
+
+	if (authdata->key_type == RTA_DATA_PTR)
+		return DKP_PROTOCOL(program, dkp_protid, OP_PCL_DKP_SRC_PTR,
+				    OP_PCL_DKP_DST_PTR,
+				    (uint16_t)authdata->keylen, authdata->key,
+				    authdata->key_type);
+	else
+		return DKP_PROTOCOL(program, dkp_protid, OP_PCL_DKP_SRC_IMM,
+				    OP_PCL_DKP_DST_IMM,
+				    (uint16_t)authdata->keylen, authdata->key,
+				    authdata->key_type);
+}
+
 /**
  * cnstr_shdsc_tls - TLS family block cipher encapsulation / decapsulation
  *                   shared descriptor.
@@ -1112,7 +1162,7 @@ static inline void __rta_copy_tls_pdb(struct program *p, void *pdb,
  * Return: size of descriptor written in words or negative number on error
  *
  * The following built-in protocols are supported:
- * SSL3.0 / TLS1.0 / TLS1.1 / TLS1.2 / DTLS10
+ * SSL3.0 / TLS1.0 / TLS1.1 / TLS1.2 / DTLS1.0 / DTLS1.2
  */
 static inline int cnstr_shdsc_tls(uint32_t *descbuf, bool ps, bool swap,
 				  uint8_t *pdb, struct protcmd *protcmd,
@@ -1149,6 +1199,110 @@ static inline int cnstr_shdsc_tls(uint32_t *descbuf, bool ps, bool swap,
 		    authdata->keylen, INLINE_KEY(authdata));
 	KEY(p, KEY1, cipherdata->key_enc_flags, cipherdata->key,
 	    cipherdata->keylen, INLINE_KEY(cipherdata));
+	SET_LABEL(p, keyjmp);
+	PROTOCOL(p, protcmd->optype, protcmd->protid, protcmd->protinfo);
+
+	PATCH_HDR(p, phdr, pdb_end);
+	PATCH_JUMP(p, pkeyjmp, keyjmp);
+	return PROGRAM_FINALIZE(p);
+}
+
+/**
+ * CWAP_DTLS_ENC_BASE_SD_LEN - CAPWAP/DTLS encapsulation shared descriptor
+ *                             length
+ *
+ * Accounts only for the "base" commands, i.e. excludes KEY / DKP commands,
+ * immediate keys, and is intended to be used by upper layers to determine
+ * whether keys can be inlined or not.
+ * To be used as first parameter of rta_inline_query(), added with PDB length.
+ */
+#define CWAP_DTLS_ENC_BASE_SD_LEN	(11 * CAAM_CMD_SZ)
+
+/**
+ * CWAP_DTLS_DEC_BASE_SD_LEN - CAPWAP/DTLS decapsulation shared descriptor
+ *                             length
+ *
+ * Accounts only for the "base" commands, i.e. excludes KEY / DKP commands,
+ * immediate keys, and is intended to be used by upper layers to determine
+ * whether keys can be inlined or not.
+ * To be used as first parameter of rta_inline_query(), added with PDB length.
+ */
+#define CWAP_DTLS_DEC_BASE_SD_LEN	(10 * CAAM_CMD_SZ)
+
+/**
+ * cnstr_shdsc_cwap_dtls - DTLS (in CAPWAP context) block cipher encapsulation /
+ *                         decapsulation shared descriptor.
+ * @descbuf: pointer to buffer used for descriptor construction
+ * @ps: if 36/40bit addressing is desired, this parameter must be true
+ * @swap: must be true when core endianness doesn't match SEC endianness
+ * @pdb: pointer to the PDB to be used in this descriptor
+ *       This structure will be copied inline to the descriptor under
+ *       construction. No error checking will be made. Refer to the block guide
+ *       for details of the PDB.
+ * @protcmd: pointer to Protocol Operation Command definitions
+ *           The following built-in protocols are supported: DTLS1.0 / DTLS1.2
+ * @cipherdata: pointer to block cipher transform definitions
+ * @authdata: pointer to authentication transform definitions
+ *            If an authentication key is required by the protocol:
+ *            -For SEC Eras 1-5, an MDHA split key must be provided;
+ *            Note that the size of the split key itself must be specified.
+ *            -For SEC Eras 6+, a "normal" key must be provided; DKP (Derived
+ *            Key Protocol) will be used to compute MDHA on the fly in HW.
+ *
+ * Return: size of descriptor written in words or negative number on error
+ */
+static inline int cnstr_shdsc_cwap_dtls(uint32_t *descbuf, bool ps, bool swap,
+					uint8_t *pdb, struct protcmd *protcmd,
+					struct alginfo *cipherdata,
+					struct alginfo *authdata)
+{
+	struct program prg;
+	struct program *p = &prg;
+	int ret;
+	LABEL(pdb_end);
+	LABEL(keyjmp);
+	REFERENCE(phdr);
+	REFERENCE(pkeyjmp);
+
+	PROGRAM_CNTXT_INIT(p, descbuf, 0);
+	if (ps)
+		PROGRAM_SET_36BIT_ADDR(p);
+	if (swap)
+		PROGRAM_SET_BSWAP(p);
+
+	phdr = SHR_HDR(p, SHR_SERIAL, 0, 0);
+	__rta_copy_tls_pdb(p, pdb, protcmd);
+	SET_LABEL(p, pdb_end);
+
+	MATHI(p, DPOVRD, RSHIFT, DTLS_DPOVRD_METADATA_LEN_SHIFT, VSEQOUTSZ, 1,
+	      0);
+	/* invalidate DPOVRD, since it's not (currently) used in CAPWAP DTLS */
+	MATHB(p, DPOVRD, AND, ~TLS_DPOVRD_USE, DPOVRD, 4, IMMED2);
+	/* TODO: CLASS2 corresponds to AUX=2'b10; add more intuitive defines */
+	SEQFIFOSTORE(p, METADATA, 0, 0, CLASS2 | VLF);
+
+	if (protcmd->optype == OP_TYPE_ENCAP_PROTOCOL)
+		/* Add CAPWAP DTLS header */
+		SEQSTORE(p, 0x00000001, 0, 4, IMMED);
+	else
+		/* Skip over CAPWAP DTLS header */
+		SEQFIFOLOAD(p, SKIP, 4, 0);
+
+	pkeyjmp = JUMP(p, keyjmp, LOCAL_JUMP, ALL_TRUE, BOTH | SHRD | SELF);
+	if (authdata->keylen)
+		if (rta_sec_era < RTA_SEC_ERA_6) {
+			KEY(p, MDHA_SPLIT_KEY, authdata->key_enc_flags,
+			    authdata->key, authdata->keylen,
+			    INLINE_KEY(authdata));
+		} else {
+			ret = __tls_gen_auth_key(p, authdata,
+						 protcmd->protinfo);
+			if (ret < 0)
+				return ret;
+		}
+	if (cipherdata->keylen)
+		KEY(p, KEY1, cipherdata->key_enc_flags, cipherdata->key,
+		    cipherdata->keylen, INLINE_KEY(cipherdata));
 	SET_LABEL(p, keyjmp);
 	PROTOCOL(p, protcmd->optype, protcmd->protid, protcmd->protinfo);
 
