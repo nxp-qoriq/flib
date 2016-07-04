@@ -683,7 +683,13 @@ struct tls_ccm_pdb {
 };
 #endif
 
-static inline uint8_t __rta_tls_pdb_ars(uint32_t options)
+/**
+ * rta_dtls_pdb_ars - Get DTLS anti-replay scorecard size
+ * @options: 1st word in the DTLS PDB
+ *
+ * Return: Anti-replay scorecard (ARS) size in units of 32bit entries
+ */
+static inline uint8_t rta_dtls_pdb_ars(uint32_t options)
 {
 	uint8_t ars = 0;
 
@@ -728,7 +734,7 @@ static inline void __rta_copy_tls_block_pdb(struct program *p, void *pdb,
 		__rta_out32(p, block_pdb->dtls_enc.seq_num_lo);
 
 		if (!encap)
-			ars = __rta_tls_pdb_ars(block_pdb->dtls_dec.options);
+			ars = rta_dtls_pdb_ars(block_pdb->dtls_dec.options);
 		break;
 
 	default:
@@ -802,7 +808,7 @@ static inline void __rta_copy_tls_ctr_pdb(struct program *p, void *pdb,
 		__rta_out32(p, ctr_pdb->ctr.seq_num_lo);
 
 		if (!encap)
-			ars = __rta_tls_pdb_ars(ctr_pdb->ctr.options);
+			ars = rta_dtls_pdb_ars(ctr_pdb->ctr.options);
 		break;
 
 	default:
@@ -842,7 +848,7 @@ static inline void __rta_copy_tls_gcm_pdb(struct program *p, void *pdb,
 		__rta_out32(p, gcm_pdb->dtls_enc.seq_num_lo);
 
 		if (!encap)
-			ars = __rta_tls_pdb_ars(gcm_pdb->dtls_enc.options);
+			ars = rta_dtls_pdb_ars(gcm_pdb->dtls_enc.options);
 		break;
 
 	default:
@@ -888,7 +894,7 @@ static inline void __rta_copy_tls_ccm_pdb(struct program *p, void *pdb,
 		__rta_out32(p, ccm_pdb->ccm.seq_num_lo);
 
 		if (!encap)
-			ars = __rta_tls_pdb_ars(ccm_pdb->ccm.options);
+			ars = rta_dtls_pdb_ars(ccm_pdb->ccm.options);
 		break;
 
 	default:
