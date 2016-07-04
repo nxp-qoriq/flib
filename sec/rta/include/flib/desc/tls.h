@@ -27,6 +27,8 @@
 #define TLS_PDBOPTS_IV_WRTBK	0x02	/* TLS1.1/TLS1.2/DTLS only */
 #define TLS_PDBOPTS_EXP_RND_IV	0x01	/* TLS1.1/TLS1.2/DTLS only */
 #define TLS_PDBOPTS_TR_ICV	0x10	/* Available starting with SEC ERA 5 */
+#define TLS_PDBOPTS_TR_ICV_LEN_SHIFT	24
+#define TLS_PDBOPTS_TR_ICV_LEN_MASK	(0xff << TLS_PDBOPTS_TR_ICV_LEN_SHIFT)
 
 /**
  * struct tls_block_enc - SSL3.0/TLS1.0/TLS1.1/TLS1.2 block encapsulation PDB
@@ -34,7 +36,7 @@
  * @type: protocol content type
  * @version: protocol version
  * @options: PDB options
- * @seq_num: protocol sequence number
+ * @seq_num: protocol sequence number; big endian format
  */
 #pragma pack(push, 1)
 #if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
@@ -42,7 +44,6 @@ struct tls_block_enc {
 	union {
 		uint32_t word1;
 		struct {
-
 			uint8_t type;
 			uint8_t version[2];
 			uint8_t options;
@@ -71,7 +72,8 @@ struct tls_block_enc {
  * @version: protocol version
  * @options: PDB options
  * @epoch: protocol epoch
- * @seq_num: protocol sequence number
+ * @seq_num_hi: protocol sequence number (upper 16 bits)
+ * @seq_num_lo: protocol sequence number (lower 32 bits)
  */
 #if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
 struct dtls_block_enc {
@@ -118,7 +120,7 @@ struct dtls_block_enc {
  *                        part.
  * @rsvd: reserved, do not use
  * @options: PDB options
- * @seq_num: protocol sequence number
+ * @seq_num: protocol sequence number; big endian format
  */
 #pragma pack(push, 1)
 struct tls_block_dec {
@@ -143,7 +145,8 @@ struct tls_block_dec {
  * @rsvd: reserved, do not use
  * @options: PDB options
  * @epoch: protocol epoch
- * @seq_num: protocol sequence number
+ * @seq_num_hi: protocol sequence number (upper 16 bits)
+ * @seq_num_lo: protocol sequence number (lower 32 bits)
  */
 #if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
 struct dtls_block_dec {
@@ -186,13 +189,12 @@ struct dtls_block_dec {
 /**
  * struct tls_block_pdb - SSL3.0/TLS1.0/TLS1.1/TLS1.2/DTLS1.0 block
  *                        encapsulation / decapsulation PDB.
- * @iv: initialization vector
- * @end_index: the zero-length array expands with one/two words for the
- *             Anti-Replay Scorecard if DTLS_PDBOPTS_ARS32/64 is set in the
- *             DTLS1.0 decapsulation PDB Options byte.
- *             If SEC ERA is equal or greater than SEC ERA 5 and
- *             TLS_PDBOPTS_TR_ICV is set in the PDB Options Byte, it expands for
- *             ICVLen.
+ * @iv: initialization vector; for CBC-mode cipher suites, the IV field is only
+ *      8 bytes if the PROTINFO field of the Operation Command selects DES/3DES.
+ * @anti_replay: Anti-replay window - valid only for DTLS decapsulation; size
+ *               depends on DTLS_PDBOPTS_ARS32/64/128 option flags; big endian
+ *               format
+ * @icv_len: ICV length; valid only if TLS_PDBOPTS_TR_ICV option flag is set
  */
 struct tls_block_pdb {
 	union {
@@ -201,8 +203,9 @@ struct tls_block_pdb {
 		struct tls_block_dec tls_dec;
 		struct dtls_block_dec dtls_dec;
 	};
-	uint32_t iv[4];
-	uint32_t end_index[0];
+	uint8_t iv[16];
+	uint32_t anti_replay[4];
+	uint8_t icv_len;
 };
 
 /**
@@ -254,9 +257,7 @@ struct tls_stream_dec {
  * struct tls_stream_pdb - SSL3.0/TLS1.0/TLS1.1/TLS1.2 stream
  *                         encapsulation / decapsulation PDB.
  * @seq_num: protocol sequence number
- * @end_index: the zero-length array expands for ICVLen if SEC ERA is equal or
- *             greater than SEC ERA 5 and TLS_PDBOPTS_TR_ICV is set in the PDB
- *             Options Byte.
+ * @icv_len: ICV length; valid only if TLS_PDBOPTS_TR_ICV option flag is set
  */
 #pragma pack(push, 1)
 struct tls_stream_pdb {
@@ -265,7 +266,7 @@ struct tls_stream_pdb {
 		struct tls_stream_dec dec;
 	};
 	uint64_t seq_num;
-	uint32_t end_index[0];
+	uint8_t icv_len;
 };
 #pragma pack(pop)
 
@@ -274,7 +275,7 @@ struct tls_stream_pdb {
  * @type: protocol content type
  * @version: protocol version
  * @options: PDB options
- * @seq_num: protocol sequence number
+ * @seq_num: protocol sequence number; big endian format
  */
 #pragma pack(push, 1)
 struct tls_ctr_enc {
@@ -302,7 +303,8 @@ struct tls_ctr_enc {
  * @rsvd: reserved, do not use
  * @options: PDB options
  * @epoch: protocol epoch
- * @seq_num: protocol sequence number
+ * @seq_num_hi: protocol sequence number (upper 16 bits)
+ * @seq_num_lo: protocol sequence number (lower 32 bits)
  */
 #if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
 struct tls_ctr {
@@ -347,11 +349,10 @@ struct tls_ctr {
  *                      encapsulation / decapsulation PDB.
  * @write_iv: server write IV / client write IV
  * @constant: constant equal to 0x0000
- * @end_index: the zero-length array expands with one/two words for the
- *             Anti-Replay Scorecard if DTLS_PDBOPTS_ARS32/64 is set in the
- *             DTLS1.0 decapsulation PDB Options Byte.
- *             If TLS_PDBOPTS_TR_ICV is set in the PDB Option Byte, it expands
- *             for ICVLen.
+ * @anti_replay: Anti-replay window - valid only for DTLS decapsulation; size
+ *               depends on DTLS_PDBOPTS_ARS32/64/128 option flags; big endian
+ *               format
+ * @icv_len: ICV length; valid only if TLS_PDBOPTS_TR_ICV option flag is set
  *
  * TLS1.1/TLS1.2/DTLS1.0 AES CTR encryption processing is supported starting
  * with SEC ERA 5.
@@ -374,7 +375,8 @@ struct tls_ctr_pdb {
 		};
 		uint32_t word1;
 	};
-	uint32_t end_index[0];
+	uint32_t anti_replay[4];
+	uint8_t icv_len;
 };
 
 /**
@@ -382,7 +384,7 @@ struct tls_ctr_pdb {
  * @type: protocol content type
  * @version: protocol version
  * @options: PDB options
- * @seq_num: protocol sequence number
+ * @seq_num: protocol sequence number; big endian format
  */
 #pragma pack(push, 1)
 struct tls12_gcm_encap {
@@ -408,7 +410,7 @@ struct tls12_gcm_encap {
  * struct tls12_gcm_decap - TLS1.2 AES GCM decapsulation PDB part
  * @rsvd: reserved, do not use
  * @options: PDB options
- * @seq_num: protocol sequence number
+ * @seq_num: protocol sequence number; big endian format
  */
 #pragma pack(push, 1)
 struct tls12_gcm_decap {
@@ -429,14 +431,64 @@ struct tls12_gcm_decap {
 #pragma pack(pop)
 
 /**
- * struct dtls_gcm - DTLS1.0 AES GCM encapsulation / decapsulation PDB part
+ * struct dtls_gcm_enc - DTLS1.2 AES GCM encapsulation PDB part
+ * @type: protocol content type
+ * @version: protocol version
+ * @options: PDB options
+ * @epoch: protocol epoch
+ * @seq_num_hi: protocol sequence number (upper 16 bits)
+ * @seq_num_lo: protocol sequence number (lower 32 bits)
+ */
+#if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+struct dtls_gcm_enc {
+	union {
+		struct {
+			uint8_t type;
+			uint8_t version[2];
+			uint8_t options;
+		};
+		uint32_t word1;
+	};
+	union {
+		struct {
+			uint16_t epoch;
+			uint16_t seq_num_hi;
+		};
+		uint32_t word2;
+	};
+	uint32_t seq_num_lo;
+};
+#else
+struct dtls_gcm_enc {
+	union {
+		struct {
+			uint8_t options;
+			uint8_t version[2];
+			uint8_t type;
+		};
+		uint32_t word1;
+	};
+	union {
+		struct {
+			uint16_t seq_num_hi;
+			uint16_t epoch;
+		};
+		uint32_t word2;
+	};
+	uint32_t seq_num_lo;
+};
+#endif
+
+/**
+ * struct dtls_gcm_dec - DTLS1.2 AES GCM decapsulation PDB part
  * @rsvd: reserved, do not use
  * @options: PDB options
  * @epoch: protocol epoch
- * @seq_num: protocol sequence number
+ * @seq_num_hi: protocol sequence number (upper 16 bits)
+ * @seq_num_lo: protocol sequence number (lower 32 bits)
  */
 #if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
-struct dtls_gcm {
+struct dtls_gcm_dec {
 	union {
 		struct {
 			uint8_t rsvd[3];
@@ -454,7 +506,7 @@ struct dtls_gcm {
 	uint32_t seq_num_lo;
 };
 #else
-struct dtls_gcm {
+struct dtls_gcm_dec {
 	union {
 		struct {
 			uint8_t options;
@@ -475,22 +527,22 @@ struct dtls_gcm {
 
 /**
  * struct tls_gcm_pdb - TLS1.2/DTLS1.0 AES GCM encapsulation / decapsulation PDB
- * @salt: 4-byte salt
- * @end_index: the zero-length array expands with one/two words for the
- *             Anti-Replay Scorecard if DTLS_PDBOPTS_ARS32/64 is set in the
- *             DTLS1.0 decapsulation PDB Options byte.
- *             If SEC ERA is equal or greater than SEC ERA 5 and
- *             TLS_PDBOPTS_TR_ICV is set in the PDB Option Byte, it expands for
- *             ICVLen.
+ * @salt: 4-byte array salt
+ * @anti_replay: Anti-replay window - valid only for DTLS decapsulation; size
+ *               depends on DTLS_PDBOPTS_ARS32/64/128 option flags; big endian
+ *               format
+ * @icv_len: ICV length; valid only if TLS_PDBOPTS_TR_ICV option flag is set
  */
 struct tls_gcm_pdb {
 	union {
 		struct tls12_gcm_encap tls12_enc;
 		struct tls12_gcm_decap tls12_dec;
-		struct dtls_gcm dtls;
+		struct dtls_gcm_enc dtls_enc;
+		struct dtls_gcm_dec dtls_dec;
 	};
-	uint32_t salt;
-	uint32_t end_index[0];
+	uint8_t salt[4];
+	uint32_t anti_replay[4];
+	uint8_t icv_len;
 };
 
 /**
@@ -498,7 +550,7 @@ struct tls_gcm_pdb {
  * @type: protocol content type
  * @version: protocol version
  * @options: PDB options
- * @seq_num: protocol sequence number
+ * @seq_num: protocol sequence number; big endian format
  */
 #pragma pack(push, 1)
 struct tls12_ccm_encap {
@@ -526,7 +578,8 @@ struct tls12_ccm_encap {
  * @rsvd: reserved, do not use
  * @options: PDB options
  * @epoch: protocol epoch
- * @seq_num: protocol sequence number
+ * @seq_num_hi: protocol sequence number (upper 16 bits)
+ * @seq_num_lo: protocol sequence number (lower 32 bits)
  */
 #if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
 struct tls_ccm {
@@ -573,12 +626,10 @@ struct tls_ccm {
  * @ctr0_flags: equal to 0x2
  * @rsvd: reserved, do not use
  * @ctr0: CR0 lower 3 bytes, set to 0
- * @end_index: the zero-length array expands with one/two words for the
- *             Anti-Replay Scorecard if DTLS_PDBOPTS_ARS32/64 is set in the
- *             DTLS1.0 decapsulation PDB Options byte.
- *             If SEC ERA is equal or greater than SEC ERA 5 and
- *             TLS_PDBOPTS_TR_ICV is set in the PDB Option Byte, it expands for
- *             ICVLen.
+ * @anti_replay: Anti-replay window - valid only for DTLS decapsulation; size
+ *               depends on DTLS_PDBOPTS_ARS32/64/128 option flags; big endian
+ *               format
+ * @icv_len: ICV length; valid only if TLS_PDBOPTS_TR_ICV option flag is set
  */
 #if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
 struct tls_ccm_pdb {
@@ -602,7 +653,8 @@ struct tls_ccm_pdb {
 		};
 		uint32_t word2;
 	};
-	uint32_t end_index[0];
+	uint32_t anti_replay[4];
+	uint8_t icv_len;
 };
 #else
 struct tls_ccm_pdb {
@@ -626,7 +678,8 @@ struct tls_ccm_pdb {
 		};
 		uint32_t word2;
 	};
-	uint32_t end_index[0];
+	uint32_t anti_replay[4];
+	uint8_t icv_len;
 };
 #endif
 
@@ -666,7 +719,7 @@ static inline void __rta_copy_tls_block_pdb(struct program *p, void *pdb,
 	case OP_PCLID_TLS11:
 	case OP_PCLID_TLS12:
 		__rta_out32(p, block_pdb->tls_enc.word1);
-		__rta_out64(p, true, block_pdb->tls_enc.seq_num);
+		__rta_out_be64(p, true, block_pdb->tls_enc.seq_num);
 		break;
 
 	case OP_PCLID_DTLS10:
@@ -685,20 +738,20 @@ static inline void __rta_copy_tls_block_pdb(struct program *p, void *pdb,
 
 	rta_copy_data(p, block_pdb->iv, sizeof(block_pdb->iv));
 
-	/* Copy 0, 2 or 4 words of AR scorecard */
+	/* Copy 0, 1, 2 or 4 words of anti-replay scorecard */
 	for (i = 0; i < ars; i++)
-		__rta_out32(p, block_pdb->end_index[i]);
+		__rta_out_be32(p, block_pdb->anti_replay[i]);
 
 	/* If ICV is truncated, then another word is needed */
 	if (block_pdb->tls_enc.options & TLS_PDBOPTS_TR_ICV)
-		__rta_out32(p, block_pdb->end_index[i]);
+		__rta_out32(p, (uint32_t)(block_pdb->icv_len <<
+					  TLS_PDBOPTS_TR_ICV_LEN_SHIFT));
 }
 
 static inline void __rta_copy_tls_stream_pdb(struct program *p, void *pdb,
 					     uint32_t protid)
 {
 	struct tls_stream_pdb *stream_pdb = (struct tls_stream_pdb *)pdb;
-	int i = 0;
 
 	switch (protid & OP_PCLID_MASK) {
 	case OP_PCLID_SSL30:
@@ -713,11 +766,12 @@ static inline void __rta_copy_tls_stream_pdb(struct program *p, void *pdb,
 		break;
 	}
 
-	__rta_out64(p, true, stream_pdb->seq_num);
+	__rta_out_be64(p, true, stream_pdb->seq_num);
 
 	/* If ICV is truncated, then another word is needed */
 	if (stream_pdb->enc.options & TLS_PDBOPTS_TR_ICV)
-		__rta_out32(p, stream_pdb->end_index[i]);
+		__rta_out32(p, (uint32_t)(stream_pdb->icv_len <<
+					  TLS_PDBOPTS_TR_ICV_LEN_SHIFT));
 }
 
 static inline void __rta_copy_tls_ctr_pdb(struct program *p, void *pdb,
@@ -733,7 +787,7 @@ static inline void __rta_copy_tls_ctr_pdb(struct program *p, void *pdb,
 	case OP_PCLID_TLS12:
 		if (encap) {
 			__rta_out32(p, ctr_pdb->tls_enc.word1);
-			__rta_out64(p, true, ctr_pdb->tls_enc.seq_num);
+			__rta_out_be64(p, true, ctr_pdb->tls_enc.seq_num);
 		} else {
 			__rta_out32(p, ctr_pdb->ctr.word1);
 			__rta_out32(p, ctr_pdb->ctr.word2);
@@ -758,13 +812,14 @@ static inline void __rta_copy_tls_ctr_pdb(struct program *p, void *pdb,
 
 	__rta_out32(p, ctr_pdb->word1);
 
-	/* Copy 0, 2 or 4 words of AR scorecard */
+	/* Copy 0, 1, 2 or 4 words of anti-replay scorecard */
 	for (i = 0; i < ars; i++)
-		__rta_out32(p, ctr_pdb->end_index[i]);
+		__rta_out_be32(p, ctr_pdb->anti_replay[i]);
 
 	/* If ICV is truncated, then another word is needed */
 	if (ctr_pdb->ctr.options & TLS_PDBOPTS_TR_ICV)
-		__rta_out32(p, ctr_pdb->end_index[i]);
+		__rta_out32(p, (uint32_t)(ctr_pdb->icv_len <<
+					  TLS_PDBOPTS_TR_ICV_LEN_SHIFT));
 }
 
 static inline void __rta_copy_tls_gcm_pdb(struct program *p, void *pdb,
@@ -778,16 +833,16 @@ static inline void __rta_copy_tls_gcm_pdb(struct program *p, void *pdb,
 	switch (protid & OP_PCLID_MASK) {
 	case OP_PCLID_TLS12:
 		__rta_out32(p, gcm_pdb->tls12_enc.word1);
-		__rta_out64(p, true, gcm_pdb->tls12_enc.seq_num);
+		__rta_out_be64(p, true, gcm_pdb->tls12_enc.seq_num);
 		break;
 
 	case OP_PCLID_DTLS10:
-		__rta_out32(p, gcm_pdb->dtls.word1);
-		__rta_out32(p, gcm_pdb->dtls.word2);
-		__rta_out32(p, gcm_pdb->dtls.seq_num_lo);
+		__rta_out32(p, gcm_pdb->dtls_enc.word1);
+		__rta_out32(p, gcm_pdb->dtls_enc.word2);
+		__rta_out32(p, gcm_pdb->dtls_enc.seq_num_lo);
 
 		if (!encap)
-			ars = __rta_tls_pdb_ars(gcm_pdb->dtls.options);
+			ars = __rta_tls_pdb_ars(gcm_pdb->dtls_enc.options);
 		break;
 
 	default:
@@ -795,15 +850,16 @@ static inline void __rta_copy_tls_gcm_pdb(struct program *p, void *pdb,
 		break;
 	}
 
-	__rta_out32(p, gcm_pdb->salt);
+	rta_copy_data(p, gcm_pdb->salt, sizeof(gcm_pdb->salt));
 
-	/* Copy 0, 2 or 4 words of AR scorecard */
+	/* Copy 0, 1, 2 or 4 words of anti-replay scorecard */
 	for (i = 0; i < ars; i++)
-		__rta_out32(p, gcm_pdb->end_index[i]);
+		__rta_out_be32(p, gcm_pdb->anti_replay[i]);
 
 	/* If ICV is truncated, then another word is needed */
 	if (gcm_pdb->tls12_enc.options & TLS_PDBOPTS_TR_ICV)
-		__rta_out32(p, gcm_pdb->end_index[i]);
+		__rta_out32(p, (uint32_t)(gcm_pdb->icv_len <<
+					  TLS_PDBOPTS_TR_ICV_LEN_SHIFT));
 }
 
 static inline void __rta_copy_tls_ccm_pdb(struct program *p, void *pdb,
@@ -818,7 +874,7 @@ static inline void __rta_copy_tls_ccm_pdb(struct program *p, void *pdb,
 	case OP_PCLID_TLS12:
 		if (encap) {
 			__rta_out32(p, ccm_pdb->tls12.word1);
-			__rta_out64(p, true, ccm_pdb->tls12.seq_num);
+			__rta_out_be64(p, true, ccm_pdb->tls12.seq_num);
 		} else {
 			__rta_out32(p, ccm_pdb->ccm.word1);
 			__rta_out32(p, ccm_pdb->ccm.word2);
@@ -844,13 +900,14 @@ static inline void __rta_copy_tls_ccm_pdb(struct program *p, void *pdb,
 	__rta_out32(p, ccm_pdb->word1);
 	__rta_out32(p, ccm_pdb->word2);
 
-	/* Copy 0, 2 or 4 words of AR scorecard */
+	/* Copy 0, 1, 2 or 4 words of anti-replay scorecard */
 	for (i = 0; i < ars; i++)
-		__rta_out32(p, ccm_pdb->end_index[i]);
+		__rta_out_be32(p, ccm_pdb->anti_replay[i]);
 
 	/* If ICV is truncated, then another word is needed */
 	if (ccm_pdb->ccm.options & TLS_PDBOPTS_TR_ICV)
-		__rta_out32(p, ccm_pdb->end_index[i]);
+		__rta_out32(p, (uint32_t)(ccm_pdb->icv_len <<
+					  TLS_PDBOPTS_TR_ICV_LEN_SHIFT));
 }
 
 static inline void __rta_copy_tls_pdb(struct program *p, void *pdb,
