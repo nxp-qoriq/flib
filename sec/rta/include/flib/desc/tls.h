@@ -36,6 +36,7 @@
  * @options: PDB options
  * @seq_num: protocol sequence number
  */
+#pragma pack(push, 1)
 #if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
 struct tls_block_enc {
 	union {
@@ -62,6 +63,7 @@ struct tls_block_enc {
 	uint64_t seq_num;
 };
 #endif
+#pragma pack(pop)
 
 /**
  * struct dtls_block_enc - DTLS1.0 block encapsulation PDB part
@@ -118,7 +120,7 @@ struct dtls_block_enc {
  * @options: PDB options
  * @seq_num: protocol sequence number
  */
-
+#pragma pack(push, 1)
 struct tls_block_dec {
 	union {
 		struct {
@@ -134,6 +136,7 @@ struct tls_block_dec {
 	};
 	uint64_t seq_num;
 };
+#pragma pack(pop)
 
 /**
  * struct dtls_block_dec - DTLS1.0 block decapsulation PDB part
@@ -255,6 +258,7 @@ struct tls_stream_dec {
  *             greater than SEC ERA 5 and TLS_PDBOPTS_TR_ICV is set in the PDB
  *             Options Byte.
  */
+#pragma pack(push, 1)
 struct tls_stream_pdb {
 	union {
 		struct tls_stream_enc enc;
@@ -263,6 +267,7 @@ struct tls_stream_pdb {
 	uint64_t seq_num;
 	uint32_t end_index[0];
 };
+#pragma pack(pop)
 
 /**
  * struct tls_ctr_enc - TLS1.1/TLS1.2 AES CTR encapsulation PDB part
@@ -271,6 +276,7 @@ struct tls_stream_pdb {
  * @options: PDB options
  * @seq_num: protocol sequence number
  */
+#pragma pack(push, 1)
 struct tls_ctr_enc {
 	union {
 		struct {
@@ -288,6 +294,7 @@ struct tls_ctr_enc {
 	};
 	uint64_t seq_num;
 };
+#pragma pack(pop)
 
 /**
  * struct tls_ctr - PDB part for TLS1.1/TLS1.2 AES CTR decapsulation and
@@ -377,6 +384,7 @@ struct tls_ctr_pdb {
  * @options: PDB options
  * @seq_num: protocol sequence number
  */
+#pragma pack(push, 1)
 struct tls12_gcm_encap {
 	union {
 		struct {
@@ -394,6 +402,7 @@ struct tls12_gcm_encap {
 	};
 	uint64_t seq_num;
 };
+#pragma pack(pop)
 
 /**
  * struct tls12_gcm_decap - TLS1.2 AES GCM decapsulation PDB part
@@ -401,6 +410,7 @@ struct tls12_gcm_encap {
  * @options: PDB options
  * @seq_num: protocol sequence number
  */
+#pragma pack(push, 1)
 struct tls12_gcm_decap {
 	union {
 		struct {
@@ -416,6 +426,7 @@ struct tls12_gcm_decap {
 	};
 	uint64_t seq_num;
 };
+#pragma pack(pop)
 
 /**
  * struct dtls_gcm - DTLS1.0 AES GCM encapsulation / decapsulation PDB part
@@ -489,6 +500,7 @@ struct tls_gcm_pdb {
  * @options: PDB options
  * @seq_num: protocol sequence number
  */
+#pragma pack(push, 1)
 struct tls12_ccm_encap {
 	union {
 		struct {
@@ -506,6 +518,7 @@ struct tls12_ccm_encap {
 	};
 	uint64_t seq_num;
 };
+#pragma pack(pop)
 
 /**
  * struct tls_ccm - PDB part for TLS12 AES CCM decapsulation PDB and
