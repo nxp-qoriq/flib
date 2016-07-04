@@ -73,8 +73,8 @@ struct tls_block_enc {
  */
 #if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
 struct dtls_block_enc {
-	struct {
-		union {
+	union {
+		struct {
 			uint8_t type;
 			uint8_t version[2];
 			uint8_t options;
@@ -92,8 +92,8 @@ struct dtls_block_enc {
 };
 #else
 struct dtls_block_enc {
-	struct {
-		union {
+	union {
+		struct {
 			uint8_t options;
 			uint8_t version[2];
 			uint8_t type;
