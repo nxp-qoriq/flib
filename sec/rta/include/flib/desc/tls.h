@@ -840,8 +840,8 @@ static inline void __rta_copy_tls_ccm_pdb(struct program *p, void *pdb,
 		__rta_out32(p, ccm_pdb->end_index[i]);
 }
 
-static inline __rta_copy_tls_pdb(struct program *p, void *pdb,
-				 struct protcmd *protcmd)
+static inline void __rta_copy_tls_pdb(struct program *p, void *pdb,
+				      struct protcmd *protcmd)
 {
 	uint16_t protinfo = protcmd->protinfo;
 	uint32_t protid = protcmd->protid;
