@@ -1015,7 +1015,6 @@ static inline void __rta_copy_tls_pdb(struct program *p, void *pdb,
  *       This structure will be copied inline to the descriptor under
  *       construction. No error checking will be made. Refer to the block guide
  *       for details of the PDB.
- * @pdb_len: the length of the Protocol Data Block in bytes
  * @protcmd: pointer to Protocol Operation Command definitions
  * @cipherdata: pointer to block cipher transform definitions
  * @authdata: pointer to authentication transform definitions
@@ -1026,8 +1025,7 @@ static inline void __rta_copy_tls_pdb(struct program *p, void *pdb,
  * SSL3.0 / TLS1.0 / TLS1.1 / TLS1.2 / DTLS10
  */
 static inline int cnstr_shdsc_tls(uint32_t *descbuf, bool ps, bool swap,
-				  uint8_t *pdb, unsigned pdb_len,
-				  struct protcmd *protcmd,
+				  uint8_t *pdb, struct protcmd *protcmd,
 				  struct alginfo *cipherdata,
 				  struct alginfo *authdata)
 {
