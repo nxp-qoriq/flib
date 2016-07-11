@@ -721,6 +721,18 @@ struct tls_ccm_pdb {
 #endif
 
 /**
+ * enum tls_cipher_mode - (D)TLS cipher mode
+ */
+enum tls_cipher_mode {
+	RTA_TLS_CIPHER_INVALID = 0,
+	RTA_TLS_CIPHER_CBC,
+	RTA_TLS_CIPHER_GCM,
+	RTA_TLS_CIPHER_CCM,
+	RTA_TLS_CIPHER_CTR,
+	RTA_TLS_CIPHER_STREAM
+};
+
+/**
  * rta_dtls_pdb_ars - Get DTLS anti-replay scorecard size
  * @options: 1st word in the DTLS PDB
  *
@@ -948,12 +960,14 @@ static inline void __rta_copy_tls_ccm_pdb(struct program *p, void *pdb,
 					  TLS_PDBOPTS_TR_ICV_LEN_SHIFT));
 }
 
-static inline void __rta_copy_tls_pdb(struct program *p, void *pdb,
-				      struct protcmd *protcmd)
+/**
+ * rta_tls_cipher_mode - Get TLS cipher mode based on IANA cipher suite value
+ * @protinfo: protocol information
+ *
+ * Return: TLS cipher mode
+ */
+static inline enum tls_cipher_mode rta_tls_cipher_mode(uint16_t protinfo)
 {
-	uint16_t protinfo = protcmd->protinfo;
-	uint32_t protid = protcmd->protid;
-
 	switch (protinfo) {
 	case OP_PCL_TLS_RSA_WITH_AES_128_GCM_SHA256:
 	case OP_PCL_TLS_RSA_WITH_AES_256_GCM_SHA384:
@@ -981,8 +995,7 @@ static inline void __rta_copy_tls_pdb(struct program *p, void *pdb,
 	case OP_PCL_TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384:
 	case OP_PCL_TLS_ECDH_RSA_WITH_AES_128_GCM_SHA256:
 	case OP_PCL_TLS_ECDH_RSA_WITH_AES_256_GCM_SHA384:
-		__rta_copy_tls_gcm_pdb(p, pdb, protid);
-		break;
+		return RTA_TLS_CIPHER_GCM;
 
 	case OP_PCL_TLS_KRB5_WITH_RC4_128_MD5:
 	case OP_PCL_TLS_RSA_WITH_RC4_128_MD5:
@@ -1002,8 +1015,7 @@ static inline void __rta_copy_tls_pdb(struct program *p, void *pdb,
 	case OP_PCL_TLS_ECDH_anon_WITH_RC4_128_SHA:
 	case OP_PCL_TLS_ECDHE_PSK_WITH_RC4_128_SHA:
 	case OP_PCL_TLS_KRB5_EXPORT_WITH_RC4_40_SHA:
-		__rta_copy_tls_stream_pdb(p, pdb, protid);
-		break;
+		return RTA_TLS_CIPHER_STREAM;
 
 	case OP_PCL_TLS_RSA_WITH_AES_128_CBC_SHA:
 	case OP_PCL_TLS_DH_DSS_WITH_AES_128_CBC_SHA:
@@ -1105,9 +1117,31 @@ static inline void __rta_copy_tls_pdb(struct program *p, void *pdb,
 	case OP_PCL_TLS_DHE_RSA_WITH_AES_256_CBC_SHA256:
 	case OP_PCL_TLS_DH_anon_WITH_AES_128_CBC_SHA256:
 	case OP_PCL_TLS_DH_anon_WITH_AES_256_CBC_SHA256:
+		return RTA_TLS_CIPHER_CBC;
+
+	default:
+		pr_err("Invalid protinfo 0x%08x\n", protinfo);
+		return RTA_TLS_CIPHER_INVALID;
+	}
+}
+
+static inline void __rta_copy_tls_pdb(struct program *p, void *pdb,
+				      struct protcmd *protcmd)
+{
+	uint16_t protinfo = protcmd->protinfo;
+	uint32_t protid = protcmd->protid;
+
+	switch (rta_tls_cipher_mode(protinfo)) {
+	case RTA_TLS_CIPHER_GCM:
+		__rta_copy_tls_gcm_pdb(p, pdb, protid);
+		break;
+	case RTA_TLS_CIPHER_STREAM:
+		__rta_copy_tls_stream_pdb(p, pdb, protid);
+		break;
+	case RTA_TLS_CIPHER_CBC:
 		__rta_copy_tls_block_pdb(p, pdb, protid);
 		break;
-
+	case RTA_TLS_CIPHER_INVALID:
 	default:
 		pr_err("Invalid protinfo 0x%08x\n", protinfo);
 	}
