@@ -25,7 +25,7 @@ SEC descriptors.
 	patching routines for LOAD, MOVE, JUMP and HEADER commands.
 	raw patching (i.e. patch any 4-byte word from descriptor)
 1.4 Support for extended (32/36/40-bit) pointer size.
-1.5 SEC Eras 1-6
+1.5 SEC Eras 1-8
 	Below is a non-exhaustive list of platforms:
 	Era 1 - P4080R1
 	Era 2 - P4080R2
@@ -33,10 +33,12 @@ SEC descriptors.
 	Era 4 - BSC9131, BSC9132, P4080R3
 	Era 5 - P5040, B4860, T4240R1
 	Era 6 - C290, T4240R2, T1040, T2080
+	Era 7 - LS1021A
+	Era 8 - T1024, LS1012A, LS1043A, LS2085A, LS2088A
 
 2. What's not supported
 =======================
-2.1 SEC Eras 7 and 8.
+N/A
 
 3. Integration
 ==============
