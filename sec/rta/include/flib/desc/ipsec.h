@@ -1386,8 +1386,11 @@ static inline int cnstr_shdsc_ipsec_new_decap(uint32_t *descbuf, bool ps,
  * @descbuf: pointer to buffer used for descriptor construction
  * @ps: if 36/40bit addressing is desired, this parameter must be true
  * @swap: if true, perform descriptor byte swapping on a 4-byte boundary
- * @cipherdata: ointer to block cipher transform definitions.
+ * @cipherdata: pointer to block cipher transform definitions.
  *              Valid algorithm values one of OP_ALG_ALGSEL_* {DES, 3DES, AES}
+ *              Valid modes for:
+ *                  AES: OP_ALG_AAI_* {CBC, CTR}
+ *                  DES, 3DES: OP_ALG_AAI_CBC
  * @authdata: pointer to authentication transform definitions.
  *            Valid algorithm values - one of OP_ALG_ALGSEL_* {MD5, SHA1,
  *            SHA224, SHA256, SHA384, SHA512}
@@ -1453,8 +1456,9 @@ static inline int cnstr_shdsc_authenc(uint32_t *descbuf, bool ps, bool swap,
 {
 	struct program prg;
 	struct program *p = &prg;
-	const bool is_aes_dec = (dir == DIR_DEC) &&
-				(cipherdata->algtype == OP_ALG_ALGSEL_AES);
+	const bool need_dk = (dir == DIR_DEC) &&
+			     (cipherdata->algtype == OP_ALG_ALGSEL_AES) &&
+			     (cipherdata->algmode == OP_ALG_AAI_CBC);
 
 	LABEL(skip_patch_len);
 	LABEL(keyjmp);
@@ -1540,7 +1544,7 @@ static inline int cnstr_shdsc_authenc(uint32_t *descbuf, bool ps, bool swap,
 		      dir == DIR_ENC ? ICV_CHECK_DISABLE : ICV_CHECK_ENABLE,
 		      dir);
 
-	if (is_aes_dec)
+	if (need_dk)
 		ALG_OPERATION(p, OP_ALG_ALGSEL_AES, cipherdata->algmode,
 			      OP_ALG_AS_INITFINAL, ICV_CHECK_DISABLE, dir);
 	pskipkeys = JUMP(p, skipkeys, LOCAL_JUMP, ALL_TRUE, 0);
@@ -1552,7 +1556,7 @@ static inline int cnstr_shdsc_authenc(uint32_t *descbuf, bool ps, bool swap,
 		      dir == DIR_ENC ? ICV_CHECK_DISABLE : ICV_CHECK_ENABLE,
 		      dir);
 
-	if (is_aes_dec) {
+	if (need_dk) {
 		ALG_OPERATION(p, OP_ALG_ALGSEL_AES, cipherdata->algmode |
 			      OP_ALG_AAI_DK, OP_ALG_AS_INITFINAL,
 			      ICV_CHECK_DISABLE, dir);
@@ -1577,7 +1581,10 @@ static inline int cnstr_shdsc_authenc(uint32_t *descbuf, bool ps, bool swap,
 	SET_LABEL(p, aonly_len_offset);
 
 	/* Read IV */
-	SEQLOAD(p, CONTEXT1, 0, ivlen, 0);
+	if (cipherdata->algmode == OP_ALG_AAI_CTR)
+		SEQLOAD(p, CONTEXT1, 16, ivlen, 0);
+	else
+		SEQLOAD(p, CONTEXT1, 0, ivlen, 0);
 
 	/*
 	 * Read data needed only for authentication. This is overwritten above
