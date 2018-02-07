@@ -1170,9 +1170,13 @@ static inline int cnstr_shdsc_ipsec_decap_des_aes_xcbc(uint32_t *descbuf,
  * in DPOVRD register are not used (which is usually the case when L3 header
  * is provided in PDB).
  * When DPOVRD[14] is set, frame starts with an L2 header; in this case, the
- * L2 header length is found at DPOVRD[23:16]. SEC uses this length to copy
+ * L2 header length is found at DPOVRD[23:16]. SEC uses this length to copy [*]
  * the header and then it deletes DPOVRD[23:16] (so there is no side effect
  * when later running IPsec protocol).
+ * [*] For this reason, L2 header copy won't work in case of mixed IPv4-in-IPv6
+ * or IPv6-in-IPv4 tunnels - where L2 header ETYPE field is different in input
+ * and output frames. Either do not use this feature or fix ETYPE in output
+ * frame after descriptor is executed.
  *
  * Return: size of descriptor written in words or negative number on error
  */
