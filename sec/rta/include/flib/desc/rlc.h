@@ -1,5 +1,6 @@
 /*
  * Copyright 2014 Freescale Semiconductor, Inc.
+ * Copyright 2018 NXP
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -12,10 +13,16 @@
 #include "pdcp.h"
 
 /**
- * DOC: WCDMA RLC Shared Descriptor Constructors
- *
- * Shared descriptors for WCDMA RLC protocol.
+ * @file rlc.h
+ * @brief WCDMA RLC Shared Descriptor Constructors
+ *        Shared descriptors for WCDMA RLC protocol.
  */
+
+/**
+ * @defgroup descriptor_lib_group RTA Descriptors Library
+ * @{
+ */
+/** @} end of descriptor_lib_group */
 
 /*
  * RLC Protocol Data Blocks
@@ -34,39 +41,41 @@
 #define RLC_PDB_DIR_SHIFT	26
 
 /**
- * enum rlc_mode - WCDMA RLC mode selector
- * @RLC_UNACKED_MODE: unacknowledged mode
- * @RLC_ACKED_MODE: acknowledged mode
+ * @defgroup typedefs_group Auxiliary Data Structures
+ * @ingroup descriptor_lib_group
+ * @{
+ */
+
+/**
+ * @enum rlc_mode rlc.h
+ * @details WCDMA RLC mode selector
  */
 enum rlc_mode {
-	RLC_UNACKED_MODE = 7,
-	RLC_ACKED_MODE = 12
+	RLC_UNACKED_MODE = 7, /**< unacknowledged mode */
+	RLC_ACKED_MODE = 12 /**< acknowledged mode */
 };
 
 /**
- * enum rlc_dir - WCDMA RLC direction selector
- * @RLC_DIR_UPLINK: uplink direction
- * @RLC_DIR_DOWNLINK: downlink direction
+ * @enum rlc_dir rlc.h
+ * @details WCDMA RLC direction selector
  */
 enum rlc_dir {
-	RLC_DIR_UPLINK,
-	RLC_DIR_DOWNLINK
+	RLC_DIR_UPLINK, /**< uplink direction */
+	RLC_DIR_DOWNLINK /**< downlink direction */
 };
 
 /**
- * enum cipher_type_rlc - Type selectors for cipher types in RLC protocol OP
- *                        instructions.
- * @RLC_CIPHER_TYPE_NULL: NULL
- * @RLC_CIPHER_TYPE_KASUMI: Kasumi
- * @RLC_CIPHER_TYPE_SNOW: SNOW F8
- * @RLC_CIPHER_TYPE_INVALID: invalid option
+ * @enum cipher_type_rlc rlc.h
+ * @details Type selectors for cipher types in RLC protocol OP instructions.
  */
 enum cipher_type_rlc {
-	RLC_CIPHER_TYPE_NULL,
-	RLC_CIPHER_TYPE_KASUMI,
-	RLC_CIPHER_TYPE_SNOW,
-	RLC_CIPHER_TYPE_INVALID
+	RLC_CIPHER_TYPE_NULL, /**< NULL */
+	RLC_CIPHER_TYPE_KASUMI, /**< Kasumi */
+	RLC_CIPHER_TYPE_SNOW, /**< SNOW F8 */
+	RLC_CIPHER_TYPE_INVALID /**< invalid option */
 };
+
+/** @} */ /* end of typedefs_group */
 
 struct rlc_pdb {
 	uint32_t opt_res;	/* RLC options bitfield:
@@ -89,27 +98,33 @@ struct rlc_pdb {
 #define RLC_PDB_TYPE_FULL_PDB PDCP_PDB_TYPE_FULL_PDB
 
 /**
- * cnstr_shdsc_rlc_encap - Function for creating a WCDMA RLC encapsulation
- *                         descriptor.
- * @descbuf: pointer to buffer for descriptor construction
- * @ps: if 36/40bit addressing is desired, this parameter must be true
- * @mode: indicates if ACKed or non-ACKed mode is used
- * @hfn: starting Hyper Frame Number to be used together with the SN from the
- *       RLC frames.
- * @bearer: radio bearer ID
- * @direction: the direction of the RLC PDU (UL/DL)
- * @hfn_threshold: HFN value that once reached triggers a warning from SEC that
- *                 keys should be renegotiated at the earliest convenience.
- * @cipherdata: pointer to block cipher transform definitions
- *              Valid algorithm values are those from cipher_type_rlc enum.
- *
- * Return: size of descriptor written in words or negative number on error.
+ * @defgroup sharedesc_group Shared Descriptor Example Routines
+ * @ingroup descriptor_lib_group
+ * @{
+ */
+/** @} end of sharedesc_group */
+
+/**
+ * @details Function for creating a WCDMA RLC encapsulation descriptor.
+ * @ingroup sharedesc_group
+ * @param[in,out] descbuf pointer to buffer for descriptor construction
+ * @param[in] ps if 36/40bit addressing is desired, this parameter must be true
+ * @param[in] mode indicates if ACKed or non-ACKed mode is used
+ * @param[in] hfn starting Hyper Frame Number to be used together with the SN
+ *            from the RLC frames.
+ * @param[in] bearer radio bearer ID
+ * @param[in] direction the direction of the RLC PDU (UL/DL)
+ * @param[in] hfn_threshold HFN value that once reached triggers a warning from
+ *            SEC that keys should be renegotiated at the earliest convenience.
+ * @param[in] cipherdata pointer to block cipher transform definitions
+ *            Valid algorithm values are those from cipher_type_rlc enum.
+ * @return size of descriptor written in words or negative number on error.
  *         Once the function returns, the value of this parameter can be used
  *         for reclaiming the space that wasn't used for the descriptor.
- *
- * Note: descbuf must be large enough to contain a full 256 byte long
- * descriptor; after the function returns, by subtracting the actual number of
- * bytes used, the user can reuse the remaining buffer space for other purposes.
+ * @note: @p descbuf must be large enough to contain a full 256 byte long
+ *        descriptor; after the function returns, by subtracting the actual
+ *        number of bytes used, the user can reuse the remaining buffer space
+ *        for other purposes.
  */
 static inline int cnstr_shdsc_rlc_encap(uint32_t *descbuf,
 		bool ps,
@@ -233,27 +248,26 @@ static inline int cnstr_shdsc_rlc_encap(uint32_t *descbuf,
 }
 
 /**
- * cnstr_shdsc_rlc_decap - Function for creating a WCDMA RLC decapsulation
- *                         descriptor.
- * @descbuf: pointer to buffer for descriptor construction
- * @ps: if 36/40bit addressing is desired, this parameter must be true
- * @mode: indicates if ACKed or non-ACKed mode is used
- * @hfn: starting Hyper Frame Number to be used together with the SN from the
- *       RLC frames.
- * @bearer: radio bearer ID
- * @direction: the direction of the RLC PDU (UL/DL)
- * @hfn_threshold: HFN value that once reached triggers a warning from SEC that
- *                 keys should be renegotiated at the earliest convenience.
- * @cipherdata: pointer to block cipher transform definitions
- *              Valid algorithm values are those from cipher_type_rlc enum.
- *
- * Return: size of descriptor written in words or negative number on error.
+ * @details Function for creating a WCDMA RLC decapsulation descriptor.
+ * @ingroup sharedesc_group
+ * @param[in,out] descbuf pointer to buffer for descriptor construction
+ * @param[in] ps if 36/40bit addressing is desired, this parameter must be true
+ * @param[in] mode indicates if ACKed or non-ACKed mode is used
+ * @param[in] hfn starting Hyper Frame Number to be used together with the SN
+ *            from the RLC frames.
+ * @param[in] bearer radio bearer ID
+ * @param[in] direction the direction of the RLC PDU (UL/DL)
+ * @param[in] hfn_threshold HFN value that once reached triggers a warning from
+ *            SEC that keys should be renegotiated at the earliest convenience.
+ * @param[in] cipherdata pointer to block cipher transform definitions
+ *            Valid algorithm values are those from cipher_type_rlc enum.
+ * @return size of descriptor written in words or negative number on error.
  *         Once the function returns, the value of this parameter can be used
  *         for reclaiming the space that wasn't used for the descriptor.
- *
- * Note: descbuf must be large enough to contain a full 256 byte long
- * descriptor; after the function returns, by subtracting the actual number of
- * bytes used, the user can reuse the remaining buffer space for other purposes.
+ * @note: @p descbuf must be large enough to contain a full 256 byte long
+ *        descriptor; after the function returns, by subtracting the actual
+ *        number of bytes used, the user can reuse the remaining buffer space
+ *        for other purposes.
  */
 static inline int cnstr_shdsc_rlc_decap(uint32_t *descbuf,
 		bool ps,

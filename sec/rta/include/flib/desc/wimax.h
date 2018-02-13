@@ -1,5 +1,6 @@
 /*
  * Copyright 2008-2013 Freescale Semiconductor, Inc.
+ * Copyright 2018 NXP
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -11,48 +12,67 @@
 #include "common.h"
 
 /**
- * DOC: WiMAX Shared Descriptor Constructors
- *
- * Shared descriptors for WiMAX (802.16) protocol.
+ * @file wimax.h
+ * @brief WiMAX Shared Descriptor Constructors
+ *        Shared descriptors for WiMAX (802.16) protocol.
  */
 
 /**
- * CRC_8_ATM_POLY - This CRC Polynomial is used for the GMH Header Check
- *                  Sequence.
+ * @defgroup descriptor_lib_group RTA Descriptors Library
+ * @{
+ */
+/** @} end of descriptor_lib_group */
+
+/**
+ * @defgroup defines_group Auxiliary Defines
+ * @ingroup descriptor_lib_group
+ * @{
+ */
+
+/**
+ * @def CRC_8_ATM_POLY
+ * This CRC Polynomial is used for the GMH Header Check Sequence.
  */
 #define CRC_8_ATM_POLY			0x07000000
 
 /**
- * WIMAX_GMH_EC_MASK - This mask is used in the WiMAX encapsulation /
- *                     decapsulation descriptor for setting / clearing the
- *                     Encryption Control bit from the Generic Mac Header.
+ * @def WIMAX_GMH_EC_MASK
+ * This mask is used in the WiMAX encapsulation/decapsulation descriptor
+ * for setting/clearing the Encryption Control bit from the Generic Mac Header.
  */
 #define WIMAX_GMH_EC_MASK		0x4000000000000000ull
 
 /**
- * WIMAX_ICV_LEN - The length of the Integrity Check Value for WiMAX
+ * @def WIMAX_ICV_LEN
+ * The length of the Integrity Check Value for WiMAX.
  */
 #define WIMAX_ICV_LEN			0x0000000000000008ull
 
 /**
- * WIMAX_FCS_LEN - The length of the Frame Check Sequence for WiMAX
+ * @def WIMAX_FCS_LEN
+ * The length of the Frame Check Sequence for WiMAX.
  */
 #define WIMAX_FCS_LEN			0x00000000000000004ull
 
 /**
- * WIMAX_PN_LEN - The length of the Packet Number for WiMAX
+ * @def WIMAX_PN_LEN
+ * The length of the Packet Number for WiMAX.
  */
 #define WIMAX_PN_LEN			0x0000000000000004ull
 
 /**
- * WIMAX_PDBOPTS_FCS - Options Byte with FCS enabled
+ * @def WIMAX_PDBOPTS_FCS
+ * Options Byte with FCS enabled.
  */
 #define WIMAX_PDBOPTS_FCS		0x01
 
 /**
- * WIMAX_PDBOPTS_AR - Options Byte with AR enabled
+ * @def WIMAX_PDBOPTS_AR
+ * Options Byte with AR enabled.
  */
 #define WIMAX_PDBOPTS_AR		0x40
+
+/** @} */ /* end of defines_group */
 
 /*
  * IEEE 802.16 WiMAX Protocol Data Block
@@ -65,44 +85,44 @@
 struct wimax_encap_pdb {
 	union {
 		struct {
-			uint8_t rsvd[3];	/* Reserved Bits */
-			uint8_t options;	/* Options Byte */
+			uint8_t rsvd[3];	/**< Reserved Bits */
+			uint8_t options;	/**< Options Byte */
 		};
 		uint32_t word1;
 	};
-	uint32_t nonce;				/* Nonce Constant */
+	uint32_t nonce;				/**< Nonce Constant */
 	union {
 		struct {
-			uint8_t b0_flags;	/* Initial Block B0 */
-			uint8_t ctr_flags;	/* Counter Block Flags */
+			uint8_t b0_flags;	/**< Initial Block B0 */
+			uint8_t ctr_flags;	/**< Counter Block Flags */
 			uint16_t ctr_init_count;
 		};
 		uint32_t word2;
 	};
 	/* begin DECO writeback region */
-	uint32_t pn;				/* Packet Number */
+	uint32_t pn;				/**< Packet Number */
 	/* end DECO writeback region */
 };
 #else
 struct wimax_encap_pdb {
 	union {
 		struct {
-			uint8_t options;	/* Options Byte */
-			uint8_t rsvd[3];	/* Reserved Bits */
+			uint8_t options;	/**< Options Byte */
+			uint8_t rsvd[3];	/**< Reserved Bits */
 		};
 		uint32_t word1;
 	};
-	uint32_t nonce;				/* Nonce Constant */
+	uint32_t nonce;				/**< Nonce Constant */
 	union {
 		struct {
 			uint16_t ctr_init_count;
-			uint8_t ctr_flags;	/* Counter Block Flags */
-			uint8_t b0_flags;	/* Initial Block B0 */
+			uint8_t ctr_flags;	/**< Counter Block Flags */
+			uint8_t b0_flags;	/**< Initial Block B0 */
 		};
 		uint32_t word2;
 	};
 	/* begin DECO writeback region */
-	uint32_t pn;				/* Packet Number */
+	uint32_t pn;				/**< Packet Number */
 	/* end DECO writeback region */
 };
 #endif
@@ -111,25 +131,25 @@ struct wimax_encap_pdb {
 struct wimax_decap_pdb {
 	union {
 		struct {
-			uint8_t rsvd[3];	/* Reserved Bits */
-			uint8_t options;	/* Options Byte */
+			uint8_t rsvd[3];	/**< Reserved Bits */
+			uint8_t options;	/**< Options Byte */
 		};
 		uint32_t word1;
 	};
-	uint32_t nonce;				/* Nonce Constant */
+	uint32_t nonce;				/**< Nonce Constant */
 	union {
 		struct {
-			uint8_t b0_flags;	/* Initial Block B0 */
-			uint8_t ctr_flags;	/* Counter Block Flags */
+			uint8_t b0_flags;	/**< Initial Block B0 */
+			uint8_t ctr_flags;	/**< Counter Block Flags */
 			uint16_t ctr_init_count;
 		};
 		uint32_t word2;
 	};
 	/* begin DECO writeback region */
-	uint32_t pn;				/* Packet Number */
+	uint32_t pn;				/**< Packet Number */
 	union {
 		struct {
-			uint8_t rsvd1[2];	/* Reserved Bits */
+			uint8_t rsvd1[2];	/**< Reserved Bits */
 			uint16_t antireplay_len;
 		};
 		uint32_t word3;
@@ -142,26 +162,26 @@ struct wimax_decap_pdb {
 struct wimax_decap_pdb {
 	union {
 		struct {
-			uint8_t options;	/* Options Byte */
-			uint8_t rsvd[3];	/* Reserved Bits */
+			uint8_t options;	/**< Options Byte */
+			uint8_t rsvd[3];	/**< Reserved Bits */
 		};
 		uint32_t word1;
 	};
-	uint32_t nonce;				/* Nonce Constant */
+	uint32_t nonce;				/**< Nonce Constant */
 	union {
 		struct {
 			uint16_t ctr_init_count;
-			uint8_t ctr_flags;	/* Counter Block Flags */
-			uint8_t b0_flags;	/* Initial Block B0 */
+			uint8_t ctr_flags;	/**< Counter Block Flags */
+			uint8_t b0_flags;	/**< Initial Block B0 */
 		};
 		uint32_t word2;
 	};
 	/* begin DECO writeback region */
-	uint32_t pn;				/* Packet Number */
+	uint32_t pn;				/**< Packet Number */
 	union {
 		struct {
 			uint16_t antireplay_len;
-			uint8_t rsvd1[2];	/* Reserved Bits */
+			uint8_t rsvd1[2];	/**< Reserved Bits */
 		};
 		uint32_t word3;
 	};
@@ -193,31 +213,29 @@ static inline void __rta_copy_wimax_decap_pdb(struct program *p,
 }
 
 /**
- * cnstr_shdsc_wimax_encap_era5 - WiMAX(802.16) encapsulation descriptor for
- *                                platforms with SEC ERA >= 5.
- * @descbuf: pointer to descriptor-under-construction buffer
- * @swap: must be true when core endianness doesn't match SEC endianness
- * @pdb_opts: PDB Options Byte
- * @pn: PDB Packet Number
- * @cipherdata: pointer to block cipher transform definitions
- * @protinfo: protocol information: OP_PCL_WIMAX_OFDM/OFDMA
- *
- * Return: size of descriptor written in words or negative number on error
- *
+ * @details WiMAX(802.16) encapsulation descriptor for platforms
+ *          with SEC ERA >= 5.
  * This descriptor addreses the prefetch problem when modifying the header of
  * the input frame by invalidating the prefetch mechanism.
- *
  * For performance reasons (due to the long read latencies), the JQ will
  * prefetch the input frame if a job cannot go immediately into a DECO. As a
  * result, the rewind is rewinding into the prefetch buffer, not into memory.
  * Therefore, in those cases where prefetch is done, an unaware descriptor would
  * update the memory but read from the prefetched buffer and, as a result, it
  * would not get the updated header.
- *
  * This descriptor invalidates the prefetch data and reads the updated header
  * from memory. The descriptor reads enough data to read to the end of the
  * prefetched data, dumps that data, rewinds the input frame and just starts
  * reading from the beginning again.
+ * @ingroup sharedesc_group
+ * @param[in,out] descbuf pointer to descriptor-under-construction buffer
+ * @param[in] swap must be true when core endianness doesn't match
+ *            SEC endianness
+ * @param[in] pdb_opts PDB Options Byte
+ * @param[in] pn PDB Packet Number
+ * @param[in] cipherdata pointer to block cipher transform definitions
+ * @param[in] protinfo protocol information: OP_PCL_WIMAX_OFDM/OFDMA
+ * @return size of descriptor written in words or negative number on error
  */
 static inline int cnstr_shdsc_wimax_encap_era5(uint32_t *descbuf, bool swap,
 					       uint8_t pdb_opts, uint32_t pn,
@@ -391,19 +409,26 @@ static inline int cnstr_shdsc_wimax_encap_era5(uint32_t *descbuf, bool swap,
 }
 
 /**
- * cnstr_shdsc_wimax_encap - WiMAX(802.16) encapsulation
- * @descbuf: pointer to descriptor-under-construction buffer
- * @swap: must be true when core endianness doesn't match SEC endianness
- * @pdb_opts: PDB Options Byte
- * @pn: PDB Packet Number
- * @cipherdata: pointer to block cipher transform definitions
- * @protinfo: protocol information: OP_PCL_WIMAX_OFDM/OFDMA
- *
- * Note: Descriptor is valid on platforms with support for SEC ERA 4.
+ * @defgroup sharedesc_group Shared Descriptor Example Routines
+ * @ingroup descriptor_lib_group
+ * @{
+ */
+/** @} end of sharedesc_group */
+
+/**
+ * @details WiMAX(802.16) encapsulation
+ * @ingroup sharedesc_group
+ * @param[in,out] descbuf pointer to descriptor-under-construction buffer
+ * @param[in] swap must be true when core endianness doesn't match
+ *            SEC endianness
+ * @param[in] pdb_opts PDB Options Byte
+ * @param[in] pn PDB Packet Number
+ * @param[in] cipherdata pointer to block cipher transform definitions
+ * @param[in] protinfo protocol information: OP_PCL_WIMAX_OFDM/OFDMA
+ * @return size of descriptor written in words or negative number on error
+ * @warning Descriptor is valid on platforms with support for SEC ERA 4.
  * On platforms with SEC ERA 5 or above, cnstr_shdsc_wimax_encap_era5 is
  * automatically called.
- *
- * Return: size of descriptor written in words or negative number on error
  */
 static inline int cnstr_shdsc_wimax_encap(uint32_t *descbuf, bool swap,
 					  uint8_t pdb_opts, uint32_t pn,
@@ -566,18 +591,18 @@ static inline int cnstr_shdsc_wimax_encap(uint32_t *descbuf, bool swap,
 }
 
 /**
- * cnstr_shdsc_wimax_decap - WiMAX(802.16) decapsulation
- * @descbuf: pointer to descriptor-under-construction buffer
- * @swap: must be true when core endianness doesn't match SEC endianness
- * @pdb_opts: PDB Options Byte
- * @pn: PDB Packet Number
- * @cipherdata: pointer to block cipher transform definitions
- * @ar_len: anti-replay window length
- * @protinfo: protocol information: OP_PCL_WIMAX_OFDM/OFDMA
- *
- * Return: size of descriptor written in words or negative number on error
- *
- * Note: Descriptor valid on platforms with support for SEC ERA 4.
+ * @details WiMAX(802.16) decapsulation
+ * @ingroup sharedesc_group
+ * @param[in,out] descbuf pointer to descriptor-under-construction buffer
+ * @param[in] swap must be true when core endianness doesn't match
+ *            SEC endianness
+ * @param[in] pdb_opts PDB Options Byte
+ * @param[in] pn PDB Packet Number
+ * @param[in] cipherdata pointer to block cipher transform definitions
+ * @param[in] ar_len anti-replay window length
+ * @param[in] protinfo protocol information: OP_PCL_WIMAX_OFDM/OFDMA
+ * @return size of descriptor written in words or negative number on error
+ * @warning Descriptor valid on platforms with support for SEC ERA 4.
  */
 static inline int cnstr_shdsc_wimax_decap(uint32_t *descbuf, bool swap,
 					  uint8_t pdb_opts, uint32_t pn,

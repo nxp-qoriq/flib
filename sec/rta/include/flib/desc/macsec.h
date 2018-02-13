@@ -1,5 +1,6 @@
 /*
  * Copyright 2008-2013 Freescale Semiconductor, Inc.
+ * Copyright 2018 NXP
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -11,20 +12,33 @@
 #include "common.h"
 
 /**
- * DOC: MACsec Shared Descriptor Constructors
- *
- * Shared descriptors for MACsec protocol.
+ * @file macsec.h
+ * @brief MACsec Shared Descriptor Constructors
+ *        Shared descriptors for MACsec protocol.
  */
 
 /**
- * enum cipher_type_macsec - Type selectors for cipher types in MACSEC protocol
- * @MACSEC_CIPHER_TYPE_GCM: MACsec to use GCM as algorithm
- * @MACSEC_CIPHER_TYPE_GMAC: MACsec to use GMAC as algorithm
+ * @defgroup descriptor_lib_group RTA Descriptors Library
+ * @{
+ */
+/** @} end of descriptor_lib_group */
+
+/**
+ * @defgroup typedefs_group Auxiliary Data Structures
+ * @ingroup descriptor_lib_group
+ * @{
+ */
+
+/**
+ * @enum cipher_type_macsec macsec.h
+ * @details Type selectors for cipher types in MACSEC protocol
  */
 enum cipher_type_macsec {
-	MACSEC_CIPHER_TYPE_GCM,
-	MACSEC_CIPHER_TYPE_GMAC
+	MACSEC_CIPHER_TYPE_GCM, /**< MACsec to use GCM as algorithm */
+	MACSEC_CIPHER_TYPE_GMAC /**< MACsec to use GMAC as algorithm */
 };
+
+/** @} */ /* end of typedefs_group */
 
 /*
  * IEEE 801.AE MacSEC Protocol Data Block
@@ -175,17 +189,25 @@ static inline void __rta_copy_macsec_decap_pdb(struct program *p,
 }
 
 /**
- * cnstr_shdsc_macsec_encap - MACsec(802.1AE) encapsulation
- * @descbuf: pointer to descriptor-under-construction buffer
- * @swap: must be true when core endianness doesn't match SEC endianness
- * @cipherdata: pointer to block cipher transform definitions
- * @sci: PDB Secure Channel Identifier
- * @ethertype: PDB EtherType
- * @tci_an: TAG Control Information and Association Number are treated as a
- *          single field of 8 bits in PDB.
- * @pn: PDB Packet Number
- *
- * Return: size of descriptor written in words or negative number on error
+ * @defgroup sharedesc_group Shared Descriptor Example Routines
+ * @ingroup descriptor_lib_group
+ * @{
+ */
+/** @} end of sharedesc_group */
+
+/**
+ * @details MACsec(802.1AE) encapsulation
+ * @ingroup sharedesc_group
+ * @param[in,out] descbuf pointer to descriptor-under-construction buffer
+ * @param[in] swap must be true when core endianness doesn't match
+ *            SEC endianness
+ * @param[in] cipherdata pointer to block cipher transform definitions
+ * @param[in] sci PDB Secure Channel Identifier
+ * @param[in] ethertype PDB EtherType
+ * @param[in] tci_an TAG Control Information and Association Number are treated
+ *            as a single field of 8 bits in PDB
+ * @param[in] pn PDB Packet Number
+ * @return size of descriptor written in words or negative number on error
  */
 static inline int cnstr_shdsc_macsec_encap(uint32_t *descbuf, bool swap,
 					   struct alginfo *cipherdata,
@@ -235,14 +257,15 @@ static inline int cnstr_shdsc_macsec_encap(uint32_t *descbuf, bool swap,
 }
 
 /**
- * cnstr_shdsc_macsec_decap - MACsec(802.1AE) decapsulation
- * @descbuf: pointer to descriptor-under-construction buffer
- * @swap: must be true when core endianness doesn't match SEC endianness
- * @cipherdata: pointer to block cipher transform definitions
- * @sci: PDB Secure Channel Identifier
- * @pn: PDB Packet Number
- *
- * Return: size of descriptor written in words or negative number on error
+ * @details MACsec(802.1AE) decapsulation
+ * @ingroup sharedesc_group
+ * @param[in,out] descbuf pointer to descriptor-under-construction buffer
+ * @param[in] swap must be true when core endianness doesn't match
+ *            SEC endianness
+ * @param[in] cipherdata pointer to block cipher transform definitions
+ * @param[in] sci PDB Secure Channel Identifier
+ * @param[in] pn PDB Packet Number
+ * @return size of descriptor written in words or negative number on error
  */
 static inline int cnstr_shdsc_macsec_decap(uint32_t *descbuf, bool swap,
 					   struct alginfo *cipherdata,

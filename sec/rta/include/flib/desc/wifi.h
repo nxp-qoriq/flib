@@ -1,5 +1,6 @@
 /*
  * Copyright 2008-2013 Freescale Semiconductor, Inc.
+ * Copyright 2018 NXP
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -11,9 +12,9 @@
 #include "common.h"
 
 /**
- * DOC: WiFi Shared Descriptor Constructors
- *
- * Shared descriptors for WiFi (802.11i) protocol.
+ * @file wifi.h
+ * @brief WiFi Shared Descriptor Constructors
+ *        Shared descriptors for WiFi (802.11i) protocol.
  */
 
 /*
@@ -23,26 +24,29 @@
 #define WIFI_PDBOPTS_AR		0x40
 
 /**
- * WIFI_B0_FLAGS - The value of B0 flags used for WiFi AES-CCM Context
- *                 construction.
+ * @def WIFI_B0_FLAGS
+ * The value of B0 flags used for WiFi AES-CCM Context construction.
+ *
  */
 #define WIFI_B0_FLAGS			0x59
 
 /**
- * WIFI_FRM_CTRL_MASK - The Frame Control Mask value used in computing the
- *                      additional authentication data (AAD).
+ * @def WIFI_FRM_CTRL_MASK
+ * The Frame Control Mask value used in computing the additional
+ * authentication data (AAD).
  */
 #define WIFI_FRM_CTRL_MASK		0x8fc7
 
 /**
- * WIFI_SEQ_CTRL_MASK - The Sequence Control Mask value used in computing the
- *                      additional authentication data (AAD).
+ * @def WIFI_SEQ_CTRL_MASK
+ * The Sequence Control Mask value used in computing the additional
+ * authentication data (AAD). *
  */
 #define WIFI_SEQ_CTRL_MASK		0x0f00
 
 /**
- * WIFI_CTR_FLAGS - The value of Counter Flags used for CCM Counter block
- *                  construction.
+ * @def WIFI_CTR_FLAGS
+ * The value of Counter Flags used for CCM Counter block construction.
  */
 #define WIFI_CTR_FLAGS			0x01
 
@@ -50,43 +54,43 @@
 struct wifi_encap_pdb {
 	union {
 		struct {
-			uint16_t mac_hdr_len;	/* MAC Header Length - 24 or
+			uint16_t mac_hdr_len;	/**< MAC Header Length - 24 or
 						   30 bytes */
-			uint8_t rsvd;		/* Reserver bits */
-			uint8_t options;	/* Options byte */
+			uint8_t rsvd;		/**< Reserver bits */
+			uint8_t options;	/**< Options byte */
 		};
 		uint32_t word1;
 	};
 	union {
 		struct {
-			uint8_t b0_flags;	/* CCM B0 block flags */
-			uint8_t pri;		/* Frame Priority */
-			uint16_t pn1;		/* Packet Number MS 16 bits */
+			uint8_t b0_flags;	/**< CCM B0 block flags */
+			uint8_t pri;		/**< Frame Priority */
+			uint16_t pn1;		/**< Packet Number MS 16 bits */
 		};
 		uint32_t word2;
 	};
-	uint32_t pn2;				/* Packet Number LS 32 bits */
+	uint32_t pn2;				/**< Packet Number LS 32 bits */
 	union {
 		struct {
-			uint16_t frm_ctrl_mask; /* Frame Control mask */
-			uint16_t seq_ctrl_mask; /* Sequence Control mask */
+			uint16_t frm_ctrl_mask; /**< Frame Control mask */
+			uint16_t seq_ctrl_mask; /**< Sequence Control mask */
 		};
 		uint32_t word3;
 	};
 	union {
 		struct {
-			uint16_t rsvd1;		/* Reserved bits */
-			uint8_t cnst;		/* CCM Counter block constant -
-						   0x0000 */
-			uint8_t key_id;		/* Key ID*/
+			uint16_t rsvd1;		/**< Reserved bits */
+			uint8_t cnst;		/**< CCM Counter block constant
+						     - 0x0000 */
+			uint8_t key_id;		/**< Key ID*/
 		};
 		uint32_t word4;
 	};
 	union {
 		struct {
-			uint8_t ctr_flags;	/* CCM Counter block flags */
-			uint8_t rsvd2;		/* Reserved bits */
-			uint16_t ctr_init;	/* CCM Counter block init
+			uint8_t ctr_flags;	/**< CCM Counter block flags */
+			uint8_t rsvd2;		/**< Reserved bits */
+			uint16_t ctr_init;	/**< CCM Counter block init
 						   counter */
 		};
 		uint32_t word5;
@@ -96,44 +100,44 @@ struct wifi_encap_pdb {
 struct wifi_encap_pdb {
 	union {
 		struct {
-			uint8_t options;	/* Options byte */
-			uint8_t rsvd;		/* Reserver bits */
-			uint16_t mac_hdr_len;	/* MAC Header Length - 24 or
+			uint8_t options;	/**< Options byte */
+			uint8_t rsvd;		/**< Reserver bits */
+			uint16_t mac_hdr_len;	/**< MAC Header Length - 24 or
 						   30 bytes */
 		};
 		uint32_t word1;
 	};
 	union {
 		struct {
-			uint16_t pn1;		/* Packet Number MS 16 bits */
-			uint8_t pri;		/* Frame Priority */
-			uint8_t b0_flags;	/* CCM B0 block flags */
+			uint16_t pn1;		/**< Packet Number MS 16 bits */
+			uint8_t pri;		/**< Frame Priority */
+			uint8_t b0_flags;	/**< CCM B0 block flags */
 		};
 		uint32_t word2;
 	};
-	uint32_t pn2;				/* Packet Number LS 32 bits */
+	uint32_t pn2;				/**< Packet Number LS 32 bits */
 	union {
 		struct {
-			uint16_t seq_ctrl_mask; /* Sequence Control mask */
-			uint16_t frm_ctrl_mask; /* Frame Control mask */
+			uint16_t seq_ctrl_mask; /**< Sequence Control mask */
+			uint16_t frm_ctrl_mask; /**< Frame Control mask */
 		};
 		uint32_t word3;
 	};
 	union {
 		struct {
-			uint8_t key_id;		/* Key ID*/
-			uint8_t cnst;		/* CCM Counter block constant -
-						   0x0000 */
-			uint16_t rsvd1;		/* Reserved bits */
+			uint8_t key_id;		/**< Key ID*/
+			uint8_t cnst;		/**< CCM Counter block constant
+						     - 0x0000 */
+			uint16_t rsvd1;		/**< Reserved bits */
 		};
 		uint32_t word4;
 	};
 	union {
 		struct {
-			uint16_t ctr_init;	/* CCM Counter block init
+			uint16_t ctr_init;	/**< CCM Counter block init
 						   counter */
-			uint8_t rsvd2;		/* Reserved bits */
-			uint8_t ctr_flags;	/* CCM Counter block flags */
+			uint8_t rsvd2;		/**< Reserved bits */
+			uint8_t ctr_flags;	/**< CCM Counter block flags */
 		};
 		uint32_t word5;
 	};
@@ -144,35 +148,35 @@ struct wifi_encap_pdb {
 struct wifi_decap_pdb {
 	union {
 		struct {
-			uint16_t mac_hdr_len;	/* MAC Header Length - 24 or
-						   30 bytes */
+			uint16_t mac_hdr_len;	/**< MAC Header Length - 24 or
+						  *< 30 bytes */
 			uint8_t rsvd;		/* Reserver bits */
-			uint8_t options;	/* Options byte */
+			uint8_t options;	/**< Options byte */
 		};
 		uint32_t word1;
 	};
 	union {
 		struct{
-			uint8_t b0_flags;	/* CCM B0 block flags */
-			uint8_t pri;		/* Frame Priority */
-			uint16_t pn1;		/* Packet Number MS 16 bits */
+			uint8_t b0_flags;	/**< CCM B0 block flags */
+			uint8_t pri;		/**< Frame Priority */
+			uint16_t pn1;		/**< Packet Number MS 16 bits */
 		};
 		uint32_t word2;
 	};
 	uint32_t pn2;		/* Packet Number LS 32 bits */
 	union {
 		struct {
-			uint16_t frm_ctrl_mask; /* Frame Control mask */
-			uint16_t seq_ctrl_mask; /* Sequence Control mask */
+			uint16_t frm_ctrl_mask; /**< Frame Control mask */
+			uint16_t seq_ctrl_mask; /**< Sequence Control mask */
 		};
 		uint32_t word3;
 	};
 	uint32_t rsvd1;	    /* Reserved bits */
 	union {
 		struct {
-			uint8_t ctr_flags;	/* CCM Counter block flags */
-			uint8_t rsvd2;		/* Reserved bits */
-			uint16_t ctr_init;	/* CCM Counter block init
+			uint8_t ctr_flags;	/**< CCM Counter block flags */
+			uint8_t rsvd2;		/**< Reserved bits */
+			uint16_t ctr_init;	/**< CCM Counter block init
 						   counter */
 		};
 		uint32_t word4;
@@ -182,36 +186,36 @@ struct wifi_decap_pdb {
 struct wifi_decap_pdb {
 	union {
 		struct {
-			uint8_t options;	/* Options byte */
-			uint8_t rsvd;		/* Reserver bits */
-			uint16_t mac_hdr_len;	/* MAC Header Length - 24 or
+			uint8_t options;	/**< Options byte */
+			uint8_t rsvd;		/**< Reserver bits */
+			uint16_t mac_hdr_len;	/**< MAC Header Length - 24 or
 						   30 bytes */
 		};
 		uint32_t word1;
 	};
 	union {
 		struct{
-			uint16_t pn1;		/* Packet Number MS 16 bits */
-			uint8_t pri;		/* Frame Priority */
-			uint8_t b0_flags;	/* CCM B0 block flags */
+			uint16_t pn1;		/**< Packet Number MS 16 bits */
+			uint8_t pri;		/**< Frame Priority */
+			uint8_t b0_flags;	/**< CCM B0 block flags */
 		};
 		uint32_t word2;
 	};
 	uint32_t pn2;		/* Packet Number LS 32 bits */
 	union {
 		struct {
-			uint16_t seq_ctrl_mask; /* Sequence Control mask */
-			uint16_t frm_ctrl_mask; /* Frame Control mask */
+			uint16_t seq_ctrl_mask; /**< Sequence Control mask */
+			uint16_t frm_ctrl_mask; /**< Frame Control mask */
 		};
 		uint32_t word3;
 	};
 	uint32_t rsvd1;	    /* Reserved bits */
 	union {
 		struct {
-			uint16_t ctr_init;	/* CCM Counter block init
+			uint16_t ctr_init;	/**< CCM Counter block init
 						   counter */
-			uint8_t rsvd2;		/* Reserved bits */
-			uint8_t ctr_flags;	/* CCM Counter block flags */
+			uint8_t rsvd2;		/**< Reserved bits */
+			uint8_t ctr_flags;	/**< CCM Counter block flags */
 		};
 		uint32_t word4;
 	};
@@ -241,17 +245,25 @@ static inline void __rta_copy_wifi_decap_pdb(struct program *p,
 }
 
 /**
- * cnstr_shdsc_wifi_encap - IEEE 802.11i WiFi encapsulation
- * @descbuf: pointer to descriptor-under-construction buffer
- * @ps: if 36/40bit addressing is desired, this parameter must be true
- * @swap: must be true when core endianness doesn't match SEC endianness
- * @mac_hdr_len: PDB MAC header length (24 or 28 bytes)
- * @pn: PDB Packet Number
- * @priority: PDB Packet priority
- * @key_id: PDB Key ID
- * @cipherdata: block cipher transform definitions
- *
- * Return: size of descriptor written in words or negative number on error
+ * @defgroup sharedesc_group Shared Descriptor Example Routines
+ * @ingroup descriptor_lib_group
+ * @{
+ */
+/** @} end of sharedesc_group */
+
+/**
+ * @details IEEE 802.11i WiFi encapsulation
+ * @ingroup sharedesc_group
+ * @param[in,out] descbuf pointer to descriptor-under-construction buffer
+ * @param[in] ps if 36/40bit addressing is desired, this parameter must be true
+ * @param[in] swap must be true when core endianness doesn't match
+ *            SEC endianness
+ * @param[in] mac_hdr_len PDB MAC header length (24 or 28 bytes)
+ * @param[in] pn PDB Packet Number
+ * @param[in] priority PDB Packet priority
+ * @param[in] key_id PDB Key ID
+ * @param[in] cipherdata block cipher transform definitions
+ * @return size of descriptor written in words or negative number on error
  */
 static inline int cnstr_shdsc_wifi_encap(uint32_t *descbuf, bool ps, bool swap,
 					 uint16_t mac_hdr_len, uint64_t pn,
@@ -368,16 +380,17 @@ static inline int cnstr_shdsc_wifi_encap(uint32_t *descbuf, bool ps, bool swap,
 }
 
 /**
- * cnstr_shdsc_wifi_decap - IEEE 802.11 WiFi decapsulation
- * @descbuf: pointer to descriptor-under-construction buffer
- * @ps: if 36/40bit addressing is desired, this parameter must be true
- * @swap: must be true when core endianness doesn't match SEC endianness
- * @mac_hdr_len: PDB MAC header length (24 or 28 bytes)
- * @pn: PDB Packet Number
- * @priority: PDB Packet priority
- * @cipherdata: block cipher transform definitions
- *
- * Return: size of descriptor written in words or negative number on error
+ * @details IEEE 802.11 WiFi decapsulation
+ * @ingroup sharedesc_group
+ * @param[in,out] descbuf pointer to descriptor-under-construction buffer
+ * @param[in] ps if 36/40bit addressing is desired, this parameter must be true
+ * @param[in] swap must be true when core endianness doesn't match
+ *            SEC endianness
+ * @param[in] mac_hdr_len PDB MAC header length (24 or 28 bytes)
+ * @param[in] pn PDB Packet Number
+ * @param[in] priority PDB Packet priority
+ * @param[in] cipherdata block cipher transform definitions
+ * @return size of descriptor written in words or negative number on error
  **/
 static inline int cnstr_shdsc_wifi_decap(uint32_t *descbuf, bool ps, bool swap,
 					 uint16_t mac_hdr_len, uint64_t pn,

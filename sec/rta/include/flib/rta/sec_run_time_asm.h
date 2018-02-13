@@ -1,5 +1,6 @@
 /*
  * Copyright 2008-2013 Freescale Semiconductor, Inc.
+ * Copyright 2018 NXP
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -15,131 +16,120 @@
 #endif
 
 /**
- * enum rta_sec_era - SEC HW block revisions supported by the RTA library
- * @RTA_SEC_ERA_1: SEC Era 1
- * @RTA_SEC_ERA_2: SEC Era 2
- * @RTA_SEC_ERA_3: SEC Era 3
- * @RTA_SEC_ERA_4: SEC Era 4
- * @RTA_SEC_ERA_5: SEC Era 5
- * @RTA_SEC_ERA_6: SEC Era 6
- * @RTA_SEC_ERA_7: SEC Era 7
- * @RTA_SEC_ERA_8: SEC Era 8
- * @MAX_SEC_ERA: maximum SEC HW block revision supported by RTA library
+ * @enum rta_sec_era
+ * @details SEC HW block revisions supported by the RTA library.
  */
 enum rta_sec_era {
-	RTA_SEC_ERA_1,
-	RTA_SEC_ERA_2,
-	RTA_SEC_ERA_3,
-	RTA_SEC_ERA_4,
-	RTA_SEC_ERA_5,
-	RTA_SEC_ERA_6,
-	RTA_SEC_ERA_7,
-	RTA_SEC_ERA_8,
-	MAX_SEC_ERA = RTA_SEC_ERA_8
+	RTA_SEC_ERA_1, /**< SEC Era 1 */
+	RTA_SEC_ERA_2, /**< SEC Era 2 */
+	RTA_SEC_ERA_3, /**< SEC Era 3 */
+	RTA_SEC_ERA_4, /**< SEC Era 4 */
+	RTA_SEC_ERA_5, /**< SEC Era 5 */
+	RTA_SEC_ERA_6, /**< SEC Era 6 */
+	RTA_SEC_ERA_7, /**< SEC Era 7 */
+	RTA_SEC_ERA_8, /**< SEC Era 8 */
+	MAX_SEC_ERA = RTA_SEC_ERA_8 /**< maximum SEC HW block revision
+					 supported by RTA library */
 };
 
 /**
- * DEFAULT_SEC_ERA - the default value for the SEC era in case the user provides
- * an unsupported value.
+ * @def DEFAULT_SEC_ERA
+ * The default value for the SEC era in case the user provides an unsupported
+ * value.
  */
 #define DEFAULT_SEC_ERA	MAX_SEC_ERA
 
 /**
- * USER_SEC_ERA - translates the SEC Era from internal to user representation.
- * @sec_era: SEC Era in internal (library) representation
+ * @def USER_SEC_ERA
+ * Translates the SEC Era from internal to user representation.
+ * @param[in] sec_era SEC Era in internal (library) representation
  */
 #define USER_SEC_ERA(sec_era)	(sec_era + 1)
 
 /**
- * INTL_SEC_ERA - translates the SEC Era from user representation to internal.
- * @sec_era: SEC Era in user representation
+ * @def INTL_SEC_ERA
+ * Translates the SEC Era from user representation to internal.
+ * @param[in] sec_era SEC Era in user representation
  */
 #define INTL_SEC_ERA(sec_era)	(sec_era - 1)
 
 /**
- * enum rta_jump_type - Types of action taken by JUMP command
- * @LOCAL_JUMP: conditional jump to an offset within the descriptor buffer
- * @FAR_JUMP: conditional jump to a location outside the descriptor buffer,
- *            indicated by the POINTER field after the JUMP command.
- * @HALT: conditional halt - stop the execution of the current descriptor and
- *        writes PKHA / Math condition bits as status / error code.
- * @HALT_STATUS: conditional halt with user-specified status - stop the
- *               execution of the current descriptor and writes the value of
- *               "LOCAL OFFSET" JUMP field as status / error code.
- * @GOSUB: conditional subroutine call - similar to @LOCAL_JUMP, but also saves
- *         return address in the Return Address register; subroutine calls
- *         cannot be nested.
- * @RETURN: conditional subroutine return - similar to @LOCAL_JUMP, but the
- *          offset is taken from the Return Address register.
- * @LOCAL_JUMP_INC: similar to @LOCAL_JUMP, but increment the register specified
- *                  in "SRC_DST" JUMP field before evaluating the jump
- *                  condition.
- * @LOCAL_JUMP_DEC: similar to @LOCAL_JUMP, but decrement the register specified
- *                  in "SRC_DST" JUMP field before evaluating the jump
- *                  condition.
+ * @enum rta_jump_type
+ * @details Types of action taken by JUMP command.
  */
 enum rta_jump_type {
-	LOCAL_JUMP,
-	FAR_JUMP,
-	HALT,
-	HALT_STATUS,
-	GOSUB,
-	RETURN,
-	LOCAL_JUMP_INC,
-	LOCAL_JUMP_DEC
+	LOCAL_JUMP, /**< conditional jump to an offset within the descriptor
+			 buffer */
+	FAR_JUMP, /**< conditional jump to a location outside the descriptor
+		       buffer, indicated by the POINTER field after the JUMP
+		       command */
+	HALT, /**< conditional halt - stop the execution of the current
+		   descriptor and writes PKHA / Math condition bits as status /
+		   error code */
+	HALT_STATUS, /**< conditional halt with user-specified status - stop the
+			  execution of the current descriptor and writes the
+			  value of "LOCAL OFFSET" JUMP field as status / error
+			  code */
+	GOSUB, /**< conditional subroutine call - similar to @LOCAL_JUMP, but
+		    also saves return address in the Return Address register;
+		    subroutine calls cannot be nested. */
+	RETURN, /**< conditional subroutine return - similar to @LOCAL_JUMP, but
+		     the offset is taken from the Return Address register */
+	LOCAL_JUMP_INC, /**< similar to @LOCAL_JUMP, but increment the register
+			     specified in "SRC_DST" JUMP field before evaluating
+			     the jump condition */
+	LOCAL_JUMP_DEC /**< similar to @LOCAL_JUMP, but decrement the register
+			    specified in "SRC_DST" JUMP field before evaluating
+			    the jump condition */
 };
 
 /**
- * enum rta_jump_cond - How test conditions are evaluated by JUMP command
- * @ALL_TRUE: perform action if ALL selected conditions are true
- * @ALL_FALSE: perform action if ALL selected conditions are false
- * @ANY_TRUE: perform action if ANY of the selected conditions is true
- * @ANY_FALSE: perform action if ANY of the selected conditions is false
+ * @enum rta_jump_cond
+ * @details How test conditions are evaluated by JUMP command.
  */
 enum rta_jump_cond {
-	ALL_TRUE,
-	ALL_FALSE,
-	ANY_TRUE,
-	ANY_FALSE
+	ALL_TRUE, /**< perform action if ALL selected conditions are true */
+	ALL_FALSE, /**< perform action if ALL selected conditions are false */
+	ANY_TRUE, /**< perform action if ANY of the selected conditions is
+		       true */
+	ANY_FALSE /**< perform action if ANY of the selected conditions is
+		       false */
 };
 
 /**
- * enum rta_share_type - Types of sharing for JOB_HDR and SHR_HDR commands
- * @SHR_NEVER: nothing is shared; descriptors can execute in parallel (i.e. no
- *             dependencies are allowed between them).
- * @SHR_WAIT: shared descriptor and keys are shared once the descriptor sets
- *            "OK to share" in DECO Control Register (DCTRL).
- * @SHR_SERIAL: shared descriptor and keys are shared once the descriptor has
- *              completed.
- * @SHR_ALWAYS: shared descriptor is shared anytime after the descriptor is
- *              loaded.
- * @SHR_DEFER: valid only for JOB_HDR; sharing type is the one specified
- *             in the shared descriptor associated with the job descriptor.
+ * @enum rta_share_type
+ * @details Types of sharing for JOB_HDR and SHR_HDR commands.
  */
 enum rta_share_type {
-	SHR_NEVER,
-	SHR_WAIT,
-	SHR_SERIAL,
-	SHR_ALWAYS,
-	SHR_DEFER
+	SHR_NEVER, /**< nothing is shared; descriptors can execute in parallel
+			(i.e. no dependencies are allowed between them). */
+	SHR_WAIT, /**< shared descriptor and keys are shared once the descriptor
+		       sets "OK to share" in DECO Control Register (DCTRL) */
+	SHR_SERIAL, /**< shared descriptor and keys are shared once the
+			 descriptor has completed */
+	SHR_ALWAYS, /**< shared descriptor is shared anytime after the
+			 descriptor is loaded */
+	SHR_DEFER /**< valid only for JOB_HDR; sharing type is the one specified
+		       in the shared descriptor associated with the job
+		       descriptor */
 };
 
 /**
- * enum rta_data_type - Indicates how is the data provided and how to include it
- *                      in the descriptor.
- * @RTA_DATA_PTR: Data is in memory and accessed by reference; data address is a
- *               physical (bus) address.
- * @RTA_DATA_IMM: Data is inlined in descriptor and accessed as immediate data;
- *               data address is a virtual address.
- * @RTA_DATA_IMM_DMA: (AIOP only) Data is inlined in descriptor and accessed as
- *                   immediate data; data address is a physical (bus) address
- *                   in external memory and CDMA is programmed to transfer the
- *                   data into descriptor buffer being built in Workspace Area.
+ * @enum rta_data_type
+ * @details Indicates how is the data provided and how to include it in
+ *          the descriptor.
  */
 enum rta_data_type {
-	RTA_DATA_PTR = 1,
-	RTA_DATA_IMM,
-	RTA_DATA_IMM_DMA
+	RTA_DATA_PTR = 1, /**< Data is in memory and accessed by reference; data
+			       address is a physical (bus) address. */
+	RTA_DATA_IMM, /**< Data is inlined in descriptor and accessed as
+			   immediate data; data address is a virtual address. */
+	RTA_DATA_IMM_DMA /**< (AIOP only) Data is inlined in descriptor and
+			       accessed as immediate data; data address is a
+			       physical (bus) address in external memory and
+			       CDMA is programmed to transfer the data into
+			       descriptor buffer being built in Workspace
+			       Area. */
 };
 
 /* Registers definitions */
@@ -270,7 +260,8 @@ enum rta_regs {
 #define BOTH            BIT(13)
 
 /**
- * DCOPY - (AIOP only) command param is pointer to external memory
+ * @def DCOPY
+ * (AIOP only) command param is pointer to external memory.
  *
  * CDMA must be used to transfer the key via DMA into Workspace Area.
  * Valid only in combination with IMMED flag.
@@ -364,28 +355,21 @@ enum rta_regs {
 #define IMMED2      BIT(31)
 
 /**
- * struct program - descriptor buffer management structure
- * @current_pc:	current offset in descriptor
- * @current_instruction: current instruction in descriptor
- * @first_error_pc: offset of the first error in descriptor
- * @start_pc: start offset in descriptor buffer
- * @buffer: buffer carrying descriptor
- * @shrhdr: shared descriptor header
- * @jobhdr: job descriptor header
- * @ps: pointer fields size; if ps is true, pointers will be 36bits in
- *      length; if ps is false, pointers will be 32bits in length
- * @bswap: if true, perform byte swap on a 4-byte boundary
+ * @struct program
+ * @details Descriptor buffer management structure.
  */
 struct program {
-	unsigned current_pc;
-	unsigned current_instruction;
-	unsigned first_error_pc;
-	unsigned start_pc;
-	uint32_t *buffer;
-	uint32_t *shrhdr;
-	uint32_t *jobhdr;
-	bool ps;
-	bool bswap;
+	unsigned current_pc; /**< current offset in descriptor */
+	unsigned current_instruction; /**< current instruction in descriptor */
+	unsigned first_error_pc; /**< offset of the first error in descriptor */
+	unsigned start_pc; /**< start offset in descriptor buffer */
+	uint32_t *buffer; /**< buffer carrying descriptor */
+	uint32_t *shrhdr; /**< shared descriptor header */
+	uint32_t *jobhdr; /**< job descriptor header */
+	bool ps; /**< pointer fields size; if ps is true, pointers will be
+		      36 bits in length; if ps is false, pointers will be
+		      32 bits in length. */
+	bool bswap; /**< if true, perform byte swap on a 4-byte boundary */
 };
 
 static inline void rta_program_cntxt_init(struct program *program,
@@ -599,11 +583,10 @@ static inline unsigned rta_desc_bytes(uint32_t *buffer)
 }
 
 /**
- * split_key_len - Compute MDHA split key length for a given algorithm
- * @hash: Hashing algorithm selection, one of OP_ALG_ALGSEL_* or
- *        OP_PCLID_DKP_* - MD5, SHA1, SHA224, SHA256, SHA384, SHA512.
- *
- * Return: MDHA split key length
+ * @details Compute MDHA split key length for a given algorithm.
+ * @param[in] hash Hashing algorithm selection, one of OP_ALG_ALGSEL_* or
+ *            OP_PCLID_DKP_* - MD5, SHA1, SHA224, SHA256, SHA384, SHA512.
+ * @return MDHA split key length
  */
 static inline uint32_t split_key_len(uint32_t hash)
 {
@@ -617,11 +600,10 @@ static inline uint32_t split_key_len(uint32_t hash)
 }
 
 /**
- * split_key_pad_len - Compute MDHA split key pad length for a given algorithm
- * @hash: Hashing algorithm selection, one of OP_ALG_ALGSEL_* - MD5, SHA1,
- *        SHA224, SHA384, SHA512.
- *
- * Return: MDHA split key pad length
+ * @details Compute MDHA split key pad length for a given algorithm.
+ * @param[in] hash Hashing algorithm selection, one of OP_ALG_ALGSEL_* -
+ *            MD5, SHA1, SHA224, SHA384, SHA512.
+ * @return MDHA split key pad length
  */
 static inline uint32_t split_key_pad_len(uint32_t hash)
 {

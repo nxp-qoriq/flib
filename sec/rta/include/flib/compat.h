@@ -1,5 +1,6 @@
 /*
  * Copyright 2013 Freescale Semiconductor, Inc.
+ * Copyright 2018 NXP
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -98,8 +99,8 @@ static inline __printf(1, 2) int no_printf(const char *fmt __always_unused, ...)
 #endif /* pr_warn */
 
 /**
- * ARRAY_SIZE - returns the number of elements in an array
- * @x: array
+ * @def ARRAY_SIZE(x)
+ * Returns the number of elements in an array.
  */
 #ifndef ARRAY_SIZE
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))

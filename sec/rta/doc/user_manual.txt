@@ -1,6 +1,6 @@
 Copyright 2014 Freescale Semiconductor, Inc.
 
-User Manual
+User Manual                         {#userman}
 ===========
 
 Introduction
@@ -39,23 +39,17 @@ The files in sec/rta/include/flib/desc directory contain several real-world
 descriptors written with RTA. You can use them as-is or adapt them to your
 needs.
 
-RTA routines require a pointer to struct program as first parameter:
-
-    struct program prg;
-    struct program *p = &prg;
-
-This variable contains several housekeeping information that are used during
-descriptor creation.
+RTA routines take as first parameter a pointer to a "struct program" variable.
+It contains housekeeping information that is used during descriptor creation.
 
 RTA creates the descriptors and saves them in buffers. It is the user's job
 to allocate memory for these buffers before passing them to RTA program
 initialization call.
 
-A RTA program must start with a call to PROGRAM_CNTXT_INIT and end with
+An RTA program must start with a call to PROGRAM_CNTXT_INIT and end with
 PROGRAM_FINALIZE.
-
-PROGRAM_CNTXT_INIT will initialze the members of 'program' structure with
-user information (pointer to user's buffer, and the SEC subversion).
+PROGRAM_CNTXT_INIT will initialize the members of 'program' structure with user
+information (pointer to user's buffer, and the SEC subversion).
 The PROGRAM_FINALIZE call checks the descriptor's validity.
 
 The program length is limited to the size of buffer descriptor which can be

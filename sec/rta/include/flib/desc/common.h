@@ -1,5 +1,6 @@
 /*
  * Copyright 2008-2013 Freescale Semiconductor, Inc.
+ * Copyright 2018 NXP
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -10,53 +11,63 @@
 #include "flib/rta.h"
 
 /**
- * DOC: Shared Descriptor Constructors - shared structures
- *
- * Data structures shared between algorithm, protocol implementations.
+ * @file common.h
+ * @brief Shared Descriptor Constructors - shared structures
+ *        Data structures shared between algorithm, protocol implementations.
  */
 
 /**
- * struct alginfo - Container for algorithm details
- * @algtype: algorithm selector; for valid values, see documentation of the
- *           functions where it is used.
- * @keylen: length of the provided algorithm key, in bytes
- * @key: address where algorithm key resides; virtual address if key_type is
- *       RTA_DATA_IMM, physical (bus) address if key_type is RTA_DATA_PTR or
- *       RTA_DATA_IMM_DMA.
- * @key_enc_flags: key encryption flags; see encrypt_flags parameter of KEY
- *                 command for valid values.
- * @key_type: enum rta_data_type
- * @algmode: algorithm mode selector; for valid values, see documentation of the
- *           functions where it is used.
+ * @defgroup descriptor_lib_group RTA Descriptors Library
+ * @{
+ */
+/** @} end of descriptor_lib_group */
+
+/**
+ * @defgroup typedefs_group Auxiliary Data Structures
+ * @ingroup descriptor_lib_group
+ * @{
+ */
+
+/**
+ * @struct alginfo common.h
+ * @details Container for algorithm details
  */
 struct alginfo {
-	uint32_t algtype;
-	uint32_t keylen;
-	uint64_t key;
-	uint32_t key_enc_flags;
-	enum rta_data_type key_type;
-	uint16_t algmode;
+	uint32_t algtype; /**< algorithm selector; for valid values, see
+			       documentation of the functions where it is
+			       used */
+	uint32_t keylen; /**< length of the provided algorithm key, in bytes */
+	uint64_t key; /**< address where algorithm key resides; virtual address
+			   if key_type is RTA_DATA_IMM, physical (bus) address
+			   if key_type is RTA_DATA_PTR or RTA_DATA_IMM_DMA */
+	uint32_t key_enc_flags; /**< key encryption flags; see encrypt_flags
+				     parameter of KEY command for valid
+				     values */
+	enum rta_data_type key_type; /**< enum rta_data_type */
+	uint16_t algmode; /**< algorithm mode selector; for valid values, see
+			       documentation of the functions where it is
+			       used */
 };
 
 #define INLINE_KEY(alginfo)	inline_flags(alginfo->key_type)
 
 /**
- * rta_inline_query() - Provide indications on which data items can be inlined
- *                      and which shall be referenced in a shared descriptor.
- * @sd_base_len: Shared descriptor base length - bytes consumed by the commands,
- *               excluding the data items to be inlined (or corresponding
- *               pointer if an item is not inlined). Each cnstr_* function that
- *               generates descriptors should have a define mentioning
- *               corresponding length.
- * @jd_len: Maximum length of the job descriptor(s) that will be used
- *          together with the shared descriptor.
- * @data_len: Array of lengths of the data items trying to be inlined
- * @inl_mask: 32bit mask with bit x = 1 if data item x can be inlined, 0
- *            otherwise.
- * @count: Number of data items (size of @data_len array); must be <= 32
- *
- * Return: 0 if data can be inlined / referenced, negative value if not. If 0,
- *         check @inl_mask for details.
+ * @details Provide indications on which data items can be inlined
+ *          and which shall be referenced in a shared descriptor.
+ * @param[in] sd_base_len Shared descriptor base length - bytes consumed by the
+ *            commands, excluding the data items to be inlined (or corresponding
+ *            pointer if an item is not inlined). Each cnstr_* function that
+ *            generates descriptors should have a define mentioning
+ *            corresponding length.
+ * @param[in] jd_len Maximum length of the job descriptor(s) that will be used
+ *            together with the shared descriptor
+ * @param[in] data_len Array of lengths of the data items trying to be inlined
+ * @param[out] inl_mask 32bit mask with bit x = 1 if data item x can be inlined,
+ *             0 otherwise
+ * @param[in] count Number of data items (size of @p data_len array);
+ *            must be <= 32.
+ * @return 0 if data can be inlined / referenced, negative value if not. If 0,
+ *         check @p inl_mask for details.
  */
 static inline int rta_inline_query(unsigned sd_base_len, unsigned jd_len,
 				   unsigned *data_len, uint32_t *inl_mask,
@@ -80,15 +91,15 @@ static inline int rta_inline_query(unsigned sd_base_len, unsigned jd_len,
 }
 
 /**
- * struct protcmd - Container for Protocol Operation Command fields
- * @optype: command type
- * @protid: protocol Identifier
- * @protinfo: protocol Information
+ * @struct protcmd common.h
+ * @details Container for Protocol Operation Command fields
  */
 struct protcmd {
-	uint32_t optype;
-	uint32_t protid;
-	uint16_t protinfo;
+	uint32_t optype; /**< command type */
+	uint32_t protid; /**< protocol Identifier */
+	uint16_t protinfo; /**< protocol Information */
 };
+
+/** @} end of typedefs_group */
 
 #endif /* __DESC_COMMON_H__ */

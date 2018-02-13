@@ -1,5 +1,6 @@
 /*
  * Copyright 2008-2013 Freescale Semiconductor, Inc.
+ * Copyright 2018 NXP
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -11,104 +12,110 @@
 #include "common.h"
 
 /**
- * DOC: PDCP Shared Descriptor Constructors
- *
- * Shared descriptors for PDCP protocol.
+ * @file pdcp.h
+ * @brief PDCP Shared Descriptor Constructors
+ *        Shared descriptors for PDCP protocol.
  */
 
 /**
- * PDCP_NULL_MAX_FRAME_LEN - The maximum frame frame length that is supported by
- *                           PDCP NULL protocol.
+ * @defgroup descriptor_lib_group RTA Descriptors Library
+ * @{
+ */
+/** @} end of descriptor_lib_group */
+
+/**
+ * @defgroup defines_group Auxiliary Defines
+ * @ingroup descriptor_lib_group
+ * @{
+ */
+
+/**
+ * @def PDCP_NULL_MAX_FRAME_LEN
+ * The maximum frame frame length that is supported by PDCP NULL protocol.
  */
 #define PDCP_NULL_MAX_FRAME_LEN		0x00002FFF
 
 /**
- * PDCP_MAC_I_LEN - The length of the MAC-I for PDCP protocol operation
+ * @def PDCP_MAC_I_LEN
+ * The length of the MAC-I for PDCP protocol operation.
  */
 #define PDCP_MAC_I_LEN			0x00000004
 
 /**
- * PDCP_MAX_FRAME_LEN_STATUS - The status returned in FD status/command field in
- *                             case the input frame is larger than
- *                             PDCP_NULL_MAX_FRAME_LEN.
+ * @def PDCP_MAX_FRAME_LEN_STATUS
+ * The status returned in FD status/command field in case the input frame
+ * is larger than PDCP_NULL_MAX_FRAME_LEN.
  */
 #define PDCP_MAX_FRAME_LEN_STATUS	0xF1
 
 /**
- * PDCP_C_PLANE_SN_MASK - This mask is used in the PDCP descriptors for
- *                        extracting the sequence number (SN) from the PDCP
- *                        Control Plane header. For PDCP Control Plane, the SN
- *                        is constant (5 bits) as opposed to PDCP Data Plane
- *                        (7/12/15 bits).
+ * @def PDCP_C_PLANE_SN_MASK
+ * This mask is used in the PDCP descriptors for extracting the sequence
+ * number (SN) from the PDCP Control Plane header. For PDCP Control Plane,
+ * the SN is constant (5 bits) as opposed to PDCP Data Plane (7/12/15 bits).
  */
 #define PDCP_C_PLANE_SN_MASK		0x0000001F
 
 /**
- * PDCP_U_PLANE_15BIT_SN_MASK - This mask is used in the PDCP descriptors for
- *                              extracting the sequence number (SN) from the
- *                              PDCP User Plane header. For PDCP Control Plane,
- *                              the SN is constant (5 bits) as opposed to PDCP
- *                              Data Plane (7/12/15 bits).
+ * @def PDCP_U_PLANE_15BIT_SN_MASK
+ * This mask is used in the PDCP descriptors for extracting the sequence
+ * number (SN) from the PDCP User Plane header. For PDCP Control Plane,
+ * the SN is constant (5 bits) as opposed to PDCP Data Plane (7/12/15 bits).
  */
 #define PDCP_U_PLANE_15BIT_SN_MASK	0x00007FFF
 
 /**
- * PDCP_BEARER_MASK - This mask is used masking out the bearer for PDCP
- *                    processing with SNOW f9 in LTE.
- *
- * The value on which this mask is applied is formatted as below:
+ * @def PDCP_BEARER_MASK
+ * This mask is used masking out the bearer for PDCP processing with SNOW f9
+ * in LTE.
+ * @note The value on which this mask is applied is formatted as below:
  *     Count-C (32 bit) | Bearer (5 bit) | Direction (1 bit) | 0 (26 bits)
- *
  * Applying this mask is done for creating the upper 64 bits of the IV needed
  * for SNOW f9.
- *
  * The lower 32 bits of the mask are used for masking the direction for AES
  * CMAC IV.
  */
 #define PDCP_BEARER_MASK		0xFFFFFFFF04000000ull
 
 /**
- * PDCP_DIR_MASK - This mask is used masking out the direction for PDCP
- *                 processing with SNOW f9 in LTE.
- *
- * The value on which this mask is applied is formatted as below:
+ * @def PDCP_DIR_MASK
+ * This mask is used masking out the direction for PDCP processing with SNOW f9
+ * in LTE.
+ * @note The value on which this mask is applied is formatted as below:
  *     Bearer (5 bit) | Direction (1 bit) | 0 (26 bits)
- *
  * Applying this mask is done for creating the lower 32 bits of the IV needed
  * for SNOW f9.
- *
  * The upper 32 bits of the mask are used for masking the direction for AES
  * CMAC IV.
  */
 #define PDCP_DIR_MASK			0xF800000000000000ull
 
 /**
- * PDCP_NULL_INT_MAC_I_VAL - The value of the PDCP PDU MAC-I in case NULL
- *                           integrity is used.
+ * @def PDCP_NULL_INT_MAC_I_VAL
+ * The value of the PDCP PDU MAC-I in case NULL integrity is used.
  */
 
 #define PDCP_NULL_INT_MAC_I_VAL		0x00000000
 
 /**
- * PDCP_NULL_INT_ICV_CHECK_FAILED_STATUS - The status used to report ICV check
- *                                         failed in case of NULL integrity
- *                                         Control Plane processing.
+ * @def PDCP_NULL_INT_ICV_CHECK_FAILED_STATUS
+ * The status used to report ICV check failed in case of NULL integrity
+ * Control Plane processing.
  */
 #define PDCP_NULL_INT_ICV_CHECK_FAILED_STATUS	0x0A
+
 /**
- * PDCP_DPOVRD_HFN_OV_EN - Value to be used in the FD status/cmd field to
- *                         indicate the HFN override mechanism is active for the
- *                         frame.
+ * @def PDCP_DPOVRD_HFN_OV_EN
+ * Value to be used in the FD status/cmd field to indicate the HFN override
+ * mechanism is active for the frame.
  */
 #define PDCP_DPOVRD_HFN_OV_EN		0x80000000
 
 /**
- * PDCP_P4080REV2_HFN_OV_BUFLEN - The length in bytes of the supplementary space
- *                                that must be provided by the user at the
- *                                beginning of the input frame buffer for
- *                                P4080 REV 2.
- *
- * The format of the frame buffer is the following:
+ * @def PDCP_P4080REV2_HFN_OV_BUFLEN
+ * The length in bytes of the supplementary space that must be provided by the
+ * user at the beginning of the input frame buffer for P4080 REV 2.
+ * @note The format of the frame buffer is the following:
  *
  *  |<---PDCP_P4080REV2_HFN_OV_BUFLEN-->|
  * //===================================||============||==============\\
@@ -120,77 +127,70 @@
  */
 #define PDCP_P4080REV2_HFN_OV_BUFLEN	4
 
+/** @} */ /* end of defines_group */
+
 /**
- * enum cipher_type_pdcp - Type selectors for cipher types in PDCP protocol OP
- *                         instructions.
- * @PDCP_CIPHER_TYPE_NULL: NULL
- * @PDCP_CIPHER_TYPE_SNOW: SNOW F8
- * @PDCP_CIPHER_TYPE_AES: AES
- * @PDCP_CIPHER_TYPE_ZUC: ZUCE
- * @PDCP_CIPHER_TYPE_INVALID: invalid option
+ * @defgroup typedefs_group Auxiliary Data Structures
+ * @ingroup descriptor_lib_group
+ * @{
+ */
+
+/**
+ * @enum cipher_type_pdcp pdcp.h
+ * @details Type selectors for cipher types in PDCP protocol OP instructions.
  */
 enum cipher_type_pdcp {
-	PDCP_CIPHER_TYPE_NULL,
-	PDCP_CIPHER_TYPE_SNOW,
-	PDCP_CIPHER_TYPE_AES,
-	PDCP_CIPHER_TYPE_ZUC,
-	PDCP_CIPHER_TYPE_INVALID
+	PDCP_CIPHER_TYPE_NULL, /**< NULL */
+	PDCP_CIPHER_TYPE_SNOW, /**< SNOW F8 */
+	PDCP_CIPHER_TYPE_AES, /**< AES */
+	PDCP_CIPHER_TYPE_ZUC, /**< ZUCE */
+	PDCP_CIPHER_TYPE_INVALID /**< invalid option */
 };
 
 /**
- * enum auth_type_pdcp - Type selectors for integrity types in PDCP protocol OP
- *                       instructions.
- * @PDCP_AUTH_TYPE_NULL: NULL
- * @PDCP_AUTH_TYPE_SNOW: SNOW F9
- * @PDCP_AUTH_TYPE_AES: AES CMAC
- * @PDCP_AUTH_TYPE_ZUC: ZUCA
- * @PDCP_AUTH_TYPE_INVALID: invalid option
+ * @enum auth_type_pdcp pdcp.h
+ * @details Type selectors for integrity types in PDCP protocol OP instructions.
  */
 enum auth_type_pdcp {
-	PDCP_AUTH_TYPE_NULL,
-	PDCP_AUTH_TYPE_SNOW,
-	PDCP_AUTH_TYPE_AES,
-	PDCP_AUTH_TYPE_ZUC,
-	PDCP_AUTH_TYPE_INVALID
+	PDCP_AUTH_TYPE_NULL, /**< NULL */
+	PDCP_AUTH_TYPE_SNOW, /**< SNOW F9 */
+	PDCP_AUTH_TYPE_AES, /**< AES CMAC */
+	PDCP_AUTH_TYPE_ZUC, /**< ZUCA */
+	PDCP_AUTH_TYPE_INVALID /**< invalid option */
 };
 
 /**
- * enum pdcp_dir - Type selectors for direction for PDCP protocol
- * @PDCP_DIR_UPLINK: uplink direction
- * @PDCP_DIR_DOWNLINK: downlink direction
- * @PDCP_DIR_INVALID: invalid option
+ * @enum pdcp_dir pdcp.h
+ * @details Type selectors for direction for PDCP protocol.
  */
 enum pdcp_dir {
-	PDCP_DIR_UPLINK = 0,
-	PDCP_DIR_DOWNLINK = 1,
-	PDCP_DIR_INVALID
+	PDCP_DIR_UPLINK = 0, /**< uplink direction */
+	PDCP_DIR_DOWNLINK = 1, /**< downlink direction */
+	PDCP_DIR_INVALID /**< invalid option */
 };
 
 /**
- * enum pdcp_plane - PDCP domain selectors
- * @PDCP_CONTROL_PLANE: Control Plane
- * @PDCP_DATA_PLANE: Data Plane
- * @PDCP_SHORT_MAC: Short MAC
+ * @enum pdcp_plane pdcp.h
+ * @details PDCP domain selectors.
  */
 enum pdcp_plane {
-	PDCP_CONTROL_PLANE,
-	PDCP_DATA_PLANE,
-	PDCP_SHORT_MAC
+	PDCP_CONTROL_PLANE, /**< Control Plane */
+	PDCP_DATA_PLANE, /**< Data Plane */
+	PDCP_SHORT_MAC /**< Short MAC */
 };
 
 /**
- * enum pdcp_sn_size - Sequence Number Size selectors for PDCP protocol
- * @PDCP_SN_SIZE_5: 5bit sequence number
- * @PDCP_SN_SIZE_7: 7bit sequence number
- * @PDCP_SN_SIZE_12: 12bit sequence number
- * @PDCP_SN_SIZE_15: 15bit sequence number
+ * @enum pdcp_sn_size pdcp.h
+ * @details Sequence Number Size selectors for PDCP protocol.
  */
 enum pdcp_sn_size {
-	PDCP_SN_SIZE_5 = 5,
-	PDCP_SN_SIZE_7 = 7,
-	PDCP_SN_SIZE_12 = 12,
-	PDCP_SN_SIZE_15 = 15
+	PDCP_SN_SIZE_5 = 5, /**< 5bit sequence number */
+	PDCP_SN_SIZE_7 = 7, /**< 7bit sequence number */
+	PDCP_SN_SIZE_12 = 12, /**< 12bit sequence number */
+	PDCP_SN_SIZE_15 = 15 /**< 15bit sequence number */
 };
+
+/** @} */ /* end of typedefs_group */
 
 /*
  * PDCP Control Plane Protocol Data Blocks
@@ -233,6 +233,13 @@ enum pdb_type_e {
 	PDCP_PDB_TYPE_REDUCED_PDB,
 	PDCP_PDB_TYPE_INVALID
 };
+
+/**
+ * @defgroup sharedesc_group Shared Descriptor Example Routines
+ * @ingroup descriptor_lib_group
+ * @{
+ */
+/** @} end of sharedesc_group */
 
 /*
  * Function for appending the portion of a PDCP Control Plane shared descriptor
@@ -1806,29 +1813,29 @@ static inline int cnstr_pdcp_u_plane_pdb(struct program *p,
 	return 0;
 }
 /**
- * cnstr_shdsc_pdcp_c_plane_encap - Function for creating a PDCP Control Plane
- *                                  encapsulation descriptor.
- * @descbuf: pointer to buffer for descriptor construction
- * @ps: if 36/40bit addressing is desired, this parameter must be true
- * @swap: must be true when core endianness doesn't match SEC endianness
- * @hfn: starting Hyper Frame Number to be used together with the SN from the
- *       PDCP frames.
- * @bearer: radio bearer ID
- * @direction: the direction of the PDCP frame (UL/DL)
- * @hfn_threshold: HFN value that once reached triggers a warning from SEC that
- *                 keys should be renegotiated at the earliest convenience.
- * @cipherdata: pointer to block cipher transform definitions
- *              Valid algorithm values are those from cipher_type_pdcp enum.
- * @authdata: pointer to authentication transform definitions
+ * @details Function for creating a PDCP Control Plane encapsulation descriptor.
+ * @ingroup sharedesc_group
+ * @param[in,out] descbuf pointer to buffer for descriptor construction
+ * @param[in] ps if 36/40bit addressing is desired, this parameter must be true
+ * @param[in] swap must be true when core endianness doesn't match
+ *            SEC endianness
+ * @param[in] hfn starting Hyper Frame Number to be used together with the SN
+ *            from the PDCP frames.
+ * @param[in] bearer radio bearer ID
+ * @param[in] direction the direction of the PDCP frame (UL/DL)
+ * @param[in] hfn_threshold HFN value that once reached triggers a warning from
+ *            SEC that keys should be renegotiated at the earliest convenience.
+ * @param[in] cipherdata pointer to block cipher transform definitions
+ *            Valid algorithm values are those from cipher_type_pdcp enum.
+ * @param[in] authdata pointer to authentication transform definitions
  *            Valid algorithm values are those from auth_type_pdcp enum.
- * @era_2_sw_hfn_override: if software HFN override mechanism is desired for
- *                         this descriptor. Note: Can only be used for
- *                         SEC ERA 2.
- * Return: size of descriptor written in words or negative number on error.
+ * @param[in] era_2_sw_hfn_override if software HFN override mechanism is
+ *            desired for this descriptor.
+ *            @note: Can only be used for SEC ERA 2.
+ * @return size of descriptor written in words or negative number on error.
  *         Once the function returns, the value of this parameter can be used
  *         for reclaiming the space that wasn't used for the descriptor.
- *
- * Note: descbuf must be large enough to contain a full 256 byte long
+ * @note @p descbuf must be large enough to contain a full 256 byte long
  * descriptor; after the function returns, by subtracting the actual number of
  * bytes used, the user can reuse the remaining buffer space for other purposes.
  */
@@ -1948,30 +1955,29 @@ static inline int cnstr_shdsc_pdcp_c_plane_encap(uint32_t *descbuf,
 }
 
 /**
- * cnstr_shdsc_pdcp_c_plane_decap - Function for creating a PDCP Control Plane
- *                                  decapsulation descriptor.
- * @descbuf: pointer to buffer for descriptor construction
- * @ps: if 36/40bit addressing is desired, this parameter must be true
- * @swap: must be true when core endianness doesn't match SEC endianness
- * @hfn: starting Hyper Frame Number to be used together with the SN from the
- *       PDCP frames.
- * @bearer: radio bearer ID
- * @direction: the direction of the PDCP frame (UL/DL)
- * @hfn_threshold: HFN value that once reached triggers a warning from SEC that
- *                 keys should be renegotiated at the earliest convenience.
- * @cipherdata: pointer to block cipher transform definitions
- *              Valid algorithm values are those from cipher_type_pdcp enum.
- * @authdata: pointer to authentication transform definitions
+ * @details Function for creating a PDCP Control Plane decapsulation descriptor.
+ * @ingroup sharedesc_group
+ * @param[in,out] descbuf pointer to buffer for descriptor construction
+ * @param[in] ps if 36/40bit addressing is desired, this parameter must be true
+ * @param[in] swap must be true when core endianness doesn't match
+ *            SEC endianness
+ * @param[in] hfn starting Hyper Frame Number to be used together with the SN
+ *            from the PDCP frames.
+ * @param[in] bearer radio bearer ID
+ * @param[in] direction the direction of the PDCP frame (UL/DL)
+ * @param[in] hfn_threshold HFN value that once reached triggers a warning from
+ *            SEC that keys should be renegotiated at the earliest convenience.
+ * @param[in] cipherdata pointer to block cipher transform definitions
+ *            Valid algorithm values are those from cipher_type_pdcp enum.
+ * @param[in] authdata pointer to authentication transform definitions
  *            Valid algorithm values are those from auth_type_pdcp enum.
- * @era_2_sw_hfn_override: if software HFN override mechanism is desired for
- *                         this descriptor. Note: Can only be used for
- *                         SEC ERA 2.
- *
- * Return: size of descriptor written in words or negative number on error.
+ * @param[in] era_2_sw_hfn_override if software HFN override mechanism is
+ *            desired for this descriptor.
+ *            @note Can only be used for SEC ERA 2.
+ * @return size of descriptor written in words or negative number on error.
  *         Once the function returns, the value of this parameter can be used
  *         for reclaiming the space that wasn't used for the descriptor.
- *
- * Note: descbuf must be large enough to contain a full 256 byte long
+ * @note @p descbuf must be large enough to contain a full 256 byte long
  * descriptor; after the function returns, by subtracting the actual number of
  * bytes used, the user can reuse the remaining buffer space for other purposes.
  */
@@ -2090,29 +2096,28 @@ static inline int cnstr_shdsc_pdcp_c_plane_decap(uint32_t *descbuf,
 }
 
 /**
- * cnstr_shdsc_pdcp_u_plane_encap - Function for creating a PDCP User Plane
- *                                  encapsulation descriptor.
- * @descbuf: pointer to buffer for descriptor construction
- * @ps: if 36/40bit addressing is desired, this parameter must be true
- * @swap: must be true when core endianness doesn't match SEC endianness
- * @sn_size: selects Sequence Number Size: 7/12/15 bits
- * @hfn: starting Hyper Frame Number to be used together with the SN from the
- *       PDCP frames.
- * @bearer: radio bearer ID
- * @direction: the direction of the PDCP frame (UL/DL)
- * @hfn_threshold: HFN value that once reached triggers a warning from SEC that
- *                 keys should be renegotiated at the earliest convenience.
- * @cipherdata: pointer to block cipher transform definitions
- *              Valid algorithm values are those from cipher_type_pdcp enum.
- * @era_2_sw_hfn_override: if software HFN override mechanism is desired for
- *                         this descriptor. Note: Can only be used for
- *                         SEC ERA 2.
- *
- * Return: size of descriptor written in words or negative number on error.
+ * @details Function for creating a PDCP User Plane encapsulation descriptor.
+ * @ingroup sharedesc_group
+ * @param[in,out] descbuf pointer to buffer for descriptor construction
+ * @param[in] ps if 36/40bit addressing is desired, this parameter must be true
+ * @param[in] swap must be true when core endianness doesn't match
+ *            SEC endianness
+ * @param[in] sn_size selects Sequence Number Size: 7/12/15 bits
+ * @param[in] hfn starting Hyper Frame Number to be used together with the SN
+ *            from the PDCP frames.
+ * @param[in] bearer radio bearer ID
+ * @param[in] direction the direction of the PDCP frame (UL/DL)
+ * @param[in] hfn_threshold HFN value that once reached triggers a warning from
+ *            SEC that keys should be renegotiated at the earliest convenience.
+ * @param[in] cipherdata pointer to block cipher transform definitions
+ *            Valid algorithm values are those from cipher_type_pdcp enum.
+ * @param[in] era_2_sw_hfn_override if software HFN override mechanism is
+ *            desired for this descriptor.
+ *            @note: Can only be used for SEC ERA 2.
+ * @return size of descriptor written in words or negative number on error.
  *         Once the function returns, the value of this parameter can be used
  *         for reclaiming the space that wasn't used for the descriptor.
- *
- * Note: descbuf must be large enough to contain a full 256 byte long
+ * @note @p descbuf must be large enough to contain a full 256 byte long
  * descriptor; after the function returns, by subtracting the actual number of
  * bytes used, the user can reuse the remaining buffer space for other purposes.
  */
@@ -2216,29 +2221,28 @@ static inline int cnstr_shdsc_pdcp_u_plane_encap(uint32_t *descbuf,
 }
 
 /**
- * cnstr_shdsc_pdcp_u_plane_decap - Function for creating a PDCP User Plane
- *                                  decapsulation descriptor.
- * @descbuf: pointer to buffer for descriptor construction
- * @ps: if 36/40bit addressing is desired, this parameter must be true
- * @swap: must be true when core endianness doesn't match SEC endianness
- * @sn_size: selects Sequence Number Size: 7/12/15 bits
- * @hfn: starting Hyper Frame Number to be used together with the SN from the
- *       PDCP frames.
- * @bearer: radio bearer ID
- * @direction: the direction of the PDCP frame (UL/DL)
- * @hfn_threshold: HFN value that once reached triggers a warning from SEC that
- *                 keys should be renegotiated at the earliest convenience.
- * @cipherdata: pointer to block cipher transform definitions
- *              Valid algorithm values are those from cipher_type_pdcp enum.
- * @era_2_sw_hfn_override: if software HFN override mechanism is desired for
- *                         this descriptor. Note: Can only be used for
- *                         SEC ERA 2.
- *
- * Return: size of descriptor written in words or negative number on error.
+ * @details Function for creating a PDCP User Plane decapsulation descriptor.
+ * @ingroup sharedesc_group
+ * @param[in,out] descbuf pointer to buffer for descriptor construction
+ * @param[in] ps if 36/40bit addressing is desired, this parameter must be true
+ * @param[in] swap must be true when core endianness doesn't match
+ *            SEC endianness
+ * @param[in] sn_size selects Sequence Number Size: 7/12/15 bits
+ * @param[in] hfn starting Hyper Frame Number to be used together with the SN
+ *            from the PDCP frames.
+ * @param[in] bearer radio bearer ID
+ * @param[in] direction the direction of the PDCP frame (UL/DL)
+ * @param[in] hfn_threshold HFN value that once reached triggers a warning from
+ *            SEC that keys should be renegotiated at the earliest convenience.
+ * @param[in] cipherdata pointer to block cipher transform definitions
+ *            Valid algorithm values are those from cipher_type_pdcp enum.
+ * @param[in] era_2_sw_hfn_override if software HFN override mechanism is
+ *            desired for this descriptor.
+ *            @note Can only be used for SEC ERA 2.
+ * @return size of descriptor written in words or negative number on error.
  *         Once the function returns, the value of this parameter can be used
  *         for reclaiming the space that wasn't used for the descriptor.
- *
- * Note: descbuf must be large enough to contain a full 256 byte long
+ * @note @p descbuf must be large enough to contain a full 256 byte long
  * descriptor; after the function returns, by subtracting the actual number of
  * bytes used, the user can reuse the remaining buffer space for other purposes.
  */
@@ -2342,19 +2346,18 @@ static inline int cnstr_shdsc_pdcp_u_plane_decap(uint32_t *descbuf,
 }
 
 /**
- * cnstr_shdsc_pdcp_short_mac - Function for creating a PDCP Short MAC
- *                              descriptor.
- * @descbuf: pointer to buffer for descriptor construction
- * @ps: if 36/40bit addressing is desired, this parameter must be true
- * @swap: must be true when core endianness doesn't match SEC endianness
- * @authdata: pointer to authentication transform definitions
+ * @details Function for creating a PDCP Short MAC descriptor.
+ * @ingroup sharedesc_group
+ * @param[in,out] descbuf pointer to buffer for descriptor construction
+ * @param[in] ps if 36/40bit addressing is desired, this parameter must be true
+ * @param[in] swap must be true when core endianness doesn't match
+ *            SEC endianness
+ * @param[in] authdata pointer to authentication transform definitions
  *            Valid algorithm values are those from auth_type_pdcp enum.
- *
- * Return: size of descriptor written in words or negative number on error.
+ * @return size of descriptor written in words or negative number on error.
  *         Once the function returns, the value of this parameter can be used
  *         for reclaiming the space that wasn't used for the descriptor.
- *
- * Note: descbuf must be large enough to contain a full 256 byte long
+ * @note @p descbuf must be large enough to contain a full 256 byte long
  * descriptor; after the function returns, by subtracting the actual number of
  * bytes used, the user can reuse the remaining buffer space for other purposes.
  */

@@ -1,5 +1,6 @@
 /*
  * Copyright 2008-2013 Freescale Semiconductor, Inc.
+ * Copyright 2018 NXP
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -11,151 +12,191 @@
 #include "common.h"
 
 /**
- * DOC: MBMS Shared Descriptor Constructors
- *
- * Shared descriptors for MBMS protocol.
+ * @file mbms.h
+ * @brief MBMS Shared Descriptor Constructors
+ *        Shared descriptors for MBMS protocol.
  */
 
 /**
- * MBMS_HEADER_POLY - CRC6 polynomial for MBMS PDU header.
- *                    Equals to D^6 + D^5 + D^3 + D^2 + D^1 + 1.
+ * @defgroup descriptor_lib_group RTA Descriptors Library
+ * @{
+ */
+/** @} end of descriptor_lib_group */
+
+/**
+ * @defgroup defines_group Auxiliary Defines
+ * @ingroup descriptor_lib_group
+ * @{
+ */
+
+/**
+ * @def MBMS_HEADER_POLY
+ * CRC6 polynomial for MBMS PDU header.
+ * Equals to D^6 + D^5 + D^3 + D^2 + D^1 + 1.
  */
 #define MBMS_HEADER_POLY	0xBC000000
 
 /**
- * MBMS_PAYLOAD_POLY - CRC10 polynomial for MBMS PDU header.
- *                     Equals to D^10 + D^9 + D^5 + D^4 + D^1 + 1.
+ * @def MBMS_PAYLOAD_POLY
+ * CRC10 polynomial for MBMS PDU header.
+ * Equals to D^10 + D^9 + D^5 + D^4 + D^1 + 1.
  */
 #define MBMS_PAYLOAD_POLY	0x8CC00000
 
 /**
- * MBMS_TYPE0_HDR_LEN - The length of a MBMS Type 0 PDU header
+ * @def MBMS_TYPE0_HDR_LEN
+ * The length of a MBMS Type 0 PDU header
  */
 #define MBMS_TYPE0_HDR_LEN	18
 
 /**
- * MBMS_TYPE1_HDR_LEN - The length of a MBMS Type 1 PDU header
+ * @def MBMS_TYPE1_HDR_LEN
+ * The length of a MBMS Type 1 PDU header
  */
 #define MBMS_TYPE1_HDR_LEN	11
 
 /**
- * MBMS_TYPE3_HDR_LEN - The length of a MBMS Type 3 PDU header
+ * @def MBMS_TYPE3_HDR_LEN
+ * The length of a MBMS Type 3 PDU header
  */
 #define MBMS_TYPE3_HDR_LEN	19
 
 /**
- * DUMMY_BUF_BASE - A dummy address used as immediate value when reading the
- *                  parser result from before the frame buffer.
+ * @def DUMMY_BUF_BASE
+ * A dummy address used as immediate value when reading the parser result
+ * from before the frame buffer
  */
 #define DUMMY_BUF_BASE		0xDEADC000
 
 /**
- * HDR_PAYLOAD_MASK - Mask to be used for extracting only the header CRC from
- *                    the corresponding field in the MBMS Type 1 & 3 PDUs SYNC
- *                    headers.
+ * @def HDR_CRC_MASK
+ * Mask to be used for extracting only the header CRC from the corresponding
+ * field in the MBMS Type 1 & 3 PDUs SYNC headers
  */
 #define HDR_CRC_MASK		0xFC00000000000000ll
 
 /**
- * FM_RX_PRIV_SIZE - Size of the private part, reserved for DPA ETH in the
- *                   buffer before the frame.
+ * @def FM_RX_PRIV_SIZE
+ * Size of the private part, reserved for DPA ETH in the buffer before the frame
  */
 #define FM_RX_PRIV_SIZE		0x10
 
 /**
- * FM_RX_EXTRA_HEADROOM - The size of the extra space reserved by Frame Manager
- *                        at the beginning of a data buffer on the receive path.
+ * @def FM_RX_EXTRA_HEADROOM
+ * The size of the extra space reserved by Frame Manager at the beginning of
+ * a data buffer on the receive path
  */
 #define FM_RX_EXTRA_HEADROOM	0x40
 
 /**
- * IC_PR_OFFSET - Offset of the Parser Results field in the Internal Context
- *                field.
+ * @def IC_PR_OFFSET
+ * Offset of the Parser Results field in the Internal Context field
  */
 #define IC_PR_OFFSET		0x20
 
 /**
- * PR_L4_OFFSET - Offset of the L4 header offset result in the Parser Results
- *                field.
+ * @def PR_L4_OFFSET
+ * Offset of the L4 header offset result in the Parser Results field
  */
 #define PR_L4_OFFSET		0x1E
 
 /**
- * BUF_IC_OFFSET - Offset of the Internal Context in the buffer before the frame
+ * @def BUF_IC_OFFSET
+ * Offset of the Internal Context in the buffer before the frame
  */
 #define BUF_IC_OFFSET		(FM_RX_PRIV_SIZE + FM_RX_EXTRA_HEADROOM)
 
 /**
- * BUF_PR_OFFSET - Offset of the Parser Results in the buffer before the frame
+ * @def BUF_PR_OFFSET
+ * Offset of the Parser Results in the buffer before the frame
  */
 #define BUF_PR_OFFSET		(BUF_IC_OFFSET + IC_PR_OFFSET)
 
 /**
- * BUF_L4_OFFSET - Offset of the L4 header offset in the buffer before the frame
+ * @def BUF_L4_OFFSET
+ * Offset of the L4 header offset in the buffer before the frame
  */
 #define BUF_L4_OFFSET		(BUF_PR_OFFSET + PR_L4_OFFSET)
 
 /**
- * UDP_HDR_LEN - The length of the UDP header
+ * @def UDP_HDR_LEN
+ * The length of the UDP header
  */
 #define UDP_HDR_LEN		8
 
 /**
- * GTP_HDR_LEN - The length of the GTP header with no options and no sequence
- *               number
+ * @def GTP_HDR_LEN
+ * The length of the GTP header with no options and no sequence number
  */
 #define GTP_HDR_LEN		8
 
 /**
- * MBMS_HDR_OFFSET - MBMS header offset in the frame buffer
+ * @def MBMS_HDR_OFFSET
+ * MBMS header offset in the frame buffer
  */
 #define MBMS_HDR_OFFSET		(UDP_HDR_LEN + GTP_HDR_LEN)
 
 /**
- * MBMS_CRC_HDR_FAIL - Status returned by SEC in case the header CRC of the MBMS
- *                     PDU failed.
+ * @def MBMS_CRC_HDR_FAIL
+ * Status returned by SEC in case the header CRC of the MBMS PDU failed
  */
 #define MBMS_CRC_HDR_FAIL	0xAA
 
 /**
- * MBMS_CRC_PAYLOAD_FAIL - Status returned by SEC in case the payload CRC of the
- *                         MBMS PDU failed.
+ * @def MBMS_CRC_PAYLOAD_FAIL
+ * Status returned by SEC in case the payload CRC of the MBMS PDU failed
  */
 #define MBMS_CRC_PAYLOAD_FAIL	0xAB
 
+/** @} */ /* end of defines_group */
+
 /**
- * enum mbms_pdu_type - Type selectors for MBMS PDUs in SYNC protocol
- * @MBMS_PDU_TYPE0: MBMS PDU type 0
- * @MBMS_PDU_TYPE1: MBMS PDU type 1
- * @MBMS_PDU_TYPE2: MBMS PDU type 2 is not supported
- * @MBMS_PDU_TYPE3: MBMS PDU type 3
- * @MBMS_PDU_TYPE_INVALID: invalid option
+ * @defgroup typedefs_group Auxiliary Data Structures
+ * @ingroup descriptor_lib_group
+ * @{
+ */
+
+/**
+ * @enum mbms_pdu_type mbms.h
+ * @details Type selectors for MBMS PDUs in SYNC protocol
  */
 enum mbms_pdu_type {
-	MBMS_PDU_TYPE0,
-	MBMS_PDU_TYPE1,
-	MBMS_PDU_TYPE2,
-	MBMS_PDU_TYPE3,
-	MBMS_PDU_TYPE_INVALID
+	MBMS_PDU_TYPE0, /**< MBMS PDU type 0 */
+	MBMS_PDU_TYPE1, /**< MBMS PDU type 1 */
+	MBMS_PDU_TYPE2, /**< MBMS PDU type 2 is not supported */
+	MBMS_PDU_TYPE3, /**< MBMS PDU type 3 */
+	MBMS_PDU_TYPE_INVALID /**< invalid option */
 };
 
 /**
- * struct mbms_type_0_pdb - MBMS Type 0 PDB
- * @crc_header_fail: number of PDUs with incorrect header CRC
+ * @struct mbms_type_0_pdb mbms.h
+ * @details MBMS Type 0 PDB
  */
 struct mbms_type_0_pdb {
+	/** number of PDUs with incorrect header CRC */
 	uint32_t crc_header_fail;
 };
 
 /**
- * struct mbms_type_1_3_pdb - MBMS Type 1 and Type 3 PDB
- * @crc_header_fail: number of PDUs with incorrect header CRC
- * @crc_payload_fail: number of PDUs with incorrect payload CRC
+ * @struct mbms_type_1_3_pdb
+ * @details MBMS Type 1 and Type 3 PDB
  */
 struct mbms_type_1_3_pdb {
+	/** number of PDUs with incorrect header CRC */
 	uint32_t crc_header_fail;
+
+	/** number of PDUs with incorrect payload CRC */
 	uint32_t crc_payload_fail;
 };
+
+/** @} */ /* end of typedefs_group */
+
+/**
+ * @defgroup sharedesc_group Shared Descriptor Example Routines
+ * @ingroup descriptor_lib_group
+ * @{
+ */
+/** @} end of sharedesc_group */
 
 static inline void cnstr_shdsc_mbms_type0(uint32_t *descbuf, int *bufsize,
 					  bool ps, bool swap)
@@ -785,18 +826,19 @@ static inline unsigned cnstr_shdsc_mbms_type1_3(uint32_t *descbuf, int *bufsize,
 }
 
 /**
- * cnstr_shdsc_mbms - MBMS PDU CRC checking descriptor
- * @descbuf: pointer to buffer used for descriptor construction
- * @ps: if 36/40bit addressing is desired, this parameter must be true
- * @swap: must be true when core endianness doesn't match SEC endianness
- * @preheader_len: length to be set in the corresponding preheader field. Unless
- *                 the descriptor is split in multiple parts, this will be equal
- *                 to bufsize.
- * @pdu_type: type of the MBMS PDU required to be processed by this descriptor
- *
- * Return: size of descriptor written in words or negative number on error
- *
- * Note: This function can be called only for SEC ERA >= 5.
+ * @details MBMS PDU CRC checking descriptor
+ * @ingroup sharedesc_group
+ * @param[in,out] descbuf pointer to buffer used for descriptor construction
+ * @param[in] ps if 36/40bit addressing is desired, this parameter must be true
+ * @param[in] swap must be true when core endianness doesn't match
+ *            SEC endianness
+ * @param[out] preheader_len length to be set in the corresponding preheader
+ *             field. Unless the descriptor is split in multiple parts, this
+ *             will be equal to bufsize.
+ * @param[in] pdu_type type of the MBMS PDU required to be processed by this
+ *            descriptor
+ * @return size of descriptor written in words or negative number on error
+ * @note This function can be called only for SEC ERA >= 5
  */
 static inline int cnstr_shdsc_mbms(uint32_t *descbuf, bool ps, bool swap,
 				   unsigned *preheader_len,
@@ -834,12 +876,20 @@ static inline int cnstr_shdsc_mbms(uint32_t *descbuf, bool ps, bool swap,
 }
 
 /**
- * get_mbms_stats - Helper function for retrieving MBMS descriptor statistics
- * @descbuf: pointer to descriptor buffer, previously populated by the
- *           cnstr_shdsc_mbms() function.
- * @stats: points to a statistics structure matching the MBMS PDU type, as
- *         specified by the pdu_type parameter.
- * @pdu_type: MBMS PDU type
+ * @defgroup helper_group Shared Descriptor Helper Routines
+ * @ingroup descriptor_lib_group
+ * @{
+ */
+/** @} end of helper_group */
+
+/**
+ * @details Helper function for retrieving MBMS descriptor statistics.
+ * @ingroup helper_group
+ * @param[in,out] descbuf pointer to descriptor buffer, previously populated
+ *                by the cnstr_shdsc_mbms() function.
+ * @param[out] stats points to a statistics structure matching the MBMS PDU
+ *             type, as specified by the pdu_type parameter.
+ * @param[in] pdu_type MBMS PDU type
  */
 static inline void get_mbms_stats(uint32_t *descbuf,
 				  void *stats,

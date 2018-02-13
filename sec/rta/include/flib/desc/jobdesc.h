@@ -1,5 +1,6 @@
 /*
  * Copyright 2008-2013 Freescale Semiconductor, Inc.
+ * Copyright 2018 NXP
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -11,32 +12,37 @@
 #include "common.h"
 
 /**
- * DOC: Job Descriptor Constructors
- *
- * Job descriptors for certain tasks, like generating MDHA split keys.
+ * @file jobdesc.h
+ * @brief Job Descriptor Constructions
+ *        Job descriptors for certain tasks, like generating MDHA split keys.
  */
 
 /**
- * cnstr_jobdesc_mdsplitkey - Generate an MDHA split key
- * @descbuf: pointer to buffer to hold constructed descriptor
- * @ps: if 36/40bit addressing is desired, this parameter must be true
- * @swap: must be true when core endianness doesn't match SEC endianness
- * @alg_key: pointer to HMAC key to generate ipad/opad from
- * @keylen: HMAC key length
- * @cipher: HMAC algorithm selection, one of OP_ALG_ALGSEL_*
- *     The algorithm determines key size (bytes):
- *     -  OP_ALG_ALGSEL_MD5    - 16
- *     -  OP_ALG_ALGSEL_SHA1   - 20
- *     -  OP_ALG_ALGSEL_SHA224 - 28
- *     -  OP_ALG_ALGSEL_SHA256 - 32
- *     -  OP_ALG_ALGSEL_SHA384 - 48
- *     -  OP_ALG_ALGSEL_SHA512 - 64
- * @padbuf: pointer to buffer to store generated ipad/opad
- *
- * Split keys are IPAD/OPAD pairs. For details, refer to MDHA Split Keys chapter
- * in SEC Reference Manual.
- *
- * Return: size of descriptor written in words or negative number on error
+ * @defgroup jobdesc_group Job Descriptor Example Routines
+ * @ingroup descriptor_lib_group
+ * @{
+ */
+
+/**
+ * @details Generate an MDHA split key
+ *          Split keys are IPAD/OPAD pairs. For details, refer to
+ *          MDHA Split Keys chapter in SEC Reference Manual.
+ * @param[in,out] descbuf pointer to buffer to hold constructed descriptor
+ * @param[in] ps if 36/40bit addressing is desired, this parameter must be true
+ * @param[in] swap must be true when core endianness doesn't match
+ *            SEC endianness
+ * @param[in] alg_key pointer to HMAC key to generate ipad/opad from
+ * @param[in] keylen HMAC key length
+ * @param[in] cipher HMAC algorithm selection, one of OP_ALG_ALGSEL_*
+ *            The algorithm determines key size (bytes):
+ *            -  OP_ALG_ALGSEL_MD5    - 16
+ *            -  OP_ALG_ALGSEL_SHA1   - 20
+ *            -  OP_ALG_ALGSEL_SHA224 - 28
+ *            -  OP_ALG_ALGSEL_SHA256 - 32
+ *            -  OP_ALG_ALGSEL_SHA384 - 48
+ *            -  OP_ALG_ALGSEL_SHA512 - 64
+ * @param[in] padbuf pointer to buffer to store generated ipad/opad
+ * @return size of descriptor written in words or negative number on error
  */
 
 static inline int cnstr_jobdesc_mdsplitkey(uint32_t *descbuf, bool ps,
@@ -62,5 +68,7 @@ static inline int cnstr_jobdesc_mdsplitkey(uint32_t *descbuf, bool ps,
 	FIFOSTORE(p, MDHA_SPLIT_KEY, 0, padbuf, split_key_len(cipher), 0);
 	return PROGRAM_FINALIZE(p);
 }
+
+/** @} end of jobdesc_group */
 
 #endif /* __DESC_JOBDESC_H__ */

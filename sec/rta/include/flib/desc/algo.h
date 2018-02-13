@@ -1,5 +1,6 @@
 /*
  * Copyright 2008-2013 Freescale Semiconductor, Inc.
+ * Copyright 2018 NXP
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -11,23 +12,31 @@
 #include "common.h"
 
 /**
- * DOC: Algorithms - Shared Descriptor Constructors
- *
- * Shared descriptors for algorithms (i.e. not for protocols).
+ * @file algo.h
+ * @brief Algorithms - Shared Descriptor Constructors
+ *        Shared descriptors for algorithms (i.e. not for protocols).
  */
 
 /**
- * cnstr_shdsc_snow_f8 - SNOW/f8 (UEA2) as a shared descriptor
- * @descbuf: pointer to descriptor-under-construction buffer
- * @ps: if 36/40bit addressing is desired, this parameter must be true
- * @swap: must be true when core endianness doesn't match SEC endianness
- * @cipherdata: pointer to block cipher transform definitions
- * @dir: Cipher direction (DIR_ENC/DIR_DEC)
- * @count: UEA2 count value (32 bits)
- * @bearer: UEA2 bearer ID (5 bits)
- * @direction: UEA2 direction (1 bit)
- *
- * Return: size of descriptor written in words or negative number on error
+ * @defgroup sharedesc_group Shared Descriptor Example Routines
+ * @ingroup descriptor_lib_group
+ * @{
+ */
+/** @} end of sharedesc_group */
+
+/**
+ * @details SNOW/f8 (UEA2) as a shared descriptor
+ * @ingroup sharedesc_group
+ * @param[in,out] descbuf pointer to descriptor-under-construction buffer
+ * @param[in] ps if 36/40bit addressing is desired, this parameter must be true
+ * @param[in] swap must be true when core endianness doesn't match
+ *            SEC endianness
+ * @param[in] cipherdata pointer to block cipher transform definitions
+ * @param[in] dir cipher direction (DIR_ENC/DIR_DEC)
+ * @param[in] count UEA2 count value (32 bits)
+ * @param[in] bearer UEA2 bearer ID (5 bits)
+ * @param[in] direction UEA2 direction (1 bit)
+ * @return size of descriptor written in words or negative number on error
  */
 static inline int cnstr_shdsc_snow_f8(uint32_t *descbuf, bool ps, bool swap,
 			 struct alginfo *cipherdata, uint8_t dir,
@@ -66,18 +75,19 @@ static inline int cnstr_shdsc_snow_f8(uint32_t *descbuf, bool ps, bool swap,
 }
 
 /**
- * cnstr_shdsc_snow_f9 - SNOW/f9 (UIA2) as a shared descriptor
- * @descbuf: pointer to descriptor-under-construction buffer
- * @ps: if 36/40bit addressing is desired, this parameter must be true
- * @swap: must be true when core endianness doesn't match SEC endianness
- * @authdata: pointer to authentication transform definitions
- * @dir: cipher direction (DIR_ENC/DIR_DEC)
- * @count: UEA2 count value (32 bits)
- * @fresh: UEA2 fresh value ID (32 bits)
- * @direction: UEA2 direction (1 bit)
- * @datalen: size of data
- *
- * Return: size of descriptor written in words or negative number on error
+ * @details SNOW/f9 (UIA2) as a shared descriptor
+ * @ingroup sharedesc_group
+ * @param[in,out] descbuf pointer to descriptor-under-construction buffer
+ * @param[in] ps if 36/40bit addressing is desired, this parameter must be true
+ * @param[in] swap must be true when core endianness doesn't match
+ *            SEC endianness
+ * @param[in] authdata pointer to authentication transform definitions
+ * @param[in] dir cipher direction (DIR_ENC/DIR_DEC)
+ * @param[in] count UEA2 count value (32 bits)
+ * @param[in] fresh UEA2 fresh value ID (32 bits)
+ * @param[in] direction UEA2 direction (1 bit)
+ * @param[in] datalen size of data
+ * @return size of descriptor written in words or negative number on error
  */
 static inline int cnstr_shdsc_snow_f9(uint32_t *descbuf, bool ps, bool swap,
 			 struct alginfo *authdata, uint8_t dir, uint32_t count,
@@ -118,20 +128,22 @@ static inline int cnstr_shdsc_snow_f9(uint32_t *descbuf, bool ps, bool swap,
 }
 
 /**
- * cnstr_shdsc_blkcipher - block cipher transformation
- * @descbuf: pointer to descriptor-under-construction buffer
- * @ps: if 36/40bit addressing is desired, this parameter must be true
- * @swap: must be true when core endianness doesn't match SEC endianness
- * @cipherdata: pointer to block cipher transform definitions
- *              Valid algorithm values one of OP_ALG_ALGSEL_* {DES, 3DES, AES}
- *              Valid modes for:
- *                  AES: OP_ALG_AAI_* {CBC, CTR}
- *                  DES, 3DES: OP_ALG_AAI_CBC
- * @iv: IV data; if NULL, "ivlen" bytes from the input frame will be read as IV
- * @ivlen: IV length
- * @dir: DIR_ENC/DIR_DEC
- *
- * Return: size of descriptor written in words or negative number on error
+ * @details block cipher transformation
+ * @ingroup sharedesc_group
+ * @param[in,out] descbuf pointer to descriptor-under-construction buffer
+ * @param[in] ps if 36/40bit addressing is desired, this parameter must be true
+ * @param[in] swap must be true when core endianness doesn't match
+ *            SEC endianness
+ * @param[in] cipherdata pointer to block cipher transform definitions
+ *            Valid algorithm values one of OP_ALG_ALGSEL_* {DES, 3DES, AES}
+ *            Valid modes for:
+ *                AES: OP_ALG_AAI_* {CBC, CTR}
+ *                DES, 3DES: OP_ALG_AAI_CBC
+ * @param[in] iv IV data; if NULL, "ivlen" bytes from the input frame
+ *            will be read as IV
+ * @param[in] ivlen IV length
+ * @param[in] dir DIR_ENC/DIR_DEC
+ * @return size of descriptor written in words or negative number on error
  */
 static inline int cnstr_shdsc_blkcipher(uint32_t *descbuf, bool ps, bool swap,
 			       struct alginfo *cipherdata, uint8_t *iv,
@@ -203,21 +215,22 @@ static inline int cnstr_shdsc_blkcipher(uint32_t *descbuf, bool ps, bool swap,
 }
 
 /**
- * cnstr_shdsc_hmac - HMAC shared
- * @descbuf: pointer to descriptor-under-construction buffer
- * @ps: if 36/40bit addressing is desired, this parameter must be true
- * @swap: must be true when core endianness doesn't match SEC endianness
- * @authdata: pointer to authentication transform definitions;
+ * @details HMAC shared
+ * @ingroup sharedesc_group
+ * @param[in,out] descbuf pointer to descriptor-under-construction buffer
+ * @param[in] ps if 36/40bit addressing is desired, this parameter must be true
+ * @param[in] swap must be true when core endianness doesn't match
+ *            SEC endianness
+ * @param[in] authdata pointer to authentication transform definitions;
  *            message digest algorithm: OP_ALG_ALGSEL_MD5/ SHA1-512.
- * @do_icv: 0 if ICV checking is not desired, any other value if ICV checking
- *          is needed for all the packets processed by this shared descriptor
- * @trunc_len: Length of the truncated ICV to be written in the output buffer, 0
- *             if no truncation is needed
- *
- * Note: There's no support for keys longer than the block size of the
- * underlying hash function, according to the selected algorithm.
- *
- * Return: size of descriptor written in words or negative number on error
+ * @param[in] do_icv 0 if ICV checking is not desired, any other value
+ *            if ICV checking
+ *            is needed for all the packets processed by this shared descriptor
+ * @param[in] trunc_len Length of the truncated ICV to be written in
+ *            the output buffer, 0 if no truncation is needed
+ * @warning There's no support for keys longer than the block size of
+ *          the underlying hash function, according to the selected algorithm.
+ * @return size of descriptor written in words or negative number on error
  */
 static inline int cnstr_shdsc_hmac(uint32_t *descbuf, bool ps, bool swap,
 				   struct alginfo *authdata, uint8_t do_icv,
@@ -304,18 +317,19 @@ static inline int cnstr_shdsc_hmac(uint32_t *descbuf, bool ps, bool swap,
 }
 
 /**
- * cnstr_shdsc_kasumi_f8 - KASUMI F8 (Confidentiality) as a shared descriptor
- *                         (ETSI "Document 1: f8 and f9 specification")
- * @descbuf: pointer to descriptor-under-construction buffer
- * @ps: if 36/40bit addressing is desired, this parameter must be true
- * @swap: must be true when core endianness doesn't match SEC endianness
- * @cipherdata: pointer to block cipher transform definitions
- * @dir: cipher direction (DIR_ENC/DIR_DEC)
- * @count: count value (32 bits)
- * @bearer: bearer ID (5 bits)
- * @direction: direction (1 bit)
- *
- * Return: size of descriptor written in words or negative number on error
+ * @details KASUMI F8 (Confidentiality) as a shared descriptor
+ *          (ETSI "Document 1: f8 and f9 specification")
+ * @ingroup sharedesc_group
+ * @param[in,out] descbuf pointer to descriptor-under-construction buffer
+ * @param[in] ps if 36/40bit addressing is desired, this parameter must be true
+ * @param[in] swap must be true when core endianness doesn't match
+ *            SEC endianness
+ * @param[in] cipherdata pointer to block cipher transform definitions
+ * @param[in] dir cipher direction (DIR_ENC/DIR_DEC)
+ * @param[in] count count value (32 bits)
+ * @param[in] bearer bearer ID (5 bits)
+ * @param[in] direction direction (1 bit)
+ * @return size of descriptor written in words or negative number on error
  */
 static inline int cnstr_shdsc_kasumi_f8(uint32_t *descbuf, bool ps, bool swap,
 			   struct alginfo *cipherdata, uint8_t dir,
@@ -353,19 +367,20 @@ static inline int cnstr_shdsc_kasumi_f8(uint32_t *descbuf, bool ps, bool swap,
 }
 
 /**
- * cnstr_shdsc_kasumi_f9 -  KASUMI F9 (Integrity) as a shared descriptor
- *                          (ETSI "Document 1: f8 and f9 specification")
- * @descbuf: pointer to descriptor-under-construction buffer
- * @ps: if 36/40bit addressing is desired, this parameter must be true
- * @swap: must be true when core endianness doesn't match SEC endianness
- * @authdata: pointer to authentication transform definitions
- * @dir: cipher direction (DIR_ENC/DIR_DEC)
- * @count: count value (32 bits)
- * @fresh: fresh value ID (32 bits)
- * @direction: direction (1 bit)
- * @datalen: size of data
- *
- * Return: size of descriptor written in words or negative number on error
+ * @details KASUMI F9 (Integrity) as a shared descriptor
+ *          (ETSI "Document 1: f8 and f9 specification")
+ * @ingroup sharedesc_group
+ * @param[in,out] descbuf pointer to descriptor-under-construction buffer
+ * @param[in] ps if 36/40bit addressing is desired, this parameter must be true
+ * @param[in] swap must be true when core endianness doesn't match
+ *            SEC endianness
+ * @param[in] authdata pointer to authentication transform definitions
+ * @param[in] dir cipher direction (DIR_ENC/DIR_DEC)
+ * @param[in] count count value (32 bits)
+ * @param[in] fresh fresh value ID (32 bits)
+ * @param[in] direction direction (1 bit)
+ * @param[in] datalen size of data
+ * @return size of descriptor written in words or negative number on error
  */
 static inline int cnstr_shdsc_kasumi_f9(uint32_t *descbuf, bool ps, bool swap,
 			   struct alginfo *authdata, uint8_t dir,
@@ -403,11 +418,12 @@ static inline int cnstr_shdsc_kasumi_f9(uint32_t *descbuf, bool ps, bool swap,
 }
 
 /**
- * cnstr_shdsc_crc - CRC32 Accelerator (IEEE 802 CRC32 protocol mode)
- * @descbuf: pointer to descriptor-under-construction buffer
- * @swap: must be true when core endianness doesn't match SEC endianness
- *
- * Return: size of descriptor written in words or negative number on error
+ * @details CRC32 Accelerator (IEEE 802 CRC32 protocol mode)
+ * @ingroup sharedesc_group
+ * @param[in,out] descbuf pointer to descriptor-under-construction buffer
+ * @param[in] swap must be true when core endianness doesn't match
+ *            SEC endianness
+ * @return size of descriptor written in words or negative number on error
  */
 static inline int cnstr_shdsc_crc(uint32_t *descbuf, bool swap)
 {
@@ -431,17 +447,18 @@ static inline int cnstr_shdsc_crc(uint32_t *descbuf, bool swap)
 }
 
 /**
- * cnstr_shdsc_gcm_encap - AES-GCM encap as a shared descriptor
- * @descbuf: pointer to descriptor-under-construction buffer
- * @ps: if 36/40bit addressing is desired, this parameter must be true
- * @swap: must be true when core endianness doesn't match SEC endianness
- * @cipherdata: pointer to block cipher transform definitions
- *		Valid algorithm values - OP_ALG_ALGSEL_AES ANDed with
- *		OP_ALG_AAI_GCM.
- * @ivlen: Initialization vector length
- * @icvsize: integrity check value (ICV) size (truncated or full)
- *
- * Return: size of descriptor written in words or negative number on error
+ * @details AES-GCM encap as a shared descriptor
+ * @ingroup sharedesc_group
+ * @param[in,out] descbuf pointer to descriptor-under-construction buffer
+ * @param[in] ps if 36/40bit addressing is desired, this parameter must be true
+ * @param[in] swap must be true when core endianness doesn't match
+ *            SEC endianness
+ * @param[in] cipherdata pointer to block cipher transform definitions
+ *            Valid algorithm values - OP_ALG_ALGSEL_AES ANDed with
+ *            OP_ALG_AAI_GCM.
+ * @param[in] ivlen Initialization vector length
+ * @param[in] icvsize integrity check value (ICV) size (truncated or full)
+ * @return size of descriptor written in words or negative number on error
  */
 static inline int cnstr_shdsc_gcm_encap(uint32_t *descbuf, bool ps, bool swap,
 					struct alginfo *cipherdata,
@@ -543,16 +560,18 @@ static inline int cnstr_shdsc_gcm_encap(uint32_t *descbuf, bool ps, bool swap,
 }
 
 /**
- * cnstr_shdsc_gcm_decap - AES-GCM decap as a shared descriptor
- * @descbuf: pointer to descriptor-under-construction buffer
- * @ps: if 36/40bit addressing is desired, this parameter must be true
- * @swap: must be true when core endianness doesn't match SEC endianness
- * @cipherdata: pointer to block cipher transform definitions
- *		Valid algorithm values - OP_ALG_ALGSEL_AES ANDed with
- *		OP_ALG_AAI_GCM.
- * @icvsize: integrity check value (ICV) size (truncated or full)
- *
- * Return: size of descriptor written in words or negative number on error
+ * @details AES-GCM decap as a shared descriptor
+ * @ingroup sharedesc_group
+ * @param[in,out] descbuf pointer to descriptor-under-construction buffer
+ * @param[in] ps if 36/40bit addressing is desired, this parameter must be true
+ * @param[in] swap must be true when core endianness doesn't match
+ *            SEC endianness
+ * @param[in] cipherdata pointer to block cipher transform definitions
+ *            Valid algorithm values - OP_ALG_ALGSEL_AES ANDed with
+ *            OP_ALG_AAI_GCM.
+ * @param[in] ivlen Initialization vector length
+ * @param[in] icvsize integrity check value (ICV) size (truncated or full)
+ * @return size of descriptor written in words or negative number on error
  */
 static inline int cnstr_shdsc_gcm_decap(uint32_t *descbuf, bool ps, bool swap,
 					struct alginfo *cipherdata,

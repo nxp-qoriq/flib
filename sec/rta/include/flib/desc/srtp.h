@@ -1,5 +1,6 @@
 /*
  * Copyright 2008-2013 Freescale Semiconductor, Inc.
+ * Copyright 2018 NXP
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -11,9 +12,9 @@
 #include "common.h"
 
 /**
- * DOC: SRTP Shared Descriptor Constructors
- *
- * Shared descriptors for SRTP protocol.
+ * @file srtp.h
+ * @brief SRTP Shared Descriptor Constructors
+ *        Shared descriptors for SRTP protocol.
  */
 
 /*
@@ -29,51 +30,51 @@
 struct srtp_encap_pdb {
 	union {
 		struct {
-			uint8_t x_len;		/* RTP Extension length */
-			uint8_t mki_len;	/* MKI length */
-			uint8_t n_tag;		/* ICV length */
-			uint8_t options;	/* Options Byte */
+			uint8_t x_len;		/**< RTP Extension length */
+			uint8_t mki_len;	/**< MKI length */
+			uint8_t n_tag;		/**< ICV length */
+			uint8_t options;	/**< Options Byte */
 		};
 		uint32_t word1;
 	};
-	uint32_t cnst0;				/* Constant Bits */
+	uint32_t cnst0;				/**< Constant Bits */
 	union {
 		struct {
-			uint8_t rsvd[2];	/* Reserved Bits */
-			uint16_t cnst1;		/* Constant Bits */
+			uint8_t rsvd[2];	/**< Reserved Bits */
+			uint16_t cnst1;		/**< Constant Bits */
 		};
 		uint32_t word2;
 	};
-	uint8_t salt[SRTP_CIPHER_SALT_LEN];	/* Cipher Salt */
-	uint8_t cnst2[2];			/* Constant Bits */
-	uint32_t rsvd1;				/* Reserved Bits */
-	uint32_t roc;				/* Rollover Counter */
-	uint32_t opt_mki;			/* MKI */
+	uint8_t salt[SRTP_CIPHER_SALT_LEN];	/**< Cipher Salt */
+	uint8_t cnst2[2];			/**< Constant Bits */
+	uint32_t rsvd1;				/**< Reserved Bits */
+	uint32_t roc;				/**< Rollover Counter */
+	uint32_t opt_mki;			/**< MKI */
 };
 #else
 struct srtp_encap_pdb {
 	union {
 		struct {
-			uint8_t options;	/* Options Byte */
-			uint8_t n_tag;		/* ICV length */
-			uint8_t mki_len;	/* MKI length */
-			uint8_t x_len;		/* RTP Extension length */
+			uint8_t options;	/**< Options Byte */
+			uint8_t n_tag;		/**< ICV length */
+			uint8_t mki_len;	/**< MKI length */
+			uint8_t x_len;		/**< RTP Extension length */
 		};
 		uint32_t word1;
 	};
-	uint32_t cnst0;				/* Constant Bits */
+	uint32_t cnst0;				/**< Constant Bits */
 	union {
 		struct {
-			uint16_t cnst1;		/* Constant Bits */
-			uint8_t rsvd[2];	/* Reserved Bits */
+			uint16_t cnst1;		/**< Constant Bits */
+			uint8_t rsvd[2];	/**< Reserved Bits */
 		};
 		uint32_t word2;
 	};
-	uint8_t salt[SRTP_CIPHER_SALT_LEN];	/* Cipher Salt */
-	uint8_t cnst2[2];			/* Constant Bits */
-	uint32_t rsvd1;				/* Reserved Bits */
-	uint32_t roc;				/* Rollover Counter */
-	uint32_t opt_mki;			/* MKI */
+	uint8_t salt[SRTP_CIPHER_SALT_LEN];	/**< Cipher Salt */
+	uint8_t cnst2[2];			/**< Constant Bits */
+	uint32_t rsvd1;				/**< Reserved Bits */
+	uint32_t roc;				/**< Rollover Counter */
+	uint32_t opt_mki;			/**< MKI */
 };
 #endif
 
@@ -81,65 +82,65 @@ struct srtp_encap_pdb {
 struct srtp_decap_pdb {
 	union {
 		struct {
-			uint8_t x_len;		/* RTP Extension length */
-			uint8_t mki_len;	/* MKI length */
-			uint8_t n_tag;		/* ICV length */
-			uint8_t options;	/* Options Byte */
+			uint8_t x_len;		/**< RTP Extension length */
+			uint8_t mki_len;	/**< MKI length */
+			uint8_t n_tag;		/**< ICV length */
+			uint8_t options;	/**< Options Byte */
 		};
 		uint32_t word1;
 	};
-	uint32_t cnst0;				/* Constant Bits */
+	uint32_t cnst0;				/**< Constant Bits */
 	union {
 		struct {
-			uint8_t rsvd[2];	/* Reserved Bits */
-			uint16_t cnst1;		/* Constant Bits */
+			uint8_t rsvd[2];	/**< Reserved Bits */
+			uint16_t cnst1;		/**< Constant Bits */
 		};
 		uint32_t word2;
 	};
-	uint8_t salt[SRTP_CIPHER_SALT_LEN];	/* Cipher Salt */
-	uint8_t cnst2[2];			/* Constant Bits */
+	uint8_t salt[SRTP_CIPHER_SALT_LEN];	/**< Cipher Salt */
+	uint8_t cnst2[2];			/**< Constant Bits */
 	union {
 		struct {
-			uint16_t rsvd1;		/* Reserved Bits */
-			uint16_t seq_num;	/* Sequence Number */
+			uint16_t rsvd1;		/**< Reserved Bits */
+			uint16_t seq_num;	/**< Sequence Number */
 		};
 		uint32_t word4;
 	};
-	uint32_t roc;				/* Rollover Counter */
-	uint32_t antireplay_scorecard1;		/* Anti-replay Scorecard */
-	uint32_t antireplay_scorecard2;		/* Anti-replay Scorecard */
+	uint32_t roc;				/**< Rollover Counter */
+	uint32_t antireplay_scorecard1;		/**< Anti-replay Scorecard */
+	uint32_t antireplay_scorecard2;		/**< Anti-replay Scorecard */
 };
 #else
 struct srtp_decap_pdb {
 	union {
 		struct {
-			uint8_t options;	/* Options Byte */
-			uint8_t n_tag;		/* ICV length */
-			uint8_t mki_len;	/* MKI length */
-			uint8_t x_len;		/* RTP Extension length */
+			uint8_t options;	/**< Options Byte */
+			uint8_t n_tag;		/**< ICV length */
+			uint8_t mki_len;	/**< MKI length */
+			uint8_t x_len;		/**< RTP Extension length */
 		};
 		uint32_t word1;
 	};
-	uint32_t cnst0;				/* Constant Bits */
+	uint32_t cnst0;				/**< Constant Bits */
 	union {
 		struct {
-			uint16_t cnst1;		/* Constant Bits */
-			uint8_t rsvd[2];	/* Reserved Bits */
+			uint16_t cnst1;		/**< Constant Bits */
+			uint8_t rsvd[2];	/**< Reserved Bits */
 		};
 		uint32_t word2;
 	};
-	uint8_t salt[SRTP_CIPHER_SALT_LEN];	/* Cipher Salt */
-	uint8_t cnst2[2];			/* Constant Bits */
+	uint8_t salt[SRTP_CIPHER_SALT_LEN];	/**< Cipher Salt */
+	uint8_t cnst2[2];			/**< Constant Bits */
 	union {
 		struct {
-			uint16_t seq_num;	/* Sequence Number */
-			uint16_t rsvd1;		/* Reserved Bits */
+			uint16_t seq_num;	/**< Sequence Number */
+			uint16_t rsvd1;		/**< Reserved Bits */
 		};
 		uint32_t word4;
 	};
-	uint32_t roc;				/* Rollover Counter */
-	uint32_t antireplay_scorecard1;		/* Anti-replay Scorecard */
-	uint32_t antireplay_scorecard2;		/* Anti-replay Scorecard */
+	uint32_t roc;				/**< Rollover Counter */
+	uint32_t antireplay_scorecard1;		/**< Anti-replay Scorecard */
+	uint32_t antireplay_scorecard2;		/**< Anti-replay Scorecard */
 };
 #endif
 
@@ -169,18 +170,26 @@ static inline void __rta_copy_srtp_decap_pdb(struct program *p,
 	__rta_out32(p, decap_pdb->antireplay_scorecard1);
 	__rta_out32(p, decap_pdb->antireplay_scorecard2);
 }
+
 /**
- * cnstr_shdsc_srtp_encap - Function for creating a SRTP encapsulation
- *                          descriptor.
- * @descbuf: pointer to buffer used for descriptor construction
- * @swap: must be true when core endianness doesn't match SEC endianness
- * @authdata: pointer to authentication transform definitions
- * @cipherdata: pointer to block cipher transform definitions
- * @n_tag: value of ICV length
- * @roc: Rollover Counter
- * @cipher_salt: salt value
- *
- * Return: size of descriptor written in words or negative number on error
+ * @defgroup sharedesc_group Shared Descriptor Example Routines
+ * @ingroup descriptor_lib_group
+ * @{
+ */
+/** @} end of sharedesc_group */
+
+/**
+ * @details Function for creating a SRTP encapsulation descriptor.
+ * @ingroup sharedesc_group
+ * @param[in,out] descbuf pointer to buffer used for descriptor construction
+ * @param[in] swap must be true when core endianness doesn't match
+ *            SEC endianness
+ * @param[in] authdata pointer to authentication transform definitions
+ * @param[in] cipherdata pointer to block cipher transform definitions
+ * @param[in] n_tag value of ICV length
+ * @param[in] roc Rollover Counter
+ * @param[in] cipher_salt salt value
+ * @return size of descriptor written in words or negative number on error
  */
 static inline int cnstr_shdsc_srtp_encap(uint32_t *descbuf, bool swap,
 					 struct alginfo *authdata,
@@ -224,18 +233,18 @@ static inline int cnstr_shdsc_srtp_encap(uint32_t *descbuf, bool swap,
 }
 
 /**
- * cnstr_shdsc_srtp_decap - Function for creating a SRTP decapsulation
- *                          descriptor.
- * @descbuf: pointer to buffer used for descriptor construction
- * @swap: must be true when core endianness doesn't match SEC endianness
- * @authdata: pointer to authentication transform definitions
- * @cipherdata: pointer to block cipher transform definitions
- * @n_tag: value of ICV length
- * @roc: Rollover Counter
- * @seq_num: sequence number
- * @cipher_salt: salt value
- *
- * Return: size of descriptor written in words or negative number on error
+ * @details Function for creating a SRTP decapsulation descriptor.
+ * @ingroup sharedesc_group
+ * @param[in,out] descbuf pointer to buffer used for descriptor construction
+ * @param[in] swap must be true when core endianness doesn't match
+ *            SEC endianness
+ * @param[in] authdata pointer to authentication transform definitions
+ * @param[in] cipherdata pointer to block cipher transform definitions
+ * @param[in] n_tag value of ICV length
+ * @param[in] roc Rollover Counter
+ * @param[in] seq_num sequence number
+ * @param[in] cipher_salt salt value
+ * @return size of descriptor written in words or negative number on error
  */
 static inline int cnstr_shdsc_srtp_decap(uint32_t *descbuf, bool swap,
 					 struct alginfo *authdata,
